@@ -1,0 +1,22 @@
+{
+  "name": "Improve",
+  "version": "0.1.0",
+  "summary": "A short description of Improve.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/<GITHUB_USERNAME>/Improve",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "Justin Chapweske": "justin@improve.ai"
+  },
+  "source": {
+    "git": "https://github.com/<GITHUB_USERNAME>/Improve.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "Improve/Classes/**/*"
+}

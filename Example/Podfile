@@ -1,0 +1,7 @@
+use_frameworks!
+target 'Improve_Tests' do
+  pod 'Improve', :path => '../'
+  
+  pod 'Specta'
+  pod 'Expecta'
+end
