@@ -59,9 +59,6 @@ static Improve *sharedInstance;
     [self chooseFrom:choices forKey:key funnel:funnel rewards:nil block:block];
 }
 
-// For example, to choose the best price call
-// [self chooseFrom:prices forKey:key withRewards:prices block:block];
-
 - (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel rewards:(NSArray *)rewards block:(void (^)(NSString *, NSError *)) block
 {
     [self chooseFrom:choices forKey:key funnel:funnel rewards:rewards type:nil block:^(NSDictionary *responseBody, NSError *error) {
@@ -85,9 +82,6 @@ static Improve *sharedInstance;
         }
     }];
 }
-
-// For example, to choose the best price call
-// [self chooseFrom:prices forKey:key rewards:prices block:block];
 
 
 - (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel rewards:(NSArray *)rewards type:(NSString*)type block:(void (^)(NSDictionary *, NSError *)) block
