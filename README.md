@@ -28,7 +28,7 @@ First we simply import and initialize the SDK.
 
 ```
 
-Visit https://improve.ai to sign up for an api key.
+Visit [improve.ai](http://improve.ai) to sign up for an api key.
 
 Let's set up our funnel and greeting choices.
 
