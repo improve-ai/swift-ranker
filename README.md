@@ -5,11 +5,6 @@
 [![License](https://img.shields.io/cocoapods/l/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![Platform](https://img.shields.io/cocoapods/p/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 
-## Example
-
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
-
-## Requirements
 
 ## Installation
 
@@ -78,4 +73,4 @@ Justin Chapweske, justin@improve.ai
 
 ## License
 
-Improve is available under the MIT license. See the LICENSE file for more info.
+The improve.ai iOS SDK is available under the MIT license. See the LICENSE file for more info.
