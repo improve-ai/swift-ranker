@@ -66,6 +66,7 @@ Likewise with *Clicked*.
 
 That's all there is to it.  Forever more improve.ai will learn and optimize the greeting to maximize the probability of going from *Viewed* to *Clicked*.  With each new user the app will improve, without you having to actively manage the process.
 
+For further documentation see [improve.ai](https://www.improve.ai).
 
 ## Author
 
