@@ -8,7 +8,7 @@
 /**
  Wrapper library for the improve.ai JSON/HTTP API.
  
- For docs see https://improve.ai/
+ For docs see https://www.improve.ai/
  */
 @interface Improve : NSObject
 
