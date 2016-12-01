@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
     improve.ai uses machine learning to enable apps to optimize their own event funnels.  It allows continuous improvement such that with every new user the app can automatically become more profitable and engaging.  Fully automated A/B testing, bandit optimization, personalization, and dynamic pricing are some of the use cases.
   DESC
 
-  s.homepage         = 'http://www.improve.ai'
+  s.homepage         = 'http://github.com/improveai/ios-sdk'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Justin Chapweske' => 'justin@improve.ai' }
