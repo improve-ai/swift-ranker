@@ -35,7 +35,7 @@ Let's set up our funnel and greeting choices.
 ```objc
 NSArray *funnel = [@"Viewed", @"Clicked"];
 
-NSArray *choices = [@"Hello World!", @"Hi World!", @"Howdy World!"]; // other possible greetings
+NSArray *choices = [@"Hello World!", @"Hi World!", @"Howdy World!"]; 
 
 ```
 
