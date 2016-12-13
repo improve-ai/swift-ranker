@@ -10,6 +10,7 @@
 #import "Improve.h"
 
 #define SORT_TYPE @"sort"
+#define PRICE_TYPE @"price"
 
 #define CHOOSE_URL @"https://api.improve.ai/v1/choose"
 #define TRACK_URL @"https://api.improve.ai/v1/track"
@@ -54,14 +55,20 @@ static Improve *sharedInstance;
     return self;
 }
 
-- (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSString *, NSError *)) block
+- (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSObject *, NSError *)) block
 {
-    [self chooseFrom:choices forKey:key funnel:funnel rewards:nil block:block];
+    [self chooseFrom:choices forKey:key funnel:funnel profits:nil type:nil block:^(NSDictionary *responseBody, NSError *error) {
+        if (!error) {
+            block([responseBody objectForKey:key], nil);
+        } else {
+            block(nil, error);
+        }
+    }];
 }
 
-- (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel rewards:(NSArray *)rewards block:(void (^)(NSString *, NSError *)) block
+- (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel profits:(NSArray *)profits block:(void (^)(NSNumber *, NSError *)) block
 {
-    [self chooseFrom:choices forKey:key funnel:funnel rewards:rewards type:nil block:^(NSDictionary *responseBody, NSError *error) {
+    [self chooseFrom:prices forKey:key funnel:funnel profits:profits type:PRICE_TYPE block:^(NSDictionary *responseBody, NSError *error) {
         
         if (!error) {
             block([responseBody objectForKey:key], nil);
@@ -84,7 +91,7 @@ static Improve *sharedInstance;
 }
 
 
-- (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel rewards:(NSArray *)rewards type:(NSString*)type block:(void (^)(NSDictionary *, NSError *)) block
+- (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel profits:(NSArray *)profits type:(NSString*)type block:(void (^)(NSDictionary *, NSError *)) block
 {
     
     NSDictionary *body = @{ @"property_key": key,
@@ -92,8 +99,8 @@ static Improve *sharedInstance;
                             @"funnel": funnel,
                             @"user_id": _userId};
     
-    if (rewards) {
-        [body setValue:rewards forKey:@"rewards"];
+    if (profits) {
+        [body setValue:profits forKey:@"profits"];
     }
     
     if (type) {

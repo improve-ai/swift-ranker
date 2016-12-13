@@ -57,10 +57,10 @@
  @param choices An array of possible values for the property
  @param forKey The property key to optimize for
  @param funnel The funnel to maximize the conversion rate of
- @param rewards An array of rewards to weight the conversion probability of a choice against.  The reward is effectively multiplied by the conversion probability and the choice that maximizes that multiple will tend to be chosen.
+ @param profits An array of profits to weight the conversion probability of a choice against.  The profit is effectively multiplied by the conversion probability and the choice that maximizes that multiple will tend to be chosen.
  @param block A block to be executed when the response is returned.
  */
-- (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel rewards:(NSArray *)rewards block:(void (^)(NSString *, NSError *)) block;
+- (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel profits:(NSArray *)profits block:(void (^)(NSString *, NSError *)) block;
 
 /**
  Sort the choices for the given property key by their probability of a funnel conversion.  If there is little data about a given property value, then improve.ai may prioritize that value in order to learn more.
