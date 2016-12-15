@@ -56,46 +56,53 @@ static Improve *sharedInstance;
 
 - (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSObject *, NSError *)) block
 {
-    [self chooseFrom:choices prices:nil forKey:key funnel:funnel profits:nil type:nil block:^(NSDictionary *responseBody, NSError *error) {
-        if (!error) {
-            block([responseBody objectForKey:key], nil);
+    [self chooseFrom:choices prices:nil forKey:key funnel:funnel type:nil block:block];
+}
+
+- (void)chooseFrom:(NSURLRequest *)choicesRequest forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSObject *, NSError *)) block
+{
+    [self fetchRemoteArray:choicesRequest block:^(NSArray *result, NSError *error) {
+        if (result && !error) {
+            [self chooseFrom:result forKey:key funnel:funnel block:block];
         } else {
-            block(nil, error);
+            block(nil,error);
         }
     }];
 }
 
 - (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSNumber *, NSError *)) block
 {
-    [self choosePriceFrom:prices forKey:key funnel:funnel profits:nil block:block];
+    [self chooseFrom:nil prices:prices forKey:key funnel:funnel type:nil block:block];
 }
 
-- (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel profits:(NSArray *)profits block:(void (^)(NSNumber *, NSError *)) block
+- (void)choosePriceFrom:(NSURLRequest *)pricesRequest forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSNumber *, NSError *)) block
 {
-    [self chooseFrom:nil prices:prices forKey:key funnel:funnel profits:profits type:PRICE_TYPE block:^(NSDictionary *responseBody, NSError *error) {
-        
-        if (!error) {
-            block([responseBody objectForKey:key], nil);
+    [self fetchRemoteArray:pricesRequest block:^(NSArray *result, NSError *error) {
+        if (result && !error) {
+            [self choosePriceFrom:result forKey:key funnel:funnel block:block];
         } else {
-            block(nil, error);
+            block(nil,error);
         }
     }];
 }
 
 - (void)sort:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSArray *, NSError *)) block
 {
-    [self chooseFrom:choices prices:nil forKey:key funnel:funnel profits:nil type:SORT_TYPE block:^(NSDictionary *responseBody, NSError *error) {
-        
-        if (!error) {
-            block([responseBody objectForKey:key], nil);
+    [self chooseFrom:choices prices:nil forKey:key funnel:funnel type:SORT_TYPE block:block];
+}
+
+- (void)sort:(NSURLRequest *)choicesRequest forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSArray *, NSError *)) block
+{
+    [self fetchRemoteArray:choicesRequest block:^(NSArray *result, NSError *error) {
+        if (result && !error) {
+            [self sort:result forKey:key funnel:funnel block:block];
         } else {
-            block(nil, error);
+            block(nil,error);
         }
     }];
 }
 
-
-- (void)chooseFrom:(NSArray *)choices prices:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel profits:(NSArray *)profits type:(NSString*)type block:(void (^)(NSDictionary *, NSError *)) block
+- (void)chooseFrom:(NSArray *)choices prices:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel type:(NSString*)type block:(void (^)(NSObject *, NSError *)) block
 {
     
     NSDictionary *body = @{ @"property_key": key,
@@ -108,10 +115,6 @@ static Improve *sharedInstance;
     
     if (prices) {
         [body setValue:prices forKey:@"prices"];
-    }
-    
-    if (profits) {
-        [body setValue:profits forKey:@"profits"];
     }
     
     if (type) {
@@ -128,14 +131,18 @@ static Improve *sharedInstance;
                             @"properties": properties,
                             @"user_id": _userId };
     
-    [self sendRequestTo:TRACK_URL body:body block:^(NSDictionary *responseBody, NSError *error) {
+    [self sendRequestTo:TRACK_URL body:body block:^(NSObject *result, NSError *error) {
         if (error) {
             NSLog(@"Improve.track error: %@", error);
         } 
     }];
 }
 
-- (void) sendRequestTo:(NSString *) url body:(NSDictionary *) body block:(void (^)(NSDictionary *, NSError *)) block {
+- (void) fetchRemoteArray:(NSURLRequest *) request block:(void (^)(NSArray *, NSError *)) block {
+    
+}
+
+- (void) sendRequestTo:(NSString *) url body:(NSDictionary *) body block:(void (^)(NSObject *, NSError *)) block {
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key":  _apiKey};
     
@@ -165,6 +172,20 @@ static Improve *sharedInstance;
                     error = [NSError errorWithDomain:@"Improve" code:statusCode userInfo:[(NSHTTPURLResponse *) response allHeaderFields]];
                 }
             }
+            /*
+             NSError *jsonError = nil;
+             id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:&jsonError];
+             
+             if ([jsonObject isKindOfClass:[NSArray class]]) {
+             NSLog(@"its an array!");
+             NSArray *jsonArray = (NSArray *)jsonObject;
+             NSLog(@"jsonArray - %@",jsonArray);
+             }
+             else {
+             NSLog(@"its probably a dictionary");
+             NSDictionary *jsonDictionary = (NSDictionary *)jsonObject;
+             NSLog(@"jsonDictionary - %@",jsonDictionary);
+             }*/
             
             NSDictionary *dictionary;
             
@@ -178,7 +199,7 @@ static Improve *sharedInstance;
                 block(nil, error);
             } else {
                 // success!
-                block(dictionary, nil);
+                block([responseBody objectForKey:key], nil);
             }
         }];
     [dataTask resume];
