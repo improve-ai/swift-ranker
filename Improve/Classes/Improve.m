@@ -56,7 +56,7 @@ static Improve *sharedInstance;
 
 - (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSObject *, NSError *)) block
 {
-    [self chooseFrom:choices prices:nil forKey:key funnel:funnel type:nil block:block];
+    [self chooseFrom:choices prices:nil forKey:key funnel:funnel sort:false block:block];
 }
 
 - (void)chooseFrom:(NSURLRequest *)choicesRequest forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSObject *, NSError *)) block
@@ -72,7 +72,7 @@ static Improve *sharedInstance;
 
 - (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSNumber *, NSError *)) block
 {
-    [self chooseFrom:nil prices:prices forKey:key funnel:funnel type:nil block:block];
+    [self chooseFrom:nil prices:prices forKey:key funnel:funnel sort:false block:block];
 }
 
 - (void)choosePriceFrom:(NSURLRequest *)pricesRequest forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSNumber *, NSError *)) block
@@ -88,7 +88,7 @@ static Improve *sharedInstance;
 
 - (void)sort:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSArray *, NSError *)) block
 {
-    [self chooseFrom:choices prices:nil forKey:key funnel:funnel type:SORT_TYPE block:block];
+    [self chooseFrom:choices prices:nil forKey:key funnel:funnel sort:true block:block];
 }
 
 - (void)sort:(NSURLRequest *)choicesRequest forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSArray *, NSError *)) block
@@ -102,7 +102,7 @@ static Improve *sharedInstance;
     }];
 }
 
-- (void)chooseFrom:(NSArray *)choices prices:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel type:(NSString*)type block:(void (^)(NSObject *, NSError *)) block
+- (void)chooseFrom:(NSArray *)choices prices:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel sort:(BOOL)sort block:(void (^)(NSObject *, NSError *)) block
 {
     
     NSDictionary *body = @{ @"property_key": key,
@@ -110,18 +110,26 @@ static Improve *sharedInstance;
                             @"user_id": _userId};
     
     if (choices) {
-        [body setValue:choices forKey:@"choices"];
+        body[@"choices"] = choices;
     }
     
     if (prices) {
-        [body setValue:prices forKey:@"prices"];
+        body[@"prices"] = prices;
     }
     
-    if (type) {
-        [body setValue:type forKey:@"type"];
+    if (sort) {
+        body[@"sort"] = @YES;
     }
     
-    [self sendRequestTo:CHOOSE_URL body:body block:block];
+    [self postImproveRequest:CHOOSE_URL body:body block:^(NSObject *response, NSError *error) {
+        if (error) {
+            block(nil, error);
+        } else if (![response isKindOfClass:[NSDictionary class]]) {
+            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"expected dictionary, got %@", response]}]);
+        } else {
+            // Extract the value from the dictionary
+            block([(NSDictionary *)response objectForKey:key], nil);
+        }];
 }
 
 - (void)track:(NSString *)event properties:(NSDictionary *)properties
@@ -131,18 +139,27 @@ static Improve *sharedInstance;
                             @"properties": properties,
                             @"user_id": _userId };
     
-    [self sendRequestTo:TRACK_URL body:body block:^(NSObject *result, NSError *error) {
+    [self postImproveRequest:TRACK_URL body:body block:^(NSObject *result, NSError *error) {
         if (error) {
             NSLog(@"Improve.track error: %@", error);
         } 
     }];
 }
 
-- (void) fetchRemoteArray:(NSURLRequest *) request block:(void (^)(NSArray *, NSError *)) block {
-    
+- (void) fetchRemoteArray:(NSURLRequest *) request block:(void (^)(NSArray *, NSError *)) block
+{
+    [self fetchJson:request block:^(NSObject *response, NSError *error) {
+        if (error) {
+            block(nil, error);
+        } else if (![response isKindOfClass:[NSArray class]]) {
+            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"expected array, got %@", response]}]);
+        } else {
+            block(response, nil);
+    }];
 }
 
-- (void) sendRequestTo:(NSString *) url body:(NSDictionary *) body block:(void (^)(NSObject *, NSError *)) block {
+- (void) postImproveRequest:(NSString *) url body:(NSDictionary *) body block:(void (^)(NSObject *, NSError *)) block
+{
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key":  _apiKey};
     
@@ -155,6 +172,14 @@ static Improve *sharedInstance;
     [request setAllHTTPHeaderFields:headers];
     [request setHTTPBody:postData];
     
+    [self fetchJson:request block:block];
+}
+
+/*
+ Fetch and parse the JSON response accessible via the NSURLRequest.  Since the caller sets up the requests it could be a full blown POST or a simple GET.
+ The callback is executed on the main thread.
+ */
+- (void) fetchJson:(NSURLRequest *) request block:(void (^)(NSObject *, NSError *)) block {
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                           delegate:nil
                                                      delegateQueue:[NSOperationQueue mainQueue]];
@@ -169,37 +194,23 @@ static Improve *sharedInstance;
                 NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
                 
                 if (statusCode >= 400) {
-                    error = [NSError errorWithDomain:@"Improve" code:statusCode userInfo:[(NSHTTPURLResponse *) response allHeaderFields]];
+                    error = [NSError errorWithDomain:@"ai.improve" code:statusCode userInfo:[(NSHTTPURLResponse *) response allHeaderFields]];
                 }
             }
-            /*
-             NSError *jsonError = nil;
-             id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:&jsonError];
-             
-             if ([jsonObject isKindOfClass:[NSArray class]]) {
-             NSLog(@"its an array!");
-             NSArray *jsonArray = (NSArray *)jsonObject;
-             NSLog(@"jsonArray - %@",jsonArray);
-             }
-             else {
-             NSLog(@"its probably a dictionary");
-             NSDictionary *jsonDictionary = (NSDictionary *)jsonObject;
-             NSLog(@"jsonDictionary - %@",jsonDictionary);
-             }*/
             
-            NSDictionary *dictionary;
+            id jsonObject;
             
             if (!error) {
-                // convert the NSData response to a dictionary
+                // parse the NSData response
                 // a parse error is a possibility
-                dictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+                jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
             }
             
             if (error) { // transport, HTTP, or parse error
                 block(nil, error);
             } else {
                 // success!
-                block([responseBody objectForKey:key], nil);
+                block(jsonObject, nil);
             }
         }];
     [dataTask resume];
