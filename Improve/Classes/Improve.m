@@ -10,7 +10,6 @@
 #import "Improve.h"
 
 #define SORT_TYPE @"sort"
-#define PRICE_TYPE @"price"
 
 #define CHOOSE_URL @"https://api.improve.ai/v1/choose"
 #define TRACK_URL @"https://api.improve.ai/v1/track"
@@ -57,7 +56,7 @@ static Improve *sharedInstance;
 
 - (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSObject *, NSError *)) block
 {
-    [self chooseFrom:choices forKey:key funnel:funnel profits:nil type:nil block:^(NSDictionary *responseBody, NSError *error) {
+    [self chooseFrom:choices prices:nil forKey:key funnel:funnel profits:nil type:nil block:^(NSDictionary *responseBody, NSError *error) {
         if (!error) {
             block([responseBody objectForKey:key], nil);
         } else {
@@ -66,9 +65,14 @@ static Improve *sharedInstance;
     }];
 }
 
+- (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSNumber *, NSError *)) block
+{
+    [self choosePriceFrom:prices forKey:key funnel:funnel profits:nil block:block];
+}
+
 - (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel profits:(NSArray *)profits block:(void (^)(NSNumber *, NSError *)) block
 {
-    [self chooseFrom:prices forKey:key funnel:funnel profits:profits type:PRICE_TYPE block:^(NSDictionary *responseBody, NSError *error) {
+    [self chooseFrom:nil prices:prices forKey:key funnel:funnel profits:profits type:PRICE_TYPE block:^(NSDictionary *responseBody, NSError *error) {
         
         if (!error) {
             block([responseBody objectForKey:key], nil);
@@ -80,7 +84,7 @@ static Improve *sharedInstance;
 
 - (void)sort:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSArray *, NSError *)) block
 {
-    [self chooseFrom:choices forKey:key funnel:funnel rewards:nil type:SORT_TYPE block:^(NSDictionary *responseBody, NSError *error) {
+    [self chooseFrom:choices prices:nil forKey:key funnel:funnel profits:nil type:SORT_TYPE block:^(NSDictionary *responseBody, NSError *error) {
         
         if (!error) {
             block([responseBody objectForKey:key], nil);
@@ -91,13 +95,20 @@ static Improve *sharedInstance;
 }
 
 
-- (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel profits:(NSArray *)profits type:(NSString*)type block:(void (^)(NSDictionary *, NSError *)) block
+- (void)chooseFrom:(NSArray *)choices prices:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel profits:(NSArray *)profits type:(NSString*)type block:(void (^)(NSDictionary *, NSError *)) block
 {
     
     NSDictionary *body = @{ @"property_key": key,
-                            @"choices": choices,
                             @"funnel": funnel,
                             @"user_id": _userId};
+    
+    if (choices) {
+        [body setValue:choices forKey:@"choices"];
+    }
+    
+    if (prices) {
+        [body setValue:prices forKey:@"prices"];
+    }
     
     if (profits) {
         [body setValue:profits forKey:@"profits"];
@@ -137,7 +148,9 @@ static Improve *sharedInstance;
     [request setAllHTTPHeaderFields:headers];
     [request setHTTPBody:postData];
     
-    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
+                                                          delegate:nil
+                                                     delegateQueue:[NSOperationQueue mainQueue]];
     NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
         completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             
