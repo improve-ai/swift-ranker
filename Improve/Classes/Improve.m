@@ -107,11 +107,29 @@ static Improve *sharedInstance;
     [self postImproveRequest:CHOOSE_URL body:body block:^(NSObject *response, NSError *error) {
         if (error) {
             block(nil, error);
-        } else if (![response isKindOfClass:[NSDictionary class]]) {
-            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"expected dictionary, got %@", response]}]);
         } else {
-            // Extract the value from the dictionary
-            block([(NSDictionary *)response objectForKey:key], nil);
+            /*
+             The response from choose looks like this:
+             {
+             "properties": {
+             "key": "value"
+             }
+             }
+             */
+            // is this a dictionary?
+            if ([response isKindOfClass:[NSDictionary class]]) {
+                // extract the properties
+                NSObject *properties = [(NSDictionary *)response objectForKey:@"properties"];
+                if ([properties isKindOfClass:[NSDictionary class]]) {
+                    // extract the value
+                    NSObject *propertyValue = [(NSDictionary *)properties objectForKey:key];
+                    if (propertyValue) {
+                        block(propertyValue, nil);
+                        return;
+                    }
+                }
+            }
+            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"malformed response from choose: %@", response]}]);
         }
     }];
 }
