@@ -1,7 +1,12 @@
 use_frameworks!
-target 'Improve_Tests' do
+
+target 'Improve_Example' do
   pod 'Improve', :path => '../'
-  
-  pod 'Specta'
+
+  target 'Improve_Tests' do
+    inherit! :search_paths
+
+    pod 'Specta'
   pod 'Expecta'
+  end
 end
