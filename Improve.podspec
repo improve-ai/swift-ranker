@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'Improve'
-  s.version          = '0.9.0'
+  s.version          = '0.9.1'
   s.summary          = 'The Self-Improving App SDK'
 
 # This description is used to generate tags and improve search results.
