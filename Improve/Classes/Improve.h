@@ -51,8 +51,6 @@
  */
 - (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSObject *, NSError *)) block;
 
-- (void)chooseFrom:(NSURLRequest *)choicesRequest forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSObject *, NSError *)) block;
-
 /**
  Choose a value for the given property key that might maximize the probability of a funnel conversion.  If there is little data about a given property value, then improve.ai may choose to that value in order to learn more.
  
@@ -62,8 +60,6 @@
  @param block A block to be executed on the main queue when the response is returned.
  */
 - (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSNumber *, NSError *)) block;
-
-- (void)choosePriceFrom:(NSURLRequest *)pricesRequest forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSNumber *, NSError *)) block;
 
 /**
  Sort the choices for the given property key by their probability of a funnel conversion.  If there is little data about a given property value, then improve.ai may prioritize that value in order to learn more.
@@ -77,8 +73,6 @@
  @discussion In the track methods, the property value most only take one value from the list of choices at a time.  Tracking an event with the entire choice list as the property value will not work.
  */
 - (void)sort:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSArray *, NSError *)) block;
-
-- (void)sort:(NSURLRequest *)choicesRequest forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSArray *, NSError *)) block;
 
 @end
 

@@ -59,10 +59,12 @@ static Improve *sharedInstance;
 - (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSNumber *, NSError *)) block
 {
     [self chooseFrom:nil prices:prices forKey:key funnel:funnel sort:false block:^(NSObject *result, NSError *error) {
-        if (result) {
-            block(result, error);
+        if (error) {
+            block(nil, error);
+        } else if (![result isKindOfClass:[NSNumber class]]) {
+            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"expected NSNumber, got %@", result]}]);
         } else {
-            block(nil,error);
+            block((NSNumber *)result, nil);
         }
     }];
 
@@ -71,10 +73,12 @@ static Improve *sharedInstance;
 - (void)sort:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSArray *, NSError *)) block
 {
     [self chooseFrom:choices prices:nil forKey:key funnel:funnel sort:true block:^(NSObject *result, NSError *error) {
-        if (result) {
-            block(result, error);
+        if (error) {
+            block(nil, error);
+        } else if (![result isKindOfClass:[NSArray class]]) {
+            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"expected NSArray, got %@", result]}]);
         } else {
-            block(nil,error);
+            block((NSArray *)result, nil);
         }
     }];
 }
