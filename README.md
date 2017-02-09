@@ -1,4 +1,4 @@
-# improve.ai - Self-Improving App iOS SDK
+# improve.ai - Continuous Conversion Optimization + Pricing Optimization iOS SDK
  
 [![CI Status](http://img.shields.io/travis/Justin Chapweske/Improve.svg?style=flat)](https://travis-ci.org/Justin Chapweske/Improve)
 [![Version](https://img.shields.io/cocoapods/v/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
