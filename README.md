@@ -29,10 +29,10 @@ NSString *greeting = @"Hello World!";
 Now, create some alternate greetings:
 
 ```objc
-NSArray *choices = [@"Hello World!", @"Hi World!", @"Howdy World!"];
+NSArray *variants = [@"Hello World!", @"Hi World!", @"Howdy World!"];
 ```
 
-Typically the choices would be loaded from a database query or configuration file.  Up to 1,000 choices could be provided and new choices can be added at any time.  
+Typically the variants would be loaded from a database query or configuration file.  Up to 1,000 variants could be provided and new variants can be added at any time.  
 
 Now specify the goal to optimize for using an event *funnel*.  A *funnel* can be thought of as a goal path or sequence of events that you want to occur.  In this case the funnel goes from *Viewed* to *Clicked*.  This learns the greeting most likely to be clicked.
 
@@ -55,13 +55,13 @@ This is where the magic happens - let improve.ai choose the `greeting` most like
 
 ```objc
 Improve *improve = [Improve sharedInstance];
-[improve chooseFrom:choices forKey:@"greeting" funnel:funnel block:^(NSString* result) {
+[improve chooseFrom:variants forKey:@"greeting" funnel:funnel block:^(NSString* result) {
     greeting = result;
 }];
 
 ```
 
- - ```choices``` the list of possible property values
+ - ```variants``` the list of possible property values
  - ```greeting``` the property key to optimize
  - ```funnel``` the goal path
  - ```result``` the decision from improve.ai
