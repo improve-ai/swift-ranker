@@ -1,4 +1,6 @@
-# improve.ai - Continuous Conversion Optimization + Pricing Optimization iOS SDK
+# improve.ai iOS SDK
+
+## Continuous Conversion Optimization + Pricing Optimization
  
 [![CI Status](http://img.shields.io/travis/Justin Chapweske/Improve.svg?style=flat)](https://travis-ci.org/Justin Chapweske/Improve)
 [![Version](https://img.shields.io/cocoapods/v/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
