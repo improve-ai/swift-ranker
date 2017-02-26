@@ -8,31 +8,33 @@
 /**
  Wrapper library for the improve.ai JSON/HTTP API.
  
- For docs see https://www.improve.ai/
+ For docs see https://docs.improve.ai/
  */
 @interface Improve : NSObject
 
 @property (nonatomic, strong) NSString *apiKey;
 @property (nonatomic, strong) NSString *userId;
+@property (nonatomic, strong) NSString *chooseUrl;
+@property (nonatomic, strong) NSString *trackUrl;
 
 /**
  Get the current singleton.
  */
-+ (Improve *)sharedInstance;
++ (Improve *)instance;
 
 /**
  Initialize the singleton
  
  @param apiKey The improve.ai api key
  */
-+ (Improve *)sharedInstanceWithApiKey:(NSString *)apiKey;
++ (Improve *)instanceWithApiKey:(NSString *)apiKey;
 /**
  Initialize the singleton
 
  @param apiKey The improve.ai api key
  @param userId The unique id for this user so that their events can be tracked through the funnel
  */
-+ (Improve *)sharedInstanceWithApiKey:(NSString *)apiKey userId:(NSString *)userId;
++ (Improve *)instanceWithApiKey:(NSString *)apiKey userId:(NSString *)userId;
 
 /**
  Track an event.

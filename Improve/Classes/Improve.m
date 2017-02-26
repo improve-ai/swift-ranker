@@ -14,10 +14,12 @@
 
 #define USER_ID_KEY @"ai.improve.user_id"
 
+
 @implementation Improve : NSObject
 
 static Improve *sharedInstance;
-+ (Improve *)sharedInstanceWithApiKey:(NSString *)apiKey userId:(NSString *)userId {
+
++ (Improve *)instanceWithApiKey:(NSString *)apiKey userId:(NSString *)userId {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedInstance = [[super alloc] initWithApiKey:apiKey userId:userId];
@@ -25,12 +27,12 @@ static Improve *sharedInstance;
     return sharedInstance;
 }
 
-+ (Improve *)sharedInstanceWithApiKey:(NSString *)apiKey
++ (Improve *)instanceWithApiKey:(NSString *)apiKey
 {
-    return [Improve sharedInstanceWithApiKey:apiKey userId:nil];
+    return [Improve instanceWithApiKey:apiKey userId:nil];
 }
 
-+ (Improve *)sharedInstance
++ (Improve *)instance
 {
     return sharedInstance;
 }
@@ -48,6 +50,10 @@ static Improve *sharedInstance;
     } else {
         self.userId = userId;
     }
+    
+    _chooseUrl = CHOOSE_URL;
+    _trackUrl = TRACK_URL;
+    
     return self;
 }
 
@@ -104,7 +110,7 @@ static Improve *sharedInstance;
         body[@"sort"] = @YES;
     }
     
-    [self postImproveRequest:CHOOSE_URL body:body block:^(NSObject *response, NSError *error) {
+    [self postImproveRequest:_chooseUrl body:body block:^(NSObject *response, NSError *error) {
         if (error) {
             block(nil, error);
         } else {
@@ -141,7 +147,7 @@ static Improve *sharedInstance;
                             @"properties": properties,
                             @"user_id": _userId };
     
-    [self postImproveRequest:TRACK_URL body:body block:^(NSObject *result, NSError *error) {
+    [self postImproveRequest:_trackUrl body:body block:^(NSObject *result, NSError *error) {
         if (error) {
             NSLog(@"Improve.track error: %@", error);
         } 
