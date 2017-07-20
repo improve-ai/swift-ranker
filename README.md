@@ -47,7 +47,7 @@ Import and initialize the SDK.
 ```objc
 #import Improve.h
 
-[Improve sharedInstanceWithApiKey:@"YOUR API KEY"];
+[Improve instanceWithApiKey:@"YOUR API KEY"];
 
 ```
 
@@ -56,8 +56,7 @@ Visit [improve.ai](http://improve.ai) to sign up for an api key.
 This is where the magic happens - let improve.ai choose the `greeting` most likely to be *Clicked*:
 
 ```objc
-Improve *improve = [Improve sharedInstance];
-[improve chooseFrom:variants forKey:@"greeting" funnel:funnel block:^(NSString* result) {
+[[Improve instance] chooseFrom:variants forKey:@"greeting" funnel:funnel block:^(NSString* result) {
     greeting = result;
 }];
 
@@ -71,14 +70,14 @@ Improve *improve = [Improve sharedInstance];
 Lastly, improve.ai needs to learn how the different property values perform.  When the greeting is *Viewed*, track the event.
 
 ```objc
-[improve track:@"Viewed" properties:@{ @"greeting": greeting }];
+[[Improve instance] track:@"Viewed" properties:@{ @"greeting": greeting }];
 
 ```
 
 Likewise with *Clicked*.
 
 ```objc
-[improve track:@"Clicked" properties:@{ @"greeting": greeting }];
+[[Improve instance] track:@"Clicked" properties:@{ @"greeting": greeting }];
 
 ```
 
