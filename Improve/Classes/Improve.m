@@ -84,7 +84,7 @@ static Improve *sharedInstance;
         }
         
         NSDictionary *headers = @{ @"Content-Type": @"application/x-yaml",
-                                   @"x-api-key":  _apiKey
+//                                   @"x-api-key":  _apiKey,
                                    @"x-user-id": _userId};
         
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_configureUrl]];
@@ -133,7 +133,12 @@ static Improve *sharedInstance;
                             @"properties": properties,
                             @"user_id": _userId };
     
-    NSData * postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+    NSError * err;
+    NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+    if (err) {
+        NSLog(@"Improve.track error: %@", err);
+        return;
+    }
 
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_trackUrl]];
     
@@ -150,9 +155,7 @@ static Improve *sharedInstance;
 
 - (void) postImproveRequest:(NSURLRequest *)request block:(void (^)(NSObject *, NSError *)) block
 {
-    
-    NSError * err;
-    
+        
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                           delegate:nil
                                                      delegateQueue:[NSOperationQueue mainQueue]];
