@@ -14,7 +14,7 @@
 
 @property (nonatomic, strong) NSString *apiKey;
 @property (nonatomic, strong) NSString *userId;
-@property (nonatomic, strong) NSString *chooseUrl;
+@property (nonatomic, strong) NSString *configureUrl;
 @property (nonatomic, strong) NSString *trackUrl;
 
 /**
@@ -44,37 +44,12 @@
 - (void)track:(NSString *)event properties:(NSDictionary *)properties;
 
 /**
- Choose a value for the given property key that might maximize the probability of a funnel conversion.  If there is little data about a given property value, then improve.ai may choose to that value in order to learn more.
+ Resolve an improve.yml configuration file using improve.ai
  
- @param choices An array of possible values for the property
- @param forKey The property key to optimize for
- @param funnel The funnel to maximize the conversion rate of
+ @param fetchRequest A URLRequest used to retrieve the improve.yml file
  @param block A block to be executed on the main queue when the response is returned.
  */
-- (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSObject *, NSError *)) block;
-
-/**
- Choose a value for the given property key that might maximize the probability of a funnel conversion.  If there is little data about a given property value, then improve.ai may choose to that value in order to learn more.
- 
- @param prices An array of NSNumber prices
- @param forKey The property key to optimize for
- @param funnel The funnel to maximize the conversion rate of
- @param block A block to be executed on the main queue when the response is returned.
- */
-- (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSNumber *, NSError *)) block;
-
-/**
- Sort the choices for the given property key by their probability of a funnel conversion.  If there is little data about a given property value, then improve.ai may prioritize that value in order to learn more.
- 
- @param choices An array of possible values to be sorted
- @param forKey The property key to optimize for
- @param funnel The funnel to maximize the conversion rate of
- @param rewards An array of rewards to weight the conversion probability of a choice against.  The reward is effectively multiplied by the conversion probability and the choice that maximizes that multiple will tend to be chosen.
- @param block A block to be executed on the main queue when the response is returned.
- 
- @discussion In the track methods, the property value most only take one value from the list of choices at a time.  Tracking an event with the entire choice list as the property value will not work.
- */
-- (void)sort:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSArray *, NSError *)) block;
+- (void) improveConfiguration:(URLRequest *)fetchRequest block:(void (^)(NSObject *, NSError *)) block;
 
 @end
 

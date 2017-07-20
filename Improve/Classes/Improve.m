@@ -9,8 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "Improve.h"
 
-#define CHOOSE_URL @"https://api.improve.ai/v1/choose"
 #define TRACK_URL @"https://api.improve.ai/v1/track"
+#define CONFIGURE_URL @"https://api.improve.ai/v1/configure"
 
 #define USER_ID_KEY @"ai.improve.user_id"
 
@@ -51,123 +51,108 @@ static Improve *sharedInstance;
         self.userId = userId;
     }
     
-    _chooseUrl = CHOOSE_URL;
     _trackUrl = TRACK_URL;
+    _configureUrl = CONFIGURE_URL;
     
     return self;
 }
 
-- (void)chooseFrom:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSObject *, NSError *)) block
-{
-    [self chooseFrom:choices prices:nil forKey:key funnel:funnel sort:false block:block];
-}
 
-- (void)choosePriceFrom:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSNumber *, NSError *)) block
+// [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
+- (void) improveConfiguration:(URLRequest *)fetchRequest block:(void (^)(NSObject *, NSError *)) block
 {
-    [self chooseFrom:nil prices:prices forKey:key funnel:funnel sort:false block:^(NSObject *result, NSError *error) {
-        if (error) {
-            block(nil, error);
-        } else if (![result isKindOfClass:[NSNumber class]]) {
-            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"expected NSNumber, got %@", result]}]);
-        } else {
-            block((NSNumber *)result, nil);
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:nil
+                                                     delegateQueue:[NSOperationQueue mainQueue]];
+    
+    // fetch the improve.yml file
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:fetchRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (!block) {
+            return;
         }
-    }];
-
-}
-
-- (void)sort:(NSArray *)choices forKey:(NSString *)key funnel:(NSArray *)funnel block:(void (^)(NSArray *, NSError *)) block
-{
-    [self chooseFrom:choices prices:nil forKey:key funnel:funnel sort:true block:^(NSObject *result, NSError *error) {
-        if (error) {
-            block(nil, error);
-        } else if (![result isKindOfClass:[NSArray class]]) {
-            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"expected NSArray, got %@", result]}]);
-        } else {
-            block((NSArray *)result, nil);
+        
+        if (!error && [response isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+            
+            if (statusCode >= 400) {
+                error = [NSError errorWithDomain:@"ai.improve" code:statusCode userInfo:[(NSHTTPURLResponse *) response allHeaderFields]];
+            }
         }
-    }];
-}
 
-
-- (void)chooseFrom:(NSArray *)choices prices:(NSArray *)prices forKey:(NSString *)key funnel:(NSArray *)funnel sort:(BOOL)sort block:(void (^)(NSObject *, NSError *)) block
-{
-    
-    NSMutableDictionary *body = [@{ @"property_key": key,
-                                    @"funnel": funnel,
-                                    @"user_id": _userId}
-                                 mutableCopy];
-    
-    if (choices) {
-        body[@"choices"] = choices;
-    }
-    
-    if (prices) {
-        body[@"prices"] = prices;
-    }
-    
-    if (sort) {
-        body[@"sort"] = @YES;
-    }
-    
-    [self postImproveRequest:_chooseUrl body:body block:^(NSObject *response, NSError *error) {
-        if (error) {
+        if (error) { // transport or HTTP error
             block(nil, error);
-        } else {
-            /*
-             The response from choose looks like this:
-             {
-             "properties": {
-             "key": "value"
-             }
-             }
-             */
-            // is this a dictionary?
-            if ([response isKindOfClass:[NSDictionary class]]) {
-                // extract the properties
-                NSObject *properties = [(NSDictionary *)response objectForKey:@"properties"];
-                if ([properties isKindOfClass:[NSDictionary class]]) {
-                    // extract the value
-                    NSObject *propertyValue = [(NSDictionary *)properties objectForKey:key];
-                    if (propertyValue) {
-                        block(propertyValue, nil);
+            return;
+        }
+        
+        NSDictionary *headers = @{ @"Content-Type": @"application/x-yaml",
+                                   @"x-api-key":  _apiKey
+                                   @"x-user-id": _userId};
+        
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_configureUrl]];
+        
+        [request setHTTPMethod:@"POST"];
+        [request setAllHTTPHeaderFields:headers];
+        [request setHTTPBody:data];
+
+        // post improve.yml back to /configure
+        [self postImproveRequest:request block:^(NSObject *response, NSError *error) {
+            if (error) {
+                block(nil, error);
+            } else {
+                /*
+                 The response from configure looks like this:
+                 {
+                   "properties": {
+                     key: "value"
+                   }
+                 }
+                 */
+                // is this a dictionary?
+                if ([response isKindOfClass:[NSDictionary class]]) {
+                    // extract the properties
+                    NSObject *properties = [(NSDictionary *)response objectForKey:@"properties"];
+                    if ([properties isKindOfClass:[NSDictionary class]]) {
+                        block(properties, nil);
                         return;
                     }
                 }
+                block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"malformed response from choose: %@", response]}]);
             }
-            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"malformed response from choose: %@", response]}]);
-        }
+        }];
     }];
+    [dataTask resume];
 }
 
 - (void)track:(NSString *)event properties:(NSDictionary *)properties
 {
+    
+    NSDictionary *headers = @{ @"Content-Type": @"application/json",
+                               @"x-api-key":  _apiKey};
+
 
     NSDictionary *body = @{ @"event": event,
                             @"properties": properties,
                             @"user_id": _userId };
     
-    [self postImproveRequest:_trackUrl body:body block:^(NSObject *result, NSError *error) {
+    NSData * postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_trackUrl]];
+    
+    [request setHTTPMethod:@"POST"];
+    [request setAllHTTPHeaderFields:headers];
+    [request setHTTPBody:postData];
+
+    [self postImproveRequest:request block:^(NSObject *result, NSError *error) {
         if (error) {
             NSLog(@"Improve.track error: %@", error);
         } 
     }];
 }
 
-
-- (void) postImproveRequest:(NSString *) url body:(NSDictionary *) body block:(void (^)(NSObject *, NSError *)) block
+- (void) postImproveRequest:(URLRequest *)request block:(void (^)(NSObject *, NSError *)) block
 {
-    NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               @"x-api-key":  _apiKey};
     
     NSError * err;
-    NSData * postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
-    
-    [request setHTTPMethod:@"POST"];
-    [request setAllHTTPHeaderFields:headers];
-    [request setHTTPBody:postData];
     
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                           delegate:nil
