@@ -58,8 +58,7 @@ static Improve *sharedInstance;
 }
 
 
-// [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
-- (void) improveConfiguration:(URLRequest *)fetchRequest block:(void (^)(NSObject *, NSError *)) block
+- (void) improveConfiguration:(NSURLRequest *)fetchRequest block:(void (^)(NSDictionary *, NSError *)) block
 {
     
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:nil
@@ -112,7 +111,7 @@ static Improve *sharedInstance;
                     // extract the properties
                     NSObject *properties = [(NSDictionary *)response objectForKey:@"properties"];
                     if ([properties isKindOfClass:[NSDictionary class]]) {
-                        block(properties, nil);
+                        block((NSDictionary *)properties, nil);
                         return;
                     }
                 }
@@ -149,7 +148,7 @@ static Improve *sharedInstance;
     }];
 }
 
-- (void) postImproveRequest:(URLRequest *)request block:(void (^)(NSObject *, NSError *)) block
+- (void) postImproveRequest:(NSURLRequest *)request block:(void (^)(NSObject *, NSError *)) block
 {
     
     NSError * err;

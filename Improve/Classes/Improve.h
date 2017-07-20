@@ -49,7 +49,7 @@
  @param fetchRequest A URLRequest used to retrieve the improve.yml file
  @param block A block to be executed on the main queue when the response is returned.
  */
-- (void) improveConfiguration:(URLRequest *)fetchRequest block:(void (^)(NSObject *, NSError *)) block;
+- (void) improveConfiguration:(NSURLRequest *)fetchRequest block:(void (^)(NSDictionary *, NSError *)) block;
 
 @end
 
