@@ -170,7 +170,12 @@ static Improve *sharedInstance;
                 NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
                 
                 if (statusCode >= 400) {
-                    error = [NSError errorWithDomain:@"ai.improve" code:statusCode userInfo:[(NSHTTPURLResponse *) response allHeaderFields]];
+                    NSMutableDictionary *userInfo = [[(NSHTTPURLResponse *) response allHeaderFields] mutableCopy];
+                    NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                    if (content) {
+                        userInfo[NSLocalizedFailureReasonErrorKey] = content;
+                    }
+                    error = [NSError errorWithDomain:@"ai.improve" code:statusCode userInfo:userInfo];
                 }
             }
             
