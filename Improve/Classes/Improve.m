@@ -84,7 +84,7 @@ static Improve *sharedInstance;
         }
         
         NSDictionary *headers = @{ @"Content-Type": @"application/x-yaml",
-//                                   @"x-api-key":  _apiKey,
+                                   @"x-api-key":  _apiKey,
                                    @"x-user-id": _userId};
         
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_configureUrl]];
