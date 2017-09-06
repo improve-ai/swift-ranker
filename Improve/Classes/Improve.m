@@ -125,10 +125,8 @@ static Improve *sharedInstance;
 - (void)track:(NSString *)event properties:(NSDictionary *)properties
 {
     
-    NSDictionary *trackedProperties = properties;
-    
-    if (!trackedProperties) {
-        trackedProperties = @{};
+    if (!properties) {
+        properties = @{};
     }
 
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
