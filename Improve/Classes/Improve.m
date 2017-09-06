@@ -128,14 +128,15 @@ static Improve *sharedInstance;
     NSDictionary *trackedProperties = properties;
     
     if (!trackedProperties) {
-        trackedProperties = {};
+        trackedProperties = @{};
     }
-    
+
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key":  _apiKey};
 
+
     NSDictionary *body = @{ @"event": event,
-                            @"properties": trackedProperties,
+                            @"properties": properties,
                             @"user_id": _userId };
     
     NSError * err;
