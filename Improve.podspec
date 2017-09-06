@@ -8,8 +8,8 @@
 
 Pod::Spec.new do |s|
   s.name             = 'Improve'
-  s.version          = '2.0.3'
-  s.summary          = 'AI App Configuration SDK for iOS'
+  s.version          = '2.0.4'
+  s.summary          = 'AI-Powered App Configuration SDK for iOS'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-    Build apps that improve themselves.  Improve.ai is AI app configuration to continuously improve user retention and revenue.
+    Build apps that improve themselves.  Improve.ai is AI-powered app configuration to continuously improve user retention and revenue.
   DESC
 
   s.homepage         = 'http://github.com/improveai/ios-sdk'

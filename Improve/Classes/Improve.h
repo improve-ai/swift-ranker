@@ -2,7 +2,7 @@
 //  Improve.h
 //
 //  Created by Justin Chapweske on 9/8/16.
-//  Copyright © 2016 Impressive Sounding, LLC. All rights reserved.
+//  Copyright © 2016-2017 Impressive Sounding, LLC. All rights reserved.
 //
 
 /**
@@ -14,7 +14,7 @@
 
 @property (nonatomic, strong) NSString *apiKey;
 @property (nonatomic, strong) NSString *userId;
-@property (nonatomic, strong) NSString *configureUrl;
+@property (nonatomic, strong) NSString *chooseUrl;
 @property (nonatomic, strong) NSString *trackUrl;
 
 /**
@@ -32,16 +32,16 @@
  Initialize the singleton
 
  @param apiKey The improve.ai api key
- @param userId The unique id for this user so that their events can be tracked through the funnel
+ @param userId The unique id for this user so that their events can be tracked
  */
 + (Improve *)instanceWithApiKey:(NSString *)apiKey userId:(NSString *)userId;
 
 /**
  Track an event.
 
- @param properties A dictionary of properties.  improve.ai will learn which property values maximize the funnel conversion probability.
+ @param properties A dictionary of properties that are causal on this event
  */
-- (void)track:(NSString *)event properties:(NSDictionary *)properties;
+- (void) track:(NSString *)event properties:(NSDictionary *)properties;
 
 /**
  Resolve an improve.yml configuration file using improve.ai
@@ -49,7 +49,7 @@
  @param fetchRequest A URLRequest used to retrieve the improve.yml file
  @param block A block to be executed on the main queue when the response is returned.
  */
-- (void) improveConfiguration:(NSURLRequest *)fetchRequest block:(void (^)(NSDictionary *, NSError *)) block;
+- (void) choose:(NSURLRequest *)fetchRequest block:(void (^)(NSDictionary *, NSError *)) block;
 
 @end
 

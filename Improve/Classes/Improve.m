@@ -3,14 +3,14 @@
 //  7Second
 //
 //  Created by Justin Chapweske on 9/6/16.
-//  Copyright © 2016 Impressive Sounding, LLC. All rights reserved.
+//  Copyright © 2016-2017 Impressive Sounding, LLC. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import "Improve.h"
 
-#define TRACK_URL @"https://api.improve.ai/v1/track"
-#define CONFIGURE_URL @"https://api.improve.ai/v1/configure"
+#define TRACK_URL @"https://api.improve.ai/v2/track"
+#define CHOOSE_URL @"https://api.improve.ai/v2/choose"
 
 #define USER_ID_KEY @"ai.improve.user_id"
 
@@ -52,13 +52,13 @@ static Improve *sharedInstance;
     }
     
     _trackUrl = TRACK_URL;
-    _configureUrl = CONFIGURE_URL;
+    _chooseUrl = CHOOSE_URL;
     
     return self;
 }
 
 
-- (void) improveConfiguration:(NSURLRequest *)fetchRequest block:(void (^)(NSDictionary *, NSError *)) block
+- (void) choose:(NSURLRequest *)fetchRequest block:(void (^)(NSDictionary *, NSError *)) block
 {
     
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:nil
@@ -87,19 +87,19 @@ static Improve *sharedInstance;
                                    @"x-api-key":  _apiKey,
                                    @"x-user-id": _userId};
         
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_configureUrl]];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_chooseUrl]];
         
         [request setHTTPMethod:@"POST"];
         [request setAllHTTPHeaderFields:headers];
         [request setHTTPBody:data];
 
-        // post improve.yml back to /configure
+        // post improve.yml back to /choose
         [self postImproveRequest:request block:^(NSObject *response, NSError *error) {
             if (error) {
                 block(nil, error);
             } else {
                 /*
-                 The response from configure looks like this:
+                 The response from choose looks like this:
                  {
                    "properties": {
                      key: "value"
@@ -124,6 +124,10 @@ static Improve *sharedInstance;
 
 - (void)track:(NSString *)event properties:(NSDictionary *)properties
 {
+    
+    if (!properties) {
+        properties = @{};
+    }
     
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key":  _apiKey};
