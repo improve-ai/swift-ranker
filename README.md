@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/cocoapods/l/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![Platform](https://img.shields.io/cocoapods/p/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 
-Improve.ai helps you build apps that improve themselves, automatically, to maximize user retention and revenue.
+Use machine learning to build apps that improve themselves, automatically, to maximize user retention and revenue.
 
 ## Installation
 
