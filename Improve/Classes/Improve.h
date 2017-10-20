@@ -51,5 +51,22 @@
  */
 - (void) choose:(NSURLRequest *)fetchRequest block:(void (^)(NSDictionary *, NSError *)) block;
 
+/**
+ Choose a variant for each property.
+ 
+ @param variants A mapping from property key to an NSArray of potential variants to choose from
+ @param block A block to be executed on the main queue when the response is returned, containing an NSDictionary mapping property keys to their chosen values
+ */
+- (void) chooseFrom:(NSDictionary *)variants block:(void (^)(NSDictionary *, NSError *)) block;
+
+/**
+ Choose a variant for each property.
+ 
+ @param variants A mapping from property key to an NSArray of potential variants to choose from
+ @param config An improve.ai variant configuration following the format of the variant_config stanza detailed at https://docs.improve.ai
+ @param block A block to be executed on the main queue when the response is returned, containing an NSDictionary mapping property keys to their chosen values
+ */
+- (void) chooseFrom:(NSDictionary *)variants withConfig:(NSDictionary *)config block:(void (^)(NSDictionary *, NSError *)) block;
+
 @end
 

@@ -1,5 +1,5 @@
 //
-//  ImproveAI.m
+//  Improve.m
 //  7Second
 //
 //  Created by Justin Chapweske on 9/6/16.
@@ -57,6 +57,32 @@ static Improve *sharedInstance;
     return self;
 }
 
+- (void)chooseFrom:(NSDictionary *)variants block:(void (^)(NSDictionary *, NSError *)) block
+{
+    [self chooseFrom:variants withConfig:nil block:block];
+}
+
+- (void)chooseFrom:(NSDictionary *)variants withConfig:(NSDictionary *)config block:(void (^)(NSDictionary *, NSError *)) block
+
+{
+    NSDictionary *headers = @{ @"Content-Type": @"application/json",
+                               @"x-api-key":  _apiKey,
+                               @"x-user-id": _userId };
+    
+    
+    NSDictionary *body = @{ @"variants": variants,
+                            @"variant_config": config };
+    
+    NSError * err;
+    NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+    if (err) {
+        NSLog(@"Improve.chooseFrom error: %@", err);
+        return;
+    }
+    
+    [self postChooseRequest:headers data:postData block:block];
+}
+
 
 - (void) choose:(NSURLRequest *)fetchRequest block:(void (^)(NSDictionary *, NSError *)) block
 {
@@ -86,38 +112,9 @@ static Improve *sharedInstance;
         NSDictionary *headers = @{ @"Content-Type": @"application/x-yaml",
                                    @"x-api-key":  _apiKey,
                                    @"x-user-id": _userId};
-        
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_chooseUrl]];
-        
-        [request setHTTPMethod:@"POST"];
-        [request setAllHTTPHeaderFields:headers];
-        [request setHTTPBody:data];
 
         // post improve.yml back to /choose
-        [self postImproveRequest:request block:^(NSObject *response, NSError *error) {
-            if (error) {
-                block(nil, error);
-            } else {
-                /*
-                 The response from choose looks like this:
-                 {
-                   "properties": {
-                     key: "value"
-                   }
-                 }
-                 */
-                // is this a dictionary?
-                if ([response isKindOfClass:[NSDictionary class]]) {
-                    // extract the properties
-                    NSObject *properties = [(NSDictionary *)response objectForKey:@"properties"];
-                    if ([properties isKindOfClass:[NSDictionary class]]) {
-                        block((NSDictionary *)properties, nil);
-                        return;
-                    }
-                }
-                block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"malformed response from choose: %@", response]}]);
-            }
-        }];
+        [self postChooseRequest:headers data:data block:block];
     }];
     [dataTask resume];
 }
@@ -154,6 +151,41 @@ static Improve *sharedInstance;
         if (error) {
             NSLog(@"Improve.track error: %@", error);
         } 
+    }];
+}
+
+- (void) postChooseRequest:(NSDictionary *)headers data:(NSData *)postData block:(void (^)(NSDictionary *, NSError *)) block
+{
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_chooseUrl]];
+    
+    [request setHTTPMethod:@"POST"];
+    [request setAllHTTPHeaderFields:headers];
+    [request setHTTPBody:postData];
+    
+    [self postImproveRequest:request block:^(NSObject *response, NSError *error) {
+        if (error) {
+            block(nil, error);
+        } else {
+            /*
+             The response from choose looks like this:
+             {
+               "properties": {
+                 "key": "value"
+               }
+             }
+             */
+            // is this a dictionary?
+            if ([response isKindOfClass:[NSDictionary class]]) {
+                // extract the properties
+                NSObject *properties = [(NSDictionary *)response objectForKey:@"properties"];
+                if ([properties isKindOfClass:[NSDictionary class]]) {
+                    block((NSDictionary *)properties, nil);
+                    return;
+                }
+            }
+            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"malformed response from choose: %@", response]}]);
+        }
     }];
 }
 
