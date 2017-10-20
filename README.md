@@ -61,7 +61,7 @@ After choosing a variant, improve.ai needs to learn how that variant performs.  
 
 ```
 
-By default, improve.ai will optimize for user retention and then revenue.  Track events for both.
+By default, improve.ai will optimize for user retention and revenue.  Track events for both.
 
 ```objc
 // In applicationDidBecomeActive
