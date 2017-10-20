@@ -74,7 +74,7 @@ By default, improve.ai will optimize for user retention and then revenue.  Track
 
 ```
 
-That's all there is to it.  Forever more improve.ai will learn the greeting that optimizes revenue, if tracked, otherwise falling back to user retention.
+That's all there is to it.  Forever more improve.ai will learn the greeting that earns the most revenue.  If revenue is not tracked, it will fall back to optimizing for user retention.
 
 For more complicated data structures than simple key/value properties and alternate goals, use the *withConfig:config* version of *chooseFrom*.  Visit [the docs](https://docs.improve.ai) for more information on the format of variant_config.
 
