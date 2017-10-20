@@ -1,12 +1,13 @@
 # improve.ai iOS SDK
 
-## Continuous Conversion Optimization + Pricing Optimization
+## AI-Powered App Configuration & Revenue Optimization
  
 [![CI Status](http://img.shields.io/travis/Justin Chapweske/Improve.svg?style=flat)](https://travis-ci.org/Justin Chapweske/Improve)
 [![Version](https://img.shields.io/cocoapods/v/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![License](https://img.shields.io/cocoapods/l/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![Platform](https://img.shields.io/cocoapods/p/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 
+Improve.ai helps you build apps that improve themselves, automatically, to maximize user retention and revenue.
 
 ## Installation
 
@@ -18,29 +19,20 @@ pod "Improve"
 ```
 ### Hello World!
 
-This example teaches the core concepts of *Properties*, *Choices*, *Events*, and *Funnels*.  
 
 For "Hello World!" we'll continuously optimize the ```greeting``` property.  This is like A/B testing on steroids.
 
 ```objc
-NSString *greeting = @"Hello World!";
+NSString *variants = @{
+                         @"greeting": [
+                             @"Hello World!",
+                             @"Hi World!",
+                             @"Howdy World!"
+                         ]
+                     };
 ```
 
-```Hello World``` will be the default value.  This could be used immediately or in the case of a network error.
-
-Now, create some alternate greetings:
-
-```objc
-NSArray *variants = [@"Hello World!", @"Hi World!", @"Howdy World!"];
-```
-
-Typically the variants would be loaded from a database query or configuration file.  Up to 1,000 variants could be provided and new variants can be added at any time.  
-
-Now specify the goal to optimize for using an event *funnel*.  A *funnel* can be thought of as a goal path or sequence of events that you want to occur.  In this case the funnel goes from *Viewed* to *Clicked*.  This learns the greeting most likely to be clicked.
-
-```objc
-NSArray *funnel = [@"Viewed", @"Clicked"];
-```
+Variants may be hard coded as above, or loaded from a .plist, database query, or remote configuration service.  Up to 1,000 variants may be provided per property and new variants can be added at any time.
 
 Import and initialize the SDK.
 
@@ -53,37 +45,46 @@ Import and initialize the SDK.
 
 Visit [improve.ai](http://improve.ai) to sign up for an api key.
 
-This is where the magic happens - let improve.ai choose the `greeting` most likely to be *Clicked*:
+This is where the magic happens - let improve.ai choose the `greeting` most likely to give the best revenue or user retention.
 
 ```objc
-[[Improve instance] chooseFrom:variants forKey:@"greeting" funnel:funnel block:^(NSString* result) {
-    greeting = result;
+[[Improve instance] chooseFrom:variants block:^(NSDictionary *) properties {
+    // properties contains the chosen values
 }];
 
 ```
 
- - ```variants``` the list of possible property values
- - ```greeting``` the property key to optimize
- - ```funnel``` the goal path
- - ```result``` the decision from improve.ai
-
-Lastly, improve.ai needs to learn how the different property values perform.  When the greeting is *Viewed*, track the event.
+After choosing a variant, improve.ai needs to learn how that variant performs.  When the greeting is *Viewed*, track the event.
 
 ```objc
 [[Improve instance] track:@"Viewed" properties:@{ @"greeting": greeting }];
 
 ```
 
-Likewise with *Clicked*.
+By default, improve.ai will optimize for user retention and then revenue.  Track events for both.
 
 ```objc
-[[Improve instance] track:@"Clicked" properties:@{ @"greeting": greeting }];
+// In applicationDidBecomeActive
+[[Improve instance] track:@"App Active" properties:nil];
+
+...
+
+// Whenever there is a purchase
+[[Improve instance] track:@"Purchased" properties:@{ @"revenue": @19.99 }]
 
 ```
 
-That's all there is to it.  Forever more improve.ai will learn the greeting most likely to be to *Clicked*.  With each new user the app will improve, without you having to actively manage the process.
+That's all there is to it.  Forever more improve.ai will learn the greeting that optimizes revenue, if tracked, otherwise falling back to user retention.
 
-For further documentation see [improve.ai](https://www.improve.ai).
+For more complicated data structures than simple key/value properties and alternate goals, use the *withConfig:config* version of *chooseFrom*.  Visit [the docs](https://docs.improve.ai) for more information on the format of variant_config.
+
+```objc
+[[Improve instance] chooseFrom:variants withConfig:config block:^(NSDictionary *) properties {
+// properties contains the chosen values
+}];
+```
+
+For further documentation see [improve.ai](https://docs.improve.ai).
 
 ## Author
 
