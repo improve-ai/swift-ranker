@@ -43,7 +43,7 @@ Import and initialize the SDK.
 
 ```
 
-Visit [improve.ai](http://improve.ai) to sign up for an api key.
+Visit [improve.ai](http://improve.ai) to sign up for a free api key.
 
 This is where the magic happens - let improve.ai choose the `greeting` most likely to give the best revenue or user retention.
 
