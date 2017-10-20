@@ -20,7 +20,7 @@ pod "Improve"
 ### Hello World!
 
 
-For "Hello World!" we'll continuously optimize the ```greeting``` property to automatically discover which one provides the best user retention and revenue.  This is like A/B testing on steroids.
+For "Hello World!" we'll continuously optimize the ```greeting``` property to automatically discover which one provides the best user retention and revenue.  This is like A/B testing on AI steroids.
 
 ```objc
 NSString *variants = @{
