@@ -54,7 +54,7 @@ This is where the magic happens - let improve.ai choose the `greeting` most like
 
 ```
 
-After choosing a variant, improve.ai needs to learn how that variant performs.  When the greeting becomes *causal*, track an event and include the chosen variant as a property on that event.
+After choosing a variant, improve.ai needs to learn how that variant performs.  When the greeting becomes *causal*, track an event and include the chosen variant as a property on that event.  (Note that timing based properties may become causal the moment they are chosen.)
 
 ```objc
 [[Improve instance] track:@"Viewed" properties:@{ @"greeting": greeting }];
