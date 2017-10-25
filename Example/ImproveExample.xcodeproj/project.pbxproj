@@ -14,6 +14,9 @@
 		8D40E2BC1FA0B5E50042EB46 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D40E2BB1FA0B5E50042EB46 /* Assets.xcassets */; };
 		8D40E2BF1FA0B5E50042EB46 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D40E2BD1FA0B5E50042EB46 /* LaunchScreen.storyboard */; };
 		8D40E2C21FA0B5E50042EB46 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8D40E2C11FA0B5E50042EB46 /* main.m */; };
+		8D40E2D41FA0B8D60042EB46 /* Improve.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 8D40E2D11FA0B8D60042EB46 /* Improve.podspec */; };
+		8D40E2D51FA0B8D60042EB46 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 8D40E2D21FA0B8D60042EB46 /* LICENSE */; };
+		8D40E2D61FA0B8D60042EB46 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 8D40E2D31FA0B8D60042EB46 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +30,9 @@
 		8D40E2BE1FA0B5E50042EB46 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8D40E2C01FA0B5E50042EB46 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D40E2C11FA0B5E50042EB46 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		8D40E2D11FA0B8D60042EB46 /* Improve.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Improve.podspec; path = ../Improve.podspec; sourceTree = "<group>"; };
+		8D40E2D21FA0B8D60042EB46 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		8D40E2D31FA0B8D60042EB46 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		9E01D88CF7E8489B7B7A9BFE /* Pods-ImproveExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ImproveExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ImproveExample/Pods-ImproveExample.debug.xcconfig"; sourceTree = "<group>"; };
 		C1BCD695D558B71BAD7F0628 /* Pods_ImproveExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ImproveExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2238F0B0430E3193B406C49 /* Pods-ImproveExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ImproveExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-ImproveExample/Pods-ImproveExample.release.xcconfig"; sourceTree = "<group>"; };
@@ -55,6 +61,7 @@
 		8D40E2A61FA0B5E50042EB46 = {
 			isa = PBXGroup;
 			children = (
+				8D40E2D01FA0B8B70042EB46 /* Podspec Metadata */,
 				8D40E2B11FA0B5E50042EB46 /* ImproveExample */,
 				8D40E2B01FA0B5E50042EB46 /* Products */,
 				CFBA6424F83721F7A8D013BF /* Pods */,
@@ -84,6 +91,16 @@
 				8D40E2C11FA0B5E50042EB46 /* main.m */,
 			);
 			path = ImproveExample;
+			sourceTree = "<group>";
+		};
+		8D40E2D01FA0B8B70042EB46 /* Podspec Metadata */ = {
+			isa = PBXGroup;
+			children = (
+				8D40E2D11FA0B8D60042EB46 /* Improve.podspec */,
+				8D40E2D31FA0B8D60042EB46 /* README.md */,
+				8D40E2D21FA0B8D60042EB46 /* LICENSE */,
+			);
+			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
 		CFBA6424F83721F7A8D013BF /* Pods */ = {
@@ -156,9 +173,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D40E2D61FA0B8D60042EB46 /* README.md in Resources */,
 				8D40E2BF1FA0B5E50042EB46 /* LaunchScreen.storyboard in Resources */,
+				8D40E2D41FA0B8D60042EB46 /* Improve.podspec in Resources */,
 				8D40E2BC1FA0B5E50042EB46 /* Assets.xcassets in Resources */,
 				8D40E2BA1FA0B5E50042EB46 /* Main.storyboard in Resources */,
+				8D40E2D51FA0B8D60042EB46 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
