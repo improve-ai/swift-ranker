@@ -1,0 +1,6 @@
+framework module Pods_ImproveExample {
+  umbrella header "Pods-ImproveExample-umbrella.h"
+
+  export *
+  module * { export * }
+}
