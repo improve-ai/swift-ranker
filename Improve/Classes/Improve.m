@@ -119,6 +119,16 @@ static Improve *sharedInstance;
     [dataTask resume];
 }
 
+- (void) trackUsing:(NSDictionary *)properties
+{
+    [self track:@"using" properties:properties];
+}
+
+- (void) trackSuccess:(NSDictionary *)properties
+{
+    [self track:@"success" properties:properties];
+}
+
 - (void)track:(NSString *)event properties:(NSDictionary *)properties
 {
     

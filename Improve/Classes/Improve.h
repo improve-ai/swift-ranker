@@ -37,6 +37,20 @@
 + (Improve *)instanceWithApiKey:(NSString *)apiKey userId:(NSString *)userId;
 
 /**
+ Track that one or more properties are being used/causal.
+ 
+ @param properties A dictionary of properties that are causal
+ */
+- (void) trackUsing:(NSDictionary *)properties;
+
+/**
+ Track that the use of one or more properties led to a successful result.
+ 
+ @param properties A dictionary of properties that led to a successful result
+ */
+- (void) trackSuccess:(NSDictionary *)properties;
+
+/**
  Track an event.
 
  @param properties A dictionary of properties that are causal on this event
