@@ -82,11 +82,18 @@ static Improve *sharedInstance;
                                @"x-api-key":  _apiKey };
     
     
-    NSDictionary *body = @{ @"model_name": modelName,
-                            @"variants": variants,
-                            @"context": context,
-                            @"variant_config": config,
-                            @"user_id": _userId };
+    NSMutableDictionary *body = [@{ @"variants": variants,
+                                    @"user_id": _userId } mutableCopy];
+    // TODO modelName is required on v3 change
+    if (modelName) {
+        [body setObject:modelName forKey:@"model_name"];
+    }
+    if (context) {
+        [body setObject:context forKey:@"context"];
+    }
+    if (config) {
+        [body setObject:config forKey:@"variant_config"];
+    }
     
     NSError * err;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
@@ -155,12 +162,17 @@ static Improve *sharedInstance;
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key":  _apiKey };
     
+    // required variables
+    NSMutableDictionary *body = [@{ @"model_name": modelName,
+                                    @"properties": properties,
+                                    @"user_id": _userId } mutableCopy];
     
-    NSDictionary *body = @{ @"model_name": modelName,
-                            @"context": context,
-                            @"properties": properties,
-                            @"reward_key": rewardKey,
-                            @"user_id": _userId };
+    if (context) {
+        [body setObject:context forKey:@"context"];
+    }
+    if (rewardKey) {
+        [body setObject:rewardKey forKey:@"reward_key"];
+    }
     
     NSError * err;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
@@ -208,9 +220,12 @@ static Improve *sharedInstance;
                                @"x-api-key":  _apiKey};
     
     
-    NSDictionary *body = @{ @"currency": currency,
-                            @"rewards": rewards,
-                            @"user_id": _userId };
+    NSMutableDictionary *body = [@{ @"rewards": rewards,
+                                    @"user_id": _userId } mutableCopy];
+    
+    if (currency) {
+        [body setObject:currency forKey:@"currency"];
+    }
     
     NSError * err;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
