@@ -45,6 +45,11 @@
  */
 - (void) trackUsing:(NSDictionary *)properties;
 
+- (void) trackUsing:(NSDictionary *)properties forModel:(NSString *)modelName withContext:(NSDictionary *)context;
+
+- (void) trackUsing:(NSDictionary *)properties forModel:(NSString *)modelName withContext:(NSDictionary *)context forRewardKey:(NSString *)rewardKey;
+
+
 /**
  Track that the use of one or more properties led to a successful result.
  
