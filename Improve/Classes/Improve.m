@@ -11,6 +11,8 @@
 
 #define TRACK_URL @"https://api.improve.ai/v2/track"
 #define CHOOSE_URL @"https://api.improve.ai/v2/choose"
+#define USING_URL @"https://api.improve.ai/v3/using"
+#define REWARDS_URL @"https://api.improve.ai/v3/rewards"
 
 #define USER_ID_KEY @"ai.improve.user_id"
 
@@ -53,25 +55,38 @@ static Improve *sharedInstance;
     
     _trackUrl = TRACK_URL;
     _chooseUrl = CHOOSE_URL;
+    _usingUrl = USING_URL;
+    _rewardsUrl = REWARDS_URL;
     
     return self;
 }
 
 - (void)chooseFrom:(NSDictionary *)variants block:(void (^)(NSDictionary *, NSError *)) block
 {
-    [self chooseFrom:variants withConfig:nil block:block];
+    [self chooseFrom:variants forModel:nil withContext:nil withConfig:nil block:block];
+}
+
+- (void)chooseFrom:(NSDictionary *)variants withContext:(NSDictionary *)context block:(void (^)(NSDictionary *, NSError *)) block
+{
+    [self chooseFrom:variants forModel:nil withContext:context withConfig:nil block:block];
 }
 
 - (void)chooseFrom:(NSDictionary *)variants withConfig:(NSDictionary *)config block:(void (^)(NSDictionary *, NSError *)) block
+{
+    [self chooseFrom:variants forModel:nil withContext:nil withConfig:config block:block];
+}
 
+- (void)chooseFrom:(NSDictionary *)variants forModel:(NSString *)modelName withContext:(NSDictionary *)context withConfig:(NSDictionary *)config block:(void (^)(NSDictionary *, NSError *)) block
 {
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               @"x-api-key":  _apiKey,
-                               @"x-user-id": _userId };
+                               @"x-api-key":  _apiKey };
     
     
-    NSDictionary *body = @{ @"variants": variants,
-                            @"variant_config": config };
+    NSDictionary *body = @{ @"model_name": modelName,
+                            @"variants": variants,
+                            @"context": context,
+                            @"variant_config": config,
+                            @"user_id": _userId };
     
     NSError * err;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
@@ -119,14 +134,102 @@ static Improve *sharedInstance;
     [dataTask resume];
 }
 
+// deprecated v2
 - (void) trackUsing:(NSDictionary *)properties
 {
     [self track:@"using" properties:properties];
 }
 
+- (void) trackUsing:(NSDictionary *)properties forModel:(NSString *)modelName withContext:(NSDictionary *)context
+{
+    [self trackUsing:properties forModel:modelName withContext:context forRewardKey:nil];
+}
+
+- (void) trackUsing:(NSDictionary *)properties forModel:(NSString *)modelName withContext:(NSDictionary *)context forRewardKey:(NSString *)rewardKey
+{
+    
+    if (!properties) {
+        properties = @{};
+    }
+    
+    NSDictionary *headers = @{ @"Content-Type": @"application/json",
+                               @"x-api-key":  _apiKey };
+    
+    
+    NSDictionary *body = @{ @"model_name": modelName,
+                            @"context": context,
+                            @"properties": properties,
+                            @"reward_key": rewardKey,
+                            @"user_id": _userId };
+    
+    NSError * err;
+    NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+    if (err) {
+        NSLog(@"Improve.track error: %@", err);
+        return;
+    }
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_usingUrl]];
+    
+    [request setHTTPMethod:@"POST"];
+    [request setAllHTTPHeaderFields:headers];
+    [request setHTTPBody:postData];
+    
+    [self postImproveRequest:request block:^(NSObject *result, NSError *error) {
+        if (error) {
+            NSLog(@"Improve.track error: %@", error);
+        }
+    }];
+}
+
 - (void) trackSuccess:(NSDictionary *)properties
 {
     [self track:@"success" properties:properties];
+}
+
+- (void) trackRevenue:(NSNumber *)revenue
+{
+    [self trackRevenue:revenue currency:nil];
+}
+
+- (void) trackRevenue:(NSNumber *)revenue currency:(NSString *)currency
+{
+    [self trackRewards:@{ @"revenue": revenue } currency:currency];
+}
+
+- (void) trackRewards:(NSDictionary *)rewards
+{
+    [self trackRewards:rewards currency:nil];
+}
+
+- (void) trackRewards:(NSDictionary *)rewards currency:(NSString *)currency
+{
+    NSDictionary *headers = @{ @"Content-Type": @"application/json",
+                               @"x-api-key":  _apiKey};
+    
+    
+    NSDictionary *body = @{ @"currency": currency,
+                            @"rewards": rewards,
+                            @"user_id": _userId };
+    
+    NSError * err;
+    NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+    if (err) {
+        NSLog(@"Improve.track error: %@", err);
+        return;
+    }
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_rewardsUrl]];
+    
+    [request setHTTPMethod:@"POST"];
+    [request setAllHTTPHeaderFields:headers];
+    [request setHTTPBody:postData];
+    
+    [self postImproveRequest:request block:^(NSObject *result, NSError *error) {
+        if (error) {
+            NSLog(@"Improve.track error: %@", error);
+        }
+    }];
 }
 
 - (void)track:(NSString *)event properties:(NSDictionary *)properties

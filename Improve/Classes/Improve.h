@@ -16,6 +16,8 @@
 @property (nonatomic, strong) NSString *userId;
 @property (nonatomic, strong) NSString *chooseUrl;
 @property (nonatomic, strong) NSString *trackUrl;
+@property (nonatomic, strong) NSString *usingUrl;
+@property (nonatomic, strong) NSString *rewardsUrl;
 
 /**
  Get the current singleton.
@@ -49,6 +51,14 @@
  @param properties A dictionary of properties that led to a successful result
  */
 - (void) trackSuccess:(NSDictionary *)properties;
+
+- (void) trackRevenue:(NSNumber *)revenue;
+
+- (void) trackRevenue:(NSNumber *)revenue currency:(NSString *)currency;
+
+- (void) trackRewards:(NSDictionary *)rewards;
+
+- (void) trackRewards:(NSDictionary *)rewards currency:(NSString *)currency;
 
 /**
  Track an event.
