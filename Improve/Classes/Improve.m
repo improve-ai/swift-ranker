@@ -86,7 +86,7 @@ static Improve *sharedInstance;
                                     @"user_id": _userId } mutableCopy];
     // TODO modelName is required on v3 change
     if (modelName) {
-        [body setObject:modelName forKey:@"model_name"];
+        [body setObject:modelName forKey:@"model"];
     }
     if (context) {
         [body setObject:context forKey:@"context"];
@@ -163,7 +163,7 @@ static Improve *sharedInstance;
                                @"x-api-key":  _apiKey };
     
     // required variables
-    NSMutableDictionary *body = [@{ @"model_name": modelName,
+    NSMutableDictionary *body = [@{ @"model": modelName,
                                     @"properties": properties,
                                     @"user_id": _userId } mutableCopy];
     
