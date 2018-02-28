@@ -9,13 +9,11 @@
 #import <Foundation/Foundation.h>
 #import "Improve.h"
 
-#define TRACK_URL @"https://api.improve.ai/v2/track"
-#define CHOOSE_URL @"https://api.improve.ai/v2/choose"
+#define CHOOSE_URL @"https://api.improve.ai/v3/choose"
 #define USING_URL @"https://api.improve.ai/v3/using"
 #define REWARDS_URL @"https://api.improve.ai/v3/rewards"
 
 #define USER_ID_KEY @"ai.improve.user_id"
-
 
 @implementation Improve : NSObject
 
@@ -53,7 +51,6 @@ static Improve *sharedInstance;
         self.userId = userId;
     }
     
-    _trackUrl = TRACK_URL;
     _chooseUrl = CHOOSE_URL;
     _usingUrl = USING_URL;
     _rewardsUrl = REWARDS_URL;
@@ -61,38 +58,18 @@ static Improve *sharedInstance;
     return self;
 }
 
-- (void)chooseFrom:(NSDictionary *)variants block:(void (^)(NSDictionary *, NSError *)) block
-{
-    [self chooseFrom:variants forModel:nil withContext:nil withConfig:nil block:block];
-}
-
-- (void)chooseFrom:(NSDictionary *)variants withContext:(NSDictionary *)context block:(void (^)(NSDictionary *, NSError *)) block
-{
-    [self chooseFrom:variants forModel:nil withContext:context withConfig:nil block:block];
-}
-
-- (void)chooseFrom:(NSDictionary *)variants withConfig:(NSDictionary *)config block:(void (^)(NSDictionary *, NSError *)) block
-{
-    [self chooseFrom:variants forModel:nil withContext:nil withConfig:config block:block];
-}
-
-- (void)chooseFrom:(NSDictionary *)variants forModel:(NSString *)modelName withContext:(NSDictionary *)context withConfig:(NSDictionary *)config block:(void (^)(NSDictionary *, NSError *)) block
+- (void)choose:(NSDictionary *)variants model:(NSString *)modelName context:(NSDictionary *)context completion:(void (^)(NSDictionary *, NSError *)) block
 {
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key":  _apiKey };
     
     
     NSMutableDictionary *body = [@{ @"variants": variants,
+                                    @"model": modelName,
                                     @"user_id": _userId } mutableCopy];
-    // TODO modelName is required on v3 change
-    if (modelName) {
-        [body setObject:modelName forKey:@"model"];
-    }
+
     if (context) {
         [body setObject:context forKey:@"context"];
-    }
-    if (config) {
-        [body setObject:config forKey:@"variant_config"];
     }
     
     NSError * err;
@@ -105,54 +82,12 @@ static Improve *sharedInstance;
     [self postChooseRequest:headers data:postData block:block];
 }
 
-
-- (void) choose:(NSURLRequest *)fetchRequest block:(void (^)(NSDictionary *, NSError *)) block
+- (void) trackUsing:(NSDictionary *)properties model:(NSString *)modelName context:(NSDictionary *)context
 {
-    
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:nil
-                                                     delegateQueue:[NSOperationQueue mainQueue]];
-    
-    // fetch the improve.yml file
-    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:fetchRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        if (!block) {
-            return;
-        }
-        
-        if (!error && [response isKindOfClass:[NSHTTPURLResponse class]]) {
-            NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-            
-            if (statusCode >= 400) {
-                error = [NSError errorWithDomain:@"ai.improve" code:statusCode userInfo:[(NSHTTPURLResponse *) response allHeaderFields]];
-            }
-        }
-
-        if (error) { // transport or HTTP error
-            block(nil, error);
-            return;
-        }
-        
-        NSDictionary *headers = @{ @"Content-Type": @"application/x-yaml",
-                                   @"x-api-key":  _apiKey,
-                                   @"x-user-id": _userId};
-
-        // post improve.yml back to /choose
-        [self postChooseRequest:headers data:data block:block];
-    }];
-    [dataTask resume];
+    [self trackUsing:properties model:modelName context:context rewardKey:nil];
 }
 
-// deprecated v2
-- (void) trackUsing:(NSDictionary *)properties
-{
-    [self track:@"using" properties:properties];
-}
-
-- (void) trackUsing:(NSDictionary *)properties forModel:(NSString *)modelName withContext:(NSDictionary *)context
-{
-    [self trackUsing:properties forModel:modelName withContext:context forRewardKey:nil];
-}
-
-- (void) trackUsing:(NSDictionary *)properties forModel:(NSString *)modelName withContext:(NSDictionary *)context forRewardKey:(NSString *)rewardKey
+- (void) trackUsing:(NSDictionary *)properties model:(NSString *)modelName context:(NSDictionary *)context rewardKey:(NSString *)rewardKey
 {
     
     if (!properties) {
@@ -192,11 +127,6 @@ static Improve *sharedInstance;
             NSLog(@"Improve.track error: %@", error);
         }
     }];
-}
-
-- (void) trackSuccess:(NSDictionary *)properties
-{
-    [self track:@"success" properties:properties];
 }
 
 - (void) trackRevenue:(NSNumber *)revenue
@@ -244,41 +174,6 @@ static Improve *sharedInstance;
         if (error) {
             NSLog(@"Improve.track error: %@", error);
         }
-    }];
-}
-
-- (void)track:(NSString *)event properties:(NSDictionary *)properties
-{
-    
-    if (!properties) {
-        properties = @{};
-    }
-
-    NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               @"x-api-key":  _apiKey};
-
-
-    NSDictionary *body = @{ @"event": event,
-                            @"properties": properties,
-                            @"user_id": _userId };
-    
-    NSError * err;
-    NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
-    if (err) {
-        NSLog(@"Improve.track error: %@", err);
-        return;
-    }
-
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_trackUrl]];
-    
-    [request setHTTPMethod:@"POST"];
-    [request setAllHTTPHeaderFields:headers];
-    [request setHTTPBody:postData];
-
-    [self postImproveRequest:request block:^(NSObject *result, NSError *error) {
-        if (error) {
-            NSLog(@"Improve.track error: %@", error);
-        } 
     }];
 }
 
