@@ -129,22 +129,22 @@ static Improve *sharedInstance;
     }];
 }
 
-- (void) trackRevenue:(NSNumber *)revenue
+- (void) trackRevenue:(NSNumber *)revenue receipt:(NSData *)receipt
 {
-    [self trackRevenue:revenue currency:nil];
+    [self trackRevenue:revenue receipt:receipt currency:nil];
 }
 
-- (void) trackRevenue:(NSNumber *)revenue currency:(NSString *)currency
+- (void) trackRevenue:(NSNumber *)revenue receipt:(NSData *)receipt currency:(NSString *)currency
 {
-    [self trackRewards:@{ @"revenue": revenue } currency:currency];
+    [self trackRewards:@{ @"revenue": revenue } receipt:receipt currency:currency];
 }
 
 - (void) trackRewards:(NSDictionary *)rewards
 {
-    [self trackRewards:rewards currency:nil];
+    [self trackRewards:rewards receipt:nil currency:nil];
 }
 
-- (void) trackRewards:(NSDictionary *)rewards currency:(NSString *)currency
+- (void) trackRewards:(NSDictionary *)rewards receipt:(NSData *)receipt currency:(NSString *)currency
 {
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key":  _apiKey};
@@ -152,6 +152,10 @@ static Improve *sharedInstance;
     
     NSMutableDictionary *body = [@{ @"rewards": rewards,
                                     @"user_id": _userId } mutableCopy];
+    
+    if (receipt) {
+        [body setObject:[receipt base64EncodedStringWithOptions:0] forKey:@"receipt"];
+    }
     
     if (currency) {
         [body setObject:currency forKey:@"currency"];

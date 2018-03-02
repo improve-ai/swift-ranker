@@ -55,13 +55,13 @@
 
 - (void) trackUsing:(NSDictionary *)properties model:(NSString *)modelName context:(NSDictionary *)context rewardKey:(NSString *)rewardKey;
 
-- (void) trackRevenue:(NSNumber *)revenue;
+- (void) trackRevenue:(NSNumber *)revenue receipt:(NSData *)receipt;
 
-- (void) trackRevenue:(NSNumber *)revenue currency:(NSString *)currency;
+- (void) trackRevenue:(NSNumber *)revenue receipt:(NSData *)receipt currency:(NSString *)currency;
 
 - (void) trackRewards:(NSDictionary *)rewards;
 
-- (void) trackRewards:(NSDictionary *)rewards currency:(NSString *)currency;
+- (void) trackRewards:(NSDictionary *)rewards receipt:(NSData *)receipt currency:(NSString *)currency;
 
 
 @end
