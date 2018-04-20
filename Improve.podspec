@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'Improve'
-  s.version          = '3.0.0'
+  s.version          = '3.0.1'
   s.summary          = 'Improve.ai iOS App SDK'
 
 # This description is used to generate tags and improve search results.

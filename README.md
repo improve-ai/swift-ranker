@@ -1,12 +1,12 @@
 # improve.ai iOS SDK
 
-## AI-Powered App Configuration & Revenue Optimization
+## AI-Powered Conversion Optimization & Revenue Optimization
  
 [![Version](https://img.shields.io/cocoapods/v/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![License](https://img.shields.io/cocoapods/l/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![Platform](https://img.shields.io/cocoapods/p/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 
-Use machine learning to build apps that improve themselves, automatically, to maximize user retention and revenue.
+Use machine learning to build apps that improve themselves to maximize conversions and revenue. (Revenue optimization is an optional add-on).
 
 ## Installation
 
@@ -42,9 +42,9 @@ Import and initialize the SDK.
 
 ```
 
-Visit [improve.ai](http://improve.ai) to sign up for a free api key.
+Visit [improve.ai](http://improve.ai) to sign up for an api key.
 
-This is where the magic happens - let improve.ai choose the `greeting` most likely to give the best revenue or user retention.
+This is where the magic happens - let improve.ai choose the `greeting` most likely to lead to conversion.
 
 ```objc
 [[Improve instance] chooseFrom:variants block:^(NSDictionary *) properties {
@@ -56,39 +56,19 @@ This is where the magic happens - let improve.ai choose the `greeting` most like
 After choosing a variant, improve.ai needs to learn how that variant performs.  When the greeting becomes *causal*, track an event and include the chosen variant as a property on that event.  (Note that timing based properties may become causal the moment they are chosen.)
 
 ```objc
-[[Improve instance] track:@"Viewed" properties:@{ @"greeting": greeting }];
+[[Improve instance] trackUsing:@{ @"greeting": greeting }];
 
 ```
 
-By default, improve.ai will optimize for user retention and revenue.  Track events for both.
-
-```objc
-// In applicationDidBecomeActive
-[[Improve instance] track:@"App Active" properties:nil];
-
-...
-
-// Whenever there is a purchase
-[[Improve instance] track:@"Purchased" properties:@{ @"revenue": @19.99 }]
+// Whenever there is a conversion
+[[Improve instance] trackRevenue:@19.99];
 
 ```
 
-That's all there is to it.  Forever more improve.ai will learn the greeting that earns the most revenue.  If revenue is not tracked, it will fall back to optimizing for user retention.
-
-For more complicated data structures beyond simple key/value properties, alternate goals, or segmented/contextual properties use the *withConfig:config* version of *chooseFrom*.  Visit [the docs](https://docs.improve.ai) for more information on the format of variant_config.
-
-```objc
-[[Improve instance] chooseFrom:variants withConfig:config block:^(NSDictionary *) properties {
-// properties contains the chosen values
-}];
-```
+That's all there is to it.  Forever more improve.ai will learn the greeting that earns the most revenue.  
 
 For further documentation see [improve.ai](https://docs.improve.ai).
 
-## Author
-
-Justin Chapweske, justin@improve.ai
-
 ## License
 
-The improve.ai iOS SDK is available under the MIT license. See the LICENSE file for more info.
+The improve.ai iOS SDK is available under the MIT license. See the LICENSE file for more info.  Use of improve.ai is subject to its license agreement.

@@ -55,6 +55,10 @@ static Improve *sharedInstance;
     _usingUrl = USING_URL;
     _rewardsUrl = REWARDS_URL;
     
+    _propertiesByModel = [NSMutableDictionary dictionary];
+    _contextByModel = [NSMutableDictionary dictionary];
+    _usingByModel = [NSMutableDictionary dictionary];
+    
     return self;
 }
 
@@ -80,6 +84,65 @@ static Improve *sharedInstance;
     }
     
     [self postChooseRequest:headers data:postData block:block];
+}
+
+- (void) setVariants:(NSDictionary *)variants model:(NSString *)model context:(NSDictionary *)context {
+    if ([_propertiesByModel objectForKey:model]) {
+        NSLog(@"Improve.setVariants: Overwriting properties for model %@ not allowed, ignoring", model);
+        return;
+    }
+    // Loop through the variants, temporarily storing the first variant for each property in case
+    // the /choose call is slow or fails
+    NSMutableDictionary *tmpProperties = [NSMutableDictionary dictionary];
+    for (id key in variants) {
+        NSArray *variantValues = [variants objectForKey:key];
+        if ([variantValues isKindOfClass:[NSArray class]] && [variantValues count] >= 1) {
+            [tmpProperties setObject:variantValues[0] forKey:key];
+        }
+    }
+    // This also takes care of setting the context
+    [self setProperties:tmpProperties model:model context:context];
+    
+    // fire off the request to /choose
+    [self choose:variants model:model context:context completion:^(NSDictionary *properties, NSError *error) {
+        if (error) {
+            NSLog(@"Improve.setVariants error: %@, using defaults", error);
+            return;
+        }
+        
+        // Overwrite the temp properties with the answer from /choose
+        [_propertiesByModel setObject:properties forKey:error];
+    }];
+}
+
+- (void) setProperties:(NSDictionary *)properties model:(NSString *)model context:(NSDictionary *)context  {
+    if ([_propertiesByModel objectForKey:model]) {
+        NSLog(@"Improve.setProperties: Overwriting properties for model %@ not allowed, ignoring", model);
+        return;
+    }
+    [_propertiesByModel setObject:properties forKey:model];
+    [_contextByModel setObject:context forKey:model];
+}
+
+- (NSDictionary *) propertiesForModel:(NSString *)model {
+
+    if (![_propertiesByModel objectForKey:model]) {
+        NSLog(@"Improve.propertiesForModel: No properties set for model %@, returning empty properties going forward", model);
+        // Set it to an empty dictionary so that its not overwritten in setProperties:
+        [_propertiesByModel setObject:@{} forKey:model];
+        // Don't send a /using request to improve.ai
+        [_usingByModel setObject:@TRUE forKey:model];
+    }
+
+    NSDictionary *properties = [_propertiesByModel objectForKey:model];
+    
+    // Track using once
+    if (![_usingByModel objectForKey:model]) {
+        [_usingByModel setObject:@TRUE forKey:model];
+        [self trackUsing:properties model:model context:[_contextByModel objectForKey:model]];
+    }
+    
+    return properties;
 }
 
 - (void) trackUsing:(NSDictionary *)properties model:(NSString *)modelName context:(NSDictionary *)context
