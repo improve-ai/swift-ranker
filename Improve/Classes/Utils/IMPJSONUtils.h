@@ -17,6 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSDictionary<NSString*, id> *)propertiesToFeatures:(id)jsonObject;
 
+/**
+ @return A primitive type if the value is primitive or the value of the “id” field if it is a NSDictionary, otherwise throw an UnsupportedInput exception.
+ */
++ (NSString *)variantToCanonical:(id)variant;
+
 @end
 
 NS_ASSUME_NONNULL_END

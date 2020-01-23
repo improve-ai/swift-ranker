@@ -76,4 +76,31 @@
   featureDict[secondsOfDayKey] = [NSNumber numberWithDouble:secondsOfDay];
 }
 
++ (NSString *)variantToCanonical:(id)variant
+{
+  NSException *unsupportedInput
+  = [NSException exceptionWithName:@"UnsupportedInput"
+                            reason:@"JSON input withou 'id' parameter is unsupported"  userInfo:nil];
+
+  if ([variant isKindOfClass:[NSDictionary class]]) {
+    NSDictionary *dict = variant;
+
+    id identifier = dict[@"id"];
+    if (identifier && [identifier isKindOfClass:[NSString class]]) {
+      return identifier;
+    } else {
+      [unsupportedInput raise];
+    }
+
+  } else if ([variant isKindOfClass:[NSArray class]]) {
+    [unsupportedInput raise];
+
+  } else {
+    // Return a basic type as a string
+    return [NSString stringWithFormat:@"%@", variant];
+  }
+
+  return nil;
+}
+
 @end

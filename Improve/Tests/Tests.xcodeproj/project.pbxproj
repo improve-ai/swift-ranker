@@ -150,9 +150,9 @@
 		54CB9B3623D988F10005BB94 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				54CB9B3923D988F10005BB94 /* IMPJSONFlattener.h */,
 				54CB9B3723D988F10005BB94 /* IMPJSONFlattener.m */,
 				54CB9B3823D988F10005BB94 /* IMPJSONUtils.h */,
-				54CB9B3923D988F10005BB94 /* IMPJSONFlattener.h */,
 				54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */,
 			);
 			path = Utils;

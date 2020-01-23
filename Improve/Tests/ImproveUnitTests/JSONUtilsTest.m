@@ -35,7 +35,20 @@
 
     XCTAssert([output isEqualToDictionary:expectedOutput]);
   }
-  
+}
+
+- (void)testVariantToCanonical {
+  NSNumber *numb = [NSNumber numberWithDouble:3];
+  XCTAssert([[IMPJSONUtils variantToCanonical:numb] isEqualToString:[numb description]]);
+
+  NSNumber *aBool = [NSNumber numberWithBool:NO];
+  XCTAssert([[IMPJSONUtils variantToCanonical:aBool] isEqualToString:[aBool description]]);
+
+  NSDictionary *goodDict = @{@"id": @"007", @"pass": @"xxx"};
+  XCTAssert([[IMPJSONUtils variantToCanonical:goodDict] isEqualToString:@"007"]);
+
+  NSDictionary *badDict = @{@"message": @{@"text": @"Massage your temples."}};
+  XCTAssertThrows([IMPJSONUtils variantToCanonical:badDict]);
 }
 
 @end
