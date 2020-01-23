@@ -1,0 +1,14 @@
+# Xcode
+.DS_Store
+build/
+*.xccheckout
+*.xcuserstate
+*.xcworkspacedata
+*.xcscmblueprint
+*.xcbkptlist
+.xcuserdatad
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class

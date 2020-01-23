@@ -1,0 +1,412 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		54CB9B3D23D988F10005BB94 /* IMPMurmurHash.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B2C23D988F00005BB94 /* IMPMurmurHash.mm */; };
+		54CB9B3E23D988F10005BB94 /* MurmurHash3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B2E23D988F00005BB94 /* MurmurHash3.cpp */; };
+		54CB9B3F23D988F10005BB94 /* NSArray+Padding.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B3023D988F00005BB94 /* NSArray+Padding.m */; };
+		54CB9B4023D988F10005BB94 /* IMPFeatureHasher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B3523D988F10005BB94 /* IMPFeatureHasher.mm */; };
+		54CB9B4123D988F10005BB94 /* IMPJSONFlattener.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B3723D988F10005BB94 /* IMPJSONFlattener.m */; };
+		54CB9B4223D988F10005BB94 /* IMPJSONUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */; };
+		54CB9B4323D988F10005BB94 /* Improve.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B3B23D988F10005BB94 /* Improve.m */; };
+		54CB9B4A23D989140005BB94 /* hasher.json in Resources */ = {isa = PBXBuildFile; fileRef = 54CB9B4523D989140005BB94 /* hasher.json */; };
+		54CB9B4B23D989140005BB94 /* FeatureHasherUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B4623D989140005BB94 /* FeatureHasherUnitTests.m */; };
+		54CB9B4C23D989140005BB94 /* JSONUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B4723D989140005BB94 /* JSONUtilsTest.m */; };
+		54CB9B4D23D989140005BB94 /* JSONFlattenerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B4823D989140005BB94 /* JSONFlattenerTest.m */; };
+		54CB9B4F23D989AE0005BB94 /* propertiesToFeatures.json in Resources */ = {isa = PBXBuildFile; fileRef = 54CB9B4E23D989AE0005BB94 /* propertiesToFeatures.json */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		54CB9B1F23D987800005BB94 /* ImproveUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImproveUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		54CB9B2423D987800005BB94 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		54CB9B2B23D988F00005BB94 /* IMPMurmurHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMPMurmurHash.h; sourceTree = "<group>"; };
+		54CB9B2C23D988F00005BB94 /* IMPMurmurHash.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IMPMurmurHash.mm; sourceTree = "<group>"; };
+		54CB9B2D23D988F00005BB94 /* MurmurHash3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MurmurHash3.h; sourceTree = "<group>"; };
+		54CB9B2E23D988F00005BB94 /* MurmurHash3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MurmurHash3.cpp; sourceTree = "<group>"; };
+		54CB9B3023D988F00005BB94 /* NSArray+Padding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Padding.m"; sourceTree = "<group>"; };
+		54CB9B3123D988F00005BB94 /* NSArray+Padding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Padding.h"; sourceTree = "<group>"; };
+		54CB9B3423D988F10005BB94 /* IMPFeatureHasher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMPFeatureHasher.h; sourceTree = "<group>"; };
+		54CB9B3523D988F10005BB94 /* IMPFeatureHasher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IMPFeatureHasher.mm; sourceTree = "<group>"; };
+		54CB9B3723D988F10005BB94 /* IMPJSONFlattener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMPJSONFlattener.m; sourceTree = "<group>"; };
+		54CB9B3823D988F10005BB94 /* IMPJSONUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMPJSONUtils.h; sourceTree = "<group>"; };
+		54CB9B3923D988F10005BB94 /* IMPJSONFlattener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMPJSONFlattener.h; sourceTree = "<group>"; };
+		54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMPJSONUtils.m; sourceTree = "<group>"; };
+		54CB9B3B23D988F10005BB94 /* Improve.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Improve.m; sourceTree = "<group>"; };
+		54CB9B3C23D988F10005BB94 /* Improve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Improve.h; sourceTree = "<group>"; };
+		54CB9B4523D989140005BB94 /* hasher.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = hasher.json; sourceTree = "<group>"; };
+		54CB9B4623D989140005BB94 /* FeatureHasherUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeatureHasherUnitTests.m; sourceTree = "<group>"; };
+		54CB9B4723D989140005BB94 /* JSONUtilsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONUtilsTest.m; sourceTree = "<group>"; };
+		54CB9B4823D989140005BB94 /* JSONFlattenerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONFlattenerTest.m; sourceTree = "<group>"; };
+		54CB9B4E23D989AE0005BB94 /* propertiesToFeatures.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = propertiesToFeatures.json; path = Python/propertiesToFeatures.json; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		54CB9B1C23D987800005BB94 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		54CB9B1423D987590005BB94 = {
+			isa = PBXGroup;
+			children = (
+				54CB9B2823D988D10005BB94 /* Improve */,
+				54CB9B2123D987800005BB94 /* ImproveUnitTests */,
+				54CB9B2023D987800005BB94 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		54CB9B2023D987800005BB94 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				54CB9B1F23D987800005BB94 /* ImproveUnitTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		54CB9B2123D987800005BB94 /* ImproveUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				54CB9B4623D989140005BB94 /* FeatureHasherUnitTests.m */,
+				54CB9B4823D989140005BB94 /* JSONFlattenerTest.m */,
+				54CB9B4723D989140005BB94 /* JSONUtilsTest.m */,
+				54CB9B4523D989140005BB94 /* hasher.json */,
+				54CB9B4E23D989AE0005BB94 /* propertiesToFeatures.json */,
+				54CB9B2423D987800005BB94 /* Info.plist */,
+			);
+			path = ImproveUnitTests;
+			sourceTree = "<group>";
+		};
+		54CB9B2823D988D10005BB94 /* Improve */ = {
+			isa = PBXGroup;
+			children = (
+				54CB9B2F23D988F00005BB94 /* Categories */,
+				54CB9B3223D988F10005BB94 /* Classes */,
+				54CB9B2923D988F00005BB94 /* ThirdParty */,
+			);
+			name = Improve;
+			sourceTree = "<group>";
+		};
+		54CB9B2923D988F00005BB94 /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				54CB9B2A23D988F00005BB94 /* MurmurHash */,
+			);
+			name = ThirdParty;
+			path = ../ThirdParty;
+			sourceTree = "<group>";
+		};
+		54CB9B2A23D988F00005BB94 /* MurmurHash */ = {
+			isa = PBXGroup;
+			children = (
+				54CB9B2B23D988F00005BB94 /* IMPMurmurHash.h */,
+				54CB9B2C23D988F00005BB94 /* IMPMurmurHash.mm */,
+				54CB9B2D23D988F00005BB94 /* MurmurHash3.h */,
+				54CB9B2E23D988F00005BB94 /* MurmurHash3.cpp */,
+			);
+			path = MurmurHash;
+			sourceTree = "<group>";
+		};
+		54CB9B2F23D988F00005BB94 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				54CB9B3023D988F00005BB94 /* NSArray+Padding.m */,
+				54CB9B3123D988F00005BB94 /* NSArray+Padding.h */,
+			);
+			name = Categories;
+			path = ../Categories;
+			sourceTree = "<group>";
+		};
+		54CB9B3223D988F10005BB94 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				54CB9B3323D988F10005BB94 /* FeatureHasher */,
+				54CB9B3623D988F10005BB94 /* Utils */,
+				54CB9B3B23D988F10005BB94 /* Improve.m */,
+				54CB9B3C23D988F10005BB94 /* Improve.h */,
+			);
+			name = Classes;
+			path = ../Classes;
+			sourceTree = "<group>";
+		};
+		54CB9B3323D988F10005BB94 /* FeatureHasher */ = {
+			isa = PBXGroup;
+			children = (
+				54CB9B3423D988F10005BB94 /* IMPFeatureHasher.h */,
+				54CB9B3523D988F10005BB94 /* IMPFeatureHasher.mm */,
+			);
+			path = FeatureHasher;
+			sourceTree = "<group>";
+		};
+		54CB9B3623D988F10005BB94 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				54CB9B3723D988F10005BB94 /* IMPJSONFlattener.m */,
+				54CB9B3823D988F10005BB94 /* IMPJSONUtils.h */,
+				54CB9B3923D988F10005BB94 /* IMPJSONFlattener.h */,
+				54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		54CB9B1E23D987800005BB94 /* ImproveUnitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 54CB9B2523D987800005BB94 /* Build configuration list for PBXNativeTarget "ImproveUnitTests" */;
+			buildPhases = (
+				54CB9B1B23D987800005BB94 /* Sources */,
+				54CB9B1C23D987800005BB94 /* Frameworks */,
+				54CB9B1D23D987800005BB94 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ImproveUnitTests;
+			productName = ImproveUnitTests;
+			productReference = 54CB9B1F23D987800005BB94 /* ImproveUnitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		54CB9B1523D987590005BB94 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1130;
+				TargetAttributes = {
+					54CB9B1E23D987800005BB94 = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 54CB9B1823D987590005BB94 /* Build configuration list for PBXProject "Tests" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 54CB9B1423D987590005BB94;
+			productRefGroup = 54CB9B2023D987800005BB94 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				54CB9B1E23D987800005BB94 /* ImproveUnitTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		54CB9B1D23D987800005BB94 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				54CB9B4F23D989AE0005BB94 /* propertiesToFeatures.json in Resources */,
+				54CB9B4A23D989140005BB94 /* hasher.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		54CB9B1B23D987800005BB94 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				54CB9B4123D988F10005BB94 /* IMPJSONFlattener.m in Sources */,
+				54CB9B4D23D989140005BB94 /* JSONFlattenerTest.m in Sources */,
+				54CB9B3D23D988F10005BB94 /* IMPMurmurHash.mm in Sources */,
+				54CB9B4C23D989140005BB94 /* JSONUtilsTest.m in Sources */,
+				54CB9B3E23D988F10005BB94 /* MurmurHash3.cpp in Sources */,
+				54CB9B4B23D989140005BB94 /* FeatureHasherUnitTests.m in Sources */,
+				54CB9B4223D988F10005BB94 /* IMPJSONUtils.m in Sources */,
+				54CB9B4023D988F10005BB94 /* IMPFeatureHasher.mm in Sources */,
+				54CB9B3F23D988F10005BB94 /* NSArray+Padding.m in Sources */,
+				54CB9B4323D988F10005BB94 /* Improve.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		54CB9B1923D987590005BB94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		54CB9B1A23D987590005BB94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		54CB9B2623D987800005BB94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../**";
+				INFOPLIST_FILE = ImproveUnitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = mindblownapps.ImproveUnitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		54CB9B2723D987800005BB94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../**";
+				INFOPLIST_FILE = ImproveUnitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = mindblownapps.ImproveUnitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		54CB9B1823D987590005BB94 /* Build configuration list for PBXProject "Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54CB9B1923D987590005BB94 /* Debug */,
+				54CB9B1A23D987590005BB94 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		54CB9B2523D987800005BB94 /* Build configuration list for PBXNativeTarget "ImproveUnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54CB9B2623D987800005BB94 /* Debug */,
+				54CB9B2723D987800005BB94 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 54CB9B1523D987590005BB94 /* Project object */;
+}
