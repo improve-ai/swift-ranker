@@ -8,6 +8,8 @@
 
 #import <XCTest/XCTest.h>
 #import "IMPFeatureHasher.h"
+#import "MLMultiArray+NSArray.h"
+#import "NSArray+Multidimensional.h"
 
 @interface FeatureHasherUnitTests : XCTestCase
 
@@ -20,11 +22,12 @@
                                                                   alternateSign:true];
   NSArray *features = @[@{@"dog": @1, @"cat": @2, @"elephant": @4},
                         @{@"dog": @2, @"run": @5}];
-  NSArray *output = [hasher transform:features];
+  MLMultiArray *output = [hasher transform:features];
+  NSArray *outputNSArray = [output NSArray];
 
   NSArray *expectedOutput = @[@[@0, @0, @-4, @-1, @0, @0, @0, @0, @0, @2],
                               @[@0, @0, @0, @-2, @-5, @0, @0, @0, @0, @0]];
-  XCTAssert([output isEqualToArray:expectedOutput]);
+  XCTAssert([outputNSArray isEqualToArrayRough:expectedOutput]);
 }
 
 - (void)testPythonCases {

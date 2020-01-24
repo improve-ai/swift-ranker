@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreML/CoreML.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return A 2D matrix of size numberOfSamples x numberOfFeatures.
  */
-- (NSArray<NSArray<NSString*>*> *)transform:(NSArray<NSDictionary<NSString*,id>*> *)x;
+- (MLMultiArray *)transform:(NSArray<NSDictionary<NSString*,id>*> *)x;
 
 @end
 

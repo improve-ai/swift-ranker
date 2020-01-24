@@ -42,14 +42,25 @@
   }
 }
 
-- (NSArray<NSArray<NSString*>*> *)transform:(NSArray<NSDictionary<NSString*,id>*> *)x {
+- (MLMultiArray *)transform:(NSArray<NSDictionary<NSString*,id>*> *)x {
   // 2D Matrix of size numberOfSamples x numberOfFeatures
-  NSMutableArray *output = [[NSMutableArray alloc] init];
+  NSError *err = nil;
+  MLMultiArray *output = [[MLMultiArray alloc]
+                          initWithShape:@[@(x.count), @(self.numberOfFeatures)]
+                          dataType:MLMultiArrayDataTypeDouble
+                          error:&err];
+  for (NSInteger i = 0; i < x.count * self.numberOfFeatures; i++) {
+    [output setObject:[NSNumber numberWithDouble:0] atIndexedSubscript:i];
+  }
 
-  for (NSDictionary *sample in x) {
-    NSMutableArray *row
-    = [[NSMutableArray alloc] initWithPadding:[NSNumber numberWithInt:0]
-                                        count:self.numberOfFeatures];
+  if (!output) {
+    NSLog(@"%@", err);
+    return nil;
+  }
+
+  for (NSInteger row = 0; row < x.count; row++) {
+    NSDictionary *sample = x[row];
+
     for (__strong NSString *key in sample) {
       id objectVal = sample[key];
       NSNumber *numberVal;
@@ -76,14 +87,14 @@
       }
 
       NSInteger index = abs(h) % self.numberOfFeatures;
-      NSNumber *currentVal = row[index];
-      row[index] = @(currentVal.doubleValue + numberVal.doubleValue);
+      NSArray *subscript = @[@(row), @(index)];
+      NSNumber *currentVal = [output objectForKeyedSubscript:subscript];
+      [output setObject:@(currentVal.doubleValue + numberVal.doubleValue)
+      forKeyedSubscript:subscript];
     }
-
-    [output addObject:row];
   }
   
-  return [output copy];
+  return output;
 }
 
 @end
