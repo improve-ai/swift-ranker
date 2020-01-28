@@ -52,7 +52,7 @@
     IMPFeatureHasher *hasher
     = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:numberOfFeatures.unsignedIntegerValue
                                            alternateSign:shouldAlternateSign.boolValue];
-    NSArray *output = [hasher transform:x];
+    NSArray *output = [[hasher transform:x] NSArray];
 
     NSArray *expectedOutput = testCase[@"output"];
 

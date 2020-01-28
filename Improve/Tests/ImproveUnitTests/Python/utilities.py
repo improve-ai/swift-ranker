@@ -1,3 +1,5 @@
+# python 2
+# JSON utilities
 from flatten_json import flatten
 import datetime
 import json

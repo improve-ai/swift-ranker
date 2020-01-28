@@ -70,8 +70,9 @@
       } else if ([objectVal isKindOfClass:[NSNumber class]]) {
         numberVal = objectVal;
       } else {
+        NSString *reason = [NSString stringWithFormat:@"Invalid type of value (%@) for key %@.", objectVal, key];
         [[NSException exceptionWithName:@"InvalidInput"
-                                 reason:[NSString stringWithFormat:@"Invalid type of value for key %@.", key]
+                                 reason:reason
                                userInfo:nil] raise];
         continue;
       }
