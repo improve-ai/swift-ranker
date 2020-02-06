@@ -6,31 +6,33 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "IMPMatrix.h"
+#import "TestUtils.h"
 
+// Tests for custom data structures.
 @interface DataTests : XCTestCase
 
 @end
 
 @implementation DataTests
 
-- (void)setUp {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
+- (void)testMatrix
+{
+    NSUInteger rows = 50;
+    NSUInteger cols = 1000;
+    IMPMatrix *matrix = [[IMPMatrix alloc] initWithRows:rows columns:cols];
+    // Test indexed access
+    for (NSUInteger r = 0; r < rows; r++) {
+        for (NSUInteger c = 0; c < cols; c++) {
+            double randomValue = arc4random_uniform(100);
+            matrix.buffer[c + r * cols] = randomValue;
+            XCTAssert(isEqualRough(randomValue, [matrix valueAtRow:r column:c]));
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-}
-
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
-}
-
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
+            randomValue = arc4random_uniform(100);
+            [matrix setValue:randomValue atRow:r column:c];
+            XCTAssert(isEqualRough(randomValue, matrix.buffer[c + r * cols]));
+        }
+    }
 }
 
 @end
