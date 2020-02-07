@@ -49,7 +49,7 @@
  @param modelName The name of the trained model to use when choosing variants
  @param block A block to be executed on the main queue when the response is returned, containing an NSDictionary mapping property keys to their chosen values
  */
-- (void) choose:(NSDictionary *)variants model:(NSString *)modelName context:(NSDictionary *)context completion:(void (^)(NSDictionary *, NSError *)) block;
+- (void) chooseRemote:(NSDictionary *)variants model:(NSString *)modelName context:(NSDictionary *)context completion:(void (^)(NSDictionary *, NSError *)) block;
 
 /**
  Choses a variant for each properties. The variants are chosen according to the model predictions.

@@ -65,7 +65,7 @@ static Improve *sharedInstance;
     return self;
 }
 
-- (void)choose:(NSDictionary *)variants model:(NSString *)modelName context:(NSDictionary *)context completion:(void (^)(NSDictionary *, NSError *)) block
+- (void)chooseRemote:(NSDictionary *)variants model:(NSString *)modelName context:(NSDictionary *)context completion:(void (^)(NSDictionary *, NSError *)) block
 {
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key":  _apiKey };
@@ -131,7 +131,7 @@ static Improve *sharedInstance;
         return;
     }
     // Loop through the variants, temporarily storing the first variant for each property in case
-    // the /choose call is slow or fails
+    // the /chooseRemote call is slow or fails
     NSMutableDictionary *tmpProperties = [NSMutableDictionary dictionary];
     for (id key in variants) {
         NSArray *variantValues = [variants objectForKey:key];
@@ -142,14 +142,14 @@ static Improve *sharedInstance;
     // This also takes care of setting the context
     [self setProperties:tmpProperties model:model context:context];
     
-    // fire off the request to /choose
-    [self choose:variants model:model context:context completion:^(NSDictionary *properties, NSError *error) {
+    // fire off the request to /chooseRemote
+    [self chooseRemote:variants model:model context:context completion:^(NSDictionary *properties, NSError *error) {
         if (error) {
             NSLog(@"Improve.setVariants error: %@, using defaults", error);
             return;
         }
         
-        // Overwrite the temp properties with the answer from /choose
+        // Overwrite the temp properties with the answer from /chooseRemote
         [_propertiesByModel setObject:properties forKey:error];
     }];
 }
@@ -297,7 +297,7 @@ static Improve *sharedInstance;
             block(nil, error);
         } else {
             /*
-             The response from choose looks like this:
+             The response from chooseRemote looks like this:
              {
                "properties": {
                  "key": "value"
