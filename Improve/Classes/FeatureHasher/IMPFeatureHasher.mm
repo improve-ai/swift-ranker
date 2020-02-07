@@ -43,7 +43,10 @@
 }
 
 - (IMPMatrix *)transform:(NSArray<NSDictionary<NSString*,id>*> *)x {
-    IMPMatrix *output = [[IMPMatrix alloc] initWithRows:x.count columns:self.numberOfFeatures];
+    // Use NAN to indicate missing features.
+    IMPMatrix *output = [[IMPMatrix alloc] initWithRows:x.count
+                                                columns:self.numberOfFeatures
+                                           initialValue:NAN];
 
     for (NSInteger row = 0; row < x.count; row++) {
         NSDictionary *sample = x[row];
@@ -76,6 +79,10 @@
 
             NSInteger index = abs(h) % self.numberOfFeatures;
             double currentVal = [output valueAtRow:row column:index];
+            // Begin from zero
+            if (isnan(currentVal)) {
+                currentVal = 0;
+            }
             [output setValue:(currentVal + numberVal) atRow:row column:index];
         }
     }

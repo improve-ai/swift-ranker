@@ -35,17 +35,6 @@ const NSUInteger featuresCount = 10000;
   return self;
 }
 
-- (void)testSingleFeature {
-  NSNumber *zero = [NSNumber numberWithDouble:0.];
-  NSMutableArray *input = [[NSMutableArray alloc] initWithPadding:zero count:featuresCount];
-  NSUInteger featureIndex = 0;
-  input[featureIndex] = [NSNumber numberWithDouble:1.];
-  double prediction = sigmfix([chooser singleRowPrediction:input]);
-  NSLog(@"Single feature(%ld) prediciton: %@", featureIndex, [NSNumber numberWithDouble:prediction]);
-  double expectedPrediciton = 2.0418272470124066e-05;
-  XCTAssert(isEqualRough(prediction, expectedPrediciton));
-}
-
 - (void)testSingleRow {
   XCTAssertNotNil(chooser);
 
@@ -62,21 +51,14 @@ const NSUInteger featuresCount = 10000;
   }
 
   IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:featuresCount];
-    // TODO: double
-//  NSArray *hashedTrial = [[hasher transform:@[testTrial]] NSArray][0];
-//  for (NSInteger i = 0; i < hashedTrial.count; i++) {
-//    double val = [hashedTrial[i] doubleValue];
-//    if (val != 0) {
-//      NSLog(@"%ld: %f", i, val);
-//    }
-//  }
-//
-//  double prediction = [chooser singleRowPrediction:hashedTrial];
-//  NSLog(@"Prediction: %g", prediction);
-//  XCTAssert(prediction != -1.0); // Check for errors
-//
-//  double expectedPrediciton = 0.010191867;
-//  XCTAssert(isEqualRough(prediction, expectedPrediciton));
+  NSArray *hashedTrial = [[hasher transform:@[testTrial]] NSArray][0];
+
+  double prediction = [chooser singleRowPrediction:hashedTrial];
+  NSLog(@"Single row prediction: %g", prediction);
+  XCTAssert(prediction != -1.0); // Check for errors
+
+  double expectedPrediciton = 0.010191867;
+  XCTAssert(isEqualRough(prediction, expectedPrediciton));
 }
 
 - (void)testBatch {

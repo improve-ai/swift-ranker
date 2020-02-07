@@ -21,7 +21,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithRows:(NSUInteger)rows columns:(NSUInteger)columns
+- (instancetype)initWithRows:(NSUInteger)rows columns:(NSUInteger)columns;
+
+/** @param initialValue A value assigned to all cells during the initialization. Default is 0. */
+- (instancetype)initWithRows:(NSUInteger)rows
+                     columns:(NSUInteger)columns
+                initialValue:(double)initialValue
 NS_DESIGNATED_INITIALIZER;
 
 - (double)valueAtRow:(NSUInteger)row column:(NSUInteger)column;
@@ -29,7 +34,7 @@ NS_DESIGNATED_INITIALIZER;
 - (void)setValue:(double)value atRow:(NSUInteger)row column:(NSUInteger)column;
 
 /// Returns a new 2D array of NSNumbers. Row-major.
-- (NSArray *)aNSArray;
+- (NSArray *)NSArray;
 
 @end
 

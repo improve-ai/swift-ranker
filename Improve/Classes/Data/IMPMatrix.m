@@ -19,11 +19,22 @@
 
 - (instancetype)initWithRows:(NSUInteger)rows columns:(NSUInteger)columns
 {
+    return [self initWithRows:rows columns:columns initialValue:NAN];
+}
+
+- (instancetype)initWithRows:(NSUInteger)rows
+                     columns:(NSUInteger)columns
+                initialValue:(double)initialValue
+{
     self = [super init];
     if (self) {
         _rows = rows;
         _columns = columns;
-        _buffer = calloc(rows * columns, sizeof(double));
+        NSUInteger count = rows * columns;
+        _buffer = calloc(count, sizeof(double));
+        for (NSUInteger i = 0; i < count; i++) {
+            _buffer[i] = initialValue;
+        }
     }
     return self;
 }
@@ -38,7 +49,7 @@
     *(_buffer + column + row * _columns) = value;
 }
 
-- (NSArray *)aNSArray
+- (NSArray *)NSArray
 {
     NSMutableArray *a2DArray = [NSMutableArray arrayWithCapacity:self.rows];
 

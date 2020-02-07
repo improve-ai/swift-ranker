@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
  Values of a dictionary should be either of NSNumber or NSString type. In the last case, the key will be interpreted as
  "key=value" strings and the value will be 1.
  
- @return A 2D matrix of size numberOfSamples x numberOfFeatures.
+ @return A 2D matrix of size numberOfSamples x numberOfFeatures. NAN indicate missing values.
  */
 - (IMPMatrix *)transform:(NSArray<NSDictionary<NSString*,id>*> *)x;
 

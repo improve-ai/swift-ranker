@@ -59,7 +59,7 @@
         NSArray *expectedOutput = testCase[@"output"];
         NSLog(@"%@", expectedOutput);
 
-        XCTAssert([[output aNSArray] isEqualToArray:expectedOutput]);
+        XCTAssert([[output NSArray] isEqualToArray:expectedOutput]);
     }
 }
 
