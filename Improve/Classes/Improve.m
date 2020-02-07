@@ -8,6 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import "Improve.h"
+#import "IMPChooser.h"
+#import "NSArray+Random.h"
+#import "IMPCommon.h"
 
 #define CHOOSE_URL @"https://api.improve.ai/v3/choose"
 #define USING_URL @"https://api.improve.ai/v3/using"
@@ -84,6 +87,42 @@ static Improve *sharedInstance;
     }
     
     [self postChooseRequest:headers data:postData block:block];
+}
+
+- (NSDictionary *)choose:(NSDictionary *)variants
+                   model:(NSString *)modelName
+                 context:(NSDictionary *)context
+{
+    NSURL *modelURL = [NSBundle.mainBundle URLForResource:modelName withExtension:@"mlmodelc"];
+    if (!modelURL) {
+      NSLog(@"Model not found: %@.mlmodelc", modelName);
+        return [self chooseRandom:variants context:context];
+    }
+
+    NSError *error = nil;
+    IMPChooser *chooser = [IMPChooser chooserWithModelURL:modelURL error:&error];
+    if (!chooser) {
+        NSLog(@"%@", error);
+        return [self chooseRandom:variants context:context];
+    }
+
+    NSDictionary *properties = [chooser choose:variants context:context];
+    return properties;
+}
+
+- (NSDictionary *)chooseRandom:(NSDictionary *)variants context:(NSDictionary *)context
+{
+    NSMutableDictionary *randomProperties = [context mutableCopy];
+
+    for (NSString *key in variants)
+    {
+        NSArray *array = INSURE_CLASS(variants[key], [NSArray class]);
+        if (!array) { continue; }
+
+        randomProperties[key] = array.randomObject;
+    }
+
+    return randomProperties;
 }
 
 - (void) setVariants:(NSDictionary *)variants model:(NSString *)model context:(NSDictionary *)context {

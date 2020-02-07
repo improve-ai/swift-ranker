@@ -51,6 +51,18 @@
  */
 - (void) choose:(NSDictionary *)variants model:(NSString *)modelName context:(NSDictionary *)context completion:(void (^)(NSDictionary *, NSError *)) block;
 
+/**
+ Choses a variant for each properties. The variants are chosen according to the model predictions.
+
+ @param variants  A mapping from property keys to NSArrays of potential variants to choose from.
+ @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
+ @param modelName The name of the trained model to use when choosing variants.
+ @return A NSDictionary where keys are properties, and the values are single objects choosen from variants.
+ */
+- (NSDictionary *)choose:(NSDictionary *)variants
+                   model:(NSString *)modelName
+                 context:(NSDictionary *)context;
+
 //- (void) setContextObject:(NSObject *)object forKey:(NSString *)key;
 
 //- (NSDictionary *) context;

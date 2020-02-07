@@ -6,8 +6,17 @@
 //
 
 #import "IMPChooser.h"
+#import "IMPFeatureHasher.h"
 #import "MLDictionaryFeatureProvider+NSArray.h"
-#import "IMPMultiArrayBatchProvider.h"
+#import "IMPMatrix.h"
+#import "IMPMatrixBatchProvider.h"
+#import "NSArray+Random.h"
+#import "IMPCommon.h"
+#import "IMPJSONUtils.h"
+
+
+const NSUInteger kInitialTrialsCount = 100;
+
 
 @implementation IMPChooser
 
@@ -29,10 +38,12 @@
   return self;
 }
 
-- (NSArray *)predicitonForArray:(MLMultiArray *)array
+#pragma mark Predicting
+
+- (NSArray *)batchPrediction:(IMPMatrix *)matrix
 {
-  IMPMultiArrayBatchProvider *batchProvider
-  = [[IMPMultiArrayBatchProvider alloc] initWithArray:array];
+  IMPMatrixBatchProvider *batchProvider
+  = [[IMPMatrixBatchProvider alloc] initWithMatrix:matrix];
 
   NSError *error = nil;
   id<MLBatchProvider> prediction
@@ -69,6 +80,100 @@
 
   double output = [[prediction featureValueForName:@"target"] doubleValue];
   return output;
+}
+
+#pragma mark Choosing
+
+- (NSDictionary *)choose:(NSDictionary *)variants
+                 context:(NSDictionary *)context
+{
+    NSArray<NSDictionary*> *trials = [self randomTrials:variants count:kInitialTrialsCount];
+
+    NSDictionary *bestTrial = nil;
+    double bestScore = 0;
+    // TODO: inject number of features
+    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:10000];
+    while (YES)
+    {
+        NSArray *features = [self makeFeaturesFromTrials:trials
+                                             withContext:context
+                                              hashPrefix:self.hashPrefix];
+        IMPMatrix *hashMatrix = [hasher transform:features];
+        NSArray *scores = [self batchPrediction:hashMatrix];
+        NSUInteger maxScoreIdx = 0;
+        for (NSUInteger i = 1; i < scores.count; i++)
+        {
+            if ([scores[i] doubleValue] > [scores[maxScoreIdx] doubleValue]) {
+                maxScoreIdx = i;
+            }
+        }
+
+        double maxScore = [scores[maxScoreIdx] doubleValue];
+
+        if (!bestTrial || maxScore > bestScore) {
+            bestTrial = trials[maxScoreIdx];
+            bestScore = maxScore;
+            trials = [self adjacentTrials:bestTrial variants:variants];
+        } else {
+            break;
+        }
+    }
+
+    return bestTrial;
+}
+
+- (NSArray<NSDictionary*> *)randomTrials:(NSDictionary *)variants
+                                   count:(NSUInteger)count
+{
+    NSMutableArray *trials = [NSMutableArray arrayWithCapacity:count];
+    for (NSUInteger n = 0; n < count; n++)
+    {
+        NSMutableDictionary *trial = [NSMutableDictionary new];
+        for (NSString *key in variants)
+        {
+            NSArray *array = INSURE_CLASS(variants[key], [NSArray class]);
+            if (!array) { continue; }
+
+            trial[key] = array.randomObject;
+        }
+        [trials addObject:trial];
+    }
+
+    return trials;
+}
+
+- (NSArray<NSDictionary*> *)makeFeaturesFromTrials:(NSArray<NSDictionary*> *)trials
+                                       withContext:(NSDictionary *)context
+                                        hashPrefix:(NSString *)prefix
+{
+    NSMutableArray<NSDictionary*> *features = [NSMutableArray arrayWithCapacity:trials.count];
+    for (NSDictionary *trial in trials) {
+        NSMutableDictionary *total = [context mutableCopy];
+        [total addEntriesFromDictionary:trial];
+        
+        [features addObject:[IMPJSONUtils propertiesToFeatures:total withPrefix:prefix]];
+    }
+
+    return features;
+}
+
+/// Creates an array of slightly different trials, replacing one key in each adjacent trial by a random variant.
+- (NSArray<NSDictionary*> *)adjacentTrials:(NSDictionary *)trial
+                                  variants:(NSDictionary *)variants
+{
+    NSMutableArray *adjacents = [NSMutableArray new];
+
+    for (NSString *key in variants)
+    {
+        NSArray *variantsList = INSURE_CLASS(variants[key], [NSArray class]);
+        if (!variantsList) { continue; }
+
+        NSMutableDictionary *adjacentTrial = [trial mutableCopy];
+        adjacentTrial[key] = variantsList.randomObject;
+        [adjacents addObject:adjacentTrial];
+    }
+
+    return adjacents;
 }
 
 @end

@@ -19,7 +19,7 @@ featuresCount = 10000
 features = np.zeros(featuresCount)
 predictions = []
 for i in range(featuresCount):
-  features[i] = 100000000000
+  features[i] = 1.0
   prediction = model.predict(xgboost.DMatrix([features]))[0]
   predictions.append(prediction)
   features[i] = 0.0

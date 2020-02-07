@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreML/CoreML.h>
+#import "IMPMatrix.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,10 +38,10 @@ NS_ASSUME_NONNULL_BEGIN
  Recieves an array of samples (dicitionaries) like [{'dog': 1, 'cat':2, 'elephant':4},{'dog': 2, 'run': 5}].
  Values of a dictionary should be either of NSNumber or NSString type. In the last case, the key will be interpreted as
  "key=value" strings and the value will be 1.
-
+ 
  @return A 2D matrix of size numberOfSamples x numberOfFeatures.
  */
-- (MLMultiArray *)transform:(NSArray<NSDictionary<NSString*,id>*> *)x;
+- (IMPMatrix *)transform:(NSArray<NSDictionary<NSString*,id>*> *)x;
 
 @end
 

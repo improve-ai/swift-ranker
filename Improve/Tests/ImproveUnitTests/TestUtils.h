@@ -13,7 +13,7 @@
 #ifndef TestUtils_h
 #define TestUtils_h
 
-NS_INLINE BOOL isEqualRough(double fl1, double fl2) {
+NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(double fl1, double fl2) {
     const double precision = 0.001;
     if (fl1 == fl2) {
         return YES;
@@ -25,6 +25,16 @@ NS_INLINE BOOL isEqualRough(double fl1, double fl2) {
         return (ABS(fl2 / fl1) - 1) < precision;
     }
 }
+
+NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(int count, double *buf1, double *buf2) {
+    for (int i = 0; i < count; i++) {
+        if (!isEqualRough(*(buf1 + i), *(buf2 + i))) {
+            return NO;
+        }
+    }
+    return YES;
+}
+
 
 /**
  A combination of subtractiong a constant and sigmoid. Intended to fix incorrect output from MLModel in order to make it the same

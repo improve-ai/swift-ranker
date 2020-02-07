@@ -38,4 +38,21 @@
     *(_buffer + column + row * _columns) = value;
 }
 
+- (NSArray *)aNSArray
+{
+    NSMutableArray *a2DArray = [NSMutableArray arrayWithCapacity:self.rows];
+
+    for (NSUInteger row = 0; row < self.rows; row++)
+    {
+        NSMutableArray *rowArray = [NSMutableArray arrayWithCapacity:self.columns];
+        [a2DArray addObject:rowArray];
+        for (NSUInteger col = 0; col < self.columns; col++)
+        {
+            [rowArray addObject:[NSNumber numberWithDouble:[self valueAtRow:row column:col]]];
+        }
+    }
+
+    return a2DArray;
+}
+
 @end

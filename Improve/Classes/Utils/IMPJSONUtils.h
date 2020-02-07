@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface IMPJSONUtils : NSObject
 
 + (NSDictionary<NSString*, id> *)propertiesToFeatures:(id)jsonObject
-                                           withPrefix:(NSString *)prefix;
+                                           withPrefix:(nullable NSString *)prefix;
 
 + (NSDictionary<NSString*, id> *)propertiesToFeatures:(id)jsonObject;
 

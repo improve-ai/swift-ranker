@@ -28,6 +28,9 @@ NS_DESIGNATED_INITIALIZER;
 
 - (void)setValue:(double)value atRow:(NSUInteger)row column:(NSUInteger)column;
 
+/// Returns a new 2D array of NSNumbers. Row-major.
+- (NSArray *)aNSArray;
+
 @end
 
 NS_ASSUME_NONNULL_END
