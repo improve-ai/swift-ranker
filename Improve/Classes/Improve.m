@@ -120,7 +120,7 @@ static Improve *sharedInstance;
 }
 
 - (void) track:(NSString *)event properties:(NSDictionary *)properties {
-    [self track:properties context:nil];
+    [self track:event properties:properties context:nil];
 }
 
 - (void) track:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context
