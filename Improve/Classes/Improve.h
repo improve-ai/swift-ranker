@@ -2,26 +2,15 @@
 //  Improve.h
 //
 //  Created by Justin Chapweske on 9/8/16.
-//  Copyright © 2016-2017 Impressive Sounding, LLC. All rights reserved.
+//  Copyright © 2016-2020 Mind Blown Apps, LLC. All rights reserved.
 //
 
-/**
- Wrapper library for the improve.ai JSON/HTTP API.
- 
- For docs see https://docs.improve.ai/
- */
 @interface Improve : NSObject
 
 @property (nonatomic, strong) NSString *apiKey;
 @property (nonatomic, strong) NSString *userId;
 @property (nonatomic, strong) NSString *chooseUrl;
-@property (nonatomic, strong) NSString *usingUrl;
-@property (nonatomic, strong) NSString *rewardsUrl;
-
-// PRIVATE
-@property (nonatomic, strong) NSMutableDictionary *propertiesByModel;
-@property (nonatomic, strong) NSMutableDictionary *contextByModel;
-@property (nonatomic, strong) NSMutableDictionary *usingByModel;
+@property (nonatomic, strong) NSString *trackUrl;
 
 /**
  Get the current singleton.
@@ -63,55 +52,10 @@
                    model:(NSString *)modelName
                  context:(NSDictionary *)context;
 
-//- (void) setContextObject:(NSObject *)object forKey:(NSString *)key;
 
-//- (NSDictionary *) context;
+- (void) track:(NSString *)event properties:(NSDictionary *)properties;
 
-/**
- Set the variants for a given model.  Property usage tracking is handled automatically when used in conjunction with propertiesForModel: so don't call
- trackUsing: if you use this method.  A request will be sent to improve.ai to choose a set of properties from those variants.  The resolved properties can be retrieved
- later by calling propertiesForModel:
- 
- @param variants A mapping from property keys to NSArrays of potential variants to choose from
- @param model The name of the trained model to use when choosing variants
- */
-- (void) setVariants:(NSDictionary *)variants model:(NSString *)model context:(NSDictionary *)context;
-
-/**
- Set the properties for a given model.  Property usage tracking is handled automatically when used in conjunction with propertiesForModel: so don't call
- trackUsing: if you use this method.  The properties can be retrieved
- later by calling propertiesForModel:
- 
- @param properties A mapping from property keys to NSArrays of potential variants to choose from
- @param model The name of the model to train
- */
-- (void) setProperties:(NSDictionary *)properties model:(NSString *)model context:(NSDictionary *)context;
-
-/**
- Retrieves the resolved properties for a given model.  If this is called before setVariants has recieved a response from improve.ai, then the first variant for each property will be used.
- If this is called before calling setVariants or setProperties, then an empty dictionary will be returned going forward.  trackUsing: is called implicitly the first time
- properties are retrieved for a model.  trackUsing: is skipped if setVariants: or setProperties: aren't called before propertiesForModel:
- @param model The name of the model to train
- */
-- (NSDictionary *) propertiesForModel:(NSString *)model;
-
-/**
- Track that one or more properties are being used/causal.
- 
- @param properties A dictionary of properties that are causal
- */
-- (void) trackUsing:(NSDictionary *)properties model:(NSString *)modelName context:(NSDictionary *)context;
-
-- (void) trackUsing:(NSDictionary *)properties model:(NSString *)modelName context:(NSDictionary *)context rewardKey:(NSString *)rewardKey;
-
-- (void) trackRevenue:(NSNumber *)revenue receipt:(NSData *)receipt;
-
-- (void) trackRevenue:(NSNumber *)revenue receipt:(NSData *)receipt currency:(NSString *)currency;
-
-- (void) trackRewards:(NSDictionary *)rewards;
-
-- (void) trackRewards:(NSDictionary *)rewards receipt:(NSData *)receipt currency:(NSString *)currency;
-
+- (void) track:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context;
 
 @end
 

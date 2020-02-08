@@ -13,8 +13,7 @@
 #import "IMPCommon.h"
 
 #define CHOOSE_URL @"https://api.improve.ai/v3/choose"
-#define USING_URL @"https://api.improve.ai/v3/using"
-#define REWARDS_URL @"https://api.improve.ai/v3/rewards"
+#define TRACK_URL @"https://api.improve.ai/v3/track"
 
 #define USER_ID_KEY @"ai.improve.user_id"
 
@@ -55,12 +54,7 @@ static Improve *sharedInstance;
     }
     
     _chooseUrl = CHOOSE_URL;
-    _usingUrl = USING_URL;
-    _rewardsUrl = REWARDS_URL;
-    
-    _propertiesByModel = [NSMutableDictionary dictionary];
-    _contextByModel = [NSMutableDictionary dictionary];
-    _usingByModel = [NSMutableDictionary dictionary];
+    _trackUrl = TRACK_URL;
     
     return self;
 }
@@ -195,20 +189,51 @@ static Improve *sharedInstance;
     if (!properties) {
         properties = @{};
     }
+- (void)choose:(NSDictionary *)variants model:(NSString *)modelName context:(NSDictionary *)context completion:(void (^)(NSDictionary *, NSError *)) block
+{
+    NSDictionary *headers = @{ @"Content-Type": @"application/json",
+                               @"x-api-key":  _apiKey };
+    
+    
+    NSMutableDictionary *body = [@{ @"variants": variants,
+                                    @"model": modelName,
+                                    @"user_id": _userId } mutableCopy];
+
+    if (context) {
+        [body setObject:context forKey:@"context"];
+    }
+    
+    NSError * err;
+    NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+    if (err) {
+        NSLog(@"Improve.chooseFrom error: %@", err);
+        return;
+    }
+    
+    [self postChooseRequest:headers data:postData block:block];
+}
+
+- (void) track:(NSString *)event properties:(NSDictionary *)properties {
+    [self track:event properties:properties context:nil];
+}
+
+- (void) track:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context
+{
     
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key":  _apiKey };
     
     // required variables
-    NSMutableDictionary *body = [@{ @"model": modelName,
-                                    @"properties": properties,
-                                    @"user_id": _userId } mutableCopy];
-    
+    NSMutableDictionary *body = [@{ @"user_id": _userId } mutableCopy];
+
+    if (event) {
+        [body setObject:event forKey:@"event"];
+    }
+    if (properties) {
+        [body setObject:properties forKey:@"properties"]
+    }
     if (context) {
         [body setObject:context forKey:@"context"];
-    }
-    if (rewardKey) {
-        [body setObject:rewardKey forKey:@"reward_key"];
     }
     
     NSError * err;
@@ -219,58 +244,6 @@ static Improve *sharedInstance;
     }
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_usingUrl]];
-    
-    [request setHTTPMethod:@"POST"];
-    [request setAllHTTPHeaderFields:headers];
-    [request setHTTPBody:postData];
-    
-    [self postImproveRequest:request block:^(NSObject *result, NSError *error) {
-        if (error) {
-            NSLog(@"Improve.track error: %@", error);
-        }
-    }];
-}
-
-- (void) trackRevenue:(NSNumber *)revenue receipt:(NSData *)receipt
-{
-    [self trackRevenue:revenue receipt:receipt currency:nil];
-}
-
-- (void) trackRevenue:(NSNumber *)revenue receipt:(NSData *)receipt currency:(NSString *)currency
-{
-    [self trackRewards:@{ @"revenue": revenue } receipt:receipt currency:currency];
-}
-
-- (void) trackRewards:(NSDictionary *)rewards
-{
-    [self trackRewards:rewards receipt:nil currency:nil];
-}
-
-- (void) trackRewards:(NSDictionary *)rewards receipt:(NSData *)receipt currency:(NSString *)currency
-{
-    NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               @"x-api-key":  _apiKey};
-    
-    
-    NSMutableDictionary *body = [@{ @"rewards": rewards,
-                                    @"user_id": _userId } mutableCopy];
-    
-    if (receipt) {
-        [body setObject:[receipt base64EncodedStringWithOptions:0] forKey:@"receipt"];
-    }
-    
-    if (currency) {
-        [body setObject:currency forKey:@"currency"];
-    }
-    
-    NSError * err;
-    NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
-    if (err) {
-        NSLog(@"Improve.track error: %@", err);
-        return;
-    }
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_rewardsUrl]];
     
     [request setHTTPMethod:@"POST"];
     [request setAllHTTPHeaderFields:headers];
