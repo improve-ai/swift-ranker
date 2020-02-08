@@ -17,12 +17,12 @@ NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(double fl1, double fl2
     const double precision = 0.001;
     if (fl1 == fl2) {
         return YES;
-    } if (fl1 == 0 || fl2 == 0) {
+    } if (fl1 == 0. || fl2 == 0.) {
         return ABS(fl1 - fl2) < precision;
-    } else if (fl1 >= fl2) {
-        return (ABS(fl1 / fl2) - 1) < precision;
+    } else if (fl1 > fl2) {
+        return (ABS(fl1 / fl2) - 1.) < precision;
     } else {
-        return (ABS(fl2 / fl1) - 1) < precision;
+        return (ABS(fl2 / fl1) - 1.) < precision;
     }
 }
 
@@ -33,15 +33,6 @@ NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(int count, double *buf
         }
     }
     return YES;
-}
-
-
-/**
- A combination of subtractiong a constant and sigmoid. Intended to fix incorrect output from MLModel in order to make it the same
- as output form XGBoost Booster.
- */
-NS_INLINE double sigmfix(double x) {
-  return 1. / (1. + exp(0.5 - x));
 }
 
 #endif /* TestUtils_h */

@@ -22,64 +22,64 @@ const NSUInteger kInitialTrialsCount = 100;
 
 + (instancetype)chooserWithModelURL:(NSURL *)modelURL error:(NSError **)error
 {
-  MLModel *m = [MLModel modelWithContentsOfURL:modelURL error:error];
-  if (!m) {
-    return nil;
-  }
-  return [[self alloc] initWithModel:m];
+    MLModel *m = [MLModel modelWithContentsOfURL:modelURL error:error];
+    if (!m) {
+        return nil;
+    }
+    return [[self alloc] initWithModel:m];
 }
 
 - (instancetype)initWithModel:(MLModel *)model
 {
-  self = [super init];
-  if (self) {
-    _model = model;
-  }
-  return self;
+    self = [super init];
+    if (self) {
+        _model = model;
+    }
+    return self;
 }
 
 #pragma mark Predicting
 
 - (NSArray *)batchPrediction:(IMPMatrix *)matrix
 {
-  IMPMatrixBatchProvider *batchProvider
-  = [[IMPMatrixBatchProvider alloc] initWithMatrix:matrix];
+    IMPMatrixBatchProvider *batchProvider
+    = [[IMPMatrixBatchProvider alloc] initWithMatrix:matrix];
 
-  NSError *error = nil;
-  id<MLBatchProvider> prediction
-  = [self.model predictionsFromBatch:batchProvider error:&error];
-  if (!prediction) {
-    NSLog(@"predictionsFromBatch error: %@", error);
-    return nil;
-  }
+    NSError *error = nil;
+    id<MLBatchProvider> prediction
+    = [self.model predictionsFromBatch:batchProvider error:&error];
+    if (!prediction) {
+        NSLog(@"predictionsFromBatch error: %@", error);
+        return nil;
+    }
 
-  NSMutableArray *output = [NSMutableArray arrayWithCapacity:prediction.count];
-  for (NSUInteger i = 0; i < prediction.count; i++) {
-    double val = [[prediction featuresAtIndex:i] featureValueForName:@"target"].doubleValue;
-    [output addObject:@(val)];
-  }
-  return output;
+    NSMutableArray *output = [NSMutableArray arrayWithCapacity:prediction.count];
+    for (NSUInteger i = 0; i < prediction.count; i++) {
+        double val = [[prediction featuresAtIndex:i] featureValueForName:@"target"].doubleValue;
+        [output addObject:@(sigmfix(val))];
+    }
+    return output;
 }
 
 - (double)singleRowPrediction:(NSArray *)features
 {
-  NSError *error = nil;
-  MLDictionaryFeatureProvider *featureProvider
-  = [[MLDictionaryFeatureProvider alloc] initWithArray:features prefix:@"f" error:&error];
-  if (!featureProvider) {
-    NSLog(@"MLDictionaryFeatureProvider error: %@", error);
-    return -1;
-  }
+    NSError *error = nil;
+    MLDictionaryFeatureProvider *featureProvider
+    = [[MLDictionaryFeatureProvider alloc] initWithArray:features prefix:@"f" error:&error];
+    if (!featureProvider) {
+        NSLog(@"MLDictionaryFeatureProvider error: %@", error);
+        return -1;
+    }
 
-  id<MLFeatureProvider> prediction
-  = [self.model predictionFromFeatures:featureProvider error:&error];
-  if (!prediction) {
-    NSLog(@"predictionFromFeatures error: %@", error);
-    return -1;
-  }
+    id<MLFeatureProvider> prediction
+    = [self.model predictionFromFeatures:featureProvider error:&error];
+    if (!prediction) {
+        NSLog(@"predictionFromFeatures error: %@", error);
+        return -1;
+    }
 
-  double output = [[prediction featureValueForName:@"target"] doubleValue];
-  return output;
+    double output = [[prediction featureValueForName:@"target"] doubleValue];
+    return sigmfix(output);
 }
 
 #pragma mark Choosing
@@ -100,6 +100,8 @@ const NSUInteger kInitialTrialsCount = 100;
                                               hashPrefix:self.hashPrefix];
         IMPMatrix *hashMatrix = [hasher transform:features];
         NSArray *scores = [self batchPrediction:hashMatrix];
+        if (!scores) { return nil; }
+        
         NSUInteger maxScoreIdx = 0;
         for (NSUInteger i = 1; i < scores.count; i++)
         {
@@ -168,9 +170,11 @@ const NSUInteger kInitialTrialsCount = 100;
         NSArray *variantsList = INSURE_CLASS(variants[key], [NSArray class]);
         if (!variantsList) { continue; }
 
-        NSMutableDictionary *adjacentTrial = [trial mutableCopy];
-        adjacentTrial[key] = variantsList.randomObject;
-        [adjacents addObject:adjacentTrial];
+        for (id variant in variantsList) {
+            NSMutableDictionary *adjacentTrial = [trial mutableCopy];
+            adjacentTrial[key] = variant;
+            [adjacents addObject:adjacentTrial];
+        }
     }
 
     return adjacents;

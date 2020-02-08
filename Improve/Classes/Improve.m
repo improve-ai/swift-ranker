@@ -131,7 +131,7 @@ static Improve *sharedInstance;
         return;
     }
     // Loop through the variants, temporarily storing the first variant for each property in case
-    // the /chooseRemote call is slow or fails
+    // the /choose call is slow or fails
     NSMutableDictionary *tmpProperties = [NSMutableDictionary dictionary];
     for (id key in variants) {
         NSArray *variantValues = [variants objectForKey:key];
@@ -142,14 +142,14 @@ static Improve *sharedInstance;
     // This also takes care of setting the context
     [self setProperties:tmpProperties model:model context:context];
     
-    // fire off the request to /chooseRemote
+    // fire off the request to /choose
     [self chooseRemote:variants model:model context:context completion:^(NSDictionary *properties, NSError *error) {
         if (error) {
             NSLog(@"Improve.setVariants error: %@, using defaults", error);
             return;
         }
         
-        // Overwrite the temp properties with the answer from /chooseRemote
+        // Overwrite the temp properties with the answer from /choose
         [_propertiesByModel setObject:properties forKey:error];
     }];
 }

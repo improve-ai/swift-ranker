@@ -10,6 +10,14 @@
 
 @class IMPMatrix;
 
+/**
+A combination of subtractiong a constant and sigmoid. Intended to fix incorrect output from MLModel in order to make it the same
+as output form XGBoost Booster.
+*/
+NS_INLINE double sigmfix(double x) {
+    return 1. / (1. + exp(0.5 - x));
+}
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPChooser : NSObject

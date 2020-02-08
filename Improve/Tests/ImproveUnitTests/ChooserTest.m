@@ -57,12 +57,49 @@ const NSUInteger featuresCount = 10000;
     NSLog(@"Single row prediction: %g", prediction);
     XCTAssert(prediction != -1.0); // Check for errors
     
-    double expectedPrediciton = 0.010191867;
+    double expectedPrediciton = 3.018615e-05;
     XCTAssert(isEqualRough(prediction, expectedPrediciton));
 }
 
-- (void)testBatch {
-    
+/*
+ Shallow test, only for general output shape. Choosing isn't reproducible because
+ of it's random nature.
+ */
+- (void)testBasicChoosing {
+    XCTAssertNotNil(chooser);
+
+    NSURL *jsonURL = [bundle URLForResource:@"choose" withExtension:@"json"];
+    XCTAssertNotNil(jsonURL);
+    NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
+    XCTAssertNotNil(jsonData);
+    NSError *error = nil;
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                         options:0
+                                                           error:&error];
+    if (!json) {
+        XCTFail(@"%@", error);
+    }
+
+    NSDictionary *variants = json[@"variants"];
+    XCTAssertNotNil(variants);
+    XCTAssert(variants.count > 0);
+    NSDictionary *context = json[@"context"];
+    XCTAssertNotNil(context);
+
+    NSDictionary *chosen = [chooser choose:variants context:context];
+    XCTAssertNotNil(chosen);
+    NSLog(@"%@", chosen);
+
+    // This check insures that all keys are presented in the chosen variant
+    NSMutableDictionary *firstVariant = [NSMutableDictionary new];
+    for (NSString *propertyName in variants)
+    {
+        NSArray *propertyValues = variants[propertyName];
+        firstVariant[propertyName] = propertyValues.firstObject;
+    }
+    NSSet *chosenKeys = [NSSet setWithArray:chosen.allKeys];
+    NSSet *keys = [NSSet setWithArray:firstVariant.allKeys];
+    XCTAssert([chosenKeys isEqualToSet:keys]);
 }
 
 @end
