@@ -130,7 +130,11 @@ static Improve *sharedInstance;
                                @"x-api-key":  _apiKey };
     
     // required variables
-    NSMutableDictionary *body = [@{ @"user_id": _userId } mutableCopy];
+    NSString *dateStr = [NSISO8601DateFormatter stringFromDate:[NSDate date]
+                                                      timeZone:[NSTimeZone localTimeZone]
+                                                 formatOptions:0];
+    NSMutableDictionary *body = [@{ @"user_id": _userId,
+                                    @"timestamp": dateStr } mutableCopy];
 
     if (event) {
         [body setObject:event forKey:@"event"];
