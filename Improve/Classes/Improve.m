@@ -63,20 +63,36 @@ static Improve *sharedInstance;
                    model:(NSString *)modelName
                  context:(NSDictionary *)context
 {
+
     NSURL *modelURL = [NSBundle.mainBundle URLForResource:modelName withExtension:@"mlmodelc"];
     if (!modelURL) {
-      NSLog(@"Model not found: %@.mlmodelc", modelName);
+        NSLog(@"Improve.choose: Model not found: %@.mlmodelc", modelName);
         return [self chooseRandom:variants context:context];
     }
 
     NSError *error = nil;
     IMPChooser *chooser = [IMPChooser chooserWithModelURL:modelURL error:&error];
     if (!chooser) {
-        NSLog(@"%@", error);
+        NSLog(@"Improve.choose: %@", error);
         return [self chooseRandom:variants context:context];
     }
 
     NSDictionary *properties = [chooser choose:variants context:context];
+
+    /*
+     TODO:
+     model_id (need model.json)
+     propensity (need propensity calculation)
+     */
+    NSDictionary *trackData = @{
+        @"type": @"choose",
+        @"model": modelName,
+        @"variants": variants,
+        @"context": context,
+        @"chosen": properties
+    };
+    [self track:trackData];
+
     return properties;
 }
 
@@ -125,40 +141,49 @@ static Improve *sharedInstance;
 
 - (void) track:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context
 {
-    
-    NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               @"x-api-key":  _apiKey };
-    
-    // required variables
-    NSString *dateStr = [NSISO8601DateFormatter stringFromDate:[NSDate date]
-                                                      timeZone:[NSTimeZone localTimeZone]
-                                                 formatOptions:0];
-    NSMutableDictionary *body = [@{ @"user_id": _userId,
-                                    @"timestamp": dateStr } mutableCopy];
-
+    NSMutableDictionary *bodyValues = [NSMutableDictionary new];
     if (event) {
-        [body setObject:event forKey:@"event"];
+        [bodyValues setObject:event forKey:@"event"];
     }
     if (properties) {
-        [body setObject:properties forKey:@"properties"];
+        [bodyValues setObject:properties forKey:@"properties"];
     }
     if (context) {
-        [body setObject:context forKey:@"context"];
+        [bodyValues setObject:context forKey:@"context"];
     }
-    
+    [self track:bodyValues];
+}
+
+- (void) track:(NSDictionary *)bodyValues
+{
+    NSDictionary *headers = @{ @"Content-Type": @"application/json",
+                               @"x-api-key":  _apiKey };
+
+    // required variables
+    NSISO8601DateFormatOptions options = (NSISO8601DateFormatWithInternetDateTime
+                                          | NSISO8601DateFormatWithFractionalSeconds
+                                          | NSISO8601DateFormatWithTimeZone);
+    // Example: 2020-02-03T03:16:36.073Z
+    NSString *dateStr = [NSISO8601DateFormatter stringFromDate:[NSDate date]
+                                                      timeZone:[NSTimeZone localTimeZone]
+                                                 formatOptions:options];
+    NSMutableDictionary *body = [@{ @"user_id": _userId,
+                                    @"timestamp": dateStr } mutableCopy];
+    [body addEntriesFromDictionary:bodyValues];
+
     NSError * err;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
     if (err) {
         NSLog(@"Improve.track error: %@", err);
         return;
     }
-    
+
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_trackUrl]];
-    
+
     [request setHTTPMethod:@"POST"];
     [request setAllHTTPHeaderFields:headers];
     [request setHTTPBody:postData];
-    
+
     [self postImproveRequest:request block:^(NSObject *result, NSError *error) {
         if (error) {
             NSLog(@"Improve.track error: %@", error);
