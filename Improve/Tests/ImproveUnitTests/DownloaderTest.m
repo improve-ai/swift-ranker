@@ -15,25 +15,34 @@
 
 @interface IMPModelDownloader ()
 
-- (NSURL *)compileModelAtURL:(NSURL *)modelDefinitionURL error:(NSError **)error;
+- (BOOL)compileModelAtURL:(NSURL *)modelDefinitionURL
+                    toURL:(NSURL *)destURL
+                    error:(NSError **)error;
 
 @end
 
 @implementation DownloaderTest
 
 - (void)testCompile {
+    // Insert url for local or remote .mlmodel file here
     NSURL *modelDefinitionURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/XGBoost example/model-4/Chooser.mlmodel"];
+    NSURL *compiledURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/XGBoost example/model-4/Chooser.mlmodelc"];
     XCTAssertNotNil(modelDefinitionURL);
 
     // Url isn't used here.
-    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelDefinitionURL];
+    NSURL *dummyURL = [NSURL fileURLWithPath:@""];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:dummyURL
+                                                                   modelName:@"test"];
 
-    NSURL *compiledURL;
     for (NSUInteger i = 0; i < 3; i++) // Loop to check overwriting.
     {
         NSError *err;
-        compiledURL = [downloader compileModelAtURL:modelDefinitionURL error:&err];
-        if (!compiledURL) { NSLog(@"Compilation error: %@", err); }
+        if (![downloader compileModelAtURL:modelDefinitionURL
+                                     toURL:compiledURL
+                                     error:&err])
+        {
+            NSLog(@"Compilation error: %@", err);
+        }
         XCTAssertNotNil(compiledURL);
         NSLog(@"%@", compiledURL);
     }
@@ -43,21 +52,24 @@
 }
 
 - (void)testDownload {
-    NSURL *remoteURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/XGBoost example/model-4/Chooser.mlmodel"];
+    // Insert url for local or remote archive here
+    NSURL *remoteURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/XGBoost example/model-4/test.tar.gz"];
     XCTAssertNotNil(remoteURL);
-    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:remoteURL];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:remoteURL
+                                                                   modelName:@"test"];
 
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader loadWithCompletion:^(NSURL * _Nullable localURL, NSError * _Nullable error) {
+    [downloader loadWithCompletion:^(IMPModelBundle * _Nullable bundle, NSError * _Nullable error) {
         if (error != nil) {
             XCTFail(@"Downloading error: %@", error);
         }
-        NSLog(@"%@", localURL);
+        NSLog(@"Model bundle: %@", bundle);
 
         // Cleenup
-        if ([[NSFileManager defaultManager] removeItemAtURL:localURL error:nil]) {
-            NSLog(@"Deleted.");
-        }
+//        NSURL *folderURL = bundle.modelURL.URLByDeletingLastPathComponent;
+//        if ([[NSFileManager defaultManager] removeItemAtURL:folderURL error:nil]) {
+//            NSLog(@"Deleted.");
+//        }
 
         [expectation fulfill];
     }];

@@ -7,18 +7,23 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "IMPModelBundle.h"
 
-typedef void (^IMPModelDownloaderCompletion) (NSURL *_Nullable localURL, NSError *_Nullable error);
+
+typedef void (^IMPModelDownloaderCompletion) (IMPModelBundle *_Nullable, NSError *_Nullable);
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPModelDownloader : NSObject
 
-@property(readonly, nonatomic) NSURL *remoteURL;
+@property(readonly, nonatomic) NSURL *remoteArchiveURL;
+
+@property(readonly, nonatomic) NSString *modelName;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithURL:(NSURL *)remoteURL NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithURL:(NSURL *)remoteArchiveURL modelName:(NSString *)modelName
+NS_DESIGNATED_INITIALIZER;
 
 - (void)loadWithCompletion:(nullable IMPModelDownloaderCompletion)completion;
 

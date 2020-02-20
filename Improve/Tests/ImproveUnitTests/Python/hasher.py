@@ -3,6 +3,10 @@ Creates a JSON files consisting of inputs and outputs of
 FeatureHasher transform. This data may be used to test the
 Objective-C implementation.
 
+Arguments: json file containting an array of dictionaries:
+{ n_features": ..., "alternate_sign": ..., "x": ...},
+where "x" is an object to hash.
+
 python3
 """
 
