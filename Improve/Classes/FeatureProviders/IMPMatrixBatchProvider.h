@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Provides features with names made of prefix and index. Wraps double features into MLFeatureProvider.
- Returns nil for NAN features. NAN indicates that feature is missing, this is not the same as 0.
+ Returns undefined value for NAN features. NAN indicates that feature is missing, this is not the same as 0.
  */
 @interface IMPMatrixBatchProvider : NSObject<MLBatchProvider>
 

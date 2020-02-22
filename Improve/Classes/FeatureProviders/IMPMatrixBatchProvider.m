@@ -45,9 +45,9 @@
 {
     NSInteger column = [[featureName substringFromIndex:self.prefix.length] integerValue];
     double rawVal = [self.matrix valueAtRow:self.row column:column];
-    if (isnan(rawVal)) {
-        return [MLFeatureValue undefinedFeatureValueWithType:MLFeatureTypeDouble];
-    }
+//    if (isnan(rawVal)) {
+//        return [MLFeatureValue undefinedFeatureValueWithType:MLFeatureTypeDouble];
+//    }
     MLFeatureValue *value = [MLFeatureValue featureValueWithDouble:rawVal];
     return value;
 }

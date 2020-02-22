@@ -26,6 +26,12 @@ NS_INLINE id insureClass(id object, Class cl, SEL caller) {
     }
 }
 
+// Next macros are useful for logging.
+// In a format like (@"-[%@ %@]: ...", CLASS_S, CMD_S)
+#define CLASS_S NSStringFromClass(self.class)
+#define CMD_S NSStringFromSelector(_cmd)
+
+
 #define INSURE_CLASS(obj, cl) insureClass(obj, cl, _cmd)
 
 #endif /* IMPCommon_h */

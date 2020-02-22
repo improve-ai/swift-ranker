@@ -48,14 +48,20 @@
  @param modelName The name of the trained model to use when choosing variants.
  @return A NSDictionary where keys are properties, and the values are single objects choosen from variants.
  */
-- (NSDictionary *)choose:(NSDictionary *)variants
-                   model:(NSString *)modelName
-                 context:(NSDictionary *)context;
-
+- (NSDictionary *) choose:(NSDictionary *)variants
+                    model:(NSString *)modelName
+                  context:(NSDictionary *)context;
 
 - (void) track:(NSString *)event properties:(NSDictionary *)properties;
 
 - (void) track:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context;
 
-@end
+- (NSArray<NSDictionary*> *) rank:(NSArray<NSDictionary*> *)variants
+                            model:(NSString *)modelName
+                          context:(NSDictionary *)context;
 
+- (NSArray<NSDictionary*> *) rankAllPossible:(NSDictionary<NSString*, NSArray*> *)variantMap
+                                       model:(NSString *)modelName
+                                     context:(NSDictionary *)context;
+
+@end

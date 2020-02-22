@@ -13,6 +13,7 @@
 #import "NSArray+Random.h"
 #import "IMPCommon.h"
 #import "IMPJSONUtils.h"
+#import "IMPScoredObject.h"
 
 
 const NSUInteger kInitialTrialsCount = 100;
@@ -40,6 +41,9 @@ const NSUInteger kInitialTrialsCount = 100;
 
 #pragma mark Predicting
 
+/**
+@returns Returns an array of NSNumber (double) objects.
+*/
 - (NSArray *)batchPrediction:(IMPMatrix *)matrix
 {
     IMPMatrixBatchProvider *batchProvider
@@ -61,6 +65,7 @@ const NSUInteger kInitialTrialsCount = 100;
     return output;
 }
 
+/// Returns prediction for the given row or -1 if error.
 - (double)singleRowPrediction:(NSArray *)features
 {
     NSError *error = nil;
@@ -101,7 +106,7 @@ const NSUInteger kInitialTrialsCount = 100;
         IMPMatrix *hashMatrix = [hasher transform:features];
         NSArray *scores = [self batchPrediction:hashMatrix];
         if (!scores) { return nil; }
-        
+        NSLog(@"%@", scores);//test
         NSUInteger maxScoreIdx = 0;
         for (NSUInteger i = 1; i < scores.count; i++)
         {
@@ -178,6 +183,46 @@ const NSUInteger kInitialTrialsCount = 100;
     }
 
     return adjacents;
+}
+
+#pragma mark - Ranking
+
+- (NSArray<NSDictionary*> *)rank:(NSArray<NSDictionary*> *)variants
+                         context:(NSDictionary *)context
+{
+    NSArray *features = [self makeFeaturesFromTrials:variants
+                                         withContext:context
+                                          hashPrefix:self.hashPrefix];
+    // TODO: inject number of features
+    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:10000];
+    IMPMatrix *hashMatrix = [hasher transform:features];
+    NSArray *scores = [self batchPrediction:hashMatrix];
+    if (!scores) { return nil; }
+    NSLog(@"%@", scores);
+
+    NSUInteger count = scores.count;
+    NSMutableArray *scoredVariants = [NSMutableArray arrayWithCapacity:count];
+
+    for (NSUInteger i = 0; i < count; i++)
+    {
+        double score = [scores[i] doubleValue];
+        NSDictionary *variant = variants[i];
+        id scored = [IMPScoredObject withScore:score object:variant];
+        [scoredVariants addObject:scored];
+    }
+
+    [scoredVariants sortUsingDescriptors:@[
+        [NSSortDescriptor sortDescriptorWithKey:@"score" ascending:NO]
+    ]];
+
+    NSMutableArray *outputVariants = [NSMutableArray arrayWithCapacity:count];
+    for (NSUInteger i = 0; i < count; i++)
+    {
+        IMPScoredObject *scored = scoredVariants[i];
+        [outputVariants addObject:scored.object];
+    }
+
+    return outputVariants;
 }
 
 @end
