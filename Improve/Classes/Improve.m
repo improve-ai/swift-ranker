@@ -17,14 +17,24 @@
 
 #define USER_ID_KEY @"ai.improve.user_id"
 
-@implementation Improve : NSObject
+
+@interface IMPConfiguration ()
+- (NSURL *) modelURL;
+@end
+
+
+@implementation Improve {
+    // Private vars
+
+    IMPConfiguration *configuration;
+}
 
 static Improve *sharedInstance;
 
 + (Improve *)instanceWithApiKey:(NSString *)apiKey userId:(NSString *)userId {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[super alloc] initWithApiKey:apiKey userId:userId];
+        sharedInstance = [[self alloc] initWithApiKey:apiKey userId:userId];
     });
     return sharedInstance;
 }
@@ -39,8 +49,20 @@ static Improve *sharedInstance;
     return sharedInstance;
 }
 
++ (void) configureWith:(IMPConfiguration *)configuration
+{
+    static dispatch_once_t onceToken;
+    // TODO: May be remove once? Do we support repeated configurations?
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] initWithConfiguration:configuration];
+    });
+}
+
 - (instancetype)initWithApiKey:(NSString *)apiKey userId:(NSString *)userId
 {
+    self = [super init];
+    if (!self) return nil;
+
     self.apiKey = apiKey;
     if (!userId) {
         self.userId = [[NSUserDefaults standardUserDefaults] stringForKey:USER_ID_KEY];
@@ -56,6 +78,16 @@ static Improve *sharedInstance;
     _chooseUrl = CHOOSE_URL;
     _trackUrl = TRACK_URL;
     
+    return self;
+}
+
+- (instancetype)initWithConfiguration:(IMPConfiguration *)config
+{
+    self = [self initWithApiKey:config.apiKey userId:config.userId];
+    if (!self) return nil;
+
+    configuration = config;
+
     return self;
 }
 

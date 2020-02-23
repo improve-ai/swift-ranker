@@ -5,6 +5,8 @@
 //  Copyright © 2016-2020 Mind Blown Apps, LLC. All rights reserved.
 //
 
+#import "IMPConfiguration.h"
+
 @interface Improve : NSObject
 
 @property (nonatomic, strong) NSString *apiKey;
@@ -18,11 +20,19 @@
 + (Improve *) instance;
 
 /**
+ Initialize the and configure the singleton.
+
+ @param configuration A configuration containing valid API key.
+ */
++ (void) configureWith:(IMPConfiguration *)configuration;
+
+/**
  Initialize the singleton
  
  @param apiKey The improve.ai api key
  */
 + (Improve *) instanceWithApiKey:(NSString *)apiKey;
+
 /**
  Initialize the singleton
 
