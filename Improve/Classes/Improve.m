@@ -11,6 +11,7 @@
 #import "IMPChooser.h"
 #import "NSArray+Random.h"
 #import "IMPCommon.h"
+#import "IMPModelDownloader.h"
 
 #define CHOOSE_URL @"https://api.improve.ai/v3/choose"
 #define TRACK_URL @"https://api.improve.ai/v3/track"
@@ -23,11 +24,21 @@
 @end
 
 
-@implementation Improve {
-    // Private vars
+@interface Improve ()
+// Private vars
 
-    IMPConfiguration *configuration;
-}
+@property (strong, nonatomic) IMPConfiguration *configuration;
+
+/// Already loaded models
+@property (strong, nonatomic)
+NSMutableDictionary<NSString*, IMPModelBundle*> *modelBundlesByName;
+
+@property (strong, nonatomic) IMPModelDownloader *downloader;
+
+@end
+
+
+@implementation Improve
 
 static Improve *sharedInstance;
 
@@ -58,7 +69,7 @@ static Improve *sharedInstance;
     });
 }
 
-- (instancetype)initWithApiKey:(NSString *)apiKey userId:(NSString *)userId
+- (instancetype) initWithApiKey:(NSString *)apiKey userId:(NSString *)userId
 {
     self = [super init];
     if (!self) return nil;
@@ -81,19 +92,22 @@ static Improve *sharedInstance;
     return self;
 }
 
-- (instancetype)initWithConfiguration:(IMPConfiguration *)config
+- (instancetype) initWithConfiguration:(IMPConfiguration *)config
 {
     self = [self initWithApiKey:config.apiKey userId:config.userId];
     if (!self) return nil;
 
-    configuration = config;
+    _configuration = config;
+    _modelBundlesByName = [NSMutableDictionary new];
+
+    [self loadModelForCurrentConfiguration];
 
     return self;
 }
 
-- (NSDictionary *)choose:(NSDictionary *)variants
-                   model:(NSString *)modelName
-                 context:(NSDictionary *)context
+- (NSDictionary *) choose:(NSDictionary *)variants
+                    model:(NSString *)modelName
+                  context:(NSDictionary *)context
 {
     IMPChooser *chooser = [self chooserForModelWithName:modelName];
     if (!chooser) {
@@ -295,14 +309,15 @@ static Improve *sharedInstance;
 
 - (IMPChooser *)chooserForModelWithName:(NSString *)modelName
 {
-    NSURL *modelURL = [NSBundle.mainBundle URLForResource:modelName withExtension:@"mlmodelc"];
-    if (!modelURL) {
-        NSLog(@"-[%@ %@]: Model not found: %@.mlmodelc", CLASS_S, CMD_S, modelName);
+    IMPModelBundle *modelBundle = self.modelBundlesByName[modelName];
+    if (!modelBundle) {
+        NSLog(@"-[%@ %@]: Model not found: %@", CLASS_S, CMD_S, modelName);
         return nil;
     }
 
     NSError *error = nil;
-    IMPChooser *chooser = [IMPChooser chooserWithModelURL:modelURL error:&error];
+    IMPChooser *chooser = [IMPChooser chooserWithModelURL:modelBundle.modelURL
+                                                    error:&error];
     if (!chooser) {
         NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
         return nil;
@@ -383,6 +398,35 @@ static Improve *sharedInstance;
     free(indexes);
 
     return combos;
+}
+
+- (void)loadModelForCurrentConfiguration
+{
+    NSString *modelName = self.configuration.modelName;
+    NSURL *url = self.configuration.modelURL;
+
+    if (self.downloader)
+    {
+        if ([self.downloader.modelName isEqualToString:modelName]
+            && self.downloader.isLoading) {
+            // Allready loading - do nothing
+            return;
+        } else {
+            [self.downloader cancel];
+        }
+    }
+
+    self.downloader = [[IMPModelDownloader alloc] initWithURL:url
+                                                    modelName:modelName];
+    __weak Improve *weakSelf = self;
+    [self.downloader loadWithCompletion:^(IMPModelBundle *bundle, NSError *error) {
+        if (error) {
+            NSLog(@"Model loading error: %@", error);
+        }
+        if (bundle) {
+            weakSelf.modelBundlesByName[modelName] = bundle;
+        }
+    }];
 }
 
 @end

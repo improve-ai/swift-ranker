@@ -166,4 +166,8 @@ NSString *const kModelsFolderName = @"Models";
     return true;
 }
 
+- (BOOL)isLoading {
+    return _downloadTask && _downloadTask.state != NSURLSessionTaskStateRunning;
+}
+
 @end

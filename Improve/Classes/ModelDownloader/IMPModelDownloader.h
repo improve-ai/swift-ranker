@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(readonly, nonatomic) NSString *modelName;
 
+@property(readonly, nonatomic) BOOL isLoading;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithURL:(NSURL *)remoteArchiveURL modelName:(NSString *)modelName

@@ -10,6 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// A bunch of asset URLs related to a model.
 @interface IMPModelBundle : NSObject
 
 /// URL to compiled .mlmodelc file.
