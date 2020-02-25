@@ -20,6 +20,9 @@
 #define USER_ID_KEY @"ai.improve.user_id"
 
 
+const NSUInteger kPropensityCount = 9;
+
+
 @interface IMPConfiguration ()
 - (NSURL *) modelURLForName:(NSString *)modelName;
 @end
@@ -117,17 +120,25 @@ static Improve *sharedInstance;
 
     NSDictionary *properties = [chooser choose:variants context:context];
 
-    /*
-     TODO:
-     propensity (need propensity calculation)
-     */
+    // TODO: Calculate propensity in the background
+    NSUInteger repeats = 0;
+    for (NSUInteger i = 0; i < kPropensityCount; i++)
+    {
+        NSDictionary *otherProperties = [chooser choose:variants context:context];
+        if ([properties isEqualToDictionary:otherProperties]) {
+            repeats += 1;
+        }
+    }
+    double propensity = 1.0 / (double)(repeats + 1);
+
     NSDictionary *trackData = @{
         @"type": @"choose",
         @"model": modelName,
         @"model_id": chooser.metadata.modelId,
         @"variants": variants,
         @"context": context,
-        @"chosen": properties
+        @"chosen": properties,
+        @"propensity": @(propensity)
     };
     [self track:trackData];
 
