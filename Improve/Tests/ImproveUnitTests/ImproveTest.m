@@ -20,7 +20,9 @@
 @implementation ImproveTest
 
 - (void)setUp {
-    [Improve instanceWithApiKey:@"api_key_for_test"];
+    id config = [IMPConfiguration configurationWithAPIKey:@"api_key_for_test"
+                                               modelNames:@[@"test"]];
+    [Improve configureWith:config];
 }
 
 - (void)testCombinations {

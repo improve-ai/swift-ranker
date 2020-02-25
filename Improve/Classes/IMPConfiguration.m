@@ -8,6 +8,8 @@
 
 #import "IMPConfiguration.h"
 
+#define USER_ID_KEY @"ai.improve.user_id"
+
 @implementation IMPConfiguration
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
@@ -23,7 +25,7 @@
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
                              modelNames:(NSArray<NSString*> *)modelNames
 {
-    return [self configurationWithAPIKey:apiKey modelNames:modelNames];
+    return [self configurationWithAPIKey:apiKey userId:nil modelNames:modelNames];
 }
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
@@ -34,8 +36,19 @@
     if (!self) return nil;
 
     _apiKey = [apiKey copy];
-    _userId = [userId copy];
+
     _modelNames = [modelNames copy];
+
+    if (userId) {
+        _userId = [userId copy];
+    } else {
+        _userId = [[NSUserDefaults standardUserDefaults] stringForKey:USER_ID_KEY];
+        if (!_userId) {
+            // create a UUID if one isn't provided
+            _userId = [[NSUUID UUID] UUIDString];
+            [[NSUserDefaults standardUserDefaults] setObject:_userId forKey:USER_ID_KEY];
+        }
+    }
 
     return self;
 }

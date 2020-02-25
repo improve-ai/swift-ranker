@@ -17,9 +17,6 @@
 #define CHOOSE_URL @"https://api.improve.ai/v3/choose"
 #define TRACK_URL @"https://api.improve.ai/v3/track"
 
-#define USER_ID_KEY @"ai.improve.user_id"
-
-
 const NSUInteger kPropensityCount = 9;
 
 
@@ -30,6 +27,10 @@ const NSUInteger kPropensityCount = 9;
 
 @interface Improve ()
 // Private vars
+
+@property (nonatomic, strong) NSString *chooseUrl;
+
+@property (nonatomic, strong) NSString *trackUrl;
 
 @property (strong, nonatomic) IMPConfiguration *configuration;
 
@@ -46,20 +47,7 @@ NSMutableDictionary<NSString*, IMPModelBundle*> *modelBundlesByName;
 
 static Improve *sharedInstance;
 
-+ (Improve *)instanceWithApiKey:(NSString *)apiKey userId:(NSString *)userId {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] initWithApiKey:apiKey userId:userId];
-    });
-    return sharedInstance;
-}
-
-+ (Improve *)instanceWithApiKey:(NSString *)apiKey
-{
-    return [Improve instanceWithApiKey:apiKey userId:nil];
-}
-
-+ (Improve *)instance
++ (Improve *) instance
 {
     return sharedInstance;
 }
@@ -67,46 +55,38 @@ static Improve *sharedInstance;
 + (void) configureWith:(IMPConfiguration *)configuration
 {
     static dispatch_once_t onceToken;
-    // TODO: May be remove once? Do we support repeated configurations?
     dispatch_once(&onceToken, ^{
         sharedInstance = [[self alloc] initWithConfiguration:configuration];
     });
 }
 
-- (instancetype) initWithApiKey:(NSString *)apiKey userId:(NSString *)userId
-{
-    self = [super init];
-    if (!self) return nil;
-
-    self.apiKey = apiKey;
-    if (!userId) {
-        self.userId = [[NSUserDefaults standardUserDefaults] stringForKey:USER_ID_KEY];
-        if (!self.userId) {
-            // create a UUID if one isn't provided
-            self.userId = [[NSUUID UUID] UUIDString];
-            [[NSUserDefaults standardUserDefaults] setObject:self.userId forKey:USER_ID_KEY];
-        }
-    } else {
-        self.userId = userId;
-    }
-    
-    _chooseUrl = CHOOSE_URL;
-    _trackUrl = TRACK_URL;
-    
-    return self;
-}
-
 - (instancetype) initWithConfiguration:(IMPConfiguration *)config
 {
-    self = [self initWithApiKey:config.apiKey userId:config.userId];
+    self = [super init];
     if (!self) return nil;
 
     _configuration = config;
     _modelBundlesByName = [NSMutableDictionary new];
 
+    _chooseUrl = CHOOSE_URL;
+    _trackUrl = TRACK_URL;
+
     [self loadModelsForConfiguration:config];
 
     return self;
+}
+
+// Legacy
+- (NSString *) apiKey {
+    return self.configuration.apiKey;
+}
+
+- (void) setApiKey:(NSString *)apiKey {
+    self.configuration.apiKey = apiKey;
+}
+
+- (NSString *)userId {
+    return self.configuration.userId;
 }
 
 - (NSDictionary *) choose:(NSDictionary *)variants
@@ -165,12 +145,12 @@ static Improve *sharedInstance;
 - (void)chooseRemote:(NSDictionary *)variants model:(NSString *)modelName context:(NSDictionary *)context completion:(void (^)(NSDictionary *, NSError *)) block
 {
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               @"x-api-key":  _apiKey };
+                               @"x-api-key":  self.apiKey };
 
 
     NSMutableDictionary *body = [@{ @"variants": variants,
                                     @"model": modelName,
-                                    @"user_id": _userId } mutableCopy];
+                                    @"user_id": self.userId } mutableCopy];
 
     if (context) {
         [body setObject:context forKey:@"context"];
@@ -208,7 +188,7 @@ static Improve *sharedInstance;
 - (void) track:(NSDictionary *)bodyValues
 {
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               @"x-api-key":  _apiKey };
+                               @"x-api-key": self.apiKey };
 
     // required variables
     NSISO8601DateFormatOptions options = (NSISO8601DateFormatWithInternetDateTime
@@ -218,7 +198,7 @@ static Improve *sharedInstance;
     NSString *dateStr = [NSISO8601DateFormatter stringFromDate:[NSDate date]
                                                       timeZone:[NSTimeZone localTimeZone]
                                                  formatOptions:options];
-    NSMutableDictionary *body = [@{ @"user_id": _userId,
+    NSMutableDictionary *body = [@{ @"user_id": self.userId,
                                     @"timestamp": dateStr } mutableCopy];
     [body addEntriesFromDictionary:bodyValues];
 

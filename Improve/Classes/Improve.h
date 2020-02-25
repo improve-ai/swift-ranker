@@ -10,9 +10,6 @@
 @interface Improve : NSObject
 
 @property (nonatomic, strong) NSString *apiKey;
-@property (nonatomic, strong) NSString *userId;
-@property (nonatomic, strong) NSString *chooseUrl;
-@property (nonatomic, strong) NSString *trackUrl;
 
 /**
  Get the current singleton.
@@ -20,26 +17,11 @@
 + (Improve *) instance;
 
 /**
- Initialize the and configure the singleton.
+ Initialize the and configure the singleton. You should call this method before using the Improve.
 
  @param configuration A configuration containing valid API key.
  */
 + (void) configureWith:(IMPConfiguration *)configuration;
-
-/**
- Initialize the singleton
- 
- @param apiKey The improve.ai api key
- */
-+ (Improve *) instanceWithApiKey:(NSString *)apiKey;
-
-/**
- Initialize the singleton
-
- @param apiKey The improve.ai api key
- @param userId The unique id for this user so that their events can be tracked
- */
-+ (Improve *) instanceWithApiKey:(NSString *)apiKey userId:(NSString *)userId;
 
 /**
  Choose a variant for each property.  It is the callers responsibility to call trackUsing: once when the returned properties are used
