@@ -12,46 +12,46 @@
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
                                  userId:(nullable NSString *)userId
-                              modelName:(NSString *)modelName
+                             modelNames:(NSArray<NSString*> *)modelNames
 {
-  id configuration = [[self alloc] initWithAPIKey:apiKey
-                                           userId:userId
-                                        modelName:modelName];
-  return configuration;
+    id configuration = [[self alloc] initWithAPIKey:apiKey
+                                             userId:userId
+                                         modelNames:modelNames];
+    return configuration;
 }
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
-                              modelName:(NSString *)modelName
+                             modelNames:(NSArray<NSString*> *)modelNames
 {
-  return [self configurationWithAPIKey:apiKey modelName:modelName];
+    return [self configurationWithAPIKey:apiKey modelNames:modelNames];
 }
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
                         userId:(nullable NSString *)userId
-                     modelName:(NSString *)modelName
+                    modelNames:(NSArray<NSString*> *)modelNames
 {
-  self = [super init];
-  if (!self) return nil;
+    self = [super init];
+    if (!self) return nil;
 
-  _apiKey = [apiKey copy];
-  _userId = [userId copy];
-  _modelName = [modelName copy];
+    _apiKey = [apiKey copy];
+    _userId = [userId copy];
+    _modelNames = [modelNames copy];
 
-  return self;
+    return self;
 }
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
-                     modelName:(NSString *)modelName
+                    modelNames:(NSArray<NSString*> *)modelNames
 {
-  return [self initWithAPIKey:apiKey userId:nil modelName:modelName];
+    return [self initWithAPIKey:apiKey userId:nil modelNames:modelNames];
 }
 
-- (NSURL *)modelURL {
-  // TODO: It's just a stab, actual implementation pending.
-  NSString *endpoint = @"https://api.improve.ai/v3/models";
-  NSString *path = [NSString stringWithFormat:@"%@/%@.tar.gz", endpoint, self.modelName];
-  NSURL *url = [NSURL URLWithString:path];
-  return url;
+- (NSURL *)modelURLForName:(NSString *)modelName {
+    // TODO: It's just a stab, actual implementation pending.
+    NSString *endpoint = @"https://api.improve.ai/v3/models";
+    NSString *path = [NSString stringWithFormat:@"%@/%@.tar.gz", endpoint, modelName];
+    NSURL *url = [NSURL URLWithString:path];
+    return url;
 }
 
 @end

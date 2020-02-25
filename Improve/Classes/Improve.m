@@ -21,7 +21,7 @@
 
 
 @interface IMPConfiguration ()
-- (NSURL *) modelURL;
+- (NSURL *) modelURLForName:(NSString *)modelName;
 @end
 
 
@@ -101,7 +101,7 @@ static Improve *sharedInstance;
     _configuration = config;
     _modelBundlesByName = [NSMutableDictionary new];
 
-    [self loadModelForCurrentConfiguration];
+    [self loadModelsForConfiguration:config];
 
     return self;
 }
@@ -400,14 +400,38 @@ static Improve *sharedInstance;
     return combos;
 }
 
-- (void)loadModelForCurrentConfiguration
+- (void)loadModelsForConfiguration:(IMPConfiguration *)configuration
 {
-    NSString *modelName = self.configuration.modelName;
-    NSURL *url = self.configuration.modelURL;
+    void (^loadModelAtIndex) (NSUInteger);
+    loadModelAtIndex = ^(NSUInteger modelIndex) {
+        if (modelIndex >= configuration.modelNames.count) return;
+
+        NSString *modelName = configuration.modelNames[modelIndex];
+        modelIndex++;
+
+        [self loadModelForName:modelName
+                 configuration:configuration
+                    completion:^(BOOL isLoaded) {
+            if (isLoaded) {
+                // load next
+                loadModelAtIndex(modelIndex + 1);
+            } else {
+                // reload
+                loadModelAtIndex(modelIndex);
+            }
+        }];
+    };
+}
+
+- (void)loadModelForName:(NSString *)name
+           configuration:(IMPConfiguration *)configuration
+              completion:(nullable void(^)(BOOL isLoaded))completion
+{
+    NSURL *url = [configuration modelURLForName:name];
 
     if (self.downloader)
     {
-        if ([self.downloader.modelName isEqualToString:modelName]
+        if ([self.downloader.modelName isEqualToString:name]
             && self.downloader.isLoading) {
             // Allready loading - do nothing
             return;
@@ -416,16 +440,20 @@ static Improve *sharedInstance;
         }
     }
 
-    self.downloader = [[IMPModelDownloader alloc] initWithURL:url
-                                                    modelName:modelName];
+    self.downloader = [[IMPModelDownloader alloc] initWithURL:url modelName:name];
     __weak Improve *weakSelf = self;
     [self.downloader loadWithCompletion:^(IMPModelBundle *bundle, NSError *error) {
+        BOOL isLoaded = false;
+
         if (error) {
             NSLog(@"Model loading error: %@", error);
         }
         if (bundle) {
-            weakSelf.modelBundlesByName[modelName] = bundle;
+            weakSelf.modelBundlesByName[name] = bundle;
+            isLoaded = true;
         }
+
+        if (completion) completion(isLoaded);
     }];
 }
 

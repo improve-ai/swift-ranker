@@ -18,24 +18,24 @@ NS_ASSUME_NONNULL_BEGIN
 /// The unique id for this user so that their events can be tracked
 @property (copy, nonatomic) NSString *userId;
 
-@property (copy, nonatomic) NSString *modelName;
+@property (copy, nonatomic) NSArray<NSString*> *modelNames;
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
                                  userId:(nullable NSString *)userId
-                              modelName:(NSString *)modelName;
+                             modelNames:(NSArray<NSString*> *)modelNames;
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
-                              modelName:(NSString *)modelName;
+                             modelNames:(NSArray<NSString*> *)modelNames;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
                         userId:(nullable NSString *)userId
-                     modelName:(NSString *)modelName
+                    modelNames:(NSArray<NSString*> *)modelNames
 NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
-                     modelName:(NSString *)modelName;
+                    modelNames:(NSArray<NSString*> *)modelNames;
 
 @end
 
