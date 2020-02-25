@@ -12,6 +12,7 @@
 #import "NSArray+Padding.h"
 #import "TestUtils.h"
 #import "IMPScoredObject.h"
+#import "IMPModelBundle.h"
 
 const NSUInteger featuresCount = 10000;
 
@@ -35,7 +36,10 @@ const NSUInteger featuresCount = 10000;
         bundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [bundle URLForResource:@"Chooser" withExtension:@"mlmodelc"];
         XCTAssertNotNil(modelURL);
-        chooser = [IMPChooser chooserWithModelURL:modelURL error:nil];
+        NSURL *metadataURL = [bundle URLForResource:@"ChooserMetadata" withExtension:@"json"];
+        IMPModelBundle *modelBundle = [[IMPModelBundle alloc] initWithModelURL:modelURL
+                                                                   metadataURL:metadataURL];
+        chooser = [IMPChooser chooserWithModelBundle:modelBundle error:nil];
         XCTAssertNotNil(chooser);
     }
     return self;

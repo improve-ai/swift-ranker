@@ -14,6 +14,8 @@
 #import "IMPCommon.h"
 #import "IMPJSONUtils.h"
 #import "IMPScoredObject.h"
+#import "IMPModelBundle.h"
+#import "IMPModelMetadata.h"
 
 
 const NSUInteger kInitialTrialsCount = 100;
@@ -21,22 +23,36 @@ const NSUInteger kInitialTrialsCount = 100;
 
 @implementation IMPChooser
 
-+ (instancetype)chooserWithModelURL:(NSURL *)modelURL error:(NSError **)error
++ (instancetype)chooserWithModelBundle:(IMPModelBundle *)bundle
+                                 error:(NSError *__autoreleasing  _Nullable *)error
 {
-    MLModel *m = [MLModel modelWithContentsOfURL:modelURL error:error];
-    if (!m) {
+    MLModel *model = [MLModel modelWithContentsOfURL:bundle.modelURL error:error];
+    if (!model) {
         return nil;
     }
-    return [[self alloc] initWithModel:m];
+    IMPModelMetadata *metadata = [IMPModelMetadata metadataWithURL:bundle.metadataURL];
+    if (!metadata) {
+        return nil;
+    }
+    return [[self alloc] initWithModel:model metadata:metadata];
 }
 
-- (instancetype)initWithModel:(MLModel *)model
+- (instancetype)initWithModel:(MLModel *)model metadata:(IMPModelMetadata *)metadata
 {
     self = [super init];
     if (self) {
         _model = model;
+        _metadata = metadata;
     }
     return self;
+}
+
+- (NSString *)hashPrefix {
+    return self.metadata.hashPrefix;
+}
+
+- (NSUInteger)numberOfFeatures {
+    return self.metadata.numberOfFeatures;
 }
 
 #pragma mark Predicting
@@ -96,8 +112,7 @@ const NSUInteger kInitialTrialsCount = 100;
 
     NSDictionary *bestTrial = nil;
     double bestScore = 0;
-    // TODO: inject number of features
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:10000];
+    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:self.numberOfFeatures];
     while (YES)
     {
         NSArray *features = [self makeFeaturesFromTrials:trials
@@ -193,8 +208,7 @@ const NSUInteger kInitialTrialsCount = 100;
     NSArray *features = [self makeFeaturesFromTrials:variants
                                          withContext:context
                                           hashPrefix:self.hashPrefix];
-    // TODO: inject number of features
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:10000];
+    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:self.numberOfFeatures];
     IMPMatrix *hashMatrix = [hasher transform:features];
     NSArray *scores = [self batchPrediction:hashMatrix];
     if (!scores) { return nil; }

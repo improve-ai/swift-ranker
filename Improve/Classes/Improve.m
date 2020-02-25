@@ -12,6 +12,7 @@
 #import "NSArray+Random.h"
 #import "IMPCommon.h"
 #import "IMPModelDownloader.h"
+#import "IMPModelMetadata.h"
 
 #define CHOOSE_URL @"https://api.improve.ai/v3/choose"
 #define TRACK_URL @"https://api.improve.ai/v3/track"
@@ -118,12 +119,12 @@ static Improve *sharedInstance;
 
     /*
      TODO:
-     model_id (need model.json)
      propensity (need propensity calculation)
      */
     NSDictionary *trackData = @{
         @"type": @"choose",
         @"model": modelName,
+        @"model_id": chooser.metadata.modelId,
         @"variants": variants,
         @"context": context,
         @"chosen": properties
@@ -316,8 +317,7 @@ static Improve *sharedInstance;
     }
 
     NSError *error = nil;
-    IMPChooser *chooser = [IMPChooser chooserWithModelURL:modelBundle.modelURL
-                                                    error:&error];
+    IMPChooser *chooser = [IMPChooser chooserWithModelBundle:modelBundle error:&error];
     if (!chooser) {
         NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
         return nil;

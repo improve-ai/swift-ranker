@@ -5,10 +5,11 @@
 //  Created by Vladimir on 1/23/20.
 //
 
-#import <Foundation/Foundation.h>
 #import <CoreML/CoreML.h>
 
 @class IMPMatrix;
+@class IMPModelBundle;
+@class IMPModelMetadata;
 
 /**
 A combination of subtractiong a constant and sigmoid. Intended to fix incorrect output from MLModel in order to make it the same
@@ -26,10 +27,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(readonly, nonatomic) NSString *hashPrefix;
 
-+ (instancetype)chooserWithModelURL:(NSURL *)modelURL
-                              error:(NSError **)error;
+@property(readonly, nonatomic) NSUInteger numberOfFeatures;
 
-- (instancetype)initWithModel:(MLModel *)model;
+@property(readonly, nonatomic) IMPModelMetadata *metadata;
+
++ (instancetype)chooserWithModelBundle:(IMPModelBundle *)bundle
+                                 error:(NSError **)error;
+
+- (instancetype)initWithModel:(MLModel *)model
+                     metadata:(IMPModelMetadata *)metadata;
 
 /**
  Choses a trial from the given variants. The trial is chosen according to the model predictions.
