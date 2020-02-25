@@ -120,27 +120,29 @@ static Improve *sharedInstance;
 
     NSDictionary *properties = [chooser choose:variants context:context];
 
-    // TODO: Calculate propensity in the background
-    NSUInteger repeats = 0;
-    for (NSUInteger i = 0; i < kPropensityCount; i++)
-    {
-        NSDictionary *otherProperties = [chooser choose:variants context:context];
-        if ([properties isEqualToDictionary:otherProperties]) {
-            repeats += 1;
+    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(backgroundQueue, ^{
+        NSUInteger repeats = 0;
+        for (NSUInteger i = 0; i < kPropensityCount; i++)
+        {
+            NSDictionary *otherProperties = [chooser choose:variants context:context];
+            if ([properties isEqualToDictionary:otherProperties]) {
+                repeats += 1;
+            }
         }
-    }
-    double propensity = 1.0 / (double)(repeats + 1);
+        double propensity = 1.0 / (double)(repeats + 1);
 
-    NSDictionary *trackData = @{
-        @"type": @"choose",
-        @"model": modelName,
-        @"model_id": chooser.metadata.modelId,
-        @"variants": variants,
-        @"context": context,
-        @"chosen": properties,
-        @"propensity": @(propensity)
-    };
-    [self track:trackData];
+        NSDictionary *trackData = @{
+            @"type": @"choose",
+            @"model": modelName,
+            @"model_id": chooser.metadata.modelId,
+            @"variants": variants,
+            @"context": context,
+            @"chosen": properties,
+            @"propensity": @(propensity)
+        };
+        [self track:trackData];
+    });
 
     return properties;
 }
