@@ -393,6 +393,7 @@ static Improve *sharedInstance;
     return combos;
 }
 
+// Load models one by one
 - (void)loadModelsForConfiguration:(IMPConfiguration *)configuration
 {
     void (^loadModelAtIndex) (NSUInteger);
@@ -416,6 +417,7 @@ static Improve *sharedInstance;
     };
 }
 
+// Load model or use the cached one if possible
 - (void)loadModelForName:(NSString *)name
            configuration:(IMPConfiguration *)configuration
               completion:(nullable void(^)(BOOL isLoaded))completion
@@ -429,11 +431,20 @@ static Improve *sharedInstance;
             // Allready loading - do nothing
             return;
         } else {
+            // Only one download at time supported
             [self.downloader cancel];
         }
     }
 
     self.downloader = [[IMPModelDownloader alloc] initWithURL:url modelName:name];
+    IMPModelBundle *cached = self.downloader.cachedBundle;
+    NSTimeInterval staleAge = configuration.modelStaleAge;
+    if (cached && [[NSDate now] timeIntervalSinceDate:cached.creationDate] > staleAge) {
+        self.modelBundlesByName[name] = cached;
+        if (completion) completion(YES);
+        return;
+    }
+
     __weak Improve *weakSelf = self;
     [self.downloader loadWithCompletion:^(IMPModelBundle *bundle, NSError *error) {
         BOOL isLoaded = false;
@@ -443,7 +454,7 @@ static Improve *sharedInstance;
         }
         if (bundle) {
             weakSelf.modelBundlesByName[name] = bundle;
-            isLoaded = true;
+            isLoaded = YES;
         }
 
         if (completion) completion(isLoaded);

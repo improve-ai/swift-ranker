@@ -77,23 +77,20 @@ NSString *const kModelsFolderName = @"Models";
         }
 
         // Ensure dir exists and empty
-        NSURL *modelDirURL = [[self modelsDirURL] URLByAppendingPathComponent:self.modelName];
-        [fileManager removeItemAtURL:modelDirURL error:nil];
-        [fileManager createDirectoryAtURL:modelDirURL
+        IMPFolderModelBundle *bundle = [[IMPFolderModelBundle alloc] initWithModelName:self.modelName rootURL:[self modelsDirURL]];
+        [fileManager removeItemAtURL:bundle.folderURL error:nil];
+        [fileManager createDirectoryAtURL:bundle.folderURL
               withIntermediateDirectories:YES
                                attributes:nil
                                     error:NULL];
 
-        // Put model to the destination folder
+        // Compile model and put to the destination folder
         NSURL *modelDefinitionURL = [NSURL fileURLWithPath:unarchivePath];
         modelDefinitionURL = [modelDefinitionURL URLByAppendingPathComponent:self.modelName];
         modelDefinitionURL = [modelDefinitionURL URLByAppendingPathExtension:@"mlmodel"];
 
-        NSURL *compiledModelURL = [modelDirURL URLByAppendingPathComponent:self.modelName];
-        compiledModelURL = [compiledModelURL URLByAppendingPathExtension:@"mlmodelc"];
-
         if (![self compileModelAtURL:modelDefinitionURL
-                               toURL:compiledModelURL
+                               toURL:bundle.modelURL
                                error:&error])
         {
             if (completion) { completion(nil, error); }
@@ -105,19 +102,15 @@ NSString *const kModelsFolderName = @"Models";
         NSURL *metadataOrigin = [NSURL fileURLWithPath:unarchivePath];
         metadataOrigin = [metadataOrigin URLByAppendingPathComponent:self.modelName];
         metadataOrigin = [metadataOrigin URLByAppendingPathExtension:metadataExtension];
-        NSURL *metadataTarget = [modelDirURL URLByAppendingPathComponent:self.modelName];
-        metadataTarget = [metadataTarget URLByAppendingPathExtension:metadataExtension];
 
         if (![fileManager copyItemAtURL:metadataOrigin
-                                  toURL:metadataTarget
+                                  toURL:bundle.metadataURL
                                   error:&error])
         {
             if (completion) { completion(nil, error); }
             return;
         }
 
-        IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithModelURL:compiledModelURL
-                                                              metadataURL:metadataTarget];
         if (completion) { completion(bundle, nil); }
     }];
     [_downloadTask resume];
@@ -168,6 +161,20 @@ NSString *const kModelsFolderName = @"Models";
 
 - (BOOL)isLoading {
     return _downloadTask && _downloadTask.state != NSURLSessionTaskStateRunning;
+}
+
+- (nullable IMPModelBundle *)cachedBundle
+{
+    IMPFolderModelBundle *bundle = [[IMPFolderModelBundle alloc] initWithModelName:self.modelName rootURL:[self modelsDirURL]];
+    if ([bundle.modelURL checkResourceIsReachableAndReturnError:NULL]
+        && [bundle.metadataURL checkResourceIsReachableAndReturnError:NULL])
+    {
+        return bundle;
+    }
+    else
+    {
+        return nil;
+    }
 }
 
 @end

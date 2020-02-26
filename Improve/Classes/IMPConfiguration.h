@@ -20,6 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (copy, nonatomic) NSArray<NSString*> *modelNames;
 
+/**
+ The max age of cached models. Models, which are stale will be downloaded again
+ on Improve signleton creation. The default value is 0.
+ */
+@property (assign, nonatomic) NSTimeInterval modelStaleAge;
+
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
                                  userId:(nullable NSString *)userId
                              modelNames:(NSArray<NSString*> *)modelNames;

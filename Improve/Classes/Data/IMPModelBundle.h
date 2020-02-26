@@ -19,10 +19,30 @@ NS_ASSUME_NONNULL_BEGIN
 /// URL to metatdata .json.
 @property(readonly, nonatomic) NSURL *metadataURL;
 
+/// Metadata file creation date. Used to check age of a cached model.
+@property (strong, nonatomic) NSDate *creationDate;
+
 - (instancetype)initWithModelURL:(NSURL *)modelURL metadataURL:(NSURL* )metadataURL
 NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+
+@interface IMPFolderModelBundle: IMPModelBundle
+
+@property(readonly, nonatomic) NSString *modelName;
+
+@property(readonly, nonatomic) NSURL *folderURL;
+
+- (instancetype)initWithModelURL:(NSURL *)modelURL
+                     metadataURL:(NSURL* )metadataURL
+NS_UNAVAILABLE;
+
+- (instancetype)initWithModelName:(NSString *)modelName
+                          rootURL:(NSURL *)rootFolderURL
+NS_DESIGNATED_INITIALIZER;
 
 @end
 

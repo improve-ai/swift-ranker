@@ -50,6 +50,8 @@
         }
     }
 
+    _modelStaleAge = 0.0;
+
     return self;
 }
 

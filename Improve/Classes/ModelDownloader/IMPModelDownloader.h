@@ -31,6 +31,8 @@ NS_DESIGNATED_INITIALIZER;
 
 - (void)cancel;
 
+- (nullable IMPModelBundle *)cachedBundle;
+
 @end
 
 NS_ASSUME_NONNULL_END
