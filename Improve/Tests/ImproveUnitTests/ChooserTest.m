@@ -24,6 +24,8 @@ const NSUInteger featuresCount = 10000;
 @interface ChooserTest : XCTestCase {
     NSBundle *bundle;
     IMPChooser *chooser;
+
+    // A JSON containing "trials" and their "predicitons" generated with XGBoost.
     NSDictionary *_data;
 }
 @end

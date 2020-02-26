@@ -171,6 +171,11 @@ const NSUInteger kInitialTrialsCount = 100;
     NSMutableArray<NSDictionary*> *features = [NSMutableArray arrayWithCapacity:trials.count];
     for (NSDictionary *trial in trials) {
         NSMutableDictionary *total = [context mutableCopy];
+
+        if (self.metadata.shouldAutomaticallyAddTimestamp) {
+            total[@"timestamp"] = [NSDate now];
+        }
+
         [total addEntriesFromDictionary:trial];
         
         [features addObject:[IMPJSONUtils propertiesToFeatures:total withPrefix:prefix]];
