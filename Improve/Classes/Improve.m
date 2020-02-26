@@ -116,11 +116,16 @@ static Improve *sharedInstance;
             @"type": @"choose",
             @"model": modelName,
             @"model_id": chooser.metadata.modelId,
-            @"variants": variants,
             @"context": context,
             @"chosen": properties,
             @"propensity": @(propensity)
         };
+        if (self.shouldTrackVariants) {
+            NSMutableDictionary *mutable = [trackData mutableCopy];
+            mutable[@"variants"] = variants;
+            trackData = mutable;
+        }
+
         [self track:trackData];
     });
 
@@ -459,6 +464,15 @@ static Improve *sharedInstance;
 
         if (completion) completion(isLoaded);
     }];
+}
+
+- (BOOL)shouldTrackVariants {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        srand48(time(0));
+    });
+
+    return self.configuration.verboseTrackProbability > drand48();
 }
 
 @end

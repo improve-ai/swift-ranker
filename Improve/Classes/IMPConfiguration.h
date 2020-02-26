@@ -26,6 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (assign, nonatomic) NSTimeInterval modelStaleAge;
 
+/// This probability affects how often "variants" input is included to track report. Should be within [0, 1]. The default is 1.0.
+@property (assign, nonatomic) double verboseTrackProbability;
+
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
                                  userId:(nullable NSString *)userId
                              modelNames:(NSArray<NSString*> *)modelNames;
