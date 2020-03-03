@@ -18,12 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (copy, nonatomic) NSString *modelId;
 
-/**
- If YES, the timestamp must be automatically included to the context of `choose` and `rank`.
- Default is NO.
- */
-@property (assign, nonatomic) BOOL shouldAutomaticallyAddTimestamp;
-
 // coming later: hashing tables
 
 + (nullable instancetype)metadataWithURL:(NSURL *)url;

@@ -35,7 +35,6 @@
     _numberOfFeatures = [json[@"hashed_feature_count"] integerValue];
     _hashPrefix = json[@"feature_hash_prefix"];
     _modelId = json[@"model_id"];
-    _shouldAutomaticallyAddTimestamp = [json[@"timestamp_features"] boolValue];
 
     return self;
 }

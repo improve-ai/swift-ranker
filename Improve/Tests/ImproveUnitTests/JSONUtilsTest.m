@@ -32,8 +32,12 @@
         NSDictionary *input = testCase[@"in"];
         NSDictionary *output = [IMPJSONUtils propertiesToFeatures:input];
         NSDictionary *expectedOutput = testCase[@"out"];
-        
-        XCTAssert([output isEqualToDictionary:expectedOutput]);
+
+        NSLog(@"actual output:\n%@", output);
+        XCTAssert(output.count == expectedOutput.count);
+        for (NSString *key in output) {
+            XCTAssert([output[key] isEqual:expectedOutput[key]], @"Key: %@", key);
+        }
     }
 }
 
