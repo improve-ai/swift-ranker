@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithRows:(NSUInteger)rows columns:(NSUInteger)columns;
 
-/** @param initialValue A value assigned to all cells during the initialization. Default is 0. */
+/** @param initialValue A value assigned to all cells during the initialization. Default is NAN. */
 - (instancetype)initWithRows:(NSUInteger)rows
                      columns:(NSUInteger)columns
                 initialValue:(double)initialValue

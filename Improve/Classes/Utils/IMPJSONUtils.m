@@ -13,7 +13,7 @@
 
 + (NSDictionary<NSString*, id> *)propertiesToFeatures:(id)jsonObject
                                            withPrefix:(NSString *)prefix {
-    NSDictionary *flatJSON = [IMPJSONFlattener flatten:jsonObject separator:@"."];
+    NSDictionary *flatJSON = [IMPJSONFlattener flatten:jsonObject separator:@"\0"];
     if (!prefix) { prefix = @""; }
     
     NSMutableDictionary *features = [[NSMutableDictionary alloc] initWithCapacity:flatJSON.count];

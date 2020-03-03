@@ -54,4 +54,15 @@
     }
 }
 
+- (void)testFlattenWithNullSeparator {
+    NSString *nulStr = @"\0";
+    XCTAssert(nulStr.length == 1);
+
+    NSDictionary *input = @{@"game": @{@"team": @{@"user": @{@"score": @15}}}};
+    NSDictionary *correctOut = @{@"game\0team\0user\0score": @15};
+    NSDictionary *realOut = [IMPJSONFlattener flatten:input separator:nulStr];
+    NSLog(@"%@", realOut);
+    XCTAssert([realOut isEqualToDictionary:correctOut]);
+}
+
 @end
