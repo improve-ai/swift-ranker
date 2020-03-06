@@ -7,12 +7,9 @@
 
 #import "IMPChooser.h"
 #import "IMPFeatureHasher.h"
-#import "MLDictionaryFeatureProvider+NSArray.h"
-#import "IMPMatrix.h"
-#import "IMPMatrixBatchProvider.h"
+#import "MLDictionaryFeatureProvider+Utils.h"
 #import "NSArray+Random.h"
 #import "IMPCommon.h"
-#import "IMPJSONUtils.h"
 #import "IMPScoredObject.h"
 #import "IMPModelBundle.h"
 #import "IMPModelMetadata.h"
@@ -20,6 +17,7 @@
 
 const NSUInteger kInitialTrialsCount = 100;
 
+NSString *const kFeatureNamePrefix = @"f";
 
 @implementation IMPChooser
 
@@ -60,10 +58,9 @@ const NSUInteger kInitialTrialsCount = 100;
 /**
 @returns Returns an array of NSNumber (double) objects.
 */
-- (NSArray *)batchPrediction:(IMPMatrix *)matrix
+- (NSArray *)batchPrediction:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatures
 {
-    IMPMatrixBatchProvider *batchProvider
-    = [[IMPMatrixBatchProvider alloc] initWithMatrix:matrix];
+    MLArrayBatchProvider *batchProvider = [self batchProviderForFeaturesArray:batchFeatures];
 
     NSError *error = nil;
     id<MLBatchProvider> prediction
@@ -82,11 +79,11 @@ const NSUInteger kInitialTrialsCount = 100;
 }
 
 /// Returns prediction for the given row or -1 if error.
-- (double)singleRowPrediction:(NSArray *)features
+- (double)singleRowPrediction:(NSDictionary<NSNumber*,id> *)features
 {
     NSError *error = nil;
     MLDictionaryFeatureProvider *featureProvider
-    = [[MLDictionaryFeatureProvider alloc] initWithArray:features prefix:@"f" error:&error];
+    = [[MLDictionaryFeatureProvider alloc] initWithDictionary:features prefix:kFeatureNamePrefix error:&error];
     if (!featureProvider) {
         NSLog(@"MLDictionaryFeatureProvider error: %@", error);
         return -1;
@@ -103,6 +100,20 @@ const NSUInteger kInitialTrialsCount = 100;
     return sigmfix(output);
 }
 
+- (MLArrayBatchProvider* )
+batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatures
+{
+    NSMutableArray *featureProviders = [NSMutableArray arrayWithCapacity:batchFeatures.count];
+    for (NSDictionary<NSNumber*,id> *features in batchFeatures)
+    {
+        NSError *error;
+        MLDictionaryFeatureProvider *provider = [[MLDictionaryFeatureProvider alloc] initWithDictionary:features prefix:kFeatureNamePrefix error:&error];
+        if (!provider) return nil;
+        [featureProviders addObject:provider];
+    }
+    return [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:featureProviders];
+}
+
 #pragma mark Choosing
 
 - (NSDictionary *)choose:(NSDictionary *)variants
@@ -112,16 +123,16 @@ const NSUInteger kInitialTrialsCount = 100;
 
     NSDictionary *bestTrial = nil;
     double bestScore = 0;
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:self.numberOfFeatures];
+    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
     while (YES)
     {
         NSArray *features = [self makeFeaturesFromTrials:trials
                                              withContext:context
                                               hashPrefix:self.hashPrefix];
-        IMPMatrix *hashMatrix = [hasher transform:features];
-        NSArray *scores = [self batchPrediction:hashMatrix];
+        NSArray *encodedFeatures = [self batchEncode:features withEncoder:hasher];
+        NSArray *scores = [self batchPrediction:encodedFeatures];
         if (!scores) { return nil; }
-        NSLog(@"%@", scores);//test
+        NSLog(@"Scores: %@", scores);//test
         NSUInteger maxScoreIdx = 0;
         for (NSUInteger i = 1; i < scores.count; i++)
         {
@@ -143,6 +154,7 @@ const NSUInteger kInitialTrialsCount = 100;
 
     return bestTrial;
 }
+
 
 - (NSArray<NSDictionary*> *)randomTrials:(NSDictionary *)variants
                                    count:(NSUInteger)count
@@ -173,11 +185,19 @@ const NSUInteger kInitialTrialsCount = 100;
         NSMutableDictionary *total = [context mutableCopy];
 
         [total addEntriesFromDictionary:trial];
-        
-        [features addObject:[IMPJSONUtils propertiesToFeatures:total withPrefix:prefix]];
     }
 
     return features;
+}
+
+- (NSArray<NSDictionary<NSNumber*,id>*> *)batchEncode:(NSArray<NSDictionary*> *)rawFeatures withEncoder:(IMPFeatureHasher *)encoder
+{
+    NSMutableArray *batchEncoded = [NSMutableArray arrayWithCapacity:rawFeatures.count];
+    for (NSDictionary *featuresDict in rawFeatures) {
+        [batchEncoded addObject:[encoder encodeFeatures:featuresDict]];
+    }
+
+    return batchEncoded;
 }
 
 /// Creates an array of slightly different trials, replacing one key in each adjacent trial by a random variant.
@@ -209,9 +229,9 @@ const NSUInteger kInitialTrialsCount = 100;
     NSArray *features = [self makeFeaturesFromTrials:variants
                                          withContext:context
                                           hashPrefix:self.hashPrefix];
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:self.numberOfFeatures];
-    IMPMatrix *hashMatrix = [hasher transform:features];
-    NSArray *scores = [self batchPrediction:hashMatrix];
+    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
+    NSArray *encodedFeatures = [self batchEncode:features withEncoder:hasher];
+    NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) { return nil; }
     NSLog(@"%@", scores);
 

@@ -7,7 +7,6 @@
 
 #import <CoreML/CoreML.h>
 
-@class IMPMatrix;
 @class IMPModelBundle;
 @class IMPModelMetadata;
 
@@ -26,8 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly, nonatomic) MLModel *model;
 
 @property(readonly, nonatomic) NSString *hashPrefix;
-
-@property(readonly, nonatomic) NSUInteger numberOfFeatures;
 
 @property(readonly, nonatomic) IMPModelMetadata *metadata;
 

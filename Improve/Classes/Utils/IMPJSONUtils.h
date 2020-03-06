@@ -12,15 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPJSONUtils : NSObject
 
-+ (NSDictionary<NSString*, id> *)propertiesToFeatures:(id)jsonObject
-                                           withPrefix:(nullable NSString *)prefix;
++ (nullable id)objectFromString:(NSString *)jsonString;
 
-+ (NSDictionary<NSString*, id> *)propertiesToFeatures:(id)jsonObject;
-
-/**
- @return A primitive type if the value is primitive or the value of the “id” field if it is a NSDictionary, otherwise throw an UnsupportedInput exception.
- */
-+ (NSString *)variantToCanonical:(id)variant;
++ (nullable id)objectFromString:(NSString *)jsonString error:(NSError **)error;
 
 @end
 

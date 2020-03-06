@@ -35,6 +35,8 @@
     _numberOfFeatures = [json[@"hashed_feature_count"] integerValue];
     _hashPrefix = json[@"feature_hash_prefix"];
     _modelId = json[@"model_id"];
+    _lookupTable = json[@"table"];
+    _seed = [json[@"model_seed"] unsignedIntValue];
 
     return self;
 }

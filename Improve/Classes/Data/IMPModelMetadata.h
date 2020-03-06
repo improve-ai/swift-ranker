@@ -18,6 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (copy, nonatomic) NSString *modelId;
 
+@property (strong, nonatomic) NSArray *lookupTable;
+
+@property (assign, nonatomic) uint32_t seed;
+
 // coming later: hashing tables
 
 + (nullable instancetype)metadataWithURL:(NSURL *)url;

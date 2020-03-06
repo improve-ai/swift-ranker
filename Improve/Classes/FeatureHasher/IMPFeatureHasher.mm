@@ -8,86 +8,111 @@
 
 #import "IMPFeatureHasher.h"
 #import "IMPMurmurHash.h"
-#import "NSArray+Padding.h"
+#import "IMPJSONFlattener.h"
+#import "IMPModelMetadata.h"
 
+/*
+ Python style modulo. (% in C is different for negative numbers)
+ https://stackoverflow.com/a/829370/3050403
+ */
+template<typename T> T sign(T t) { return t > T(0) ? T(1) : T(-1); }
+template<typename T> T py_mod(T n, T a) {
+    T r = n % a;
+    if (r * sign(a) < T(0)) r += a;
+    return r;
+}
 
 @implementation IMPFeatureHasher
 
-- (instancetype)initWithNumberOfFeatures:(NSUInteger)numberOfFeatures
-                           alternateSign:(BOOL)alternateSign {
+- (instancetype)initWithTable:(NSArray *)table seed:(uint32_t)seed
+{
     self = [super init];
     if (self) {
-        _numberOfFeatures = numberOfFeatures;
-        _alternateSign = alternateSign;
-
-        [self validateParameters];
+        _table = table;
+        _modelSeed = seed;
     }
     return self;
 }
 
-- (instancetype)initWithNumberOfFeatures:(NSUInteger)numberOfFeatures {
-    return [self initWithNumberOfFeatures:numberOfFeatures alternateSign:true];
+- (instancetype)initWithMetadata:(IMPModelMetadata *)metadata
+{
+    return [self initWithTable:metadata.lookupTable seed:metadata.seed];
 }
 
-- (instancetype)init {
-    NSUInteger defaultNumberOfFeatures = 1048576;
-    return [self initWithNumberOfFeatures:defaultNumberOfFeatures alternateSign:true];
+- (NSUInteger)columnCount {
+    return [self.table[1] count];
 }
 
-- (void)validateParameters {
-    if (self.numberOfFeatures < 1 || self.numberOfFeatures > INT_MAX) {
-        [[NSException exceptionWithName:@"InvalidParameters"
-                                 reason:[NSString stringWithFormat:@"Invalid number of features (%ld).", (long)self.numberOfFeatures]
-                               userInfo:nil] raise];
-    }
+- (IMPFeaturesDictT *)encodeFeatures:(NSDictionary *)properties
+{
+    return [self encodeFeaturesFromFlattened:[IMPJSONFlattener flatten:properties
+                                                             separator:@"\0"]];
 }
 
-- (IMPMatrix *)transform:(NSArray<NSDictionary<NSString*,id>*> *)x {
-    // Use NAN to indicate missing features.
-    IMPMatrix *output = [[IMPMatrix alloc] initWithRows:x.count
-                                                columns:self.numberOfFeatures
-                                           initialValue:NAN];
+- (IMPFeaturesDictT *)encodePartialFeaturesWithKey:(NSString *)propertyKey
+                                           variant:(NSDictionary *)variant
+{
+    return [self encodeFeatures:@{propertyKey: variant}];
+}
 
-    for (NSInteger row = 0; row < x.count; row++) {
-        NSDictionary *sample = x[row];
+- (IMPFeaturesDictT *)encodeFeaturesFromFlattened:(NSDictionary *)flattenedProperties
+{
+    NSMutableDictionary<NSNumber*, NSNumber*> *features = [NSMutableDictionary new];
+    double noise = [self generateRandomNoise];
 
-        for (__strong NSString *key in sample) {
-            id objectVal = sample[key];
-            double numberVal = 0;
-            if ([objectVal isKindOfClass:[NSString class]]) {
-                key = [NSString stringWithFormat:@"%@=%@", key, objectVal];
-                numberVal = 1.0;
-            } else if ([objectVal isKindOfClass:[NSNumber class]]) {
-                numberVal = [objectVal doubleValue];
-            } else {
-                NSString *reason = [NSString stringWithFormat:@"Invalid type of value (%@) for key %@.", objectVal, key];
-                [[NSException exceptionWithName:@"InvalidInput"
-                                         reason:reason
-                                       userInfo:nil] raise];
-                continue;
-            }
-
-            if (numberVal == 0) {
-                continue;
-            }
-
-            NSInteger h = (int32_t)[IMPMurmurHash hash32:key];
-
-            if (self.shouldAlternateSign && h < 0) {
-                numberVal = -numberVal;
-            }
-
-            NSInteger index = abs(h) % self.numberOfFeatures;
-            double currentVal = [output valueAtRow:row column:index];
-            // Begin from zero
-            if (isnan(currentVal)) {
-                currentVal = 0;
-            }
-            [output setValue:(currentVal + numberVal) atRow:row column:index];
+    for (NSString *featureName in flattenedProperties)
+    {
+        NSUInteger column = [self lookupColumnInTable:self.table
+                                              withKey:featureName
+                                                 seed:self.modelSeed
+                                                    w:1];
+        id value = flattenedProperties[featureName];
+        if ([value isKindOfClass:NSNumber.class]) {
+            // Encode BOOL and int as double
+            features[@(column)] = @([value doubleValue]);
+        } else if ([value isKindOfClass:NSString.class]) {
+            NSString *string = value;
+            features[@(column)] = @([self lookupValueForColumn:column
+                                                        string:string
+                                                          seed:self.modelSeed
+                                                         noise:noise]);
+        } else {
+            continue;
         }
     }
 
-    return output;
+    return features;
+}
+
+- (double)generateRandomNoise {
+    // Just a stub
+    // Source: https://stackoverflow.com/a/12948538/3050403
+    double u1 = drand48();
+    double u2 = drand48();
+    double f1 = sqrt(-2 * log(u1));
+    double f2 = 2 * M_PI * u2;
+    return f1 * cos(f2);
+}
+
+- (NSInteger)lookupColumnInTable:(NSArray *)table
+                         withKey:(NSString *)key
+                            seed:(uint32_t)seed
+                               w:(int32_t)w
+{
+    NSArray *t0 = table[0];
+    int32_t c = [t0[py_mod((int32_t)[IMPMurmurHash hash32:key withSeed:seed], (int32_t)t0.count)] intValue];
+    return py_mod(c < 0 ? ABS(c)-1 : (int32_t)[IMPMurmurHash hash32:key withSeed:c^(int32_t)seed], (int32_t)[(NSArray *)table[1] count]/w);
+}
+
+- (double)lookupValueForColumn:(NSInteger)column
+                        string:(NSString *)string
+                          seed:(uint32_t)seed
+                         noise:(double)noise
+{
+    NSArray *t = self.table[1][column];
+    NSArray *t1 = t[1];
+    NSInteger c = [self lookupColumnInTable:t withKey:string seed:seed w:2]*2;
+    return [t1[c] doubleValue]+[t1[c+1] doubleValue]*noise;
 }
 
 @end

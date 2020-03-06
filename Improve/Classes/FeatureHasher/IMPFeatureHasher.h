@@ -10,38 +10,51 @@
 #import <CoreML/CoreML.h>
 #import "IMPMatrix.h"
 
+@class IMPModelMetadata;
+
+typedef NSDictionary<NSNumber*, NSNumber*> IMPFeaturesDictT;
+
 NS_ASSUME_NONNULL_BEGIN
 
-/// Implements feature hashing, aka the hashing trick.
+/// Implements lookup-table based feature hashing
 @interface IMPFeatureHasher : NSObject
 
-/**
- The number of features (columns) in the output matrices. Small numbers of features are likely to cause hash collisions, but large numbers will cause larger coefficient dimensions in linear learners.
- */
-@property(nonatomic, readonly) NSUInteger numberOfFeatures;
+@property(nonatomic, readonly) NSArray *table;
+
+@property(nonatomic, assign) uint32_t modelSeed;
+
+@property(nonatomic, readonly) NSUInteger columnCount;
 
 /**
- When true, an alternating sign is added to the features as to approximately conserve the inner product in the hashed space even for small numberOfFeatues. This approach is similar to sparse random projection.
+ @param table A lookup table - nested array of NSNumbers.
+ @param seed Hashing seed.
  */
-@property(nonatomic, readonly, getter=shouldAlternateSign) BOOL alternateSign;
+- (instancetype)initWithTable:(NSArray *)table seed:(uint32_t)seed NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithMetadata:(IMPModelMetadata *)metadata;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 /**
- @param numberOfFeatures The number of features (columns) in the output matrices. Small numbers of features are likely to cause hash collisions, but large numbers will cause larger coefficient dimensions in linear learners. Default value: 1048576 (2^20).
- @param alternateSign When true, an alternating sign is added to the features as to approximately conserve the inner product in the hashed space even for small numberOfFeatues. This approach is similar to sparse random projection.
+ Performs flattening and encodes keys and values. Keys are encoded with integer numbers (columns).
+ NSNumber values are encoded as double NSNumbers, string values are hashed and replaced with double NSNumbers.
+ All other values are skipped.
+ @param properties A dictionary with string keys.
+ @return A dictionary where keys are columns (NSNumber, integer) and values are double-NSNumbers.
  */
-- (instancetype)initWithNumberOfFeatures:(NSUInteger)numberOfFeatures
-                           alternateSign:(BOOL)alternateSign NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)initWithNumberOfFeatures:(NSUInteger)numberOfFeatures;
+- (IMPFeaturesDictT *)encodeFeatures:(NSDictionary *)properties;
 
 /**
- Recieves an array of samples (dicitionaries) like [{'dog': 1, 'cat':2, 'elephant':4},{'dog': 2, 'run': 5}].
- Values of a dictionary should be either of NSNumber or NSString type. In the last case, the key will be interpreted as
- "key=value" strings and the value will be 1.
- 
- @return A 2D matrix of size numberOfSamples x numberOfFeatures. NAN indicate missing values.
+ Same as -encodeFeatures: with {propertyKey: variant} input.
  */
-- (IMPMatrix *)transform:(NSArray<NSDictionary<NSString*,id>*> *)x;
+- (IMPFeaturesDictT *)encodePartialFeaturesWithKey:(NSString *)propertyKey
+                                           variant:(NSDictionary *)variant;
+
+/**
+ Encodes flat dicitonary which shouldn't have nested dictionaries or arrays.
+ @return A dictionary where keys are columns (NSNumber, integer) and values are double-NSNumbers.
+ */
+- (IMPFeaturesDictT *)encodeFeaturesFromFlattened:(NSDictionary *)flattenedProperties;
 
 @end
 

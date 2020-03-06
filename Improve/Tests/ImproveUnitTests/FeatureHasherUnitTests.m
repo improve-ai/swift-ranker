@@ -8,9 +8,9 @@
 
 #import <XCTest/XCTest.h>
 #import "IMPFeatureHasher.h"
-#import "MLMultiArray+NSArray.h"
-#import "NSArray+Multidimensional.h"
 #import "TestUtils.h"
+#import "IMPJSONUtils.h"
+
 
 @interface FeatureHasherUnitTests : XCTestCase
 
@@ -19,47 +19,56 @@
 @implementation FeatureHasherUnitTests
 
 - (void)testBasics {
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:10
-                                                                    alternateSign:true];
-    NSArray *features = @[@{@"dog": @1, @"cat": @2, @"elephant": @4},
-                          @{@"dog": @2, @"run": @5}];
-    IMPMatrix *output = [hasher transform:features];
-    double expectedOutput[2][10] = {
-        {0, 0, -4, -1, 0, 0, 0, 0, 0, 2},
-        {0, 0, 0, -2, -5, 0, 0, 0, 0, 0}
-    };
-
-    XCTAssert(isEqualRough(20, output.buffer, *expectedOutput));
-}
-
-- (void)testPythonCases {
-    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-    NSURL *url = [bundle URLForResource:@"hasher" withExtension:@"json"];
-    XCTAssertNotNil(url);
-    NSData *data = [NSData dataWithContentsOfURL:url];
-    XCTAssertNotNil(data);
-    NSError *error;
-    NSArray *cases = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(cases);
-
-    NSLog(@"Test cases: %ld", cases.count);
-
-    for (NSDictionary *testCase in cases) {
-        NSDictionary *input = testCase[@"input"];
-        NSNumber *numberOfFeatures = input[@"n_features"];
-        NSNumber *shouldAlternateSign = input[@"alternate_sign"];
-        NSArray *x = input[@"x"];
-
-        IMPFeatureHasher *hasher
-        = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:numberOfFeatures.unsignedIntegerValue
-                                               alternateSign:shouldAlternateSign.boolValue];
-        IMPMatrix *output = [hasher transform:x];
-
-        NSArray *expectedOutput = testCase[@"output"];
-        NSLog(@"%@", expectedOutput);
-
-        XCTAssert([[output NSArray] isEqualToArray:expectedOutput]);
+    NSArray *table = [IMPJSONUtils objectFromString:@"[[-6, 25], [[[-1], [0.0, 0.0]], [[-1], [3, 0.0]], [[5], [2.0, 0.0, 3.0, 0.0, 1.0, 0.0]], [[-1], [2, 0.0]], [[5], [0.0, 10.0, 0.0, 100.0, 0.0, 1.0]], [[-1], [1, 0.0]]]]"];
+    XCTAssertNotNil(table);
+    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithTable:table seed:0];
+    NSArray *tests = @[
+        @{@"arrays": @[@0, @1, @2]},
+        @{@"letters": @"a"},
+        @{@"letters": @"b"},
+        @{@"letters": @"c"},
+        @{@"noise": @"a"},
+        @{@"noise": @"b"},
+        @{@"noise": @"c"},
+        @{@"numbers": @1},
+        @{@"numbers": @2},
+        @{@"numbers": @3},
+        @{@"numbers": @YES},
+        @{@"numbers": @NO},
+        @{@"null": [NSNull null]}
+    ];
+    NSArray *checks = @[
+        @{@5: @0.0, @3: @1.0, @1: @2.0},
+        @{@2: @1.0},
+        @{@2: @2.0},
+        @{@2: @3.0},
+        @{@4: @"~noise#"},
+        @{@4: @"~noise#"},
+        @{@4: @"~noise#"},
+        @{@0: @1.0},
+        @{@0: @2.0},
+        @{@0: @3.0},
+        @{@0: @1.0},
+        @{@0: @0.0},
+        @{}
+    ];
+    XCTAssert(tests.count == checks.count);
+    for (NSUInteger i = 0; i < tests.count; i++)
+    {
+        NSDictionary *encoded = [hasher encodeFeatures:tests[i]];
+        NSDictionary *check = checks[i];
+        NSLog(@"Index: %ld\nActual:\n%@\nExpected:\n%@", i, encoded, check);
+        XCTAssert(encoded.count == check.count);
+        for (NSString *key in check) {
+            id expectedVal = check[key];
+            if ([expectedVal isKindOfClass:NSString.class]
+                && [expectedVal isEqualToString:@"~noise#"]) {
+                // Just make sure that value exists
+                XCTAssert([encoded[key] isKindOfClass:NSNumber.class]);
+            } else {
+                XCTAssert([encoded[key] isEqual:expectedVal]);
+            }
+        }
     }
 }
 
