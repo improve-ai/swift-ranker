@@ -21,7 +21,7 @@ NS_INLINE id insureClass(id object, Class cl, SEL caller) {
     if ([object isKindOfClass:cl]) {
         return object;
     } else {
-        NSLog(@"%@ wrong object in variants dictionary: %@ /nExpected %@", NSStringFromSelector(caller), object, NSStringFromSelector(caller));
+        NSLog(@"%@ wrong type of object: %@ /nExpected %@", NSStringFromSelector(caller), object, NSStringFromSelector(caller));
         return nil;
     }
 }

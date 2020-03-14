@@ -17,16 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithArray:(NSArray *)array prefix:(NSString *)prefix error:(NSError **)error;
 
-/*!
- * Create from a dictionary with NSNumber Keys. Numbers are converted to feature names by adding a prefix.
- * Then the dictionary is delegated to the designed initializer which takes only NSString keys.
- *
- * An error results if the values are not or cannot be represented as MLFeatureValues.
- */
-- (nullable instancetype)initWithDictionary:(NSDictionary<NSNumber*, id> *)dictionary
-                                     prefix:(NSString *)prefix
-                                      error:(NSError **)error;
-
 @end
 
 NS_ASSUME_NONNULL_END

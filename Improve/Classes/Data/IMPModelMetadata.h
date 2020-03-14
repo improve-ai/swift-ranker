@@ -14,8 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (assign, nonatomic) NSUInteger numberOfFeatures;
 
-@property (copy, nonatomic) NSString *hashPrefix;
-
 @property (copy, nonatomic) NSString *modelId;
 
 @property (strong, nonatomic) NSArray *lookupTable;

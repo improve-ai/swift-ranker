@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreML/CoreML.h>
-#import "IMPMatrix.h"
 
 @class IMPModelMetadata;
 
@@ -55,6 +54,8 @@ NS_ASSUME_NONNULL_BEGIN
  @return A dictionary where keys are columns (NSNumber, integer) and values are double-NSNumbers.
  */
 - (IMPFeaturesDictT *)encodeFeaturesFromFlattened:(NSDictionary *)flattenedProperties;
+
+- (NSArray<IMPFeaturesDictT*> *)batchEncode:(NSArray<NSDictionary*> *)properties;
 
 @end
 

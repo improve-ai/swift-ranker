@@ -26,18 +26,4 @@
     return self;
 }
 
-- (nullable instancetype)initWithDictionary:(NSDictionary<NSNumber*, id> *)dictionary
-                                     prefix:(NSString *)prefix
-                                      error:(NSError **)error
-{
-    NSMutableDictionary *stringDict = [NSMutableDictionary dictionaryWithCapacity:dictionary.count];
-    for (NSNumber *nKey in dictionary) {
-        NSString *sKey = [NSString stringWithFormat:@"%@%@", prefix, nKey];
-        stringDict[sKey] = dictionary[nKey];
-    }
-
-    self = [self initWithDictionary:stringDict error:error];
-    return self;
-}
-
 @end

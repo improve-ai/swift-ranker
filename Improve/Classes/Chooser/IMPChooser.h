@@ -24,7 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(readonly, nonatomic) MLModel *model;
 
-@property(readonly, nonatomic) NSString *hashPrefix;
+/// Used to convert column indexes to model feature names. Default: "f".
+@property(copy, nonatomic) NSString *featureNamePrefix;
 
 @property(readonly, nonatomic) IMPModelMetadata *metadata;
 

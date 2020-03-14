@@ -13,12 +13,13 @@
 #import "TestUtils.h"
 #import "IMPScoredObject.h"
 #import "IMPModelBundle.h"
+#import "IMPJSONUtils.h"
 
 const NSUInteger featuresCount = 10000;
 
 @interface IMPChooser ()
-- (NSArray *)batchPrediction:(IMPMatrix *)matrix;
-- (double)singleRowPrediction:(NSArray<NSNumber*> *)features;
+- (NSArray *)batchPrediction:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatures;
+- (double)singleRowPrediction:(NSDictionary<NSNumber*,id> *)features;
 @end
 
 @interface ChooserTest : XCTestCase {
@@ -26,7 +27,7 @@ const NSUInteger featuresCount = 10000;
     IMPChooser *chooser;
 
     // A JSON containing "trials" and their "predicitons" generated with XGBoost.
-    NSDictionary *_data;
+    NSDictionary *_trialsData;
 }
 @end
 
@@ -48,8 +49,8 @@ const NSUInteger featuresCount = 10000;
 }
 
 /// Contains random "trials" and "predictions" array produced by XGBoost.
-- (NSDictionary *)data {
-    if (_data) return _data;
+- (NSDictionary *)trialsData {
+    if (_trialsData) return _trialsData;
 
     NSURL *jsonURL = [bundle URLForResource:@"trials" withExtension:@"json"];
     XCTAssertNotNil(jsonURL);
@@ -65,53 +66,51 @@ const NSUInteger featuresCount = 10000;
     XCTAssertNotNil(json[@"trials"]);
     XCTAssertNotNil(json[@"predictions"]);
 
-    _data = json;
-    return _data;
+    _trialsData = json;
+    return _trialsData;
 }
-/*
+
 - (void)testSingleRow {
     XCTAssertNotNil(chooser);
-    
-    NSURL *jsonURL = [bundle URLForResource:@"singleTrial" withExtension:@"json"];
+    NSLog(@"%ld", __STDC_VERSION__);
+
+    NSURL *jsonURL = [bundle URLForResource:@"singleEncodedTrial" withExtension:@"json"];
     XCTAssertNotNil(jsonURL);
     NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
     XCTAssertNotNil(jsonData);
     NSError *error = nil;
-    NSDictionary *testTrial = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                              options:0
-                                                                error:&error];
-    if (!testTrial) {
+    NSDictionary *encodedTrial = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                 options:0
+                                                                   error:&error];
+    if (!encodedTrial) {
         XCTFail(@"%@", error);
     }
-    
-//    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:featuresCount];
-//    NSArray *hashedTrial = [[hasher transform:@[testTrial]] NSArray][0];
-    
-    double prediction = [chooser singleRowPrediction:hashedTrial];
+
+    encodedTrial = [IMPJSONUtils convertKeysToIntegers:encodedTrial];
+
+    double prediction = [chooser singleRowPrediction:encodedTrial];
     NSLog(@"Single row prediction: %g", prediction);
     XCTAssert(prediction != -1.0); // Check for errors
     
-    double expectedPrediciton = 3.018615e-05;
+    double expectedPrediciton = 0.003574190428480506;
     XCTAssert(isEqualRough(prediction, expectedPrediciton));
 }
-*/
-/*
-- (void)testSingleAndBatchConsistency {
-    NSArray *trials = self.data[@"trials"];
-    NSArray *predictions = self.data[@"predictions"];
 
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithNumberOfFeatures:featuresCount];
-    IMPMatrix *hashedTrials = [hasher transform:trials];
+- (void)testSingleAndBatchConsistency {
+    NSArray *trials = self.trialsData[@"trials"];
+    NSArray *predictions = self.trialsData[@"predictions"];
+
+    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:chooser.metadata];
+    NSArray *hashedTrials = [hasher batchEncode:trials];
 
     NSArray *batchScores = [chooser batchPrediction:hashedTrials];
     NSLog(@"%@", batchScores);
     XCTAssertNotNil(batchScores);
 
-    NSArray *hashedTrialsArr = [hashedTrials NSArray];
-    for (NSUInteger i = 0; i < hashedTrialsArr.count; i++)
+    for (NSUInteger i = 0; i < hashedTrials.count; i++)
     {
-        NSArray *hashRow = hashedTrialsArr[i];
-        double singleScore = [chooser singleRowPrediction:hashRow];
+        NSDictionary *hashedTrial = hashedTrials[i];
+        double singleScore = [chooser singleRowPrediction:hashedTrial];
         double batchScore = [batchScores[i] doubleValue];
         double XGBScore = [predictions[i] doubleValue];
         NSLog(@"batch|single|xgboost: %f, %f, %f", batchScore, singleScore, XGBScore);
@@ -120,13 +119,11 @@ const NSUInteger featuresCount = 10000;
         XCTAssert(isEqualRough(XGBScore, batchScore));
     }
 }
-*/
 
 /*
  Shallow test, only for general output shape. Choosing isn't reproducible because
  of it's random nature.
  */
-/*
 - (void)testBasicChoosing {
     XCTAssertNotNil(chooser);
 
@@ -165,17 +162,12 @@ const NSUInteger featuresCount = 10000;
 }
 
 - (void)testRank {
-    NSArray *variants = self.data[@"trials"];
-    NSDictionary *context = @{
-        @"language": @"English",
-        @"country": @"United States",
-        @"day": @100,
-        @"os_version": @"13.2"
-    };
+    NSArray *variants = self.trialsData[@"trials"];
+    NSDictionary *context = @{};
     NSArray *rankedVariants = [chooser rank:variants context:context];
     XCTAssertNotNil(rankedVariants);
 
-    NSArray *scores = self.data[@"predictions"];
+    NSArray *scores = self.trialsData[@"predictions"];
     NSMutableArray *xgboostScored = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSUInteger i = 0; i < variants.count; i++) {
         double xgbScore = [scores[i] doubleValue];
@@ -189,7 +181,9 @@ const NSUInteger featuresCount = 10000;
     for (NSUInteger i = 0; i < xgboostScored.count; i++) {
         [expectedRankedVariants addObject:[xgboostScored[i] object]];
     }
+    NSLog(@"Ranked: %@", rankedVariants);
+    NSLog(@"Expected: %@", expectedRankedVariants);
     XCTAssert([rankedVariants isEqualToArray:expectedRankedVariants]);
 }
-*/
+
 @end

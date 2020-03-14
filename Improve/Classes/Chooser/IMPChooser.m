@@ -7,17 +7,17 @@
 
 #import "IMPChooser.h"
 #import "IMPFeatureHasher.h"
-#import "MLDictionaryFeatureProvider+Utils.h"
+#import "IMPEncodedFeatureProvider.h"
 #import "NSArray+Random.h"
 #import "IMPCommon.h"
 #import "IMPScoredObject.h"
 #import "IMPModelBundle.h"
 #import "IMPModelMetadata.h"
+#import "IMPFeaturesMap.h"
 
 
 const NSUInteger kInitialTrialsCount = 100;
 
-NSString *const kFeatureNamePrefix = @"f";
 
 @implementation IMPChooser
 
@@ -41,12 +41,9 @@ NSString *const kFeatureNamePrefix = @"f";
     if (self) {
         _model = model;
         _metadata = metadata;
+        _featureNamePrefix = @"f";
     }
     return self;
-}
-
-- (NSString *)hashPrefix {
-    return self.metadata.hashPrefix;
 }
 
 - (NSUInteger)numberOfFeatures {
@@ -81,14 +78,10 @@ NSString *const kFeatureNamePrefix = @"f";
 /// Returns prediction for the given row or -1 if error.
 - (double)singleRowPrediction:(NSDictionary<NSNumber*,id> *)features
 {
-    NSError *error = nil;
-    MLDictionaryFeatureProvider *featureProvider
-    = [[MLDictionaryFeatureProvider alloc] initWithDictionary:features prefix:kFeatureNamePrefix error:&error];
-    if (!featureProvider) {
-        NSLog(@"MLDictionaryFeatureProvider error: %@", error);
-        return -1;
-    }
+    id<MLFeatureProvider> featureProvider
+    = [[IMPEncodedFeatureProvider alloc] initWithDictionary:features prefix:self.featureNamePrefix];
 
+    NSError *error;
     id<MLFeatureProvider> prediction
     = [self.model predictionFromFeatures:featureProvider error:&error];
     if (!prediction) {
@@ -97,6 +90,7 @@ NSString *const kFeatureNamePrefix = @"f";
     }
 
     double output = [[prediction featureValueForName:@"target"] doubleValue];
+    NSLog(@"target: %f", output);
     return sigmfix(output);
 }
 
@@ -106,12 +100,48 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     NSMutableArray *featureProviders = [NSMutableArray arrayWithCapacity:batchFeatures.count];
     for (NSDictionary<NSNumber*,id> *features in batchFeatures)
     {
-        NSError *error;
-        MLDictionaryFeatureProvider *provider = [[MLDictionaryFeatureProvider alloc] initWithDictionary:features prefix:kFeatureNamePrefix error:&error];
-        if (!provider) return nil;
+        id<MLFeatureProvider> provider = [[IMPEncodedFeatureProvider alloc] initWithDictionary:features prefix:self.featureNamePrefix];
         [featureProviders addObject:provider];
     }
     return [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:featureProviders];
+}
+
+#pragma mark Feature Extracting
+
+/**
+ @param variantsMap A dictionary of arrays.
+ */
+- (IMPFeaturesMap *)partialTrialsFeaturesMapWithContext:(NSDictionary *)context
+                                               variants:(NSDictionary *)variantsMap
+{
+    IMPFeatureHasher *encoder = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
+
+    IMPFeaturesMap *map = [IMPFeaturesMap new];
+    map.context = context;
+    map.contextFeatures = [encoder encodeFeatures:context];
+
+    NSMutableDictionary *partialTrials = [NSMutableDictionary dictionaryWithCapacity:variantsMap.count];
+    NSMutableDictionary *partialFeatures = [NSMutableDictionary dictionaryWithCapacity:variantsMap.count];
+    for (NSString *propertyKey in variantsMap)
+    {
+        NSArray *variants = variantsMap[propertyKey];
+        NSMutableArray *trialsForKey = [NSMutableArray arrayWithCapacity:variants.count];
+        NSMutableArray *featuresForKey = [NSMutableArray arrayWithCapacity:variants.count];
+        partialTrials[propertyKey] = trialsForKey;
+        partialFeatures[propertyKey] = featuresForKey;
+
+        for (id variant in variants) {
+            [trialsForKey addObject:@{propertyKey: variant}];
+            [featuresForKey addObject:
+             [encoder encodePartialFeaturesWithKey:propertyKey
+                                           variant:variant]
+             ];
+        }
+    }
+    map.partialTrials = partialTrials;
+    map.partialFeatures = partialFeatures;
+
+    return map;
 }
 
 #pragma mark Choosing
@@ -119,18 +149,25 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 - (NSDictionary *)choose:(NSDictionary *)variants
                  context:(NSDictionary *)context
 {
-    NSArray<NSDictionary*> *trials = [self randomTrials:variants count:kInitialTrialsCount];
+    IMPFeaturesMap *featuresMap = [self partialTrialsFeaturesMapWithContext:context
+                                                                   variants:variants];
+
+    /* Trial is dictionary of integers where key is a propertyKey from `variants`
+     and value is index of the variant in array. */
+    NSArray<NSDictionary*> *trials;
+    NSArray<NSDictionary<NSNumber*, NSNumber*> *> *featurizedTrials;
+    [self getRandomTrials:&trials
+         featurizedTrials:&featurizedTrials
+          fromFeaturesMap:featuresMap
+                    count:kInitialTrialsCount];
+    NSLog(@"trials: %@", trials);
+NSLog(@"featurizedTrials: %@", featurizedTrials);
 
     NSDictionary *bestTrial = nil;
     double bestScore = 0;
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
     while (YES)
     {
-        NSArray *features = [self makeFeaturesFromTrials:trials
-                                             withContext:context
-                                              hashPrefix:self.hashPrefix];
-        NSArray *encodedFeatures = [self batchEncode:features withEncoder:hasher];
-        NSArray *scores = [self batchPrediction:encodedFeatures];
+        NSArray *scores = [self batchPrediction:featurizedTrials];
         if (!scores) { return nil; }
         NSLog(@"Scores: %@", scores);//test
         NSUInteger maxScoreIdx = 0;
@@ -146,7 +183,12 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
         if (!bestTrial || maxScore > bestScore) {
             bestTrial = trials[maxScoreIdx];
             bestScore = maxScore;
-            trials = [self adjacentTrials:bestTrial variants:variants];
+
+            [self getAdjacentTrials:&trials
+                         featurized:&featurizedTrials
+                          fromTrial:bestTrial
+                    featurizedTrial:featurizedTrials[maxScoreIdx]
+                    withFeaturesMap:featuresMap];
         } else {
             break;
         }
@@ -155,70 +197,82 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     return bestTrial;
 }
 
-
-- (NSArray<NSDictionary*> *)randomTrials:(NSDictionary *)variants
-                                   count:(NSUInteger)count
+/**
+ @param trialsP Pointer to a variable which will be initialized with random trials [{key1: variant1A}, {key2, vriant2B}, ...]
+ @param featurizedTrialsP Pointer to a variable which will be initialized with random trial
+ features corresponding to `trialsP`. Contains values of type NSDictionary<NSNumber*, NSNumber*>.
+ @param map A initialized features map.
+ @param count How many trials do you need?
+ */
+- (void)getRandomTrials:(NSArray<NSDictionary*> **)trialsP
+       featurizedTrials:(NSArray<NSDictionary*> **)featurizedTrialsP
+        fromFeaturesMap:(IMPFeaturesMap *)map
+                  count:(NSUInteger)count
 {
     NSMutableArray *trials = [NSMutableArray arrayWithCapacity:count];
+    NSMutableArray *featurizedTrials = [NSMutableArray arrayWithCapacity:count];
+
     for (NSUInteger n = 0; n < count; n++)
     {
-        NSMutableDictionary *trial = [NSMutableDictionary new];
-        for (NSString *key in variants)
+        NSMutableDictionary *trialProperties = [NSMutableDictionary dictionaryWithCapacity:map.partialTrials.count];
+        [trials addObject:trialProperties];
+        NSMutableDictionary *trialFeatures = [map.contextFeatures mutableCopy];
+        [featurizedTrials addObject:trialFeatures];
+        for (NSString *key in map.partialTrials)
         {
-            NSArray *array = INSURE_CLASS(variants[key], [NSArray class]);
-            if (!array) { continue; }
-
-            trial[key] = array.randomObject;
+            NSArray *variants = map.partialTrials[key];
+            NSArray *features = map.partialFeatures[key];
+            uint32_t randomIndex = arc4random_uniform((uint32_t)variants.count);
+            [trialProperties addEntriesFromDictionary:variants[randomIndex]];
+            [trialFeatures addEntriesFromDictionary:features[randomIndex]];
         }
-        [trials addObject:trial];
     }
 
-    return trials;
+    *trialsP = trials;
+    *featurizedTrialsP = featurizedTrials;
 }
 
 - (NSArray<NSDictionary*> *)makeFeaturesFromTrials:(NSArray<NSDictionary*> *)trials
                                        withContext:(NSDictionary *)context
-                                        hashPrefix:(NSString *)prefix
 {
     NSMutableArray<NSDictionary*> *features = [NSMutableArray arrayWithCapacity:trials.count];
     for (NSDictionary *trial in trials) {
         NSMutableDictionary *total = [context mutableCopy];
-
         [total addEntriesFromDictionary:trial];
+        [features addObject:total];
     }
 
     return features;
 }
 
-- (NSArray<NSDictionary<NSNumber*,id>*> *)batchEncode:(NSArray<NSDictionary*> *)rawFeatures withEncoder:(IMPFeatureHasher *)encoder
-{
-    NSMutableArray *batchEncoded = [NSMutableArray arrayWithCapacity:rawFeatures.count];
-    for (NSDictionary *featuresDict in rawFeatures) {
-        [batchEncoded addObject:[encoder encodeFeatures:featuresDict]];
-    }
-
-    return batchEncoded;
-}
-
 /// Creates an array of slightly different trials, replacing one key in each adjacent trial by a random variant.
-- (NSArray<NSDictionary*> *)adjacentTrials:(NSDictionary *)trial
-                                  variants:(NSDictionary *)variants
+- (void)getAdjacentTrials:(NSArray<NSDictionary*> **)trialsP
+               featurized:(NSArray<NSDictionary*> **)featurizedTrialsP
+                fromTrial:(NSDictionary *)trial
+          featurizedTrial:(NSDictionary *)featurizedTrial
+          withFeaturesMap:(IMPFeaturesMap *)map
 {
-    NSMutableArray *adjacents = [NSMutableArray new];
+    NSMutableArray *adjacentTrials = [NSMutableArray new];
+    NSMutableArray *adjacentFeatures = [NSMutableArray new];
 
-    for (NSString *key in variants)
+    for (NSString *key in map.partialTrials)
     {
-        NSArray *variantsList = INSURE_CLASS(variants[key], [NSArray class]);
-        if (!variantsList) { continue; }
+        NSArray *variantsList = map.partialTrials[key];
+        NSArray *featuresList = map.partialFeatures[key];
 
-        for (id variant in variantsList) {
+        for (NSUInteger i = 0; i < variantsList.count; i++) {
             NSMutableDictionary *adjacentTrial = [trial mutableCopy];
-            adjacentTrial[key] = variant;
-            [adjacents addObject:adjacentTrial];
+            [adjacentTrial addEntriesFromDictionary:variantsList[i]];
+            [adjacentTrials addObject:adjacentTrial];
+
+            NSMutableDictionary *adjacentFeaturized = [featurizedTrial mutableCopy];
+            [adjacentFeaturized addEntriesFromDictionary:featuresList[i]];
+            [adjacentFeatures addObject:adjacentFeaturized];
         }
     }
 
-    return adjacents;
+    *trialsP = adjacentTrials;
+    *featurizedTrialsP = adjacentFeatures;
 }
 
 #pragma mark - Ranking
@@ -227,10 +281,9 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
                          context:(NSDictionary *)context
 {
     NSArray *features = [self makeFeaturesFromTrials:variants
-                                         withContext:context
-                                          hashPrefix:self.hashPrefix];
+                                         withContext:context];
     IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
-    NSArray *encodedFeatures = [self batchEncode:features withEncoder:hasher];
+    NSArray *encodedFeatures = [hasher batchEncode:features];
     NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) { return nil; }
     NSLog(@"%@", scores);

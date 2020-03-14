@@ -115,4 +115,13 @@ template<typename T> T py_mod(T n, T a) {
     return [t1[c] doubleValue]+[t1[c+1] doubleValue]*noise;
 }
 
+- (NSArray<IMPFeaturesDictT*> *)batchEncode:(NSArray<NSDictionary*> *)properties
+{
+    NSMutableArray *batchEncoded = [NSMutableArray arrayWithCapacity:properties.count];
+    for (NSDictionary *propertiesDict in properties) {
+        [batchEncoded addObject:[self encodeFeatures:propertiesDict]];
+    }
+    return batchEncoded;
+}
+
 @end

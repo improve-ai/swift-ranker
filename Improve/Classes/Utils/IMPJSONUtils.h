@@ -16,6 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable id)objectFromString:(NSString *)jsonString error:(NSError **)error;
 
+/// Convert keys to NSNumber integers.
++ (NSDictionary<NSNumber*, id> *)convertKeysToIntegers:(NSDictionary *)inputJSON;
+
 @end
 
 NS_ASSUME_NONNULL_END
