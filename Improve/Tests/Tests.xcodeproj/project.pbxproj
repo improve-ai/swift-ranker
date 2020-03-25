@@ -25,6 +25,8 @@
 		549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 549EE78123F1C4AC0040D880 /* DownloaderTest.m */; };
 		549EE78923F2B94D0040D880 /* IMPModelBundle.m in Sources */ = {isa = PBXBuildFile; fileRef = 549EE78823F2B94D0040D880 /* IMPModelBundle.m */; };
 		54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 54A4D3F52403D56400BC1FA8 /* IMPModelMetadata.m */; };
+		54BDBBD9242A802200703F12 /* IMPSimHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 54BDBBD8242A802200703F12 /* IMPSimHash.m */; };
+		54BDBBDB242B5A8900703F12 /* SimHashTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54BDBBDA242B5A8900703F12 /* SimHashTest.m */; };
 		54CA210323FDD09D00723655 /* NVHProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CA20F823FDD09D00723655 /* NVHProgress.m */; };
 		54CA210423FDD09D00723655 /* NVHTarFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CA20FA23FDD09D00723655 /* NVHTarFile.m */; };
 		54CA210523FDD09D00723655 /* NVHTarGzip.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CA20FD23FDD09D00723655 /* NVHTarGzip.m */; };
@@ -82,6 +84,9 @@
 		549EE78823F2B94D0040D880 /* IMPModelBundle.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPModelBundle.m; sourceTree = "<group>"; };
 		54A4D3F42403D56400BC1FA8 /* IMPModelMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPModelMetadata.h; sourceTree = "<group>"; };
 		54A4D3F52403D56400BC1FA8 /* IMPModelMetadata.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPModelMetadata.m; sourceTree = "<group>"; };
+		54BDBBD7242A802200703F12 /* IMPSimHash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPSimHash.h; sourceTree = "<group>"; };
+		54BDBBD8242A802200703F12 /* IMPSimHash.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPSimHash.m; sourceTree = "<group>"; };
+		54BDBBDA242B5A8900703F12 /* SimHashTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SimHashTest.m; sourceTree = "<group>"; };
 		54CA20F223FDB63300723655 /* libarchive.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libarchive.2.tbd; path = usr/lib/libarchive.2.tbd; sourceTree = SDKROOT; };
 		54CA20F723FDD09D00723655 /* NVHProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NVHProgress.h; sourceTree = "<group>"; };
 		54CA20F823FDD09D00723655 /* NVHProgress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NVHProgress.m; sourceTree = "<group>"; };
@@ -231,6 +236,7 @@
 				548DA93D23EB570400825370 /* DataTests.m */,
 				549EE78123F1C4AC0040D880 /* DownloaderTest.m */,
 				54442CA223FFE37B00F278E8 /* ImproveTest.m */,
+				54BDBBDA242B5A8900703F12 /* SimHashTest.m */,
 				54CB9B4E23D989AE0005BB94 /* propertiesToFeatures.json */,
 				544D3B3C23DEFFC800CF95DB /* choose.json */,
 				54160CD123E02C9B00030A6A /* singleEncodedTrial.json */,
@@ -321,11 +327,13 @@
 		54CB9B3623D988F10005BB94 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				5496CE5C23ED5FFE004E96C5 /* IMPCommon.h */,
 				54CB9B3923D988F10005BB94 /* IMPJSONFlattener.h */,
 				54CB9B3723D988F10005BB94 /* IMPJSONFlattener.m */,
 				54CB9B3823D988F10005BB94 /* IMPJSONUtils.h */,
 				54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */,
-				5496CE5C23ED5FFE004E96C5 /* IMPCommon.h */,
+				54BDBBD7242A802200703F12 /* IMPSimHash.h */,
+				54BDBBD8242A802200703F12 /* IMPSimHash.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -427,12 +435,14 @@
 				548DA93C23EB4EF000825370 /* IMPMatrix.m in Sources */,
 				54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */,
 				5496CE5723EC04EE004E96C5 /* IMPMatrixBatchProvider.m in Sources */,
+				54BDBBD9242A802200703F12 /* IMPSimHash.m in Sources */,
 				54CA210623FDD09D00723655 /* NVHFile.m in Sources */,
 				54CB9B3D23D988F10005BB94 /* IMPMurmurHash.mm in Sources */,
 				54CA210723FDD09D00723655 /* NVHGzipFile.m in Sources */,
 				549EE78023EF3DD60040D880 /* IMPModelDownloader.m in Sources */,
 				544D3B3823DEF3F000CF95DB /* IMPMultiArrayBatchProvider.m in Sources */,
 				54442CA323FFE37B00F278E8 /* ImproveTest.m in Sources */,
+				54BDBBDB242B5A8900703F12 /* SimHashTest.m in Sources */,
 				549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */,
 				548BEE20241241F500EFD26A /* TestModel.mlmodel in Sources */,
 				54CA210523FDD09D00723655 /* NVHTarGzip.m in Sources */,

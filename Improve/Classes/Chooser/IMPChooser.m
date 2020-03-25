@@ -79,7 +79,7 @@ const NSUInteger kInitialTrialsCount = 100;
 - (double)singleRowPrediction:(NSDictionary<NSNumber*,id> *)features
 {
     id<MLFeatureProvider> featureProvider
-    = [[IMPEncodedFeatureProvider alloc] initWithDictionary:features prefix:self.featureNamePrefix];
+    = [[IMPEncodedFeatureProvider alloc] initWithDictionary:features prefix:self.featureNamePrefix count:self.metadata.numberOfFeatures];
 
     NSError *error;
     id<MLFeatureProvider> prediction
@@ -100,7 +100,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     NSMutableArray *featureProviders = [NSMutableArray arrayWithCapacity:batchFeatures.count];
     for (NSDictionary<NSNumber*,id> *features in batchFeatures)
     {
-        id<MLFeatureProvider> provider = [[IMPEncodedFeatureProvider alloc] initWithDictionary:features prefix:self.featureNamePrefix];
+        id<MLFeatureProvider> provider = [[IMPEncodedFeatureProvider alloc] initWithDictionary:features prefix:self.featureNamePrefix count:self.metadata.numberOfFeatures];
         [featureProviders addObject:provider];
     }
     return [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:featureProviders];
