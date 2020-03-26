@@ -11,16 +11,6 @@
 #import "IMPJSONFlattener.h"
 #import "IMPModelMetadata.h"
 
-/*
- Python style modulo. (% in C is different for negative numbers)
- https://stackoverflow.com/a/829370/3050403
- */
-template<typename T> T sign(T t) { return t > T(0) ? T(1) : T(-1); }
-template<typename T> T py_mod(T n, T a) {
-    T r = n % a;
-    if (r * sign(a) < T(0)) r += a;
-    return r;
-}
 
 @implementation IMPFeatureHasher
 
@@ -97,11 +87,11 @@ template<typename T> T py_mod(T n, T a) {
 - (NSInteger)lookupColumnInTable:(NSArray *)table
                          withKey:(NSString *)key
                             seed:(uint32_t)seed
-                               w:(int32_t)w
+                               w:(uint32_t)w
 {
     NSArray *t0 = table[0];
-    int32_t c = [t0[py_mod((int32_t)[IMPMurmurHash hash32:key withSeed:seed], (int32_t)t0.count)] intValue];
-    return py_mod(c < 0 ? ABS(c)-1 : (int32_t)[IMPMurmurHash hash32:key withSeed:c^(int32_t)seed], (int32_t)[(NSArray *)table[1] count]/w);
+    int c = [t0[[IMPMurmurHash hash32:key withSeed:seed] % t0.count] intValue];
+    return (c < 0 ? ABS(c)-1 : [IMPMurmurHash hash32:key withSeed:(uint32_t)c^seed]) % ([(NSArray *)table[1] count]/w);
 }
 
 - (double)lookupValueForColumn:(NSInteger)column
