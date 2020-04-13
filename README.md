@@ -71,4 +71,4 @@ For further documentation see [improve.ai](https://docs.improve.ai).
 
 ## License
 
-The improve.ai iOS SDK is available under the MIT license. See the LICENSE file for more info.  Use of improve.ai is subject to its license agreement.
+Improve.ai is copyright Mind Blown Apps, LLC.
