@@ -55,5 +55,42 @@
 - (NSArray<NSDictionary*> *) rankAllPossible:(NSDictionary<NSString*, NSArray*> *)variantMap
                                        model:(NSString *)modelName
                                      context:(NSDictionary *)context;
+/**
+ The new properties are extracted from variants for iterationCount times. Propensity score is the fraction of the times that
+ the initially chosen properties is chosen overall.
+
+ @param variants  A mapping from property keys to NSArrays of potential variants to choose from.
+ @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
+ @param modelName The name of the trained model to use when choosing variants.
+ @param iterationCount How many times the new properties should be extracted.
+ @param properties Properties which were chosen by `chose` function from the variants with the same
+ model and context.
+
+ @returns The propensity value [0, 1.0], or -1 if there was an error with the model.
+ */
+- (double) calculatePropensity:(NSDictionary *)variants
+                         model:(NSString *)modelName
+                       context:(NSDictionary *)context
+              chosenProperties:(NSDictionary *)properties
+                iterationCount:(NSUInteger)iterationCount;
+
+/**
+ The new properties are extracted from variants for iterationCount times. Propensity score is the fraction of the times that
+ the initially chosen properties is chosen overall.
+
+ iterationCount is set to 9 by default.
+
+ @param variants  A mapping from property keys to NSArrays of potential variants to choose from.
+ @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
+ @param modelName The name of the trained model to use when choosing variants.
+ @param properties Properties which were chosen by `chose` function from the variants with the same
+ model and context.
+
+ @returns The propensity value [0, 1.0], or -1 if there was an error with the model.
+ */
+- (double) calculatePropensity:(NSDictionary *)variants
+                         model:(NSString *)modelName
+                       context:(NSDictionary *)context
+              chosenProperties:(NSDictionary *)properties;
 
 @end

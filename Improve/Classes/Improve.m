@@ -17,8 +17,6 @@
 #define CHOOSE_URL @"https://api.improve.ai/v3/choose"
 #define TRACK_URL @"https://api.improve.ai/v3/track"
 
-const NSUInteger kPropensityCount = 9;
-
 
 @interface IMPConfiguration ()
 - (NSURL *) modelURLForName:(NSString *)modelName;
@@ -100,34 +98,20 @@ static Improve *sharedInstance;
 
     NSDictionary *properties = [chooser choose:variants context:context];
 
-    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_async(backgroundQueue, ^{
-        NSUInteger repeats = 0;
-        for (NSUInteger i = 0; i < kPropensityCount; i++)
-        {
-            NSDictionary *otherProperties = [chooser choose:variants context:context];
-            if ([properties isEqualToDictionary:otherProperties]) {
-                repeats += 1;
-            }
-        }
-        double propensity = 1.0 / (double)(repeats + 1);
+    NSDictionary *trackData = @{
+        @"type": @"choose",
+        @"model": modelName,
+        @"model_id": chooser.metadata.modelId,
+        @"context": context,
+        @"chosen": properties
+    };
+    if (self.shouldTrackVariants) {
+        NSMutableDictionary *mutable = [trackData mutableCopy];
+        mutable[@"variants"] = variants;
+        trackData = mutable;
+    }
 
-        NSDictionary *trackData = @{
-            @"type": @"choose",
-            @"model": modelName,
-            @"model_id": chooser.metadata.modelId,
-            @"context": context,
-            @"chosen": properties,
-            @"propensity": @(propensity)
-        };
-        if (self.shouldTrackVariants) {
-            NSMutableDictionary *mutable = [trackData mutableCopy];
-            mutable[@"variants"] = variants;
-            trackData = mutable;
-        }
-
-        [self track:trackData];
-    });
+    [self track:trackData];
 
     return properties;
 }
@@ -473,6 +457,41 @@ static Improve *sharedInstance;
     });
 
     return self.configuration.verboseTrackProbability > drand48();
+}
+
+- (double)calculatePropensity:(NSDictionary *)variants
+                        model:(NSString *)modelName
+                      context:(NSDictionary *)context
+             chosenProperties:(NSDictionary *)properties
+               iterationCount:(NSUInteger)iterationCount
+{
+    IMPChooser *chooser = [self chooserForModelWithName:modelName];
+    if (!chooser) {
+        return -1;
+    }
+
+    NSUInteger repeats = 0;
+    for (NSUInteger i = 0; i < iterationCount; i++)
+    {
+        NSDictionary *otherProperties = [chooser choose:variants context:context];
+        if ([properties isEqualToDictionary:otherProperties]) {
+            repeats += 1;
+        }
+    }
+    double propensity = 1.0 / (double)(repeats + 1);
+    return propensity;
+}
+
+- (double)calculatePropensity:(NSDictionary *)variants
+                        model:(NSString *)modelName
+                      context:(NSDictionary *)context
+             chosenProperties:(NSDictionary *)properties
+{
+    return [self calculatePropensity:variants
+                               model:modelName
+                             context:context
+                    chosenProperties:properties
+                      iterationCount:9];
 }
 
 @end
