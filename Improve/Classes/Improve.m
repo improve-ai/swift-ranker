@@ -99,11 +99,10 @@ static Improve *sharedInstance;
     NSDictionary *properties = [chooser choose:variants context:context];
 
     NSDictionary *trackData = @{
-        @"type": @"choose",
+        @"type": @"chosen",
+        @"properties": properties,
         @"model": modelName,
-        @"model_id": chooser.metadata.modelId,
-        @"context": context,
-        @"chosen": properties
+        @"context": context
     };
     [self track:trackData];
 
