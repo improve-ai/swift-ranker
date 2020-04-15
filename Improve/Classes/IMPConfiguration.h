@@ -15,8 +15,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// The improve.ai api key
 @property (copy, nonatomic) NSString *apiKey;
 
+/// A unique id which is randomly generated and preserved across app sessions.
+@property (readonly, nonatomic) NSString *historyId;
+
 /// The unique id for this user so that their events can be tracked
-@property (copy, nonatomic) NSString *userId;
+@property (copy, nonatomic) NSString *userId DEPRECATED_ATTRIBUTE;
 
 @property (copy, nonatomic) NSArray<NSString*> *modelNames;
 

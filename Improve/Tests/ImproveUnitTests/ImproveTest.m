@@ -13,15 +13,22 @@
 - (NSArray<NSDictionary*> *) combinationsFromVariants:(NSDictionary<NSString*, NSArray*> *)variantMap;
 @end
 
+@interface IMPConfiguration ()
+- (NSString *)generateHistoryId;
+- (int)historyIdSize;
+@end
+
 @interface ImproveTest : XCTestCase
 
 @end
 
-@implementation ImproveTest
+@implementation ImproveTest {
+    IMPConfiguration *config;
+}
 
 - (void)setUp {
-    id config = [IMPConfiguration configurationWithAPIKey:@"api_key_for_test"
-                                               modelNames:@[@"test"]];
+    config = [IMPConfiguration configurationWithAPIKey:@"api_key_for_test"
+                                            modelNames:@[@"test"]];
     [Improve configureWith:config];
 }
 
@@ -41,6 +48,17 @@
     NSArray *output = [[Improve instance] combinationsFromVariants:variantMap];
     NSLog(@"%@", output);
     XCTAssert([output isEqualToArray:expectedOutput]);
+}
+
+- (void)testHistoryId {
+    for (int i = 0; i < 10; i++)
+    {
+        NSString *historyId = [config generateHistoryId];
+        NSLog(@"%@", historyId);
+        XCTAssertNotNil(historyId);
+        XCTAssert(historyId.length > [config historyIdSize] / 3 * 4);
+    }
+    XCTAssertNotNil(config.historyId);
 }
 
 @end

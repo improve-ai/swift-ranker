@@ -7,8 +7,15 @@
 //
 
 #import "IMPConfiguration.h"
+#import "IMPCommon.h"
+
+@import Security;
 
 #define USER_ID_KEY @"ai.improve.user_id"
+
+#define HISTORY_ID_KEY @"ai.improve.history_id"
+
+#define HISTORY_ID_SIZE 32
 
 @implementation IMPConfiguration
 
@@ -68,6 +75,36 @@
     NSString *path = [NSString stringWithFormat:@"%@/%@.tar.gz", endpoint, modelName];
     NSURL *url = [NSURL URLWithString:path];
     return url;
+}
+
+- (NSString *)historyId {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString *savedHistoryId = [defaults stringForKey:HISTORY_ID_KEY];
+    if (savedHistoryId) { return savedHistoryId; }
+
+    NSString *newHistoryId = [self generateHistoryId];
+    [defaults setObject:newHistoryId forKey:HISTORY_ID_KEY];
+
+    return newHistoryId;
+}
+
+- (NSString *)generateHistoryId {
+    SInt8 bytes[HISTORY_ID_SIZE];
+    int status = SecRandomCopyBytes(kSecRandomDefault, HISTORY_ID_SIZE, bytes);
+    if (status != errSecSuccess) {
+        NSLog(@"-[%@ %@]: SecRandomCopyBytes failed, status: %d", CLASS_S, CMD_S, status);
+
+        // Backup to ensure nonempty bytes
+        arc4random_buf(bytes, HISTORY_ID_SIZE);
+    }
+    NSData *data = [[NSData alloc] initWithBytes:bytes length:HISTORY_ID_SIZE];
+    NSString *historyId = [data base64EncodedStringWithOptions:0];
+    return historyId;
+}
+
+// For test cases
+- (int)historyIdSize {
+    return HISTORY_ID_SIZE;
 }
 
 @end

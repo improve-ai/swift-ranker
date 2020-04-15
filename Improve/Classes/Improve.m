@@ -188,7 +188,9 @@ static Improve *sharedInstance;
                                                       timeZone:[NSTimeZone localTimeZone]
                                                  formatOptions:options];
     NSMutableDictionary *body = [@{ @"user_id": self.userId,
-                                    @"timestamp": dateStr } mutableCopy];
+                                    @"timestamp": dateStr,
+                                    @"history_id": self.configuration.historyId
+                                   } mutableCopy];
     [body addEntriesFromDictionary:bodyValues];
 
     NSError * err;
