@@ -58,7 +58,7 @@
     }
 
     _modelStaleAge = 0.0;
-    _verboseTrackProbability = 1.0;
+    _variantTrackProbability = 0.01;
 
     return self;
 }

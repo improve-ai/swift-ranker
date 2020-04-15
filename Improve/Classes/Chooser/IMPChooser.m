@@ -286,7 +286,6 @@ NSLog(@"featurizedTrials: %@", featurizedTrials);
     NSArray *encodedFeatures = [hasher batchEncode:features];
     NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) { return nil; }
-    NSLog(@"%@", scores);
 
     NSUInteger count = scores.count;
     NSMutableArray *scoredVariants = [NSMutableArray arrayWithCapacity:count];

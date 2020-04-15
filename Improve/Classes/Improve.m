@@ -105,13 +105,16 @@ static Improve *sharedInstance;
         @"context": context,
         @"chosen": properties
     };
-    if (self.shouldTrackVariants) {
-        NSMutableDictionary *mutable = [trackData mutableCopy];
-        mutable[@"variants"] = variants;
-        trackData = mutable;
-    }
-
     [self track:trackData];
+
+    if (self.shouldTrackVariants) {
+        [self track:@{
+            @"type": @"variants",
+            @"method": @"choose",
+            @"variants": variants,
+            @"model": modelName
+        }];
+    }
 
     return properties;
 }
@@ -319,7 +322,17 @@ static Improve *sharedInstance;
         return variants;
     }
 
-    return [chooser rank:variants context:context];
+    if (self.shouldTrackVariants) {
+        [self track:@{
+            @"type": @"variants",
+            @"method": @"rank",
+            @"variants": variants,
+            @"model": modelName
+        }];
+    }
+
+    NSArray *rankedVariants = [chooser rank:variants context:context];
+    return rankedVariants;
 }
 
 - (NSArray<NSDictionary*> *) rankAllPossible:(NSDictionary<NSString*, NSArray*> *)variantMap
@@ -458,7 +471,7 @@ static Improve *sharedInstance;
         srand48(time(0));
     });
 
-    return self.configuration.verboseTrackProbability > drand48();
+    return self.configuration.variantTrackProbability > drand48();
 }
 
 - (double)calculatePropensity:(NSDictionary *)variants
