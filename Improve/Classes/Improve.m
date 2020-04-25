@@ -14,6 +14,8 @@
 #import "IMPModelDownloader.h"
 #import "IMPModelMetadata.h"
 
+typedef void(^ModelLoadCompletion)(BOOL isLoaded);
+
 #define CHOOSE_URL @"https://api.improve.ai/v3/choose"
 #define TRACK_URL @"https://api.improve.ai/v3/track"
 
@@ -34,6 +36,9 @@
 
 /// Already loaded models
 @property (strong, nonatomic)
+
+/* Initially empty. Then we load models from cache, if any, and
+ then remote models. */
 NSMutableDictionary<NSString*, IMPModelBundle*> *modelBundlesByName;
 
 @property (strong, nonatomic) IMPModelDownloader *downloader;
@@ -192,7 +197,7 @@ static Improve *sharedInstance;
     NSMutableDictionary *body = [@{ @"user_id": self.userId,
                                     @"timestamp": dateStr,
                                     @"history_id": self.configuration.historyId
-                                   } mutableCopy];
+    } mutableCopy];
     [body addEntriesFromDictionary:bodyValues];
 
     NSError * err;
@@ -231,9 +236,9 @@ static Improve *sharedInstance;
             /*
              The response from chooseRemote looks like this:
              {
-               "properties": {
-                 "key": "value"
-               }
+             "properties": {
+             "key": "value"
+             }
              }
              */
             // is this a dictionary?
@@ -252,45 +257,45 @@ static Improve *sharedInstance;
 
 - (void) postImproveRequest:(NSURLRequest *)request block:(void (^)(NSObject *, NSError *)) block
 {
-        
+
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                           delegate:nil
                                                      delegateQueue:[NSOperationQueue mainQueue]];
     NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
-        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-            
-            if (!block) {
-                return;
-            }
-            
-            if (!error && [response isKindOfClass:[NSHTTPURLResponse class]]) {
-                NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-                
-                if (statusCode >= 400) {
-                    NSMutableDictionary *userInfo = [[(NSHTTPURLResponse *) response allHeaderFields] mutableCopy];
-                    NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                    if (content) {
-                        userInfo[NSLocalizedFailureReasonErrorKey] = content;
-                    }
-                    error = [NSError errorWithDomain:@"ai.improve" code:statusCode userInfo:userInfo];
+                                                completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+
+        if (!block) {
+            return;
+        }
+
+        if (!error && [response isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+
+            if (statusCode >= 400) {
+                NSMutableDictionary *userInfo = [[(NSHTTPURLResponse *) response allHeaderFields] mutableCopy];
+                NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                if (content) {
+                    userInfo[NSLocalizedFailureReasonErrorKey] = content;
                 }
+                error = [NSError errorWithDomain:@"ai.improve" code:statusCode userInfo:userInfo];
             }
-            
-            id jsonObject;
-            
-            if (!error) {
-                // parse the NSData response
-                // a parse error is a possibility
-                jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-            }
-            
-            if (error) { // transport, HTTP, or parse error
-                block(nil, error);
-            } else {
-                // success!
-                block(jsonObject, nil);
-            }
-        }];
+        }
+
+        id jsonObject;
+
+        if (!error) {
+            // parse the NSData response
+            // a parse error is a possibility
+            jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+        }
+
+        if (error) { // transport, HTTP, or parse error
+            block(nil, error);
+        } else {
+            // success!
+            block(jsonObject, nil);
+        }
+    }];
     [dataTask resume];
 }
 
@@ -396,34 +401,44 @@ static Improve *sharedInstance;
     return combos;
 }
 
-// Load models one by one
+// Recursively load models one by one
 - (void)loadModelsForConfiguration:(IMPConfiguration *)configuration
 {
-    void (^loadModelAtIndex) (NSUInteger);
-    loadModelAtIndex = ^(NSUInteger modelIndex) {
-        if (modelIndex >= configuration.modelNames.count) return;
+    [self recursivelyLoadModelStartingFrom:0
+                             configuration:configuration
+                                completion:nil];
+}
 
-        NSString *modelName = configuration.modelNames[modelIndex];
-        modelIndex++;
+// This method will call itself until index exceeds models count
+- (void)recursivelyLoadModelStartingFrom:(NSUInteger)modelIndex
+                           configuration:(IMPConfiguration *)configuration
+                              completion:(void(^)(void))completion
+{
+    if (modelIndex >= configuration.modelNames.count) {
+        if (completion) completion();
+        return;
+    }
+    NSString *modelName = configuration.modelNames[modelIndex];
 
-        [self loadModelForName:modelName
-                 configuration:configuration
-                    completion:^(BOOL isLoaded) {
-            if (isLoaded) {
-                // load next
-                loadModelAtIndex(modelIndex + 1);
-            } else {
-                // reload
-                loadModelAtIndex(modelIndex);
-            }
-        }];
-    };
+    [self loadModelForName:modelName
+             configuration:configuration
+                completion:^(BOOL isLoaded) {
+        [self recursivelyLoadModelStartingFrom:(modelIndex + 1)
+                                 configuration:configuration
+                                    completion:completion];
+        // TODO: retry in case of network error, skip if can't parse
+        if (isLoaded) {
+            // load next
+        } else {
+            // reload
+        }
+    }];
 }
 
 // Load model or use the cached one if possible
 - (void)loadModelForName:(NSString *)name
            configuration:(IMPConfiguration *)configuration
-              completion:(nullable void(^)(BOOL isLoaded))completion
+              completion:(nullable ModelLoadCompletion)completion
 {
     NSURL *url = [configuration modelURLForName:name];
 

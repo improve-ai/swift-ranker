@@ -20,7 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly, nonatomic) NSURL *metadataURL;
 
 /// Metadata file creation date. Used to check age of a cached model.
-@property (strong, nonatomic) NSDate *creationDate;
+@property(readonly, nonatomic) NSDate *_Nullable creationDate;
+
+@property(readonly, nonatomic) BOOL isReachable;
 
 - (instancetype)initWithModelURL:(NSURL *)modelURL metadataURL:(NSURL* )metadataURL
 NS_DESIGNATED_INITIALIZER;

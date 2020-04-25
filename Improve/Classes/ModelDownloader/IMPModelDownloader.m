@@ -11,7 +11,7 @@
 
 // https://github.com/nvh/NVHTarGzip
 // We can add pod dependency if the author will fix bug with `gzFile` pointers.
-// See issue:
+// See issue: https://github.com/nvh/NVHTarGzip/pull/24
 #import "NVHTarGzip.h"
 
 /**
@@ -54,7 +54,21 @@ NSString *const kModelsFolderName = @"Models";
             return;
         }
 
+        // Perform additional check to exit early and prevent further errors.
         NSError *error; // General purpose error
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        NSInteger statusCode = httpResponse.statusCode;
+        if (statusCode != 200)
+        {
+            NSString *statusCodeStr = [NSHTTPURLResponse localizedStringForStatusCode:statusCode];
+            NSString *msg = [NSString stringWithFormat:@"Model loading failed with status code: %ld %@.", statusCode, statusCodeStr];
+            error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
+                                        code:-1
+                                    userInfo:@{NSLocalizedDescriptionKey: msg}];
+            if (completion) { completion(nil, error); }
+            return;
+        }
+
         NSFileManager *fileManager = self->_fileManager;
 
         NSString *tempDir = NSTemporaryDirectory();
@@ -86,8 +100,7 @@ NSString *const kModelsFolderName = @"Models";
 
         // Compile model and put to the destination folder
         NSURL *modelDefinitionURL = [NSURL fileURLWithPath:unarchivePath];
-        modelDefinitionURL = [modelDefinitionURL URLByAppendingPathComponent:self.modelName];
-        modelDefinitionURL = [modelDefinitionURL URLByAppendingPathExtension:@"mlmodel"];
+        modelDefinitionURL = [modelDefinitionURL URLByAppendingPathComponent:@"model.mlmodel"];
 
         if (![self compileModelAtURL:modelDefinitionURL
                                toURL:bundle.modelURL
@@ -98,10 +111,8 @@ NSString *const kModelsFolderName = @"Models";
         }
 
         // Put metadata to the destination folder
-        NSString *metadataExtension = @"json";
         NSURL *metadataOrigin = [NSURL fileURLWithPath:unarchivePath];
-        metadataOrigin = [metadataOrigin URLByAppendingPathComponent:self.modelName];
-        metadataOrigin = [metadataOrigin URLByAppendingPathExtension:metadataExtension];
+        metadataOrigin = [metadataOrigin URLByAppendingPathComponent:@"model.json"];
 
         if (![fileManager copyItemAtURL:metadataOrigin
                                   toURL:bundle.metadataURL
@@ -166,8 +177,7 @@ NSString *const kModelsFolderName = @"Models";
 - (nullable IMPModelBundle *)cachedBundle
 {
     IMPFolderModelBundle *bundle = [[IMPFolderModelBundle alloc] initWithModelName:self.modelName rootURL:[self modelsDirURL]];
-    if ([bundle.modelURL checkResourceIsReachableAndReturnError:NULL]
-        && [bundle.metadataURL checkResourceIsReachableAndReturnError:NULL])
+    if ([bundle isReachable])
     {
         return bundle;
     }

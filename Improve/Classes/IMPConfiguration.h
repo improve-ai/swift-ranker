@@ -21,6 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// The unique id for this user so that their events can be tracked
 @property (copy, nonatomic) NSString *userId DEPRECATED_ATTRIBUTE;
 
+/// The name of the project, required for remove model urls
+@property (copy, nonatomic) NSString *projectName;
+
 @property (copy, nonatomic) NSArray<NSString*> *modelNames;
 
 /**
@@ -33,20 +36,24 @@ NS_ASSUME_NONNULL_BEGIN
 @property (assign, nonatomic) double variantTrackProbability;
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
+                            projectName:(NSString *)projectName
                                  userId:(nullable NSString *)userId
                              modelNames:(NSArray<NSString*> *)modelNames;
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
+                            projectName:(NSString *)projectName
                              modelNames:(NSArray<NSString*> *)modelNames;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
+                   projectName:(NSString *)projectName
                         userId:(nullable NSString *)userId
                     modelNames:(NSArray<NSString*> *)modelNames
 NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
+                   projectName:(NSString *)projectName
                     modelNames:(NSArray<NSString*> *)modelNames;
 
 @end

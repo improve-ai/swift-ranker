@@ -16,6 +16,8 @@
 
 - (instancetype)initWithTable:(NSArray *)table seed:(uint32_t)seed
 {
+    if (table == nil) return nil;
+    
     self = [super init];
     if (self) {
         _table = table;
@@ -90,6 +92,8 @@
                                w:(uint32_t)w
 {
     NSArray *t0 = table[0];
+    if (t0.count == 0) return -1;
+
     int c = [t0[[IMPMurmurHash hash32:key withSeed:seed] % t0.count] intValue];
     return (c < 0 ? ABS(c)-1 : [IMPMurmurHash hash32:key withSeed:(uint32_t)c^seed]) % ([(NSArray *)table[1] count]/w);
 }

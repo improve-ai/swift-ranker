@@ -17,25 +17,34 @@
 
 #define HISTORY_ID_SIZE 32
 
+#define MODELS_ROOT_URL_STR @"https://d2pq40dxlsc486.cloudfront.net"
+
 @implementation IMPConfiguration
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
+                            projectName:(NSString *)projectName
                                  userId:(nullable NSString *)userId
                              modelNames:(NSArray<NSString*> *)modelNames
 {
     id configuration = [[self alloc] initWithAPIKey:apiKey
+                                        projectName:projectName
                                              userId:userId
                                          modelNames:modelNames];
     return configuration;
 }
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
+                            projectName:(NSString *)projectName
                              modelNames:(NSArray<NSString*> *)modelNames
 {
-    return [self configurationWithAPIKey:apiKey userId:nil modelNames:modelNames];
+    return [self configurationWithAPIKey:apiKey
+                             projectName:projectName
+                                  userId:nil
+                              modelNames:modelNames];
 }
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
+                   projectName:(NSString *)projectName
                         userId:(nullable NSString *)userId
                     modelNames:(NSArray<NSString*> *)modelNames
 {
@@ -59,21 +68,31 @@
 
     _modelStaleAge = 0.0;
     _variantTrackProbability = 0.01;
+    _projectName = projectName;
 
     return self;
 }
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
+                   projectName:(NSString *)projectName
                     modelNames:(NSArray<NSString*> *)modelNames
 {
-    return [self initWithAPIKey:apiKey userId:nil modelNames:modelNames];
+    return [self initWithAPIKey:apiKey
+                    projectName:projectName
+                         userId:nil
+                     modelNames:modelNames];
 }
 
+/// URL for .tar.gz archive containing .mlmodel file and .json metadata file.
 - (NSURL *)modelURLForName:(NSString *)modelName {
-    // TODO: It's just a stab, actual implementation pending.
-    NSString *endpoint = @"https://api.improve.ai/v3/models";
-    NSString *path = [NSString stringWithFormat:@"%@/%@.tar.gz", endpoint, modelName];
-    NSURL *url = [NSURL URLWithString:path];
+    // URL example:
+    // https://d2pq40dxlsc486.cloudfront.net/<projectName>/<model>/mlmodel.tar.gz
+    NSURL *url = [NSURL URLWithString:MODELS_ROOT_URL_STR];
+    if (self.projectName != nil) {
+        url = [url URLByAppendingPathComponent:self.projectName];
+    }
+    url = [url URLByAppendingPathComponent:modelName];
+    url = [url URLByAppendingPathComponent:@"latest/mlmodel.tar.gz"];
     return url;
 }
 

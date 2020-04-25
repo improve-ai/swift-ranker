@@ -14,6 +14,7 @@
 #import "IMPScoredObject.h"
 #import "IMPModelBundle.h"
 #import "IMPJSONUtils.h"
+#import "TestUtils.h"
 
 const NSUInteger featuresCount = 10000;
 
@@ -23,11 +24,7 @@ const NSUInteger featuresCount = 10000;
 @end
 
 @interface ChooserTest : XCTestCase {
-    NSBundle *bundle;
     IMPChooser *chooser;
-
-    // A JSON containing "trials" and their "predicitons" generated with XGBoost.
-    NSDictionary *_trialsData;
 }
 @end
 
@@ -36,10 +33,11 @@ const NSUInteger featuresCount = 10000;
 - (instancetype)initWithInvocation:(NSInvocation *)invocation {
     self = [super initWithInvocation:invocation];
     if (self) {
-        bundle = [NSBundle bundleForClass:[self class]];
-        NSURL *modelURL = [bundle URLForResource:@"TestModel" withExtension:@"mlmodelc"];
+        NSURL *modelURL = [[TestUtils bundle] URLForResource:@"TestModel"
+                                               withExtension:@"mlmodelc"];
         XCTAssertNotNil(modelURL);
-        NSURL *metadataURL = [bundle URLForResource:@"TestModel" withExtension:@"json"];
+        NSURL *metadataURL = [[TestUtils bundle] URLForResource:@"TestModel"
+                                                  withExtension:@"json"];
         IMPModelBundle *modelBundle = [[IMPModelBundle alloc] initWithModelURL:modelURL
                                                                    metadataURL:metadataURL];
         chooser = [IMPChooser chooserWithModelBundle:modelBundle error:nil];
@@ -48,33 +46,11 @@ const NSUInteger featuresCount = 10000;
     return self;
 }
 
-/// Contains random "trials" and "predictions" array produced by XGBoost.
-- (NSDictionary *)trialsData {
-    if (_trialsData) return _trialsData;
-
-    NSURL *jsonURL = [bundle URLForResource:@"trials" withExtension:@"json"];
-    XCTAssertNotNil(jsonURL);
-    NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
-    XCTAssertNotNil(jsonData);
-    NSError *error = nil;
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                         options:0
-                                                           error:&error];
-    if (!json) {
-        XCTFail(@"%@", error);
-    }
-    XCTAssertNotNil(json[@"trials"]);
-    XCTAssertNotNil(json[@"predictions"]);
-
-    _trialsData = json;
-    return _trialsData;
-}
-
 - (void)testSingleRow {
     XCTAssertNotNil(chooser);
     NSLog(@"%ld", __STDC_VERSION__);
 
-    NSURL *jsonURL = [bundle URLForResource:@"singleEncodedTrial" withExtension:@"json"];
+    NSURL *jsonURL = [[TestUtils bundle] URLForResource:@"singleEncodedTrial" withExtension:@"json"];
     XCTAssertNotNil(jsonURL);
     NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
     XCTAssertNotNil(jsonData);
@@ -97,8 +73,8 @@ const NSUInteger featuresCount = 10000;
 }
 
 - (void)testSingleAndBatchConsistency {
-    NSArray *trials = self.trialsData[@"trials"];
-    NSArray *predictions = self.trialsData[@"predictions"];
+    NSArray *trials = [TestUtils defaultTrials];
+    NSArray *predictions = [TestUtils defaultPredictions];
 
     IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:chooser.metadata];
     NSArray *hashedTrials = [hasher batchEncode:trials];
@@ -127,7 +103,8 @@ const NSUInteger featuresCount = 10000;
 - (void)testBasicChoosing {
     XCTAssertNotNil(chooser);
 
-    NSURL *jsonURL = [bundle URLForResource:@"choose" withExtension:@"json"];
+    NSURL *jsonURL = [[TestUtils bundle] URLForResource:@"choose"
+                                          withExtension:@"json"];
     XCTAssertNotNil(jsonURL);
     NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
     XCTAssertNotNil(jsonData);
@@ -162,12 +139,12 @@ const NSUInteger featuresCount = 10000;
 }
 
 - (void)testRank {
-    NSArray *variants = self.trialsData[@"trials"];
+    NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};
     NSArray *rankedVariants = [chooser rank:variants context:context];
     XCTAssertNotNil(rankedVariants);
 
-    NSArray *scores = self.trialsData[@"predictions"];
+    NSArray *scores = [TestUtils defaultPredictions];
     NSMutableArray *xgboostScored = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSUInteger i = 0; i < variants.count; i++) {
         double xgbScore = [scores[i] doubleValue];

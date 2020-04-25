@@ -8,9 +8,13 @@
 
 #import <XCTest/XCTest.h>
 #import "Improve.h"
+#import "IMPModelBundle.h"
+#import "TestUtils.h"
+#import "IMPScoredObject.h"
 
 @interface Improve ()
-- (NSArray<NSDictionary*> *) combinationsFromVariants:(NSDictionary<NSString*, NSArray*> *)variantMap;
+- (NSArray<NSDictionary*> *)combinationsFromVariants:(NSDictionary<NSString*, NSArray*> *)variantMap;
+- (NSMutableDictionary<NSString*, IMPModelBundle*> *)modelBundlesByName;
 @end
 
 @interface IMPConfiguration ()
@@ -28,7 +32,8 @@
 
 - (void)setUp {
     config = [IMPConfiguration configurationWithAPIKey:@"api_key_for_test"
-                                            modelNames:@[@"test"]];
+                                           projectName:@"test"
+                                            modelNames:@[@"model1", @"model2"]];//, @"missing"]];
     [Improve configureWith:config];
 }
 
@@ -59,6 +64,54 @@
         XCTAssert(historyId.length > [config historyIdSize] / 3 * 4);
     }
     XCTAssertNotNil(config.historyId);
+}
+
+- (void)testRankWithModelName:(NSString *)modelName
+{
+    NSArray *variants = [TestUtils defaultTrials];
+    NSDictionary *context = @{};
+    NSArray *rankedVariants = [[Improve instance] rank:variants
+                                                 model:modelName
+                                               context:context];
+    XCTAssertNotNil(rankedVariants);
+
+    NSArray *scores = [TestUtils defaultPredictions];
+    NSMutableArray *xgboostScored = [NSMutableArray arrayWithCapacity:variants.count];
+    for (NSUInteger i = 0; i < variants.count; i++) {
+        double xgbScore = [scores[i] doubleValue];
+        [xgboostScored addObject:[IMPScoredObject withScore:xgbScore
+                                                     object:variants[i]]];
+    }
+    [xgboostScored sortUsingDescriptors:@[
+        [NSSortDescriptor sortDescriptorWithKey:@"score" ascending:NO]
+    ]];
+    NSMutableArray *expectedRankedVariants = [NSMutableArray arrayWithCapacity:xgboostScored.count];
+    for (NSUInteger i = 0; i < xgboostScored.count; i++) {
+        [expectedRankedVariants addObject:[xgboostScored[i] object]];
+    }
+    NSLog(@"Ranked: %@", rankedVariants);
+    NSLog(@"Expected: %@", expectedRankedVariants);
+    XCTAssert([rankedVariants isEqualToArray:expectedRankedVariants]);
+}
+
+- (void)testModelLoadingAndDecisions {
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Stupidly waiting for models to load"];
+    NSLog(@"Waiting for models to load...");
+    NSTimeInterval seconds = 30;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+
+        NSDictionary *models = [[Improve instance] modelBundlesByName];
+        NSLog(@"Finish waiting.\nLoaded models:\n%@", models);
+        XCTAssertNotNil(models[@"model2"]);
+
+        /* Note: in order to test model with rank we need better test trials to
+         allow predictions without noise. */
+        //[self testRankWithModelName:@"model2"];
+
+        [expectation fulfill];
+    });
+
+    [self waitForExpectations:@[expectation] timeout:(seconds + 5)];
 }
 
 @end

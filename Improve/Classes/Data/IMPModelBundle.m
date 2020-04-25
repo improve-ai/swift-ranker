@@ -18,16 +18,6 @@
     if (self) {
         _modelURL = modelURL;
         _metadataURL = metadataURL;
-
-        NSError *err;
-        NSDate *creationDate;
-        if (![metadataURL getResourceValue:&creationDate
-                                    forKey:NSURLCreationDateKey
-                                     error:&err])
-        {
-            NSLog(@"-[%@ %@] error while reading date: %@", CLASS_S, CMD_S, err);
-        }
-        _creationDate = creationDate;
     }
     return self;
 }
@@ -39,6 +29,28 @@
             self.metadataURL];
 }
 
+- (NSDate *)creationDate {
+    NSError *err;
+    NSDate *creationDate;
+    if ([self.metadataURL getResourceValue:&creationDate
+                                    forKey:NSURLCreationDateKey
+                                     error:&err])
+    {
+        return creationDate;
+    }
+    else
+    {
+        NSLog(@"-[%@ %@] error while reading date: %@", CLASS_S, CMD_S, err);
+        return nil;
+    }
+}
+
+- (BOOL)isReachable {
+    BOOL areExist = [self.modelURL checkResourceIsReachableAndReturnError:NULL]
+        && [self.metadataURL checkResourceIsReachableAndReturnError:NULL];
+    return areExist;
+}
+
 @end
 
 
@@ -47,13 +59,12 @@
 - (instancetype)initWithModelName:(NSString *)modelName
                           rootURL:(NSURL *)rootFolderURL
 {
-    NSURL *folderURL = [rootFolderURL URLByAppendingPathComponent:self.modelName];
+    assert(modelName != nil);
+    NSURL *folderURL = [rootFolderURL URLByAppendingPathComponent:modelName];
 
-    NSURL *modelURL = [folderURL URLByAppendingPathComponent:modelName];
-    modelURL = [folderURL URLByAppendingPathExtension:@"mlmodelc"];
+    NSURL *modelURL = [folderURL URLByAppendingPathComponent:@"model.mlmodelc"];
 
-    NSURL *metadataURL = [folderURL URLByAppendingPathComponent:modelName];
-    metadataURL = [folderURL URLByAppendingPathExtension:@"json"];
+    NSURL *metadataURL = [folderURL URLByAppendingPathComponent:@"model.json"];
 
     self = [super initWithModelURL:modelURL metadataURL:metadataURL];
     if (self) {
