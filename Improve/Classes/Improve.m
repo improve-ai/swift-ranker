@@ -16,7 +16,6 @@
 
 typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 
-#define CHOOSE_URL @"https://api.improve.ai/v3/choose"
 #define TRACK_URL @"https://api.improve.ai/v3/track"
 
 
@@ -27,8 +26,6 @@ typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 
 @interface Improve ()
 // Private vars
-
-@property (nonatomic, strong) NSString *chooseUrl;
 
 @property (nonatomic, strong) NSString *trackUrl;
 
@@ -71,7 +68,6 @@ static Improve *sharedInstance;
     _configuration = config;
     _modelBundlesByName = [NSMutableDictionary new];
 
-    _chooseUrl = CHOOSE_URL;
     _trackUrl = TRACK_URL;
 
     [self loadModelsForConfiguration:config];
@@ -138,7 +134,11 @@ static Improve *sharedInstance;
     return randomProperties;
 }
 
-- (void)chooseRemote:(NSDictionary *)variants model:(NSString *)modelName context:(NSDictionary *)context completion:(void (^)(NSDictionary *, NSError *)) block
+- (void) chooseRemote:(NSDictionary *)variants
+                model:(NSString *)modelName
+              context:(NSDictionary *)context
+                  url:(NSURL *)chooseURL
+           completion:(void (^)(NSDictionary *, NSError *)) block
 {
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key":  self.apiKey };
@@ -159,7 +159,10 @@ static Improve *sharedInstance;
         return;
     }
 
-    [self postChooseRequest:headers data:postData block:block];
+    [self postChooseRequest:headers
+                       data:postData
+                        url:chooseURL
+                      block:block];
 }
 
 - (void) track:(NSString *)event properties:(NSDictionary *)properties {
@@ -224,10 +227,13 @@ static Improve *sharedInstance;
     }];
 }
 
-- (void) postChooseRequest:(NSDictionary *)headers data:(NSData *)postData block:(void (^)(NSDictionary *, NSError *)) block
+- (void) postChooseRequest:(NSDictionary *)headers
+                      data:(NSData *)postData
+                       url:(NSURL *)url
+                     block:(void (^)(NSDictionary *, NSError *)) block
 {
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_chooseUrl]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     
     [request setHTTPMethod:@"POST"];
     [request setAllHTTPHeaderFields:headers];

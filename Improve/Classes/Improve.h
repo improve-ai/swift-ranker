@@ -28,9 +28,16 @@
  
  @param variants A mapping from property keys to NSArrays of potential variants to choose from
  @param modelName The name of the trained model to use when choosing variants
+ @param context Additional parameters added to each variant
+ @param chooseURL Remote service URL
  @param block A block to be executed on the main queue when the response is returned, containing an NSDictionary mapping property keys to their chosen values
  */
-- (void) chooseRemote:(NSDictionary *)variants model:(NSString *)modelName context:(NSDictionary *)context completion:(void (^)(NSDictionary *, NSError *)) block DEPRECATED_ATTRIBUTE;
+- (void) chooseRemote:(NSDictionary *)variants
+                model:(NSString *)modelName
+              context:(NSDictionary *)context
+                  url:(NSURL *)chooseURL
+           completion:(void (^)(NSDictionary *, NSError *)) block
+DEPRECATED_ATTRIBUTE;
 
 /**
  Choses a variant for each properties. The variants are chosen according to the model predictions.
