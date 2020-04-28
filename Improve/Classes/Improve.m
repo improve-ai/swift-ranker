@@ -186,7 +186,6 @@ static Improve *sharedInstance;
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key": self.apiKey };
 
-    // required variables
     NSISO8601DateFormatOptions options = (NSISO8601DateFormatWithInternetDateTime
                                           | NSISO8601DateFormatWithFractionalSeconds
                                           | NSISO8601DateFormatWithTimeZone);
@@ -194,9 +193,14 @@ static Improve *sharedInstance;
     NSString *dateStr = [NSISO8601DateFormatter stringFromDate:[NSDate date]
                                                       timeZone:[NSTimeZone localTimeZone]
                                                  formatOptions:options];
-    NSMutableDictionary *body = [@{ @"user_id": self.userId,
-                                    @"timestamp": dateStr,
-                                    @"history_id": self.configuration.historyId
+
+
+
+    NSMutableDictionary *body = [@{
+        @"user_id": self.userId,
+        @"timestamp": dateStr,
+        @"history_id": self.configuration.historyId,
+        @"message_id": [[NSUUID UUID] UUIDString]
     } mutableCopy];
     [body addEntriesFromDictionary:bodyValues];
 
