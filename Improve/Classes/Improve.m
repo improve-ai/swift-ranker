@@ -18,6 +18,8 @@ typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 
 #define TRACK_URL @"https://api.improve.ai/v3/track"
 
+/// How soon model downloading will be retried in case of error.
+const NSTimeInterval kRetryInterval;
 
 @interface IMPConfiguration ()
 - (NSURL *) modelURLForName:(NSString *)modelName;
@@ -414,78 +416,24 @@ static Improve *sharedInstance;
 // Recursively load models one by one
 - (void)loadModelsForConfiguration:(IMPConfiguration *)configuration
 {
-    [self recursivelyLoadModelStartingFrom:0
-                             configuration:configuration
-                                completion:nil];
-}
+    if (self.downloader && self.downloader.isLoading) return;
 
-// This method will call itself until index exceeds models count
-- (void)recursivelyLoadModelStartingFrom:(NSUInteger)modelIndex
-                           configuration:(IMPConfiguration *)configuration
-                              completion:(void(^)(void))completion
-{
-    if (modelIndex >= configuration.modelNames.count) {
-        if (completion) completion();
-        return;
-    }
-    NSString *modelName = configuration.modelNames[modelIndex];
-
-    [self loadModelForName:modelName
-             configuration:configuration
-                completion:^(BOOL isLoaded) {
-        [self recursivelyLoadModelStartingFrom:(modelIndex + 1)
-                                 configuration:configuration
-                                    completion:completion];
-        // TODO: retry in case of network error, skip if can't parse
-        if (isLoaded) {
-            // load next
-        } else {
-            // reload
-        }
-    }];
-}
-
-// Load model or use the cached one if possible
-- (void)loadModelForName:(NSString *)name
-           configuration:(IMPConfiguration *)configuration
-              completion:(nullable ModelLoadCompletion)completion
-{
-    NSURL *url = [configuration modelURLForName:name];
-
-    if (self.downloader)
-    {
-        if ([self.downloader.modelName isEqualToString:name]
-            && self.downloader.isLoading) {
-            // Allready loading - do nothing
-            return;
-        } else {
-            // Only one download at time supported
-            [self.downloader cancel];
-        }
-    }
-
-    self.downloader = [[IMPModelDownloader alloc] initWithURL:url modelName:name];
-    IMPModelBundle *cached = self.downloader.cachedBundle;
-    NSTimeInterval staleAge = configuration.modelStaleAge;
-    if (cached && [[NSDate now] timeIntervalSinceDate:cached.creationDate] > staleAge) {
-        self.modelBundlesByName[name] = cached;
-        if (completion) completion(YES);
-        return;
-    }
+    self.downloader = [[IMPModelDownloader alloc] initWithURL:configuration.remoteModelsArchiveURL];
 
     __weak Improve *weakSelf = self;
-    [self.downloader loadWithCompletion:^(IMPModelBundle *bundle, NSError *error) {
-        BOOL isLoaded = false;
-
+    [self.downloader loadWithCompletion:^(NSDictionary *bundles, NSError *error) {
         if (error) {
             NSLog(@"Model loading error: %@", error);
-        }
-        if (bundle) {
-            weakSelf.modelBundlesByName[name] = bundle;
-            isLoaded = YES;
+
+            // Reload
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kRetryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakSelf loadModelsForConfiguration:configuration];
+            });
+        } else if (bundles) {
+            [weakSelf.modelBundlesByName setDictionary:bundles];
         }
 
-        if (completion) completion(isLoaded);
+        // TODO: if (completion) completion(isLoaded);
     }];
 }
 

@@ -8,6 +8,8 @@
 
 #import "IMPModelDownloader.h"
 #import <CoreML/CoreML.h>
+#import "IMPCommon.h"
+#import "NSFileManager+SafeCopy.h"
 
 // https://github.com/nvh/NVHTarGzip
 // We can add pod dependency if the author will fix bug with `gzFile` pointers.
@@ -15,10 +17,9 @@
 #import "NVHTarGzip.h"
 
 /**
- The folder in Application Support directory. Contains model bundles, grouped in folders like this:
- - modelname
- -- modelname.mlmodelc
- -- modelname.json
+ The folder in Application Support directory. Contains models, for each model name there is two files:
+ - modelname.mlmodelc
+ - modelname.json
  */
 NSString *const kModelsFolderName = @"Models";
 
@@ -29,13 +30,11 @@ NSString *const kModelsFolderName = @"Models";
     NSFileManager *_fileManager;
 }
 
-- (instancetype)initWithURL:(NSURL *)remoteArchiveURL modelName:(NSString *)modelName
+- (instancetype)initWithURL:(NSURL *)remoteArchiveURL
 {
     self = [super init];
     if (self) {
         _remoteArchiveURL = [remoteArchiveURL copy];
-        _modelName = [modelName copy];
-
         _fileManager = [NSFileManager defaultManager];
     }
     return self;
@@ -69,11 +68,9 @@ NSString *const kModelsFolderName = @"Models";
             return;
         }
 
-        NSFileManager *fileManager = self->_fileManager;
-
+        // Save downloaded archive
         NSString *tempDir = NSTemporaryDirectory();
-        NSString *unarchivePath = [tempDir stringByAppendingPathComponent:self.modelName];
-        NSString *archivePath = [unarchivePath stringByAppendingPathExtension:@"tar.gz"];
+        NSString *archivePath = [tempDir stringByAppendingPathExtension:@"models.tar.gz"];
         if (![data writeToFile:archivePath atomically:YES]) {
             NSString *errMsg = @"Failed to write received data to file.";
             error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
@@ -82,6 +79,9 @@ NSString *const kModelsFolderName = @"Models";
             if (completion) { completion(nil, error); }
             return;
         }
+
+        // Unarchiving
+        NSString *unarchivePath = [tempDir stringByAppendingPathComponent:@"Unarchived Models"];
         if (![[NVHTarGzip sharedInstance] unTarGzipFileAtPath:archivePath
                                                        toPath:unarchivePath
                                                         error:&error])
@@ -90,39 +90,8 @@ NSString *const kModelsFolderName = @"Models";
             return;
         }
 
-        // Ensure dir exists and empty
-        IMPFolderModelBundle *bundle = [[IMPFolderModelBundle alloc] initWithModelName:self.modelName rootURL:[self modelsDirURL]];
-        [fileManager removeItemAtURL:bundle.folderURL error:nil];
-        [fileManager createDirectoryAtURL:bundle.folderURL
-              withIntermediateDirectories:YES
-                               attributes:nil
-                                    error:NULL];
-
-        // Compile model and put to the destination folder
-        NSURL *modelDefinitionURL = [NSURL fileURLWithPath:unarchivePath];
-        modelDefinitionURL = [modelDefinitionURL URLByAppendingPathComponent:@"model.mlmodel"];
-
-        if (![self compileModelAtURL:modelDefinitionURL
-                               toURL:bundle.modelURL
-                               error:&error])
-        {
-            if (completion) { completion(nil, error); }
-            return;
-        }
-
-        // Put metadata to the destination folder
-        NSURL *metadataOrigin = [NSURL fileURLWithPath:unarchivePath];
-        metadataOrigin = [metadataOrigin URLByAppendingPathComponent:@"model.json"];
-
-        if (![fileManager copyItemAtURL:metadataOrigin
-                                  toURL:bundle.metadataURL
-                                  error:&error])
-        {
-            if (completion) { completion(nil, error); }
-            return;
-        }
-
-        if (completion) { completion(bundle, nil); }
+        NSDictionary *bundlesByName = [self processUnarchivedModelFilesIn:unarchivePath];
+        if (completion) { completion(bundlesByName, nil); }
     }];
     [_downloadTask resume];
 }
@@ -137,9 +106,20 @@ NSString *const kModelsFolderName = @"Models";
     NSError *error;
     NSURL *appSupportDir = [_fileManager URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
     if (!appSupportDir) {
-        NSLog(@"-[%@ %@]: %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd), error);
+        NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
     }
     NSURL *url = [appSupportDir URLByAppendingPathComponent:kModelsFolderName];
+
+    // Ensure existance
+    if (![url checkResourceIsReachableAndReturnError:nil]) {
+        if(![_fileManager createDirectoryAtURL:url
+                   withIntermediateDirectories:true
+                                    attributes:nil
+                                         error:nil]) {
+            NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
+        }
+    }
+
     return url;
 }
 
@@ -158,14 +138,8 @@ NSString *const kModelsFolderName = @"Models";
     NSURL *compiledURL = [MLModel compileModelAtURL:modelDefinitionURL error:error];
     if (!compiledURL) return false;
 
-    if ([_fileManager fileExistsAtPath:destURL.path]) {
-        if (![_fileManager replaceItemAtURL:destURL withItemAtURL:compiledURL backupItemName:nil options:0 resultingItemURL:nil error:error]) {
-            return false;
-        }
-    } else {
-        if (![_fileManager copyItemAtURL:compiledURL toURL:destURL error:error]) {
-            return false;
-        }
+    if (![_fileManager safeCopyItemAtURL:compiledURL toURL:destURL error:error]) {
+        return false;
     }
     return true;
 }
@@ -174,17 +148,78 @@ NSString *const kModelsFolderName = @"Models";
     return _downloadTask && _downloadTask.state != NSURLSessionTaskStateRunning;
 }
 
-- (nullable IMPModelBundle *)cachedBundle
+/// @returns Dictionary { "model name": IMPModelBundle }
+- (NSDictionary *)processUnarchivedModelFilesIn:(NSString *)folder
 {
-    IMPFolderModelBundle *bundle = [[IMPFolderModelBundle alloc] initWithModelName:self.modelName rootURL:[self modelsDirURL]];
-    if ([bundle isReachable])
+    NSURL *folderURL = [NSURL fileURLWithPath:folder];
+    NSError *error;
+
+    NSArray *files = [_fileManager contentsOfDirectoryAtURL:folderURL
+                                 includingPropertiesForKeys:nil
+                                                    options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                      error:&error];
+
+    // Filter files
+    NSMutableSet *mlmodelNames = [NSMutableSet setWithCapacity:files.count];
+    NSMutableSet *jsonNames = [NSMutableSet setWithCapacity:files.count];
+    for (NSURL *file in files)
     {
-        return bundle;
+        NSString *extension = file.pathExtension;
+        NSString *modelName = file.lastPathComponent.stringByDeletingPathExtension;
+
+        if ([extension isEqualToString:@"mlmodel"]) {
+            [mlmodelNames addObject:modelName];
+        } else if ([extension isEqualToString:@"json"]) {
+            [jsonNames addObject:modelName];
+        }
     }
-    else
+    [mlmodelNames intersectSet:jsonNames];
+
+    // Process models
+    NSMutableDictionary *modelBundlesByName = [NSMutableDictionary new];
+    for (NSString *modelName in mlmodelNames)
+    {
+        NSString *mlmodelFileName = [NSString stringWithFormat:@"%@.mlmodel", modelName];
+        NSString *mlmodelPath = [folder stringByAppendingPathComponent:mlmodelFileName];
+
+        NSString *jsonFileName = [NSString stringWithFormat:@"%@.json", modelName];
+        NSString *jsonPath = [folder stringByAppendingPathComponent:jsonFileName];
+
+        IMPModelBundle *bundleOrNil = [self processModelWithName:modelName
+                                                        withPath:mlmodelPath
+                                                        jsonPath:jsonPath];
+        modelBundlesByName[modelName] = bundleOrNil;
+    }
+
+    return modelBundlesByName;
+}
+
+- (IMPModelBundle *)processModelWithName:(NSString *)modelName
+                                withPath:(NSString *)mlmodelPath
+                                jsonPath:(NSString *)jsonPath
+{
+    IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.modelsDirURL modelName:modelName];
+
+    // Compile model and put to the destination folder
+    NSURL *modelDefinitionURL = [NSURL fileURLWithPath:mlmodelPath];
+    NSError *error;
+    if (![self compileModelAtURL:modelDefinitionURL
+                           toURL:bundle.modelURL
+                           error:&error])
     {
         return nil;
     }
+
+    // Put metadata to the destination folder
+    NSURL *metadataURL = [NSURL fileURLWithPath:jsonPath];
+    if (![_fileManager safeCopyItemAtURL:metadataURL
+                                   toURL:bundle.metadataURL
+                                   error:&error])
+    {
+        return nil;
+    }
+
+    return bundle;
 }
 
 @end

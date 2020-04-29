@@ -31,8 +31,7 @@
 
     // Url isn't used here.
     NSURL *dummyURL = [NSURL fileURLWithPath:@""];
-    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:dummyURL
-                                                                   modelName:@"test"];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:dummyURL];
 
     for (NSUInteger i = 0; i < 3; i++) // Loop to check overwriting.
     {
@@ -53,17 +52,17 @@
 
 - (void)testDownload {
     // Insert url for local or remote archive here
-    NSURL *remoteURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/XGBoost example/model-4/test.tar.gz"];
+    NSURL *remoteURL = [NSURL URLWithString:@"https://d2pq40dxlsc486.cloudfront.net/myproject/model.tar.gz"];
     XCTAssertNotNil(remoteURL);
-    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:remoteURL
-                                                                   modelName:@"test"];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:remoteURL];
 
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader loadWithCompletion:^(IMPModelBundle * _Nullable bundle, NSError * _Nullable error) {
+    [downloader loadWithCompletion:^(NSDictionary * _Nullable modelBundlesByName, NSError * _Nullable error) {
         if (error != nil) {
             XCTFail(@"Downloading error: %@", error);
         }
-        NSLog(@"Model bundle: %@", bundle);
+        XCTAssert(modelBundlesByName.count > 0);
+        NSLog(@"Model bundle: %@", modelBundlesByName);
 
         // Cleenup
 //        NSURL *folderURL = bundle.modelURL.URLByDeletingLastPathComponent;

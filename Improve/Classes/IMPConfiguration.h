@@ -24,7 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// The name of the project, required for remove model urls
 @property (copy, nonatomic) NSString *projectName;
 
-@property (copy, nonatomic) NSArray<NSString*> *modelNames;
+// TODO:
+@property (readonly, nonatomic) NSURL *remoteModelsArchiveURL;
 
 /**
  The max age of cached models. Models, which are stale will be downloaded again
@@ -37,24 +38,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
                             projectName:(NSString *)projectName
-                                 userId:(nullable NSString *)userId
-                             modelNames:(NSArray<NSString*> *)modelNames;
+                                 userId:(nullable NSString *)userId;
 
 + (instancetype)configurationWithAPIKey:(NSString *)apiKey
-                            projectName:(NSString *)projectName
-                             modelNames:(NSArray<NSString*> *)modelNames;
+                            projectName:(NSString *)projectName;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
                    projectName:(NSString *)projectName
                         userId:(nullable NSString *)userId
-                    modelNames:(NSArray<NSString*> *)modelNames
 NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithAPIKey:(NSString *)apiKey
-                   projectName:(NSString *)projectName
-                    modelNames:(NSArray<NSString*> *)modelNames;
+                   projectName:(NSString *)projectName;
 
 @end
 

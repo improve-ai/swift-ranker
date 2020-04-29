@@ -22,6 +22,20 @@
     return self;
 }
 
+- (instancetype)initWithDirectoryURL:(NSURL *)dirURL modelName:(NSString *)modelName
+{
+    assert(modelName != nil);
+
+    NSString *modelFileName = [NSString stringWithFormat:@"%@.mlmodelc", modelName];
+    NSURL *modelURL = [dirURL URLByAppendingPathComponent:modelFileName];
+
+    NSString *metaFileName = [NSString stringWithFormat:@"%@.json", modelName];
+    NSURL *metadataURL = [dirURL URLByAppendingPathComponent:metaFileName];
+
+    self = [self initWithModelURL:modelURL metadataURL:metadataURL];
+    return self;
+}
+
 - (NSString *)description {
     return [NSString stringWithFormat:@"%@(modelURL: %@, metadataURL: %@)",
             NSStringFromClass(self.class),
@@ -49,29 +63,6 @@
     BOOL areExist = [self.modelURL checkResourceIsReachableAndReturnError:NULL]
         && [self.metadataURL checkResourceIsReachableAndReturnError:NULL];
     return areExist;
-}
-
-@end
-
-
-@implementation IMPFolderModelBundle
-
-- (instancetype)initWithModelName:(NSString *)modelName
-                          rootURL:(NSURL *)rootFolderURL
-{
-    assert(modelName != nil);
-    NSURL *folderURL = [rootFolderURL URLByAppendingPathComponent:modelName];
-
-    NSURL *modelURL = [folderURL URLByAppendingPathComponent:@"model.mlmodelc"];
-
-    NSURL *metadataURL = [folderURL URLByAppendingPathComponent:@"model.json"];
-
-    self = [super initWithModelURL:modelURL metadataURL:metadataURL];
-    if (self) {
-        _modelName = modelName;
-        _folderURL = folderURL;
-    }
-    return self;
 }
 
 @end

@@ -32,8 +32,7 @@
 
 - (void)setUp {
     config = [IMPConfiguration configurationWithAPIKey:@"api_key_for_test"
-                                           projectName:@"test"
-                                            modelNames:@[@"model1", @"model2"]];//, @"missing"]];
+                                           projectName:@"test"];
     [Improve configureWith:config];
 }
 
@@ -102,7 +101,7 @@
 
         NSDictionary *models = [[Improve instance] modelBundlesByName];
         NSLog(@"Finish waiting.\nLoaded models:\n%@", models);
-        XCTAssertNotNil(models[@"model2"]);
+        XCTAssertNotNil(models[@"default"]);
 
         /* Note: in order to test model with rank we need better test trials to
          allow predictions without noise. */

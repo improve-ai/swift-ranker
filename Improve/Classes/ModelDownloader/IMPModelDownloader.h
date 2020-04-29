@@ -10,28 +10,26 @@
 #import "IMPModelBundle.h"
 
 
-typedef void (^IMPModelDownloaderCompletion) (IMPModelBundle *_Nullable, NSError *_Nullable);
+typedef void (^IMPModelDownloaderCompletion) (NSDictionary *_Nullable modelBundlesByName, NSError *_Nullable);
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ Downloads models, compiles them to obtain .mlmodelc file and stores model files in cache.
+ */
 @interface IMPModelDownloader : NSObject
 
 @property(readonly, nonatomic) NSURL *remoteArchiveURL;
-
-@property(readonly, nonatomic) NSString *modelName;
 
 @property(readonly, nonatomic) BOOL isLoading;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithURL:(NSURL *)remoteArchiveURL modelName:(NSString *)modelName
-NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithURL:(NSURL *)remoteArchiveURL NS_DESIGNATED_INITIALIZER;
 
 - (void)loadWithCompletion:(nullable IMPModelDownloaderCompletion)completion;
 
 - (void)cancel;
-
-- (nullable IMPModelBundle *)cachedBundle;
 
 @end
 

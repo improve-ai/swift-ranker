@@ -27,24 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithModelURL:(NSURL *)modelURL metadataURL:(NSURL* )metadataURL
 NS_DESIGNATED_INITIALIZER;
 
+/**
+ Initializes a bundle by appending modelName.mlmodel and modelName.json to the `dirURL`.
+ */
+- (instancetype)initWithDirectoryURL:(NSURL *)dirURL modelName:(NSString *)modelName;
+
 - (instancetype)init NS_UNAVAILABLE;
-
-@end
-
-
-@interface IMPFolderModelBundle: IMPModelBundle
-
-@property(readonly, nonatomic) NSString *modelName;
-
-@property(readonly, nonatomic) NSURL *folderURL;
-
-- (instancetype)initWithModelURL:(NSURL *)modelURL
-                     metadataURL:(NSURL* )metadataURL
-NS_UNAVAILABLE;
-
-- (instancetype)initWithModelName:(NSString *)modelName
-                          rootURL:(NSURL *)rootFolderURL
-NS_DESIGNATED_INITIALIZER;
 
 @end
 
