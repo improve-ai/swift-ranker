@@ -125,6 +125,18 @@ static Improve *sharedInstance;
     return properties;
 }
 
+- (id) choose:(NSArray *)propertyValues
+       forKey:(NSString *)propertyKey
+       action:(NSString *)action
+      context:(NSDictionary *)context
+{
+    NSDictionary *variants = [self choose:@{propertyKey: propertyValues}
+                                   action:action
+                                  context:context];
+    id value = variants[propertyKey];
+    return value;
+}
+
 - (NSDictionary *)chooseRandom:(NSDictionary *)variants context:(NSDictionary *)context
 {
     NSMutableDictionary *randomProperties = [context mutableCopy];
