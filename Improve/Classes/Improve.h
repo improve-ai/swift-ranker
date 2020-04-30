@@ -27,28 +27,29 @@
  Choose a variant for each property.  It is the callers responsibility to call trackUsing: once when the returned properties are used
  
  @param variants A mapping from property keys to NSArrays of potential variants to choose from
- @param modelName The name of the trained model to use when choosing variants
+ @param action The namespace associated with the choosing event
  @param context Additional parameters added to each variant
  @param chooseURL Remote service URL
  @param block A block to be executed on the main queue when the response is returned, containing an NSDictionary mapping property keys to their chosen values
  */
 - (void) chooseRemote:(NSDictionary *)variants
-                model:(NSString *)modelName
+               action:(NSString *)action
               context:(NSDictionary *)context
                   url:(NSURL *)chooseURL
            completion:(void (^)(NSDictionary *, NSError *)) block
 DEPRECATED_ATTRIBUTE;
 
 /**
- Choses a variant for each properties. The variants are chosen according to the model predictions.
+ Chooses a variant for each properties. The variants are chosen according to the model predictions.
+ The model corresponding to the specified action is trained and used automatically.
 
  @param variants  A mapping from property keys to NSArrays of potential variants to choose from.
  @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
- @param modelName The name of the trained model to use when choosing variants.
+ @param action The namespace associated with the choosing event
  @return A NSDictionary where keys are properties, and the values are single objects choosen from variants.
  */
 - (NSDictionary *) choose:(NSDictionary *)variants
-                    model:(NSString *)modelName
+                   action:(NSString *)action
                   context:(NSDictionary *)context;
 
 - (void) track:(NSString *)event properties:(NSDictionary *)properties;
@@ -56,11 +57,11 @@ DEPRECATED_ATTRIBUTE;
 - (void) track:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context;
 
 - (NSArray<NSDictionary*> *) rank:(NSArray<NSDictionary*> *)variants
-                            model:(NSString *)modelName
+                           action:(NSString *)action
                           context:(NSDictionary *)context;
 
 - (NSArray<NSDictionary*> *) rankAllPossible:(NSDictionary<NSString*, NSArray*> *)variantMap
-                                       model:(NSString *)modelName
+                                       action:(NSString *)action
                                      context:(NSDictionary *)context;
 /**
  The new properties are extracted from variants for iterationCount times. Propensity score is the fraction of the times that
@@ -68,15 +69,15 @@ DEPRECATED_ATTRIBUTE;
 
  @param variants  A mapping from property keys to NSArrays of potential variants to choose from.
  @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
- @param modelName The name of the trained model to use when choosing variants.
+ @param action The namespace associated with the choosing event
  @param iterationCount How many times the new properties should be extracted.
  @param properties Properties which were chosen by `chose` function from the variants with the same
- model and context.
+ action and context.
 
- @returns The propensity value [0, 1.0], or -1 if there was an error with the model.
+ @returns The propensity value [0, 1.0], or -1 if there was an error.
  */
 - (double) calculatePropensity:(NSDictionary *)variants
-                         model:(NSString *)modelName
+                        action:(NSString *)action
                        context:(NSDictionary *)context
               chosenProperties:(NSDictionary *)properties
                 iterationCount:(NSUInteger)iterationCount;
@@ -89,14 +90,14 @@ DEPRECATED_ATTRIBUTE;
 
  @param variants  A mapping from property keys to NSArrays of potential variants to choose from.
  @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
- @param modelName The name of the trained model to use when choosing variants.
+ @param action The namespace associated with the choosing event
  @param properties Properties which were chosen by `chose` function from the variants with the same
- model and context.
+ action and context.
 
- @returns The propensity value [0, 1.0], or -1 if there was an error with the model.
+ @returns The propensity value [0, 1.0], or -1 if there was an error.
  */
 - (double) calculatePropensity:(NSDictionary *)variants
-                         model:(NSString *)modelName
+                        action:(NSString *)action
                        context:(NSDictionary *)context
               chosenProperties:(NSDictionary *)properties;
 

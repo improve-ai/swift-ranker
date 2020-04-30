@@ -91,7 +91,7 @@ static Improve *sharedInstance;
 }
 
 - (NSDictionary *) choose:(NSDictionary *)variants
-                    model:(NSString *)modelName
+                   action:(NSString *)modelName
                   context:(NSDictionary *)context
 {
     IMPChooser *chooser = [self chooserForModelWithName:modelName];
@@ -137,7 +137,7 @@ static Improve *sharedInstance;
 }
 
 - (void) chooseRemote:(NSDictionary *)variants
-                model:(NSString *)modelName
+               action:(NSString *)modelName
               context:(NSDictionary *)context
                   url:(NSURL *)chooseURL
            completion:(void (^)(NSDictionary *, NSError *)) block
@@ -330,7 +330,7 @@ static Improve *sharedInstance;
 }
 
 - (NSArray<NSDictionary*> *) rank:(NSArray<NSDictionary*> *)variants
-                            model:(NSString *)modelName
+                           action:(NSString *)modelName
                           context:(NSDictionary *)context
 {
     IMPChooser *chooser = [self chooserForModelWithName:modelName];
@@ -352,11 +352,11 @@ static Improve *sharedInstance;
 }
 
 - (NSArray<NSDictionary*> *) rankAllPossible:(NSDictionary<NSString*, NSArray*> *)variantMap
-                                       model:(NSString *)modelName
+                                      action:(NSString *)modelName
                                      context:(NSDictionary *)context
 {
     NSArray<NSDictionary*> *combinations = [self combinationsFromVariants:variantMap];
-    NSArray<NSDictionary*> *ranked = [self rank:combinations model:modelName context:context];
+    NSArray<NSDictionary*> *ranked = [self rank:combinations action:modelName context:context];
     return ranked;
 }
 
@@ -447,7 +447,7 @@ static Improve *sharedInstance;
 }
 
 - (double)calculatePropensity:(NSDictionary *)variants
-                        model:(NSString *)modelName
+                        action:(NSString *)modelName
                       context:(NSDictionary *)context
              chosenProperties:(NSDictionary *)properties
                iterationCount:(NSUInteger)iterationCount
@@ -470,12 +470,12 @@ static Improve *sharedInstance;
 }
 
 - (double)calculatePropensity:(NSDictionary *)variants
-                        model:(NSString *)modelName
+                        action:(NSString *)modelName
                       context:(NSDictionary *)context
              chosenProperties:(NSDictionary *)properties
 {
     return [self calculatePropensity:variants
-                               model:modelName
+                               action:modelName
                              context:context
                     chosenProperties:properties
                       iterationCount:9];
