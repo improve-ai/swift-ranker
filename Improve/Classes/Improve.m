@@ -91,12 +91,15 @@ static Improve *sharedInstance;
 }
 
 - (NSDictionary *) choose:(NSDictionary *)variants
-                   action:(NSString *)modelName
+                   action:(NSString *)action
                   context:(NSDictionary *)context
 {
+    NSString *modelName = action;
     IMPChooser *chooser = [self chooserForModelWithName:modelName];
     if (!chooser) {
-        return [self chooseRandom:variants context:context];
+        NSDictionary *randomVariants = [self chooseRandom:variants context:context];
+        [self notifyDidChoose:randomVariants fromVariants:variants forAction:action context:context];
+        return randomVariants;
     }
 
     NSDictionary *properties = [chooser choose:variants context:context];
@@ -118,6 +121,7 @@ static Improve *sharedInstance;
         }];
     }
 
+    [self notifyDidChoose:properties fromVariants:variants forAction:action context:context];
     return properties;
 }
 
@@ -183,10 +187,14 @@ static Improve *sharedInstance;
     if (context) {
         [bodyValues setObject:context forKey:@"context"];
     }
-    [self track:bodyValues];
+
+    __weak Improve *weakSelf = self;
+    [self track:bodyValues completion:^(BOOL success) {
+        [weakSelf notifyDidTrack:event properties:properties context:context];
+    }];
 }
 
-- (void) track:(NSDictionary *)bodyValues
+- (void) track:(NSDictionary *)bodyValues completion:(void(^)(BOOL))handler
 {
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
                                @"x-api-key": self.apiKey };
@@ -213,6 +221,7 @@ static Improve *sharedInstance;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
     if (err) {
         NSLog(@"Improve.track error: %@", err);
+        if (handler) handler(false);
         return;
     }
 
@@ -225,8 +234,15 @@ static Improve *sharedInstance;
     [self postImproveRequest:request block:^(NSObject *result, NSError *error) {
         if (error) {
             NSLog(@"Improve.track error: %@", error);
+            if (handler) handler(false);
+        } else {
+            if (handler) handler(true);
         }
     }];
+}
+
+- (void) track:(NSDictionary *)bodyValues {
+    [self track:bodyValues completion:nil];
 }
 
 - (void) postChooseRequest:(NSDictionary *)headers
@@ -330,9 +346,10 @@ static Improve *sharedInstance;
 }
 
 - (NSArray<NSDictionary*> *) rank:(NSArray<NSDictionary*> *)variants
-                           action:(NSString *)modelName
+                           action:(NSString *)action
                           context:(NSDictionary *)context
 {
+    NSString *modelName = action;
     IMPChooser *chooser = [self chooserForModelWithName:modelName];
     if (!chooser) {
         return variants;
@@ -348,6 +365,7 @@ static Improve *sharedInstance;
     }
 
     NSArray *rankedVariants = [chooser rank:variants context:context];
+    [self notifyDidRank:rankedVariants forAction:action context:context];
     return rankedVariants;
 }
 
@@ -431,6 +449,7 @@ static Improve *sharedInstance;
             });
         } else if (bundles) {
             [weakSelf.modelBundlesByName setDictionary:bundles];
+            [weakSelf notifyDidLoadModels];
         }
 
         // TODO: if (completion) completion(isLoaded);
@@ -479,6 +498,46 @@ static Improve *sharedInstance;
                              context:context
                     chosenProperties:properties
                       iterationCount:9];
+}
+
+#pragma mark Delegate helpers
+
+- (void)notifyDidLoadModels {
+    SEL selector = @selector(notifyDidLoadModels);
+    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
+
+    [self.delegate improveDidLoadModels:self];
+}
+
+- (void)notifyDidChoose:(NSDictionary *)chosenVariants
+           fromVariants:(NSDictionary *)variants
+              forAction:(NSString *)action
+                context:(NSDictionary *)context
+{
+    SEL selector = @selector(notifyDidChoose:fromVariants:forAction:context:);
+    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
+
+    [self.delegate improve:self didChoose:chosenVariants fromVariants:variants forAction:action context:context];
+}
+
+- (void)notifyDidRank:(NSArray *)rankedVariants
+            forAction:(NSString *)action
+              context:(NSDictionary *)context
+{
+    SEL selector = @selector(notifyDidRank:forAction:context:);
+    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
+
+    [self.delegate improve:self didRank:rankedVariants forAction:action context:context];
+}
+
+- (void)notifyDidTrack:(NSString *)event
+            properties:(NSDictionary *)properties
+               context:(NSDictionary *)context
+{
+    SEL selector = @selector(improve:didTrack:properties:context:);
+    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
+
+    [self.delegate improve:self didTrack:event properties:properties context:context];
 }
 
 @end

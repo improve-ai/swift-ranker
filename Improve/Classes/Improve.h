@@ -6,6 +6,7 @@
 //
 
 #import "IMPConfiguration.h"
+#import "IMPDelegate.h"
 
 @interface Improve : NSObject
 
@@ -22,6 +23,8 @@
  @param configuration A configuration containing valid API key.
  */
 + (void) configureWith:(IMPConfiguration *)configuration;
+
+@property (strong, nonatomic) id<IMPDelegate> delegate;
 
 /**
  Choose a variant for each property.  It is the callers responsibility to call trackUsing: once when the returned properties are used
