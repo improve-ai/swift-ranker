@@ -105,7 +105,8 @@ static Improve *sharedInstance;
     NSDictionary *properties = [chooser choose:variants context:context];
 
     NSDictionary *trackData = @{
-        @"type": @"chosen",
+        @"type": @"action",
+        @"action": action,
         @"properties": properties,
         @"model": modelName,
         @"context": context
@@ -117,7 +118,8 @@ static Improve *sharedInstance;
             @"type": @"variants",
             @"method": @"choose",
             @"variants": variants,
-            @"model": modelName
+            @"model": modelName,
+            @"action": action
         }];
     }
 
