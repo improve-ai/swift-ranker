@@ -202,10 +202,7 @@ static Improve *sharedInstance;
         [bodyValues setObject:context forKey:@"context"];
     }
 
-    __weak Improve *weakSelf = self;
-    [self track:bodyValues completion:^(BOOL success) {
-        [weakSelf notifyDidTrack:event properties:properties context:context];
-    }];
+    [self track:bodyValues];
 }
 
 - (void) track:(NSDictionary *)bodyValues completion:(void(^)(BOOL))handler
@@ -220,8 +217,6 @@ static Improve *sharedInstance;
     NSString *dateStr = [NSISO8601DateFormatter stringFromDate:[NSDate date]
                                                       timeZone:[NSTimeZone localTimeZone]
                                                  formatOptions:options];
-
-
 
     NSMutableDictionary *body = [@{
         @"user_id": self.userId,
@@ -245,6 +240,7 @@ static Improve *sharedInstance;
     [request setAllHTTPHeaderFields:headers];
     [request setHTTPBody:postData];
 
+    //__weak Improve *weakSelf = self;
     [self postImproveRequest:request block:^(NSObject *result, NSError *error) {
         if (error) {
             NSLog(@"Improve.track error: %@", error);
@@ -544,14 +540,13 @@ static Improve *sharedInstance;
     [self.delegate improve:self didRank:rankedVariants forAction:action context:context];
 }
 
-- (void)notifyDidTrack:(NSString *)event
-            properties:(NSDictionary *)properties
-               context:(NSDictionary *)context
-{
-    SEL selector = @selector(improve:didTrack:properties:context:);
-    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
-
-    [self.delegate improve:self didTrack:event properties:properties context:context];
-}
+//- (void)notifyDidTrack:(NSString *)event
+//                  body:(NSDictionary *)eventBody
+//{
+//    SEL selector = @selector(improve:didTrack:body:);
+//    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
+//
+//    [self.delegate improve:self didTrack:event body:eventBody];
+//}
 
 @end
