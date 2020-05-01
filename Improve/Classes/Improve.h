@@ -8,6 +8,8 @@
 #import "IMPConfiguration.h"
 #import "IMPDelegate.h"
 
+extern NSNotificationName const ImproveDidLoadModelsNotification;
+
 @interface Improve : NSObject
 
 @property (nonatomic, strong) NSString *apiKey;

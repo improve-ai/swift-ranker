@@ -21,6 +21,8 @@ typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 /// How soon model downloading will be retried in case of error.
 const NSTimeInterval kRetryInterval;
 
+NSNotificationName const ImproveDidLoadModelsNotification = @"ImproveDidLoadModelsNotification";
+
 @interface IMPConfiguration ()
 - (NSURL *) modelURLForName:(NSString *)modelName;
 @end
@@ -519,9 +521,12 @@ static Improve *sharedInstance;
 
 - (void)notifyDidLoadModels {
     SEL selector = @selector(notifyDidLoadModels);
-    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
+    if (self.delegate && [self.delegate respondsToSelector:selector])
+    {
+        [self.delegate improveDidLoadModels:self];
+    }
 
-    [self.delegate improveDidLoadModels:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:ImproveDidLoadModelsNotification object:self];
 }
 
 - (void)notifyDidChoose:(NSDictionary *)chosenVariants
