@@ -226,6 +226,12 @@ static Improve *sharedInstance;
     } mutableCopy];
     [body addEntriesFromDictionary:bodyValues];
 
+    if (![self askDelegateShouldTrack:body]) {
+        // Event canceled by delegate
+        if (handler) handler(false);
+        return;
+    }
+
     NSError * err;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
     if (err) {
@@ -240,12 +246,13 @@ static Improve *sharedInstance;
     [request setAllHTTPHeaderFields:headers];
     [request setHTTPBody:postData];
 
-    //__weak Improve *weakSelf = self;
+    __weak Improve *weakSelf = self;
     [self postImproveRequest:request block:^(NSObject *result, NSError *error) {
         if (error) {
             NSLog(@"Improve.track error: %@", error);
             if (handler) handler(false);
         } else {
+            [weakSelf notifyDidTrack:body];
             if (handler) handler(true);
         }
     }];
@@ -540,13 +547,19 @@ static Improve *sharedInstance;
     [self.delegate improve:self didRank:rankedVariants forAction:action context:context];
 }
 
-//- (void)notifyDidTrack:(NSString *)event
-//                  body:(NSDictionary *)eventBody
-//{
-//    SEL selector = @selector(improve:didTrack:body:);
-//    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
-//
-//    [self.delegate improve:self didTrack:event body:eventBody];
-//}
+- (BOOL)askDelegateShouldTrack:(NSMutableDictionary *)eventBody {
+    SEL selector = @selector(improve:shouldTrack:);
+    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return true;
+
+    return [self.delegate improve:self shouldTrack:eventBody];
+}
+
+- (void)notifyDidTrack:(NSDictionary *)eventBody
+{
+    SEL selector = @selector(improve:didTrack:);
+    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
+
+    [self.delegate improve:self didTrack:eventBody];
+}
 
 @end

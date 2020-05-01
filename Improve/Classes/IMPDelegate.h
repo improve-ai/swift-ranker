@@ -28,13 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
       forAction:(NSString *)action
         context:(NSDictionary *)context;
 
-//- (void)improve:(Improve *)improve
-//      willTrack:(NSString *)event
-//           body:(NSDictionary *_Nullable*_Nullable)eventBody;
+- (BOOL)improve:(Improve *)improve shouldTrack:(NSMutableDictionary *)event;
 
-//- (void)improve:(Improve *)improve
-//       didTrack:(NSString *)event
-//           body:(NSDictionary *)eventBody;
+- (void)improve:(Improve *)improve
+       didTrack:(NSDictionary *)event;
 
 @end
 
