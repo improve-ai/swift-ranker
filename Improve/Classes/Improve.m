@@ -108,7 +108,6 @@ static Improve *sharedInstance;
         @"type": @"action",
         @"action": action,
         @"properties": properties,
-        @"model": modelName,
         @"context": context
     };
     [self track:trackData];
@@ -118,7 +117,6 @@ static Improve *sharedInstance;
             @"type": @"variants",
             @"method": @"choose",
             @"variants": variants,
-            @"model": modelName,
             @"action": action
         }];
     }
@@ -377,7 +375,7 @@ static Improve *sharedInstance;
             @"type": @"variants",
             @"method": @"rank",
             @"variants": variants,
-            @"model": modelName
+            @"action": action
         }];
     }
 
@@ -483,12 +481,12 @@ static Improve *sharedInstance;
 }
 
 - (double)calculatePropensity:(NSDictionary *)variants
-                        action:(NSString *)modelName
+                       action:(NSString *)action
                       context:(NSDictionary *)context
              chosenProperties:(NSDictionary *)properties
                iterationCount:(NSUInteger)iterationCount
 {
-    IMPChooser *chooser = [self chooserForModelWithName:modelName];
+    IMPChooser *chooser = [self chooserForModelWithName:action];
     if (!chooser) {
         return -1;
     }
@@ -506,12 +504,12 @@ static Improve *sharedInstance;
 }
 
 - (double)calculatePropensity:(NSDictionary *)variants
-                        action:(NSString *)modelName
+                       action:(NSString *)action
                       context:(NSDictionary *)context
              chosenProperties:(NSDictionary *)properties
 {
     return [self calculatePropensity:variants
-                               action:modelName
+                               action:action
                              context:context
                     chosenProperties:properties
                       iterationCount:9];
