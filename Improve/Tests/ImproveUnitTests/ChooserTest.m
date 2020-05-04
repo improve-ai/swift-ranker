@@ -103,24 +103,9 @@ const NSUInteger featuresCount = 10000;
 - (void)testBasicChoosing {
     XCTAssertNotNil(chooser);
 
-    NSURL *jsonURL = [[TestUtils bundle] URLForResource:@"choose"
-                                          withExtension:@"json"];
-    XCTAssertNotNil(jsonURL);
-    NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
-    XCTAssertNotNil(jsonData);
-    NSError *error = nil;
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                         options:0
-                                                           error:&error];
-    if (!json) {
-        XCTFail(@"%@", error);
-    }
-
-    NSDictionary *variants = json[@"variants"];
-    XCTAssertNotNil(variants);
-    XCTAssert(variants.count > 0);
-    NSDictionary *context = json[@"context"];
-    XCTAssertNotNil(context);
+    NSDictionary *variants;
+    NSDictionary *context;
+    [self getRealLifeVariants:&variants context:&context];
 
     NSDictionary *chosen = [chooser choose:variants context:context];
     XCTAssertNotNil(chosen);
@@ -161,6 +146,44 @@ const NSUInteger featuresCount = 10000;
     NSLog(@"Ranked: %@", rankedVariants);
     NSLog(@"Expected: %@", expectedRankedVariants);
     XCTAssert([rankedVariants isEqualToArray:expectedRankedVariants]);
+}
+
+- (void)testChoosePerformance {
+    XCTAssertNotNil(chooser);
+
+    NSDictionary *variants;
+    NSDictionary *context;
+    [self getRealLifeVariants:&variants context:&context];
+
+    XCTMeasureOptions *options = [[self class] defaultMeasureOptions];
+    options.iterationCount = 1000;
+    [self measureWithOptions:options block:^{
+        NSDictionary *chosen = [chooser choose:variants context:context];
+        XCTAssertNotNil(chosen);
+    }];
+}
+
+#pragma mark Helpers
+
+- (void)getRealLifeVariants:(NSDictionary **)variants context:(NSDictionary **)context {
+    NSURL *jsonURL = [[TestUtils bundle] URLForResource:@"choose"
+                                          withExtension:@"json"];
+    XCTAssertNotNil(jsonURL);
+    NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
+    XCTAssertNotNil(jsonData);
+    NSError *error = nil;
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                         options:0
+                                                           error:&error];
+    if (!json) {
+        XCTFail(@"%@", error);
+    }
+
+    *variants = json[@"variants"];
+    XCTAssertNotNil(*variants);
+    XCTAssert((*variants).count > 0);
+    *context = json[@"context"];
+    XCTAssertNotNil(*context);
 }
 
 @end

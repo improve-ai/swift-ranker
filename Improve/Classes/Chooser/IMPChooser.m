@@ -90,7 +90,6 @@ const NSUInteger kInitialTrialsCount = 100;
     }
 
     double output = [[prediction featureValueForName:@"target"] doubleValue];
-    NSLog(@"target: %f", output);
     return sigmfix(output);
 }
 
@@ -160,8 +159,6 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
          featurizedTrials:&featurizedTrials
           fromFeaturesMap:featuresMap
                     count:kInitialTrialsCount];
-    NSLog(@"trials: %@", trials);
-NSLog(@"featurizedTrials: %@", featurizedTrials);
 
     NSDictionary *bestTrial = nil;
     double bestScore = 0;
@@ -169,7 +166,6 @@ NSLog(@"featurizedTrials: %@", featurizedTrials);
     {
         NSArray *scores = [self batchPrediction:featurizedTrials];
         if (!scores) { return nil; }
-        NSLog(@"Scores: %@", scores);//test
         NSUInteger maxScoreIdx = 0;
         for (NSUInteger i = 1; i < scores.count; i++)
         {
