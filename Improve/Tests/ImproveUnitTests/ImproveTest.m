@@ -13,7 +13,6 @@
 #import "IMPScoredObject.h"
 
 @interface Improve ()
-- (NSArray<NSDictionary*> *)combinationsFromVariants:(NSDictionary<NSString*, NSArray*> *)variantMap;
 - (NSMutableDictionary<NSString*, IMPModelBundle*> *)modelBundlesByName;
 @end
 
@@ -48,7 +47,7 @@
         @{@"a": @2, @"b": @12},
         @{@"a": @3, @"b": @12}
     ];
-    NSArray *output = [[Improve instance] combinationsFromVariants:variantMap];
+    NSArray *output = [self combinationsFromVariants:variantMap];
     NSLog(@"%@", output);
     XCTAssert([output isEqualToArray:expectedOutput]);
 }
@@ -110,6 +109,59 @@
     });
 
     [self waitForExpectations:@[expectation] timeout:(seconds + 5)];
+}
+
+- (NSArray<NSDictionary*> *) combinationsFromVariants:(NSDictionary<NSString*, NSArray*> *)variantMap
+{
+    // Store keys to preserve it's order during iteration
+    NSArray *keys = variantMap.allKeys;
+
+    // NSString: NSNumber, options count for each key
+    NSUInteger *counts = calloc(keys.count, sizeof(NSUInteger));
+    // Numbe of all possible variant combinations
+    NSUInteger factorial = 1;
+    for (NSUInteger i = 0; i < keys.count; i++) {
+        NSString *key = keys[i];
+        NSUInteger count = [variantMap[key] count];
+        counts[i] = count;
+        factorial *= count;
+    }
+
+    /* A series of indexes identifying a particular combination of elements
+     selected in the map for each key */
+    NSUInteger *indexes = calloc(variantMap.count, sizeof(NSUInteger));
+
+    NSMutableArray *combos = [NSMutableArray arrayWithCapacity:factorial];
+
+    BOOL finished = NO;
+    while (!finished) {
+        NSMutableDictionary *variant = [NSMutableDictionary dictionaryWithCapacity:keys.count];
+        BOOL shouldIncreaseIndex = YES;
+        for (NSUInteger i = 0; i < keys.count; i++) {
+            NSString *key = keys[i];
+            NSArray *options = variantMap[key];
+            variant[key] = options[indexes[i]];
+
+            if (shouldIncreaseIndex) {
+                indexes[i] += 1;
+            }
+            if (indexes[i] >= counts[i]) {
+                if (i == keys.count - 1) {
+                    finished = YES;
+                } else {
+                    indexes[i] = 0;
+                }
+            } else {
+                shouldIncreaseIndex = NO;
+            }
+        }
+        [combos addObject:variant];
+    }
+
+    free(counts);
+    free(indexes);
+
+    return combos;
 }
 
 @end

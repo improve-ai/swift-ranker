@@ -123,7 +123,7 @@ const NSUInteger featuresCount = 10000;
     XCTAssert([chosenKeys isEqualToSet:keys]);
 }
 
-- (void)testRank {
+- (void)testSort {
     NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};
     NSArray *rankedVariants = [chooser sort:variants context:context];

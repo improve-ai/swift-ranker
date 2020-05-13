@@ -124,24 +124,41 @@ static Improve *sharedInstance;
         }];
     }
     
-    [self notifyDidChoose:chosen fromVariants:variants forDomain:domain context:context];
+    [self notifyDidChoose:chosen fromVariants:variants context:context domain:domain];
     return chosen;
 }
 
-- (NSDictionary *)chooseRandom:(NSDictionary *)variants
+
+- (NSArray<NSDictionary*> *) sort:(NSArray<NSDictionary*> *)variants
+                          context:(NSDictionary *)context
+                           domain:(NSString *)domain
 {
-    NSMutableDictionary *randomProperties = [NSMutableDictionary new];
-
-    for (NSString *key in variants)
-    {
-        NSArray *array = INSURE_CLASS(variants[key], [NSArray class]);
-        if (!array) { continue; }
-
-        randomProperties[key] = array.randomObject;
+    if (!domain) {
+        domain = kDefaultDomain;
+    }
+    
+    IMPChooser *chooser = [self chooserForDomain:domain];
+    
+    NSArray *sorted;
+    if (chooser) {
+        sorted = [chooser sort:variants context:context];
+    } else {
+        sorted = [self shuffleArray:variants];
     }
 
-    return randomProperties;
+    if (self.shouldTrackVariants) {
+        [self track:@{
+            @"type": @"variants",
+            @"method": @"sort",
+            @"variants": variants,
+            @"domain": domain
+        }];
+    }
+
+    [self notifyDidSort:sorted fromVariants:variants context:context domain:domain];
+    return sorted;
 }
+
 
 - (void) chooseRemote:(NSDictionary *)variants
                context:(NSDictionary *)context
@@ -355,85 +372,6 @@ static Improve *sharedInstance;
     return chooser;
 }
 
-- (NSArray<NSDictionary*> *) sort:(NSArray<NSDictionary*> *)variants
-                          context:(NSDictionary *)context
-                           domain:(NSString *)domain
-{
-    if (!domain) {
-        domain = kDefaultDomain;
-    }
-
-    IMPChooser *chooser = [self chooserForDomain:domain];
-    if (!chooser) {
-        return variants;
-    }
-
-    if (self.shouldTrackVariants) {
-        [self track:@{
-            @"type": @"variants",
-            @"method": @"sort",
-            @"variants": variants,
-            @"domain": domain
-        }];
-    }
-
-    NSArray *sortedVariants = [chooser sort:variants context:context];
-    [self notifyDidRank:sortedVariants forDomain:domain context:context];
-    return sortedVariants;
-}
-
-- (NSArray<NSDictionary*> *) combinationsFromVariants:(NSDictionary<NSString*, NSArray*> *)variantMap
-{
-    // Store keys to preserve it's order during iteration
-    NSArray *keys = variantMap.allKeys;
-
-    // NSString: NSNumber, options count for each key
-    NSUInteger *counts = calloc(keys.count, sizeof(NSUInteger));
-    // Numbe of all possible variant combinations
-    NSUInteger factorial = 1;
-    for (NSUInteger i = 0; i < keys.count; i++) {
-        NSString *key = keys[i];
-        NSUInteger count = [variantMap[key] count];
-        counts[i] = count;
-        factorial *= count;
-    }
-
-    /* A series of indexes identifying a particular combination of elements
-     selected in the map for each key */
-    NSUInteger *indexes = calloc(variantMap.count, sizeof(NSUInteger));
-
-    NSMutableArray *combos = [NSMutableArray arrayWithCapacity:factorial];
-
-    BOOL finished = NO;
-    while (!finished) {
-        NSMutableDictionary *variant = [NSMutableDictionary dictionaryWithCapacity:keys.count];
-        BOOL shouldIncreaseIndex = YES;
-        for (NSUInteger i = 0; i < keys.count; i++) {
-            NSString *key = keys[i];
-            NSArray *options = variantMap[key];
-            variant[key] = options[indexes[i]];
-
-            if (shouldIncreaseIndex) {
-                indexes[i] += 1;
-            }
-            if (indexes[i] >= counts[i]) {
-                if (i == keys.count - 1) {
-                    finished = YES;
-                } else {
-                    indexes[i] = 0;
-                }
-            } else {
-                shouldIncreaseIndex = NO;
-            }
-        }
-        [combos addObject:variant];
-    }
-
-    free(counts);
-    free(indexes);
-
-    return combos;
-}
 
 // Recursively load models one by one
 - (void)loadModelsForConfiguration:(IMPConfiguration *)configuration
@@ -502,6 +440,33 @@ static Improve *sharedInstance;
                       iterationCount:9];
 }
 
+- (NSDictionary *)chooseRandom:(NSDictionary *)variants
+{
+    NSMutableDictionary *randomProperties = [NSMutableDictionary new];
+
+    for (NSString *key in variants)
+    {
+        NSArray *array = INSURE_CLASS(variants[key], [NSArray class]);
+        if (!array) { continue; }
+
+        randomProperties[key] = array.randomObject;
+    }
+
+    return randomProperties;
+}
+
+- (NSArray*)shuffleArray:(NSArray*)array {
+
+    NSMutableArray *temp = [[NSMutableArray alloc] initWithArray:array];
+
+    for(NSUInteger i = [array count]; i > 1; i--) {
+        NSUInteger j = arc4random_uniform((uint32_t) i);
+        [temp exchangeObjectAtIndex:i-1 withObjectAtIndex:j];
+    }
+
+    return [NSArray arrayWithArray:temp];
+}
+
 #pragma mark Delegate helpers
 
 - (void)notifyDidLoadModels {
@@ -514,25 +479,26 @@ static Improve *sharedInstance;
     [[NSNotificationCenter defaultCenter] postNotificationName:ImproveDidLoadModelsNotification object:self];
 }
 
-- (void)notifyDidChoose:(NSDictionary *)chosenVariants
+- (void)notifyDidChoose:(NSDictionary *)chosen
            fromVariants:(NSDictionary *)variants
-              forDomain:(NSString *)domain
                 context:(NSDictionary *)context
+                 domain:(NSString *)domain
 {
-    SEL selector = @selector(notifyDidChoose:fromVariants:forDomain:context:);
+    SEL selector = @selector(notifyDidChoose:fromVariants:context:domain:);
     if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
 
-    [self.delegate improve:self didChoose:chosenVariants fromVariants:variants forDomain:domain context:context];
+    [self.delegate improve:self didChoose:chosen fromVariants:variants context:context domain:domain ];
 }
 
-- (void)notifyDidRank:(NSArray *)sortedVariants
-            forDomain:(NSString *)domain
+- (void)notifyDidSort:(NSArray *)sorted
+         fromVariants:(NSArray *)variants
               context:(NSDictionary *)context
+               domain:(NSString *)domain
 {
-    SEL selector = @selector(notifyDidRank:forDomain:context:);
+    SEL selector = @selector(notifyDidSort:fromVariants:context:domain:);
     if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
 
-    [self.delegate improve:self didRank:sortedVariants forDomain:domain context:context];
+    [self.delegate improve:self didSort:sorted fromVariants:variants context:context domain:domain ];
 }
 
 - (BOOL)askDelegateShouldTrack:(NSMutableDictionary *)eventBody {
