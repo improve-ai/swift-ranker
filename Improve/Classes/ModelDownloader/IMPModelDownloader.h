@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(readonly, nonatomic) BOOL isLoading;
 
++ (NSDictionary *)cachedModelBundlesByName;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithURL:(NSURL *)remoteArchiveURL NS_DESIGNATED_INITIALIZER;

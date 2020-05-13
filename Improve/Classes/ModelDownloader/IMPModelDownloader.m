@@ -30,6 +30,60 @@ NSString *const kModelsFolderName = @"Models";
     NSFileManager *_fileManager;
 }
 
++ (NSURL *)modelsDirURL
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error;
+    NSURL *appSupportDir = [fileManager URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
+    if (!appSupportDir) {
+        NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
+    }
+    NSURL *url = [appSupportDir URLByAppendingPathComponent:kModelsFolderName];
+
+    // Ensure existance
+    if (![url checkResourceIsReachableAndReturnError:nil]) {
+        if(![fileManager createDirectoryAtURL:url
+                  withIntermediateDirectories:true
+                                   attributes:nil
+                                        error:nil]) {
+            NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
+        }
+    }
+
+    return url;
+}
+
++ (NSDictionary *)cachedModelBundlesByName
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error;
+    NSArray *fileURLs = [fileManager contentsOfDirectoryAtURL:self.modelsDirURL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles error:&error];
+    if (!fileURLs) {
+        NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
+        return nil;
+    }
+
+    NSMutableDictionary *bundlesByName = [NSMutableDictionary new];
+    for (NSURL *url in fileURLs)
+    {
+        NSString *extension = url.pathExtension;
+        NSString *name = url.lastPathComponent.stringByDeletingPathExtension;
+
+        if (![extension isEqualToString:@"json"]) {
+            continue;
+        }
+
+        IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.modelsDirURL modelName:name];
+
+        // Check if all files for the givent model name exists
+        if (bundle.isReachable) {
+            bundlesByName[name] = bundle;
+        }
+    }
+
+    return bundlesByName;
+}
+
 - (instancetype)initWithURL:(NSURL *)remoteArchiveURL
 {
     self = [super init];
@@ -99,28 +153,6 @@ NSString *const kModelsFolderName = @"Models";
 - (void)cancel
 {
     [_downloadTask cancel];
-}
-
-- (NSURL *)modelsDirURL
-{
-    NSError *error;
-    NSURL *appSupportDir = [_fileManager URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
-    if (!appSupportDir) {
-        NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
-    }
-    NSURL *url = [appSupportDir URLByAppendingPathComponent:kModelsFolderName];
-
-    // Ensure existance
-    if (![url checkResourceIsReachableAndReturnError:nil]) {
-        if(![_fileManager createDirectoryAtURL:url
-                   withIntermediateDirectories:true
-                                    attributes:nil
-                                         error:nil]) {
-            NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
-        }
-    }
-
-    return url;
 }
 
 - (BOOL)compileModelAtURL:(NSURL *)modelDefinitionURL
@@ -198,7 +230,7 @@ NSString *const kModelsFolderName = @"Models";
                                 withPath:(NSString *)mlmodelPath
                                 jsonPath:(NSString *)jsonPath
 {
-    IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.modelsDirURL modelName:modelName];
+    IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.class.modelsDirURL modelName:modelName];
 
     // Compile model and put to the destination folder
     NSURL *modelDefinitionURL = [NSURL fileURLWithPath:mlmodelPath];

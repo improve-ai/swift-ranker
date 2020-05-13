@@ -70,7 +70,7 @@ static Improve *sharedInstance;
     if (!self) return nil;
 
     _configuration = config;
-    _modelBundlesByName = [NSMutableDictionary new];
+    _modelBundlesByName = [[IMPModelDownloader cachedModelBundlesByName] mutableCopy];
 
     _trackUrl = TRACK_URL;
 
@@ -468,8 +468,6 @@ static Improve *sharedInstance;
             [weakSelf.modelBundlesByName setDictionary:bundles];
             [weakSelf notifyDidLoadModels];
         }
-
-        // TODO: if (completion) completion(isLoaded);
     }];
 }
 
