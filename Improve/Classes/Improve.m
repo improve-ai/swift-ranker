@@ -21,7 +21,7 @@ typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 /// How soon model downloading will be retried in case of error.
 const NSTimeInterval kRetryInterval;
 
-NSString * const kDefaultDomain = @"defaultDomain";
+NSString * const kDefaultDomain = @"default";
 
 NSNotificationName const ImproveDidLoadModelsNotification = @"ImproveDidLoadModelsNotification";
 
@@ -110,9 +110,10 @@ static Improve *sharedInstance;
     NSDictionary *trackData = @{
         @"type": @"decision",
         @"chosen": chosen,
-        @"context": context,
+        @"context": context, // TODO don't track null context
         @"domain": domain
     };
+    
     [self track:trackData];
 
     if (self.shouldTrackVariants) {
@@ -160,7 +161,7 @@ static Improve *sharedInstance;
 }
 
 
-- (void) chooseRemote:(NSDictionary *)variants
+- (void) chooseRemote:(NSArray *)variants
                context:(NSDictionary *)context
                domain:(NSString *)domain
                   url:(NSURL *)chooseURL
@@ -194,6 +195,68 @@ static Improve *sharedInstance;
                        data:postData
                         url:chooseURL
                       block:block];
+}
+
+- (void) trackChosen:(id)chosen
+{
+    [self trackChosen:chosen context:nil domain:nil rewardKey:nil];
+}
+
+- (void) trackChosen:(id)chosen context:(NSDictionary *)context
+{
+    [self trackChosen:chosen context:context domain:nil rewardKey:nil];
+}
+
+- (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *)domain
+{
+    [self trackChosen:chosen context:context domain:domain rewardKey:nil];
+}
+
+- (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *)domain rewardKey:(NSString *)rewardKey
+{
+    if (!chosen) {
+        NSLog(@"Skipping trackChosen for nil chosen value. To track null values use [NSNull null]");
+        return;
+    }
+    
+    // the tracked domain is never nil
+    if (!domain) {
+        domain = kDefaultDomain;
+    }
+    
+    // the tracked rewardKey is never nil
+    if (!rewardKey) {
+        rewardKey = domain;
+    }
+    
+    NSMutableDictionary *body = [@{ @"chosen": chosen,
+                                    @"domain": domain,
+                                    @"rewardKey": rewardKey } mutableCopy];
+    
+    if (context) {
+        [body setObject:context forKey:@"context"];
+    }
+    
+    [self track:body];
+}
+
+- (void) trackReward:(NSNumber *)reward
+{
+    if (reward) {
+        // This will match a trackChosen with a nil domain and nil rewardKey
+        [self trackRewards:@{ @"default": reward }];
+    } else {
+        NSLog(@"Skipping trackReward for nil reward");
+    }
+}
+
+- (void) trackRewards:(NSDictionary *)rewards
+{
+    if (rewards) {
+        [self track:@{ @"rewards": rewards}];
+    } else {
+        NSLog(@"Skipping trackRewards for nil rewards");
+    }
 }
 
 - (void) track:(NSString *)event properties:(NSDictionary *)properties {

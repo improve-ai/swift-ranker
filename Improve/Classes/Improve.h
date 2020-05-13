@@ -28,6 +28,12 @@ extern NSNotificationName const ImproveDidLoadModelsNotification;
 
 @property (strong, nonatomic) id<IMPDelegate> delegate;
 
+// - (id) choose:(NSArray *)variants
+// - (id) choose:(NSArray *)variants context:(NSDictionary *)context
+// - (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain;
+// - (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain rewardKey:(NSString *)rewardKey;
+// - (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain autoTrack:(BOOL)autoTrack; // public interface should have autoTrack and rewardKey mutually exclusive
+
 /**
  Chooses a variant for each properties. The variants are chosen according to the model predictions.
  The model corresponding to the specified domain is trained and used automatically.
@@ -41,6 +47,13 @@ extern NSNotificationName const ImproveDidLoadModelsNotification;
                   context:(NSDictionary *)context
                    domain:(NSString *)domain;
 
+// - (NSArray *) sort:(NSArray *)variants
+// - (NSArray *) sort:(NSArray *)variants context:(NSDictionary *)context
+
+- (NSArray<NSDictionary*> *) sort:(NSArray<NSDictionary*> *)variants
+                          context:(NSDictionary *)context
+                           domain:(NSString *)domain;
+
 /**
  Choose a variant for each property.  It is the callers responsibility to call trackUsing: once when the returned properties are used
  
@@ -50,20 +63,27 @@ extern NSNotificationName const ImproveDidLoadModelsNotification;
  @param chooseURL Remote service URL
  @param block A block to be executed on the main queue when the response is returned, containing an NSDictionary mapping property keys to their chosen values
  */
-- (void) chooseRemote:(NSDictionary *)variants
+- (void) chooseRemote:(NSArray *)variants
               context:(NSDictionary *)context
                domain:(NSString *)domain
                   url:(NSURL *)chooseURL
            completion:(void (^)(NSDictionary *, NSError *)) block;
 
+// TODO document that when domain is nil it is set to "default" and when rewardKey is nil it is set to the domain or "default"
+- (void) trackChosen:(id)chosen;
+- (void) trackChosen:(id)chosen context:(NSDictionary *)context;
+- (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *) domain;
+- (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *) domain rewardKey:(NSString *) rewardKey;
 
-- (void) track:(NSString *)event properties:(NSDictionary *)properties;
+/**
+ Equivilent to trackRewards:@{ @"default": reward }]  Use this when neither a domain nor a rewardKey were used with choose.  An undefined rewardKey defaults to the domain string and an undefined domain defaults to "default".
+ */
+- (void) trackReward:(NSNumber *) reward;
+- (void) trackRewards:(NSDictionary *)rewards;
 
-- (void) track:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context;
+//- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties;
+//- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties attachDecisions:(NSArray *)decisions attachRewards:(NSDictionary *)rewards;
 
-- (NSArray<NSDictionary*> *) sort:(NSArray<NSDictionary*> *)variants
-                          context:(NSDictionary *)context
-                           domain:(NSString *)domain;
 
 /**
  The new properties are extracted from variants for iterationCount times. Propensity score is the fraction of the times that

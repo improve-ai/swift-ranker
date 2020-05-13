@@ -30,6 +30,7 @@
 }
 
 - (void)setUp {
+    // TODO test nil api key
     config = [IMPConfiguration configurationWithAPIKey:@"api_key_for_test"];
     [Improve configureWith:config];
 }
