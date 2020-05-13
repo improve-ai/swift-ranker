@@ -70,7 +70,7 @@
     NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};
     NSArray *rankedVariants = [[Improve instance] rank:variants
-                                                action:modelName
+                                                domain:modelName
                                                context:context];
     XCTAssertNotNil(rankedVariants);
 

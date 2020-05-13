@@ -20,12 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)improve:(Improve *)improve
       didChoose:(NSDictionary *)chosenVariants
    fromVariants:(NSDictionary *)variants
-      forAction:(NSString *)action
+      forDomain:(NSString *)domain
         context:(NSDictionary *)context;
 
 - (void)improve:(Improve *)improve
         didRank:(NSArray *)rankedVariants
-      forAction:(NSString *)action
+      forDomain:(NSString *)domain
         context:(NSDictionary *)context;
 
 - (BOOL)improve:(Improve *)improve shouldTrack:(NSMutableDictionary *)event;

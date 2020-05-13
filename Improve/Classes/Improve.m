@@ -2,8 +2,8 @@
 //  Improve.m
 //  7Second
 //
-//  Created by Justin Chapweske on 9/6/16.
-//  Copyright © 2016-2017 Impressive Sounding, LLC. All rights reserved.
+//  Created by Choosy McChooseFace on 9/6/16.
+//  Copyright © 2016-2020 Mind Blown Apps, LLC. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -20,6 +20,8 @@ typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 
 /// How soon model downloading will be retried in case of error.
 const NSTimeInterval kRetryInterval;
+
+NSString * const kDefaultDomain = @"defaultDomain";
 
 NSNotificationName const ImproveDidLoadModelsNotification = @"ImproveDidLoadModelsNotification";
 
@@ -88,27 +90,23 @@ static Improve *sharedInstance;
     self.configuration.apiKey = apiKey;
 }
 
-- (NSString *)userId {
-    return self.configuration.userId;
-}
-
 - (NSDictionary *) choose:(NSDictionary *)variants
-                   action:(NSString *)action
+                   domain:(NSString *)domain
                   context:(NSDictionary *)context
 {
-    NSString *modelName = action;
+    NSString *modelName = domain;
     IMPChooser *chooser = [self chooserForModelWithName:modelName];
     if (!chooser) {
         NSDictionary *randomVariants = [self chooseRandom:variants context:context];
-        [self notifyDidChoose:randomVariants fromVariants:variants forAction:action context:context];
+        [self notifyDidChoose:randomVariants fromVariants:variants forDomain:domain context:context];
         return randomVariants;
     }
 
     NSDictionary *properties = [chooser choose:variants context:context];
 
     NSDictionary *trackData = @{
-        @"type": @"action",
-        @"action": action,
+        @"type": @"decision",
+        @"domain": domain,
         @"properties": properties,
         @"context": context
     };
@@ -119,21 +117,21 @@ static Improve *sharedInstance;
             @"type": @"variants",
             @"method": @"choose",
             @"variants": variants,
-            @"action": action
+            @"domain": domain
         }];
     }
 
-    [self notifyDidChoose:properties fromVariants:variants forAction:action context:context];
+    [self notifyDidChoose:properties fromVariants:variants forDomain:domain context:context];
     return properties;
 }
 
 - (id) choose:(NSArray *)propertyValues
        forKey:(NSString *)propertyKey
-       action:(NSString *)action
+       domain:(NSString *)domain
       context:(NSDictionary *)context
 {
     NSDictionary *variants = [self choose:@{propertyKey: propertyValues}
-                                   action:action
+                                   domain:domain
                                   context:context];
     id value = variants[propertyKey];
     return value;
@@ -155,7 +153,7 @@ static Improve *sharedInstance;
 }
 
 - (void) chooseRemote:(NSDictionary *)variants
-               action:(NSString *)modelName
+               domain:(NSString *)domain
               context:(NSDictionary *)context
                   url:(NSURL *)chooseURL
            completion:(void (^)(NSDictionary *, NSError *)) block
@@ -164,13 +162,17 @@ static Improve *sharedInstance;
                                @"x-api-key":  self.apiKey };
 
 
-    NSMutableDictionary *body = [@{ @"variants": variants,
-                                    @"model": modelName,
-                                    @"user_id": self.userId } mutableCopy];
-
+    NSMutableDictionary *body = [@{ @"variants": variants} mutableCopy];
+        
     if (context) {
         [body setObject:context forKey:@"context"];
     }
+
+    if (!domain) {
+        domain = kDefaultDomain;
+    }
+        
+    [body setObject:domain forKey:@"domain"];
 
     NSError * err;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
@@ -219,7 +221,6 @@ static Improve *sharedInstance;
                                                  formatOptions:options];
 
     NSMutableDictionary *body = [@{
-        @"user_id": self.userId,
         @"timestamp": dateStr,
         @"history_id": self.configuration.historyId,
         @"message_id": [[NSUUID UUID] UUIDString]
@@ -363,10 +364,10 @@ static Improve *sharedInstance;
 }
 
 - (NSArray<NSDictionary*> *) rank:(NSArray<NSDictionary*> *)variants
-                           action:(NSString *)action
+                           domain:(NSString *)domain
                           context:(NSDictionary *)context
 {
-    NSString *modelName = action;
+    NSString *modelName = domain;
     IMPChooser *chooser = [self chooserForModelWithName:modelName];
     if (!chooser) {
         return variants;
@@ -377,21 +378,21 @@ static Improve *sharedInstance;
             @"type": @"variants",
             @"method": @"rank",
             @"variants": variants,
-            @"action": action
+            @"domain": domain
         }];
     }
 
     NSArray *rankedVariants = [chooser rank:variants context:context];
-    [self notifyDidRank:rankedVariants forAction:action context:context];
+    [self notifyDidRank:rankedVariants forDomain:domain context:context];
     return rankedVariants;
 }
 
 - (NSArray<NSDictionary*> *) rankAllPossible:(NSDictionary<NSString*, NSArray*> *)variantMap
-                                      action:(NSString *)modelName
+                                      domain:(NSString *)modelName
                                      context:(NSDictionary *)context
 {
     NSArray<NSDictionary*> *combinations = [self combinationsFromVariants:variantMap];
-    NSArray<NSDictionary*> *ranked = [self rank:combinations action:modelName context:context];
+    NSArray<NSDictionary*> *ranked = [self rank:combinations domain:modelName context:context];
     return ranked;
 }
 
@@ -481,12 +482,12 @@ static Improve *sharedInstance;
 }
 
 - (double)calculatePropensity:(NSDictionary *)variants
-                       action:(NSString *)action
+                       domain:(NSString *)domain
                       context:(NSDictionary *)context
              chosenProperties:(NSDictionary *)properties
                iterationCount:(NSUInteger)iterationCount
 {
-    IMPChooser *chooser = [self chooserForModelWithName:action];
+    IMPChooser *chooser = [self chooserForModelWithName:domain];
     if (!chooser) {
         return -1;
     }
@@ -504,12 +505,12 @@ static Improve *sharedInstance;
 }
 
 - (double)calculatePropensity:(NSDictionary *)variants
-                       action:(NSString *)action
+                       domain:(NSString *)domain
                       context:(NSDictionary *)context
              chosenProperties:(NSDictionary *)properties
 {
     return [self calculatePropensity:variants
-                               action:action
+                               domain:domain
                              context:context
                     chosenProperties:properties
                       iterationCount:9];
@@ -529,23 +530,23 @@ static Improve *sharedInstance;
 
 - (void)notifyDidChoose:(NSDictionary *)chosenVariants
            fromVariants:(NSDictionary *)variants
-              forAction:(NSString *)action
+              forDomain:(NSString *)domain
                 context:(NSDictionary *)context
 {
-    SEL selector = @selector(notifyDidChoose:fromVariants:forAction:context:);
+    SEL selector = @selector(notifyDidChoose:fromVariants:forDomain:context:);
     if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
 
-    [self.delegate improve:self didChoose:chosenVariants fromVariants:variants forAction:action context:context];
+    [self.delegate improve:self didChoose:chosenVariants fromVariants:variants forDomain:domain context:context];
 }
 
 - (void)notifyDidRank:(NSArray *)rankedVariants
-            forAction:(NSString *)action
+            forDomain:(NSString *)domain
               context:(NSDictionary *)context
 {
-    SEL selector = @selector(notifyDidRank:forAction:context:);
+    SEL selector = @selector(notifyDidRank:forDomain:context:);
     if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
 
-    [self.delegate improve:self didRank:rankedVariants forAction:action context:context];
+    [self.delegate improve:self didRank:rankedVariants forDomain:domain context:context];
 }
 
 - (BOOL)askDelegateShouldTrack:(NSMutableDictionary *)eventBody {
