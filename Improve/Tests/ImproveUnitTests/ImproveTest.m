@@ -31,8 +31,7 @@
 }
 
 - (void)setUp {
-    config = [IMPConfiguration configurationWithAPIKey:@"api_key_for_test"
-                                           projectName:@"test"];
+    config = [IMPConfiguration configurationWithAPIKey:@"api_key_for_test"];
     [Improve configureWith:config];
 }
 

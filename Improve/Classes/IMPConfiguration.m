@@ -11,65 +11,28 @@
 
 @import Security;
 
-#define USER_ID_KEY @"ai.improve.user_id"
-
 #define HISTORY_ID_KEY @"ai.improve.history_id"
 
 #define HISTORY_ID_SIZE 32
 
 @implementation IMPConfiguration
 
-+ (instancetype)configurationWithAPIKey:(NSString *)apiKey
-                            projectName:(NSString *)projectName
-                                 userId:(nullable NSString *)userId
-{
-    id configuration = [[self alloc] initWithAPIKey:apiKey
-                                        projectName:projectName
-                                             userId:userId];
++ (instancetype)configurationWithAPIKey:(NSString *)apiKey {
+    id configuration = [[self alloc] initWithAPIKey:apiKey];
     return configuration;
 }
 
-+ (instancetype)configurationWithAPIKey:(NSString *)apiKey
-                            projectName:(NSString *)projectName
-{
-    return [self configurationWithAPIKey:apiKey
-                             projectName:projectName
-                                  userId:nil];
-}
-
 - (instancetype)initWithAPIKey:(NSString *)apiKey
-                   projectName:(NSString *)projectName
-                        userId:(nullable NSString *)userId
 {
     self = [super init];
     if (!self) return nil;
 
     _apiKey = [apiKey copy];
 
-    if (userId) {
-        _userId = [userId copy];
-    } else {
-        _userId = [[NSUserDefaults standardUserDefaults] stringForKey:USER_ID_KEY];
-        if (!_userId) {
-            // create a UUID if one isn't provided
-            _userId = [[NSUUID UUID] UUIDString];
-            [[NSUserDefaults standardUserDefaults] setObject:_userId forKey:USER_ID_KEY];
-        }
-    }
-
     _modelStaleAge = 0.0;
     _variantTrackProbability = 0.01;
-    _projectName = projectName;
 
     return self;
-}
-
-- (instancetype)initWithAPIKey:(NSString *)apiKey
-                   projectName:(NSString *)projectName
-{
-    return [self initWithAPIKey:apiKey
-                    projectName:projectName
-                         userId:nil];
 }
 
 - (NSString *)historyId {

@@ -109,9 +109,9 @@ static Improve *sharedInstance;
 
     NSDictionary *trackData = @{
         @"type": @"decision",
-        @"domain": domain,
         @"chosen": chosen,
-        @"context": context
+        @"context": context,
+        @"domain": domain
     };
     [self track:trackData];
 
@@ -172,6 +172,7 @@ static Improve *sharedInstance;
         return;
     }
 
+    // TODO decide if variants and decision tracking should be handled here or in the remote choose
     [self postChooseRequest:headers
                        data:postData
                         url:chooseURL
@@ -469,7 +470,7 @@ static Improve *sharedInstance;
 - (double)calculatePropensity:(NSDictionary *)variants
                        domain:(NSString *)domain
                       context:(NSDictionary *)context
-             chosenProperties:(NSDictionary *)chosen
+                       chosen:(NSDictionary *)chosen
                iterationCount:(NSUInteger)iterationCount
 {
     IMPChooser *chooser = [self chooserForDomain:domain];
@@ -492,12 +493,12 @@ static Improve *sharedInstance;
 - (double)calculatePropensity:(NSDictionary *)variants
                        domain:(NSString *)domain
                       context:(NSDictionary *)context
-             chosenProperties:(NSDictionary *)chosen
+                       chosen:(NSDictionary *)chosen
 {
     return [self calculatePropensity:variants
-                               domain:domain
+                              domain:domain
                              context:context
-                    chosenProperties:chosen
+                              chosen:chosen
                       iterationCount:9];
 }
 
