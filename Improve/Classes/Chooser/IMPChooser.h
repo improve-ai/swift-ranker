@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)choose:(NSDictionary *)variants
                  context:(NSDictionary *)context;
 
-- (NSArray<NSDictionary*> *)rank:(NSArray<NSDictionary*> *)variants
+- (NSArray<NSDictionary*> *)sort:(NSArray<NSDictionary*> *)variants
                          context:(NSDictionary *)context;
 
 @end

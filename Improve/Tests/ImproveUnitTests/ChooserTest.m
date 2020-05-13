@@ -126,7 +126,7 @@ const NSUInteger featuresCount = 10000;
 - (void)testRank {
     NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};
-    NSArray *rankedVariants = [chooser rank:variants context:context];
+    NSArray *rankedVariants = [chooser sort:variants context:context];
     XCTAssertNotNil(rankedVariants);
 
     NSArray *scores = [TestUtils defaultPredictions];

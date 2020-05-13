@@ -273,7 +273,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 
 #pragma mark - Ranking
 
-- (NSArray<NSDictionary*> *)rank:(NSArray<NSDictionary*> *)variants
+- (NSArray<NSDictionary*> *)sort:(NSArray<NSDictionary*> *)variants
                          context:(NSDictionary *)context
 {
     NSArray *features = [self makeFeaturesFromTrials:variants

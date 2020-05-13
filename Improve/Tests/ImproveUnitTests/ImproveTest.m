@@ -69,9 +69,9 @@
 {
     NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};
-    NSArray *rankedVariants = [[Improve instance] rank:variants
-                                                domain:modelName
-                                               context:context];
+    NSArray *rankedVariants = [[Improve instance] sort:variants
+                                               context:context
+                                                domain:modelName];
     XCTAssertNotNil(rankedVariants);
 
     NSArray *scores = [TestUtils defaultPredictions];
