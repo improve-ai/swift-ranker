@@ -22,6 +22,30 @@ typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 const NSTimeInterval kRetryInterval;
 
 NSString * const kDefaultDomain = @"default";
+NSString * const kDefaultRewardKey = kDefaultDomain;
+
+NSString * const kHistoryIdKey = @"history_id";
+NSString * const kTimestampKey = @"timestamp";
+NSString * const kMessageIdKey = @"message_id";
+NSString * const kTypeKey = @"type";
+NSString * const kChosenKey = @"chosen";
+NSString * const kContextKey = @"context";
+NSString * const kDomainKey = @"domain";
+NSString * const kRewardsKey = @"rewards";
+NSString * const kVariantsKey = @"variants";
+NSString * const kRewardKeyKey = @"reward_key";
+NSString * const kMethodKey = @"method";
+
+NSString * const kDecisionType = @"decision";
+NSString * const kRewardsType = @"rewards";
+NSString * const kEventType = @"event";
+NSString * const kVariantsType = @"variants";
+
+NSString * const kChooseMethod = @"choose";
+NSString * const kSortMethod = @"sort";
+
+NSString * const kApiKeyHeader = @"x-api-key";
+
 
 NSNotificationName const ImproveDidLoadModelsNotification = @"ImproveDidLoadModelsNotification";
 
@@ -92,7 +116,15 @@ static Improve *sharedInstance;
 - (NSDictionary *) choose:(NSDictionary *)variants
                    context:(NSDictionary *)context
                    domain:(NSString *)domain
+                rewardKey:(NSString *)rewardKey
+                autoTrack:(BOOL)autoTrack
 {
+    if (!variants) {
+        NSLog(@"+[%@ %@]: non-nil required for choose variants. returning nil.", CLASS_S, CMD_S);
+        return nil;
+    }
+    
+    // the domain is never nil for choose, sort, or trackChosen
     if (!domain) {
         domain = kDefaultDomain;
     }
@@ -106,22 +138,18 @@ static Improve *sharedInstance;
     } else {
         chosen = [self chooseRandom:variants];
     }
-
-    NSDictionary *trackData = @{
-        @"type": @"decision",
-        @"chosen": chosen,
-        @"context": context, // TODO don't track null context
-        @"domain": domain
-    };
     
-    [self track:trackData];
+    if (autoTrack) {
+        // trackChosen takes care of assigning the rewardKey to the domain on nil rewardKey
+        [self trackChosen:chosen context:context domain:domain rewardKey:rewardKey];
+    }
 
     if (self.shouldTrackVariants) {
         [self track:@{
-            @"type": @"variants",
-            @"method": @"choose",
-            @"variants": variants,
-            @"domain": domain
+            kTypeKey: kVariantsType,
+            kMethodKey: kChooseMethod,
+            kVariantsKey: variants,
+            kDomainKey: domain
         }];
     }
     
@@ -134,6 +162,11 @@ static Improve *sharedInstance;
                           context:(NSDictionary *)context
                            domain:(NSString *)domain
 {
+    if (!variants) {
+        NSLog(@"+[%@ %@]: non-nil required for sort variants. returning nil", CLASS_S, CMD_S);
+        return nil;
+    }
+
     if (!domain) {
         domain = kDefaultDomain;
     }
@@ -149,10 +182,10 @@ static Improve *sharedInstance;
 
     if (self.shouldTrackVariants) {
         [self track:@{
-            @"type": @"variants",
-            @"method": @"sort",
-            @"variants": variants,
-            @"domain": domain
+            kTypeKey: kVariantsType,
+            kMethodKey: kSortMethod,
+            kVariantsKey: variants,
+            kDomainKey: domain
         }];
     }
 
@@ -167,26 +200,31 @@ static Improve *sharedInstance;
                   url:(NSURL *)chooseURL
            completion:(void (^)(NSDictionary *, NSError *)) block
 {
+    if (!variants) {
+        block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: @"variants cannot be nil"}]);
+        return;
+    }
+    
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               @"x-api-key":  self.apiKey };
+                               kApiKeyHeader:  self.apiKey };
 
 
-    NSMutableDictionary *body = [@{ @"variants": variants} mutableCopy];
+    NSMutableDictionary *body = [@{ kVariantsKey: variants} mutableCopy];
         
     if (context) {
-        [body setObject:context forKey:@"context"];
+        [body setObject:context forKey:kContextKey];
     }
 
     if (!domain) {
         domain = kDefaultDomain;
     }
         
-    [body setObject:domain forKey:@"domain"];
+    [body setObject:domain forKey:kDomainKey];
 
     NSError * err;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
     if (err) {
-        NSLog(@"Improve.chooseFrom error: %@", err);
+        block(nil, err);
         return;
     }
 
@@ -215,7 +253,7 @@ static Improve *sharedInstance;
 - (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *)domain rewardKey:(NSString *)rewardKey
 {
     if (!chosen) {
-        NSLog(@"Skipping trackChosen for nil chosen value. To track null values use [NSNull null]");
+        NSLog(@"+[%@ %@]: Skipping trackChosen for nil chosen value. To track null values use [NSNull null]", CLASS_S, CMD_S);
         return;
     }
     
@@ -229,12 +267,12 @@ static Improve *sharedInstance;
         rewardKey = domain;
     }
     
-    NSMutableDictionary *body = [@{ @"chosen": chosen,
-                                    @"domain": domain,
-                                    @"rewardKey": rewardKey } mutableCopy];
+    NSMutableDictionary *body = [@{ kChosenKey: chosen,
+                                    kDomainKey: domain,
+                                    kRewardKeyKey: rewardKey } mutableCopy];
     
     if (context) {
-        [body setObject:context forKey:@"context"];
+        [body setObject:context forKey:kContextKey];
     }
     
     [self track:body];
@@ -244,7 +282,7 @@ static Improve *sharedInstance;
 {
     if (reward) {
         // This will match a trackChosen with a nil domain and nil rewardKey
-        [self trackRewards:@{ @"default": reward }];
+        [self trackRewards:@{ kDefaultRewardKey: reward }];
     } else {
         NSLog(@"Skipping trackReward for nil reward");
     }
@@ -253,19 +291,22 @@ static Improve *sharedInstance;
 - (void) trackRewards:(NSDictionary *)rewards
 {
     if (rewards) {
-        [self track:@{ @"rewards": rewards}];
+        [self track:@{ kTypeKey: kRewardsType,
+                       kRewardsKey: rewards}];
     } else {
         NSLog(@"Skipping trackRewards for nil rewards");
     }
 }
 
-- (void) track:(NSString *)event properties:(NSDictionary *)properties {
-    [self track:event properties:properties context:nil];
+- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties {
+    [self trackAnalyticsEvent:event properties:properties];
 }
-
+/*
 - (void) track:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context
 {
-    NSMutableDictionary *bodyValues = [NSMutableDictionary new];
+    NSMutableDictionary *body = [@{ @"type": chosen,
+                                    @"domain": domain,
+                                    @"rewardKey": rewardKey } mutableCopy];
     if (event) {
         [bodyValues setObject:event forKey:@"event"];
     }
@@ -277,12 +318,12 @@ static Improve *sharedInstance;
     }
 
     [self track:bodyValues];
-}
+}*/
 
 - (void) track:(NSDictionary *)bodyValues completion:(void(^)(BOOL))handler
 {
     NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               @"x-api-key": self.apiKey };
+                               kApiKeyHeader: self.apiKey };
 
     NSISO8601DateFormatOptions options = (NSISO8601DateFormatWithInternetDateTime
                                           | NSISO8601DateFormatWithFractionalSeconds
@@ -293,9 +334,9 @@ static Improve *sharedInstance;
                                                  formatOptions:options];
 
     NSMutableDictionary *body = [@{
-        @"timestamp": dateStr,
-        @"history_id": self.configuration.historyId,
-        @"message_id": [[NSUUID UUID] UUIDString]
+        kTimestampKey: dateStr,
+        kHistoryIdKey: self.configuration.historyId,
+        kMessageIdKey: [[NSUUID UUID] UUIDString]
     } mutableCopy];
     [body addEntriesFromDictionary:bodyValues];
 
@@ -362,7 +403,7 @@ static Improve *sharedInstance;
             // is this a dictionary?
             if ([response isKindOfClass:[NSDictionary class]]) {
                 // extract the chosen
-                NSObject *chosen = [(NSDictionary *)response objectForKey:@"chosen"];
+                NSObject *chosen = [(NSDictionary *)response objectForKey:kChosenKey];
                 if ([chosen isKindOfClass:[NSDictionary class]]) {
                     block((NSDictionary *)chosen, nil);
                     return;
@@ -446,7 +487,7 @@ static Improve *sharedInstance;
     __weak Improve *weakSelf = self;
     [self.downloader loadWithCompletion:^(NSDictionary *bundles, NSError *error) {
         if (error) {
-            NSLog(@"Model loading error: %@", error);
+            NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
 
             // Reload
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kRetryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
