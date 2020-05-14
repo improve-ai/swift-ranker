@@ -31,13 +31,12 @@ extern NSNotificationName const ImproveDidLoadModelsNotification;
 - (id) choose:(NSArray *)variants;
 - (id) choose:(NSArray *)variants context:(NSDictionary *)context;
 /**
-Chooses a variant for each properties. The variants are chosen according to the model predictions.
-The model corresponding to the specified domain is trained and used automatically.
+Chooses a variant that is expected to maximize future rewards.
 
-@param variants  A mapping from property keys to NSArrays of potential variants to choose from.
-@param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
-@param domain A rewardable domain associated with the choosing.
-@return A NSDictionary where keys are properties, and the values are single objects choosen from variants.
+@param variants  A list of variants to choose from
+@param context A dictionary of key value pairs that describe the context that choose should be optimized for.  It may affect the prediction but is not included in the output.
+@param domain A descriptor and namespace for the type of thing being chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.  By default, the rewardKey is set to be equal to the domain.
+@return The chosen variant
 */
 - (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain;
 - (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain rewardKey:(NSString *)rewardKey;
@@ -52,15 +51,6 @@ The model corresponding to the specified domain is trained and used automaticall
                           context:(NSDictionary *)context
                            domain:(NSString *)domain;
 
-/**
- Choose a variant for each property.  It is the callers responsibility to call trackUsing: once when the returned properties are used
- 
- @param variants A mapping from property keys to NSArrays of potential variants to choose from
- @param domain A rewardable domain associated with the choosing
- @param context Additional parameters added to each variant
- @param chooseURL Remote service URL
- @param block A block to be executed on the main queue when the response is returned, containing an NSDictionary mapping property keys to their chosen values
- */
 - (void) chooseRemote:(NSArray *)variants
               context:(NSDictionary *)context
                domain:(NSString *)domain
@@ -76,7 +66,8 @@ The model corresponding to the specified domain is trained and used automaticall
 /**
  Equivilent to trackRewards:@{ @"default": reward }]  Use this when neither a domain nor a rewardKey were used with choose.  An undefined rewardKey defaults to the domain string and an undefined domain defaults to "default".
  */
-- (void) trackReward:(NSNumber *) reward;
+- (void) trackReward:(NSNumber *) reward; // maybe get rid of this and force domain to be Improve.DefaultDomain
+// - (void) trackReward:(NSNumber *) reward domain:(NSString *)domain; forDomain?
 - (void) trackRewards:(NSDictionary *)rewards;
 // - (void) trackRewards:(NSDictionary *)rewards mode:(ImproveRewardsMode *)mode;
 
@@ -87,11 +78,8 @@ The model corresponding to the specified domain is trained and used automaticall
  The new properties are extracted from variants for iterationCount times. Propensity score is the fraction of the times that
  the initially chosen properties is chosen overall.
 
- @param variants  A mapping from property keys to NSArrays of potential variants to choose from.
- @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
- @param domain A rewardable domain associated with the choosing
  @param iterationCount How many times the new properties should be extracted.
- @param chosen The variant that was chosen by `choose` function from the variants with the same
+ @param chosen The variant that was chosen by the `choose` function function from the variants with the same
  domain and context.
 
  @returns The propensity value [0, 1.0], or -1 if there was an error.
@@ -108,10 +96,8 @@ The model corresponding to the specified domain is trained and used automaticall
 
  iterationCount is set to 9 by default.
 
- @param variants  A mapping from property keys to NSArrays of potential variants to choose from.
- @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
  @param domain A rewardable domain associated with the choosing
- @param chosen The variant that was chosen by `choose` function from the variants with the same
+ @param chosen The variant that was chosen by the `choose` function from the variants with the same
  domain and context.
 
  @returns The propensity value [0, 1.0], or -1 if there was an error.
