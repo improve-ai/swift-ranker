@@ -40,7 +40,7 @@ const NSUInteger featuresCount = 10000;
                                                   withExtension:@"json"];
         IMPModelBundle *modelBundle = [[IMPModelBundle alloc] initWithModelURL:modelURL
                                                                    metadataURL:metadataURL];
-        chooser = [IMPChooser chooserWithModelBundle:modelBundle error:nil];
+        chooser = [IMPChooser chooserWithModelBundle:modelBundle domain:@"default" error:nil];
         XCTAssertNotNil(chooser);
     }
     return self;

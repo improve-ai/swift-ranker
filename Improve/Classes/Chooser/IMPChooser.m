@@ -22,8 +22,12 @@ const NSUInteger kInitialTrialsCount = 100;
 @implementation IMPChooser
 
 + (instancetype)chooserWithModelBundle:(IMPModelBundle *)bundle
+                                domain:(NSString *)domain
                                  error:(NSError *__autoreleasing  _Nullable *)error
 {
+    if (!domain) {
+        return nil;
+    }
     MLModel *model = [MLModel modelWithContentsOfURL:bundle.modelURL error:error];
     if (!model) {
         return nil;
@@ -32,15 +36,16 @@ const NSUInteger kInitialTrialsCount = 100;
     if (!metadata) {
         return nil;
     }
-    return [[self alloc] initWithModel:model metadata:metadata];
+    return [[self alloc] initWithModel:model metadata:metadata domain:domain];
 }
 
-- (instancetype)initWithModel:(MLModel *)model metadata:(IMPModelMetadata *)metadata
+- (instancetype)initWithModel:(MLModel *)model metadata:(IMPModelMetadata *)metadata domain:(NSString *)domain
 {
     self = [super init];
     if (self) {
         _model = model;
         _metadata = metadata;
+        _domain = domain;  // TODO prefix domain to the context and each variant before feature encoding.  @{ domain: context} and @{ domain: variant }  is what will be actually encoded.
         _featureNamePrefix = @"f";
     }
     return self;

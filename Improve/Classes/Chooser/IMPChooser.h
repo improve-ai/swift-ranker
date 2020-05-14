@@ -27,13 +27,17 @@ NS_ASSUME_NONNULL_BEGIN
 /// Used to convert column indexes to model feature names. Default: "f".
 @property(copy, nonatomic) NSString *featureNamePrefix;
 
+@property(copy, nonatomic) NSString *domain;
+
 @property(readonly, nonatomic) IMPModelMetadata *metadata;
 
 + (instancetype)chooserWithModelBundle:(IMPModelBundle *)bundle
+                                domain:(NSString *)domain
                                  error:(NSError **)error;
 
 - (instancetype)initWithModel:(MLModel *)model
-                     metadata:(IMPModelMetadata *)metadata;
+                     metadata:(IMPModelMetadata *)metadata
+                       domain:(NSString *)domain;
 
 /**
  Choses a trial from the given variants. The trial is chosen according to the model predictions.

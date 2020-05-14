@@ -16,8 +16,6 @@
 
 typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 
-#define TRACK_URL @"https://api.improve.ai/v3/track"
-
 /// How soon model downloading will be retried in case of error.
 const NSTimeInterval kRetryInterval;
 
@@ -102,7 +100,7 @@ static Improve *sharedInstance;
     _configuration = config;
     _modelBundlesByName = [[IMPModelDownloader cachedModelBundlesByName] mutableCopy];
 
-    _trackUrl = TRACK_URL;
+    _trackUrl = @"placeholder";
 
     [self loadModelsForConfiguration:config];
 
@@ -174,11 +172,12 @@ static Improve *sharedInstance;
     if (chooser) {
         chosen = [chooser choose:variants context:context];
     } else {
+        NSLog(@"-[%@ %@]: Model not loaded. Choosing random variant.", CLASS_S, CMD_S);
         chosen = [self chooseRandom:variants];
     }
     
     if (autoTrack) {
-        // trackChosen takes care of assigning the rewardKey to the domain on nil rewardKey
+        // trackChosen takes care of defining the rewardKey as the domain on nil rewardKey
         [self trackChosen:chosen context:context domain:domain rewardKey:rewardKey propensity:nil]; // TODO calculate propensity
     }
 
@@ -215,6 +214,7 @@ static Improve *sharedInstance;
     if (chooser) {
         sorted = [chooser sort:variants context:context];
     } else {
+        NSLog(@"-[%@ %@]: Model not loaded. Sorting randomly.", CLASS_S, CMD_S);
         sorted = [self shuffleArray:variants];
     }
 
@@ -518,7 +518,7 @@ static Improve *sharedInstance;
     }
 
     NSError *error = nil;
-    IMPChooser *chooser = [IMPChooser chooserWithModelBundle:modelBundle error:&error];
+    IMPChooser *chooser = [IMPChooser chooserWithModelBundle:modelBundle domain:domain error:&error];
     if (!chooser) {
         NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
         return nil;
