@@ -28,27 +28,25 @@ extern NSNotificationName const ImproveDidLoadModelsNotification;
 
 @property (strong, nonatomic) id<IMPDelegate> delegate;
 
-// - (id) choose:(NSArray *)variants
-// - (id) choose:(NSArray *)variants context:(NSDictionary *)context
-// - (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain;
-// - (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain rewardKey:(NSString *)rewardKey;
-// - (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain autoTrack:(BOOL)autoTrack; // public interface should have autoTrack and rewardKey mutually exclusive
-
+- (id) choose:(NSArray *)variants;
+- (id) choose:(NSArray *)variants context:(NSDictionary *)context;
 /**
- Chooses a variant for each properties. The variants are chosen according to the model predictions.
- The model corresponding to the specified domain is trained and used automatically.
+Chooses a variant for each properties. The variants are chosen according to the model predictions.
+The model corresponding to the specified domain is trained and used automatically.
 
- @param variants  A mapping from property keys to NSArrays of potential variants to choose from.
- @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
- @param domain A rewardable domain associated with the choosing.
- @return A NSDictionary where keys are properties, and the values are single objects choosen from variants.
- */
-- (NSDictionary *) choose:(NSDictionary *)variants
-                  context:(NSDictionary *)context
-                   domain:(NSString *)domain;
+@param variants  A mapping from property keys to NSArrays of potential variants to choose from.
+@param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
+@param domain A rewardable domain associated with the choosing.
+@return A NSDictionary where keys are properties, and the values are single objects choosen from variants.
+*/
+- (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain;
+- (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain rewardKey:(NSString *)rewardKey;
+ // public interface should have autoTrack and rewardKey mutually exclusive
+- (id) choose:(NSArray *)variants context:(NSDictionary *)context domain:(NSString *)domain autoTrack:(BOOL)autoTrack;
 
-// - (NSArray *) sort:(NSArray *)variants
-// - (NSArray *) sort:(NSArray *)variants context:(NSDictionary *)context
+
+//- (NSArray *) sort:(NSArray *)variants;
+//- (NSArray *) sort:(NSArray *)variants context:(NSDictionary *)context;
 
 - (NSArray<NSDictionary*> *) sort:(NSArray<NSDictionary*> *)variants
                           context:(NSDictionary *)context
@@ -80,10 +78,10 @@ extern NSNotificationName const ImproveDidLoadModelsNotification;
  */
 - (void) trackReward:(NSNumber *) reward;
 - (void) trackRewards:(NSDictionary *)rewards;
+// - (void) trackRewards:(NSDictionary *)rewards mode:(ImproveRewardsMode *)mode;
 
-//- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties;
-//- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties attachDecisions:(NSArray *)decisions attachRewards:(NSDictionary *)rewards;
-
+- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties;
+- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties attachDecisions:(NSArray *)decisions attachRewards:(NSDictionary *)rewards;
 
 /**
  The new properties are extracted from variants for iterationCount times. Propensity score is the fraction of the times that
@@ -98,10 +96,10 @@ extern NSNotificationName const ImproveDidLoadModelsNotification;
 
  @returns The propensity value [0, 1.0], or -1 if there was an error.
  */
-- (double) calculatePropensity:(NSDictionary *)variants
-                        domain:(NSString *)domain
+- (double) calculatePropensity:(NSDictionary *)chosen
+                      variants:(NSDictionary *)variants
                        context:(NSDictionary *)context
-                        chosen:(NSDictionary *)chosen
+                        domain:(NSString *)domain
                 iterationCount:(NSUInteger)iterationCount;
 
 /**
@@ -118,9 +116,9 @@ extern NSNotificationName const ImproveDidLoadModelsNotification;
 
  @returns The propensity value [0, 1.0], or -1 if there was an error.
  */
-- (double) calculatePropensity:(NSDictionary *)variants
-                        domain:(NSString *)domain
+- (double) calculatePropensity:(NSDictionary *)chosen
+                      variants:(NSDictionary *)variants
                        context:(NSDictionary *)context
-                        chosen:(NSDictionary *)chosen;
+                        domain:(NSString *)domain;
 
 @end

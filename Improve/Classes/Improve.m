@@ -32,9 +32,13 @@ NSString * const kChosenKey = @"chosen";
 NSString * const kContextKey = @"context";
 NSString * const kDomainKey = @"domain";
 NSString * const kRewardsKey = @"rewards";
+NSString * const kPropensityKey = @"propensity";
 NSString * const kVariantsKey = @"variants";
 NSString * const kRewardKeyKey = @"reward_key";
 NSString * const kMethodKey = @"method";
+NSString * const kEventKey = @"event";
+NSString * const kDecisionsKey = @"decisions";
+NSString * const kPropertiesKey = @"properties";
 
 NSString * const kDecisionType = @"decision";
 NSString * const kRewardsType = @"rewards";
@@ -114,7 +118,41 @@ static Improve *sharedInstance;
 }
 
 - (NSDictionary *) choose:(NSDictionary *)variants
-                   context:(NSDictionary *)context
+{
+    return [self choose:variants context:nil domain:nil rewardKey:nil autoTrack:YES];
+}
+
+- (NSDictionary *) choose:(NSDictionary *)variants
+                  context:(NSDictionary *)context
+{
+    return [self choose:variants context:context domain:nil rewardKey:nil autoTrack:YES];
+}
+
+- (NSDictionary *) choose:(NSDictionary *)variants
+                  context:(NSDictionary *)context
+                   domain:(NSString *)domain
+{
+    return [self choose:variants context:context domain:domain rewardKey:nil autoTrack:YES];
+}
+
+- (NSDictionary *) choose:(NSDictionary *)variants
+                  context:(NSDictionary *)context
+                   domain:(NSString *)domain
+                rewardKey:(NSString *)rewardKey
+{
+    return [self choose:variants context:context domain:domain rewardKey:rewardKey autoTrack:YES];
+}
+
+- (NSDictionary *) choose:(NSDictionary *)variants
+                  context:(NSDictionary *)context
+                   domain:(NSString *)domain
+                autoTrack:(BOOL)autoTrack
+{
+    return [self choose:variants context:context domain:domain rewardKey:nil autoTrack:autoTrack];
+}
+
+- (NSDictionary *) choose:(NSDictionary *)variants
+                  context:(NSDictionary *)context
                    domain:(NSString *)domain
                 rewardKey:(NSString *)rewardKey
                 autoTrack:(BOOL)autoTrack
@@ -141,7 +179,7 @@ static Improve *sharedInstance;
     
     if (autoTrack) {
         // trackChosen takes care of assigning the rewardKey to the domain on nil rewardKey
-        [self trackChosen:chosen context:context domain:domain rewardKey:rewardKey];
+        [self trackChosen:chosen context:context domain:domain rewardKey:rewardKey propensity:nil]; // TODO calculate propensity
     }
 
     if (self.shouldTrackVariants) {
@@ -237,24 +275,34 @@ static Improve *sharedInstance;
 
 - (void) trackChosen:(id)chosen
 {
-    [self trackChosen:chosen context:nil domain:nil rewardKey:nil];
+    [self trackChosen:chosen context:nil domain:nil rewardKey:nil propensity:nil];
 }
 
 - (void) trackChosen:(id)chosen context:(NSDictionary *)context
 {
-    [self trackChosen:chosen context:context domain:nil rewardKey:nil];
+    [self trackChosen:chosen context:context domain:nil rewardKey:nil propensity:nil];
 }
 
 - (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *)domain
 {
-    [self trackChosen:chosen context:context domain:domain rewardKey:nil];
+    [self trackChosen:chosen context:context domain:domain rewardKey:nil propensity:nil];
 }
 
 - (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *)domain rewardKey:(NSString *)rewardKey
 {
+    [self trackChosen:chosen context:context domain:domain rewardKey:rewardKey propensity:nil];
+}
+
+- (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *)domain rewardKey:(NSString *)rewardKey propensity:(NSNumber *) propensity
+{
     if (!chosen) {
         NSLog(@"+[%@ %@]: Skipping trackChosen for nil chosen value. To track null values use [NSNull null]", CLASS_S, CMD_S);
         return;
+    }
+    
+    if (!propensity) {
+        // TODO try to connect propensity from previous choose
+        propensity = @1.0;
     }
     
     // the tracked domain is never nil
@@ -269,7 +317,8 @@ static Improve *sharedInstance;
     
     NSMutableDictionary *body = [@{ kChosenKey: chosen,
                                     kDomainKey: domain,
-                                    kRewardKeyKey: rewardKey } mutableCopy];
+                                    kRewardKeyKey: rewardKey,
+                                    kPropensityKey: propensity } mutableCopy];
     
     if (context) {
         [body setObject:context forKey:kContextKey];
@@ -299,26 +348,28 @@ static Improve *sharedInstance;
 }
 
 - (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties {
-    [self trackAnalyticsEvent:event properties:properties];
+    [self trackAnalyticsEvent:event properties:properties attachDecisions:nil attachRewards:nil];
 }
-/*
-- (void) track:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context
-{
-    NSMutableDictionary *body = [@{ @"type": chosen,
-                                    @"domain": domain,
-                                    @"rewardKey": rewardKey } mutableCopy];
+
+- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties attachDecisions:(NSArray *)decisions attachRewards:(NSDictionary *)rewards {
+    
+    NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
+    
     if (event) {
-        [bodyValues setObject:event forKey:@"event"];
+        [body setObject:event forKey:kEventKey];
     }
     if (properties) {
-        [bodyValues setObject:properties forKey:@"properties"];
+        [body setObject:properties forKey:kPropertiesKey];
     }
-    if (context) {
-        [bodyValues setObject:context forKey:@"context"];
+    if (decisions) {
+        [body setObject:decisions forKey:kDecisionsKey];
+    }
+    if (rewards) {
+        [body setObject:rewards forKey:kRewardsKey];
     }
 
-    [self track:bodyValues];
-}*/
+    [self track:body];
+}
 
 - (void) track:(NSDictionary *)bodyValues completion:(void(^)(BOOL))handler
 {
@@ -509,10 +560,10 @@ static Improve *sharedInstance;
     return self.configuration.variantTrackProbability > drand48();
 }
 
-- (double)calculatePropensity:(NSDictionary *)variants
-                       domain:(NSString *)domain
+- (double)calculatePropensity:(NSDictionary *)chosen
+                     variants:(NSDictionary *)variants
                       context:(NSDictionary *)context
-                       chosen:(NSDictionary *)chosen
+                       domain:(NSString *)domain
                iterationCount:(NSUInteger)iterationCount
 {
     IMPChooser *chooser = [self chooserForDomain:domain];
@@ -532,15 +583,15 @@ static Improve *sharedInstance;
     return propensity;
 }
 
-- (double)calculatePropensity:(NSDictionary *)variants
-                       domain:(NSString *)domain
+- (double)calculatePropensity:(NSDictionary *)chosen
+                     variants:(NSDictionary *)variants
                       context:(NSDictionary *)context
-                       chosen:(NSDictionary *)chosen
+                       domain:(NSString *)domain
 {
-    return [self calculatePropensity:variants
+    return [self calculatePropensity:chosen
+                            variants:variants
+                              context:context
                               domain:domain
-                             context:context
-                              chosen:chosen
                       iterationCount:9];
 }
 
