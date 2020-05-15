@@ -28,7 +28,7 @@ const NSUInteger kInitialTrialsCount = 100;
     if (!domain) {
         return nil;
     }
-    MLModel *model = [MLModel modelWithContentsOfURL:bundle.modelURL error:error];
+    MLModel *model = [MLModel modelWithContentsOfURL:bundle.compiledModelURL error:error];
     if (!model) {
         return nil;
     }

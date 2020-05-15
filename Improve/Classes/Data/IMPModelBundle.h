@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface IMPModelBundle : NSObject
 
 /// URL to compiled .mlmodelc file.
-@property(readonly, nonatomic) NSURL *modelURL;
+@property(readonly, nonatomic) NSURL *compiledModelURL;
 
 /// URL to metatdata .json.
 @property(readonly, nonatomic) NSURL *metadataURL;

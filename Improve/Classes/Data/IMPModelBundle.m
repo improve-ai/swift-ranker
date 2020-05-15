@@ -12,11 +12,11 @@
 
 @implementation IMPModelBundle
 
-- (instancetype)initWithModelURL:(NSURL *)modelURL metadataURL:(NSURL* )metadataURL
+- (instancetype)initWithModelURL:(NSURL *)compiledModelURL metadataURL:(NSURL* )metadataURL
 {
     self = [super init];
     if (self) {
-        _modelURL = modelURL;
+        _compiledModelURL = compiledModelURL;
         _metadataURL = metadataURL;
     }
     return self;
@@ -39,7 +39,7 @@
 - (NSString *)description {
     return [NSString stringWithFormat:@"%@(modelURL: %@, metadataURL: %@)",
             NSStringFromClass(self.class),
-            self.modelURL,
+            self.compiledModelURL,
             self.metadataURL];
 }
 
@@ -60,7 +60,7 @@
 }
 
 - (BOOL)isReachable {
-    BOOL areExist = [self.modelURL checkResourceIsReachableAndReturnError:NULL]
+    BOOL areExist = [self.compiledModelURL checkResourceIsReachableAndReturnError:NULL]
         && [self.metadataURL checkResourceIsReachableAndReturnError:NULL];
     return areExist;
 }

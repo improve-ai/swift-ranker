@@ -236,7 +236,7 @@ NSString *const kModelsFolderName = @"Models";
     NSURL *modelDefinitionURL = [NSURL fileURLWithPath:mlmodelPath];
     NSError *error;
     if (![self compileModelAtURL:modelDefinitionURL
-                           toURL:bundle.modelURL
+                           toURL:bundle.compiledModelURL
                            error:&error])
     {
         return nil;
