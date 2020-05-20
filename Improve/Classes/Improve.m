@@ -19,7 +19,7 @@ typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 /// How soon model downloading will be retried in case of error.
 const NSTimeInterval kRetryInterval;
 
-NSString * const kDefaultDomain = @"default";
+NSString * const kDefaultDomain = @"default_domain";
 NSString * const kDefaultRewardKey = kDefaultDomain;
 
 NSString * const kHistoryIdKey = @"history_id";
@@ -49,7 +49,7 @@ NSString * const kSortMethod = @"sort";
 NSString * const kApiKeyHeader = @"x-api-key";
 
 
-NSNotificationName const ImproveDidLoadModelsNotification = @"ImproveDidLoadModelsNotification";
+NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModelNotification";
 
 @interface IMPConfiguration ()
 - (NSURL *) modelURLForName:(NSString *)modelName;
@@ -236,7 +236,7 @@ static Improve *sharedInstance;
                context:(NSDictionary *)context
                domain:(NSString *)domain
                   url:(NSURL *)chooseURL
-           completion:(void (^)(NSDictionary *, NSError *)) block
+           completion:(void (^)(id, NSError *)) block
 {
     if (!variants) {
         block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: @"variants cannot be nil"}]);
@@ -583,6 +583,18 @@ static Improve *sharedInstance;
     return propensity;
 }
 
+/**
+The new properties are extracted from variants for iterationCount times. Propensity score is the fraction of the times that
+the initially chosen properties is chosen overall.
+
+iterationCount is set to 9 by default.
+
+@param domain A rewardable domain associated with the choosing
+@param chosen The variant that was chosen by the `choose` function from the variants with the same
+domain and context.
+
+@returns The propensity value [0, 1.0], or -1 if there was an error. // FIX why would it return -1?
+*/
 - (double)calculatePropensity:(NSDictionary *)chosen
                      variants:(NSDictionary *)variants
                       context:(NSDictionary *)context
@@ -631,7 +643,7 @@ static Improve *sharedInstance;
         [self.delegate improveDidLoadModels:self];
     }
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:ImproveDidLoadModelsNotification object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:ImproveDidLoadModelNotification object:self];
 }
 
 - (void)notifyDidChoose:(NSDictionary *)chosen
