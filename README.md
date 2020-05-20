@@ -50,7 +50,7 @@ Improve can optimize decisions for a given context of arbitrary complexity.
 ### Numbers Too
 
 ```objc
-NSNumber *discount = [improve choose:@[@0.10, @0.20, @0.30] context:@{@"campaign": @"google"}];
+NSNumber *discount = [improve choose:@[@0.10, @0.20, @0.30] context:@{@"churn_propensity": userChurnPrediction}];
 
 // ... later when a purchase is made
 
