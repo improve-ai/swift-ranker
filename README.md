@@ -71,6 +71,8 @@ Improve learns to use the attributes of each key and value in a dictionary varia
 NSArray *sortedDogs = [improve sort:@[@"German Shepard", @"Border Collie", @"Labrador Retriever"]];
 ```
 
+* sort calls are not automatically tracked
+
 ### Organize Decisions with Domains
 ```objc
 
