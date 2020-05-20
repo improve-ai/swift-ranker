@@ -132,9 +132,11 @@ When using domains the reward must be tracked for that specific domain.
  
  ## Security & Privacy
  
- Improve uses tracked variants, context, and rewards to continuously train models.  If models will be distributed to unsecured clients, then the most conservative stance is to assume that what you put into the model you can get out. That said, all variant and context keys and values are hashed and never transmitted in models so if a sensitive information were accidentally included in tracked data, it is not exposed by the model.
+ Improve uses tracked variants, context, and rewards to continuously train statistical models.  If models will be distributed to unsecured clients, then the most conservative stance is to assume that what you put into the model you can get out.
  
- Regardless, it is strongly recommended to never include Personally Identifiable Information (PII) in a tracked Improve variant or context.
+ That said, all variant and context keys and values are hashed and never transmitted in models so if a sensitive information were accidentally included in tracked data, it is not exposed by the model.
+ 
+It is strongly recommended to never include Personally Identifiable Information (PII) in an Improve variant or context if for no other reason than to ensure that it is not persisted in analytics records on your server instances.
  
  The types of information that can be gleaned from an Improve model are the types of things it is designed for, such as the relative ranking and scoring of variants and contexts, and the relative frequency of variants and contexts.  Future versions will normalize rewards to zero, so absolute information about rewards will not be transmitted at that time.
  
