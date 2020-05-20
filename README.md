@@ -76,7 +76,7 @@ NSArray *sortedDogs = [improve sort:@[@"German Shepard", @"Border Collie", @"Lab
 ### Organize Decisions with Domains
 ```objc
 
-NSNumber *discount = [improve choose:@[@0.10, @0.20, @0.30] context:@{@"campaign": @"google"} domain:@"discounts"];
+NSNumber *discount = [improve choose:@[@0.10, @0.20, @0.30] context:context domain:@"discounts"];
 
 // ...later
 [improve trackRewards:@{ @"discounts": @19.99 };
