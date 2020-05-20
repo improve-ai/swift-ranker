@@ -142,7 +142,7 @@ It is strongly recommended to never include Personally Identifiable Information 
  
  Additional security measures such as white-listing specific variants and context or obfuscating rewards can be implemented by custom scripts on the back end.
  
- For truly sensitive model information, you may wish to only use those Improve models within a secure server environment.
+ For truly sensitive model information, you may wish to only use those Improve models within a secure server environment and only distribute final decisions to clients.
 
 ## License
 
