@@ -51,6 +51,10 @@ Improve can optimize decisions for a given context of arbitrary complexity.
 
 ```objc
 NSNumber *discount = [improve choose:@[@0.10, @0.20, @0.30] context:@{@"campaign": @"google"}];
+
+// ... later when a purchase is made
+
+[improve trackReward:revenue];
 ```
 
 ### Complex Objects
