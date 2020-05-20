@@ -31,9 +31,9 @@ pod "Improve"
 ```objc
 Improve *improve = [Improve instance];
 
-NSString *greeting = [improve choose:@[@"Hello World!", @"Hi World!", @"Howdy World!"]];
+button.text = [improve choose:@[@"Hello World!", @"Hi World!", @"Howdy World!"]];
 
-// ... later when a button is clicked or product purchased
+// ... later when the button is tapped
 
 [improve trackReward:@1.0];
 ```
@@ -43,7 +43,7 @@ Improve learns to track the greeting with the highest expected reward.
 ### Howdy World (Context for Cowboys)
 
 ```objc
-NSString *greeting = [improve choose:@[@"Hello World!", @"Hi World!", @"Howdy World!"] context:@{@"language": @"cowboy"}];
+button.text = [improve choose:@[@"Hello World!", @"Hi World!", @"Howdy World!"] context:@{@"language": @"cowboy"}];
 ```
 Improve can optimize decisions for a given context of arbitrary complexity.
 
