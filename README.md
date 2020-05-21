@@ -108,7 +108,7 @@ When using domains the reward must be tracked for that specific domain.
 ### Learning from Specific Types of Rewards
 
 ```objc
- NSString *backgroundSong = [improve choose:@[songA, songB] context:context domain:@"songs" rewardKey:@"session_length"];
+ NSString *backgroundSong = [improve choose:@[@"Hey Jude", @"Hey Dude"] context:context domain:@"songs" rewardKey:@"session_length"];
  
  // ...on app exit
  [improve trackRewards:@{ @"session_length": sessionLength];
@@ -138,7 +138,7 @@ When using domains the reward must be tracked for that specific domain.
  
  ```objc
  // Probably disable auto tracking since it will all be handled by the back end.
- NSString *song = [improve choose:@[songA, songB] context:context domain:@"songs" autoTrack:@NO];
+ NSString *song = [improve choose:@[@"Hey Jude", @"Hey Dude"] context:context domain:@"songs" autoTrack:@NO];
 
  //...later when the song is played
  [improve trackAnalyticsEvent:@"Song Played" properties:@{@"song": song}];
