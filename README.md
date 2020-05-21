@@ -29,6 +29,8 @@ To obtain the model bundle URL and api key, first deploy a Improve Model Gateway
 
 ### Hello World!
 
+What is the best greeting?
+
 ```objc
 Improve *improve = [Improve instance];
 
@@ -43,8 +45,10 @@ Improve quickly learns to choose the greeting with the highest chance of button 
 
 ### Numbers Too
 
+How many bonus gems should we offer on our In App Purchase?
+
 ```objc
-NSNumber *bonusOfferGems = [improve choose:@[@1000, @2000, @3000]];
+NSNumber *bonusGems = [improve choose:@[@1000, @2000, @3000]];
 
 // ... later when a purchase is made
 
