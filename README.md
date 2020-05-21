@@ -70,6 +70,8 @@ Variants can be any JSON encodeable object of arbitrary complexity.
 
 ### Howdy World (Context for Cowboys)
 
+If language is "cowboy", which greeting is best?
+
 ```objc
 NSArray *greetings = @[@"Hello World!", @"Hi World!", @"Howdy World!"];
 
