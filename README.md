@@ -39,17 +39,10 @@ button.text = [improve choose:@[@"Hello World!", @"Hi World!", @"Howdy World!"]]
 
 Improve learns to track the greeting with the highest expected reward.
 
-### Howdy World (Context for Cowboys)
-
-```objc
-button.text = [improve choose:@[@"Hello World!", @"Hi World!", @"Howdy World!"] context:@{@"language": @"cowboy"}];
-```
-Improve can optimize decisions for a given context of arbitrary complexity.
-
 ### Numbers Too
 
 ```objc
-NSNumber *discount = [improve choose:@[@0.10, @0.20, @0.30] context:@{@"churnProbability": userChurnPrediction}];
+NSNumber *discount = [improve choose:@[@0.10, @0.20, @0.30]];
 
 // ... later when a purchase is made
 
@@ -66,6 +59,14 @@ NSDictionary *theme = [improve choose:themeVariants];
 ```
 
 Improve learns to use the attributes of each key and value in a dictionary variant to make the optimal decision.  Variants can be any JSON encodeable object of arbitrary complexity.
+
+### Howdy World (Context for Cowboys)
+
+```objc
+button.text = [improve choose:@[@"Hello World!", @"Hi World!", @"Howdy World!"] context:@{@"language": @"cowboy"}];
+```
+Improve can optimize decisions for a given context of arbitrary complexity.
+
 
 ### Sort Stuff
 
