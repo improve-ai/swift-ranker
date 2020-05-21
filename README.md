@@ -145,6 +145,10 @@ When using domains the reward must be tracked for that specific domain.
 
  ```
  
+ ## Algorithm
+ 
+For simple decisions with only NSString or NSNumber variants and no context the Improve v5 algorithm has behavior similar to Thompson Sampling. Choices are initially random and then quickly hone in on the best variants. For contextual decisions or those with complex NSDictionary or NSArray variants, gradiented boosted trees are employed to create a fast and powerful contextual multi-armed bandit algorithm.
+ 
  ## Security & Privacy
  
  Improve uses tracked variants, context, and rewards to continuously train statistical models.  If models will be distributed to unsecured clients, then the most conservative stance is to assume that what you put into the model you can get out.
