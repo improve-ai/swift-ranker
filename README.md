@@ -146,7 +146,9 @@ It is strongly recommended to never include Personally Identifiable Information 
  
  ## Additional Caveats
  
- Don't include rapidly changing data in variants and contexts such as timestamps, counters, random numbers, message ids, or unique identifiers.  These will be treated as statistical noise and may slow down model learning or performance.  If models become bloated you may filter such nuisance data on the server side during training time.
+ Use of rapidly changing data in variants and contexts is discouraged.  This includes timestamps, counters, random numbers, message ids, or unique identifiers.  These will be treated as statistical noise and may slow down model learning or performance.  If models become bloated you may filter such nuisance data on the server side during training time.
+ 
+ Numbers with limited range, such as ratios, are okay as long as they are encoded as NSNumbers.
  
  In addition to the previous noise issue, linear time based data is generally discouraged because decisions will always being made in a time interval ahead of the training data.  If time based context must be used then ensure that it is cyclical such as the day of the week or hour of the day without reference to an absolute time.
 
