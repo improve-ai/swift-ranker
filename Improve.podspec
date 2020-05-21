@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
   s.homepage         = 'http://github.com/improveai/ios-sdk'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Justin Chapweske' => 'justin@improve.ai' }
+  s.author           = { 'Choosy McChooseFace' => 'support@improve.ai' }
   s.source           = { :git => 'https://github.com/improveai/ios-sdk.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
