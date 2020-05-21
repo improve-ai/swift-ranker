@@ -42,7 +42,7 @@ Improve learns to track the greeting with the highest expected reward.
 ### Numbers Too
 
 ```objc
-NSNumber *bonusGems = [improve choose:@[@1000, @2000, @3000]];
+NSNumber *bonusOfferGems = [improve choose:@[@1000, @2000, @3000]];
 
 // ... later when a purchase is made
 
