@@ -21,7 +21,7 @@ pod "Improve"
 ```objc
 #import Improve.h
 
-[Improve instanceWithModelBundleURL:@"URL to model bundle" apiKey:@"YOUR API KEY"];
+[Improve instanceWithModelBundleURL:@"YOUR MODEL BUNDLE URL" apiKey:@"YOUR API KEY"];
 
 ```
 
@@ -48,7 +48,7 @@ Improve quickly learns to choose the greeting with the highest chance of button 
 How many bonus gems should we offer on our In App Purchase?
 
 ```objc
-NSNumber *bonusGems = [improve choose:@[@1000, @2000, @3000]];
+NSNumber *bonusGems = [improve choose:@[ @1000, @2000, @3000 ]];
 
 // ... later when a purchase is made
 
@@ -108,7 +108,7 @@ When using domains the reward must be tracked for that specific domain.
 ### Learning from Specific Types of Rewards
 
 ```objc
- NSString *backgroundSong = [improve choose:@[@"Hey Jude", @"Hey Dude"] context:context domain:@"songs" rewardKey:@"session_length"];
+ NSString *backgroundSong = [improve choose:@[ @"Hey Jude", @"Hey Dude" ] context:context domain:@"songs" rewardKey:@"session_length"];
  
  // ...on app exit
  [improve trackRewards:@{ @"session_length": sessionLength];
@@ -120,7 +120,7 @@ When using domains the reward must be tracked for that specific domain.
 
 ```objc
  // Disable autotrack for this choose: call because we don't yet know the chosen variant
- NSDictionary *viralVideo = [improve choose:@[videoA, videoB] context:context domain:@"videos" autoTrack:@NO];
+ NSDictionary *viralVideo = [improve choose:@[ videoA, videoB ] context:context domain:@"videos" autoTrack:@NO];
  
  // Create a custom rewardKey specific to this variant
  NSString rewardKey = [@"shared:" stringByAppendingString:[viralVideo objectForKey:@"videoId"]];
@@ -138,10 +138,10 @@ When using domains the reward must be tracked for that specific domain.
  
  ```objc
  // Probably disable auto tracking since it will all be handled by the back end.
- NSString *song = [improve choose:@[@"Hey Jude", @"Hey Dude"] context:context domain:@"songs" autoTrack:@NO];
+ NSString *song = [improve choose:@[ @"Hey Jude", @"Hey Dude" ] context:context domain:@"songs" autoTrack:@NO];
 
  //...later when the song is played
- [improve trackAnalyticsEvent:@"Song Played" properties:@{@"song": song}];
+ [improve trackAnalyticsEvent:@"Song Played" properties:@{ @"song": song }];
 
  ```
  
