@@ -8,8 +8,8 @@
 
 Pod::Spec.new do |s|
   s.name             = 'Improve'
-  s.version          = '3.0.1'
-  s.summary          = 'Improve.ai iOS App SDK'
+  s.version          = '5.0.0'
+  s.summary          = 'Improve.ai iOS SDK'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
   s.homepage         = 'http://github.com/improveai/ios-sdk'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Justin Chapweske' => 'justin@improve.ai' }
+  s.author           = { 'Choosy McChooseFace' => 'support@improve.ai' }
   s.source           = { :git => 'https://github.com/improveai/ios-sdk.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 

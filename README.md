@@ -25,7 +25,11 @@ pod "Improve"
 
 ```
 
+To obtain the model bundle URL and api key, first deploy a Improve Model Gateway (link).
+
 ### Hello World!
+
+What is the best greeting?
 
 ```objc
 Improve *improve = [Improve instance];
@@ -41,8 +45,10 @@ Improve quickly learns to choose the greeting with the highest chance of button 
 
 ### Numbers Too
 
+How many bonus gems should we offer on our In App Purchase?
+
 ```objc
-NSNumber *bonusOfferGems = [improve choose:@[@1000, @2000, @3000]];
+NSNumber *bonusGems = [improve choose:@[@1000, @2000, @3000]];
 
 // ... later when a purchase is made
 
@@ -64,6 +70,8 @@ Variants can be any JSON encodeable object of arbitrary complexity.
 
 ### Howdy World (Context for Cowboys)
 
+If language is "cowboy", which greeting is best?
+
 ```objc
 NSArray *greetings = @[ @"Hello World!", @"Hi World!", @"Howdy World!" ];
 
@@ -72,7 +80,7 @@ button.text = [improve choose:greetings context:@{ @"language": @"cowboy" }];
 
 Improve can optimize decisions for a given context of arbitrary complexity. We might imagine that "Howdy World!" would produce the highest rewards for { language: cowboy }, while another greeting might be best for other contexts.
 
-
+You can think of contexts like: If `<context>` then `<variant>`.
 ### Sort Stuff
 
 ```objc
@@ -93,14 +101,14 @@ NSNumber *discount = [improve choose:@[ @0.10, @0.20, @0.30 ] context:context do
 [improve trackRewards:@{ @"discounts": @19.99 };
 ```
 
-Domains ensure that multiple uses of Improve in the same project are decided and trained seperately.  A domain can be a simple string like "discounts" or "songs" or can be more complicated like "SubscriptionViewController.buttonText".  Domain strings are opaque and can be any format you wish.
+A domain is a descriptor and namespace for the type of variant being chosen. Domains ensure that multiple uses of Improve in the same project are decided and trained seperately.  A domain can be a simple string like "discounts" or "songs" or can be more complicated like "SubscriptionViewController.buttonText".  Domain strings are opaque and can be any format you wish.
 
 When using domains the reward must be tracked for that specific domain.
 
 ### Learning from Specific Types of Rewards
 
 ```objc
- NSString *backgroundSong = [improve choose:@[songA, songB] context:context domain:@"songs" rewardKey:@"session_length"];
+ NSString *backgroundSong = [improve choose:@[@"Hey Jude", @"Hey Dude"] context:context domain:@"songs" rewardKey:@"session_length"];
  
  // ...on app exit
  [improve trackRewards:@{ @"session_length": sessionLength];
@@ -130,7 +138,7 @@ When using domains the reward must be tracked for that specific domain.
  
  ```objc
  // Probably disable auto tracking since it will all be handled by the back end.
- NSString *song = [improve choose:@[songA, songB] context:context domain:@"songs" autoTrack:@NO];
+ NSString *song = [improve choose:@[@"Hey Jude", @"Hey Dude"] context:context domain:@"songs" autoTrack:@NO];
 
  //...later when the song is played
  [improve trackAnalyticsEvent:@"Song Played" properties:@{@"song": song}];
