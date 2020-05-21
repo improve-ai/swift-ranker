@@ -25,6 +25,8 @@ pod "Improve"
 
 ```
 
+To obtain the model bundle URL and api key, first deploy a Improve Model Gateway (link).
+
 ### Hello World!
 
 ```objc
