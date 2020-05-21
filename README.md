@@ -10,8 +10,7 @@ Use machine learning to quickly choose and sort data of arbitrary complexy to ma
 
 ## Installation
 
-Improve is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+Improve is available through [CocoaPods](http://cocoapods.org). To install, add the following line to your Podfile:
 
 ```ruby
 pod "Improve"
