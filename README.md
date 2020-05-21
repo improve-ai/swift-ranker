@@ -1,6 +1,6 @@
 # Improve.ai iOS SDK
 
-## An AI Library for Making Great Choices Fast
+## An AI Library for Making Great Choices
  
 [![Version](https://img.shields.io/cocoapods/v/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![License](https://img.shields.io/cocoapods/l/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
