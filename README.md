@@ -80,7 +80,9 @@ Improve can optimize decisions for a given context of arbitrary complexity. We m
 NSArray *sortedDogs = [improve sort:@[@"German Shepard", @"Border Collie", @"Labrador Retriever"]];
 ```
 
-* sort calls are not automatically tracked
+Sort is handy for building personalized feeds or reducing huge lists of variants down to smaller lists for future contextual choose calls.  It is recommended to pass a context to sort that is similar to contexts the model was trained on.
+
+Sort calls are not automatically tracked.  Learning can only happen through choose: with autoTrack enabled or trackChosen.
 
 ### Organize Decisions with Domains
 ```objc
