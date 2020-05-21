@@ -58,7 +58,9 @@ NSArray *themeVariants = @[ @{ @"textColor": @"#000000", @"backgroundColor": @"#
 NSDictionary *theme = [improve choose:themeVariants];
 ```
 
-Improve learns to use the attributes of each key and value in a dictionary variant to make the optimal decision.  Variants can be any JSON encodeable object of arbitrary complexity.
+Improve learns to use the attributes of each key and value in a dictionary variant to make the optimal decision.  
+
+Variants can be any JSON encodeable object of arbitrary complexity.
 
 ### Howdy World (Context for Cowboys)
 
