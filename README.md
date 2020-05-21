@@ -101,7 +101,7 @@ NSNumber *discount = [improve choose:@[@0.10, @0.20, @0.30] context:context doma
 [improve trackRewards:@{ @"discounts": @19.99 };
 ```
 
-A domain is a descriptor and namespace for the type of variant being chosen,. Domains ensure that multiple uses of Improve in the same project are decided and trained seperately.  A domain can be a simple string like "discounts" or "songs" or can be more complicated like "SubscriptionViewController.buttonText".  Domain strings are opaque and can be any format you wish.
+A domain is a descriptor and namespace for the type of variant being chosen. Domains ensure that multiple uses of Improve in the same project are decided and trained seperately.  A domain can be a simple string like "discounts" or "songs" or can be more complicated like "SubscriptionViewController.buttonText".  Domain strings are opaque and can be any format you wish.
 
 When using domains the reward must be tracked for that specific domain.
 
