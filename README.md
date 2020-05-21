@@ -37,7 +37,7 @@ button.text = [improve choose:@[@"Hello World!", @"Hi World!", @"Howdy World!"]]
 [improve trackReward:@1.0];
 ```
 
-Improve learns to track the greeting with the highest expected reward.
+Improve learns to choose the greeting with the highest chance of button tap.
 
 ### Numbers Too
 
