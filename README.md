@@ -53,7 +53,7 @@ NSNumber *bonusOfferGems = [improve choose:@[@1000, @2000, @3000]];
 
 ```objc
 NSArray *themeVariants = @[ @{ @"textColor": @"#000000", @"backgroundColor": @"#ffffff" },
-                            @{ @"textColor": @"#F0F0F0", @"backgroundColor": @"#aaaaaa" } ]
+                            @{ @"textColor": @"#F0F0F0", @"backgroundColor": @"#aaaaaa" } ];
                             
 NSDictionary *theme = [improve choose:themeVariants];
 ```
@@ -63,9 +63,12 @@ Improve learns to use the attributes of each key and value in a dictionary varia
 ### Howdy World (Context for Cowboys)
 
 ```objc
-button.text = [improve choose:@[@"Hello World!", @"Hi World!", @"Howdy World!"] context:@{@"language": @"cowboy"}];
+NSArray *greetings = @[@"Hello World!", @"Hi World!", @"Howdy World!"];
+
+button.text = [improve choose:greetings context:@{@"language": @"cowboy"}];
 ```
-Improve can optimize decisions for a given context of arbitrary complexity.
+
+Improve can optimize decisions for a given context of arbitrary complexity. We might imagine that "Howdy World!" would produce the highest rewards for language: cowboy, while another greeting might be best for other contexts.
 
 
 ### Sort Stuff
