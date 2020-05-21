@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/cocoapods/l/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![Platform](https://img.shields.io/cocoapods/p/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 
-Use machine learning to quickly choose and sort data to maximize rewards such as user retention, performance, or revenue.
+Use machine learning to quickly choose and sort data to maximize rewards such as user retention, application performance, or revenue.
 
 ## Installation
 
