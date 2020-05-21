@@ -143,6 +143,12 @@ It is strongly recommended to never include Personally Identifiable Information 
  Additional security measures such as white-listing specific variants and context or obfuscating rewards can be implemented by custom scripts on the back end.
  
  For truly sensitive model information, you may wish to only use those Improve models within a secure server environment and only distribute final decisions to clients.
+ 
+ ## Additional Caveats
+ 
+ Don't include rapidly changing data in variants and contexts such as timestamps, counters, random numbers, message ids, or unique identifiers.  These will be treated as statistical noise and may slow down model learning or performance.  If models become bloated you may filter such nuisance data on the server side during training time.
+ 
+ In addition to the previous noise issue, linear time based data is generally discouraged because decisions will always being made in a time interval ahead of the training data.  If time based context must be used then ensure that it is cyclical such as the day of the week or hour of the day without reference to an absolute time.
 
 ## License
 
