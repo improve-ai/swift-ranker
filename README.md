@@ -80,7 +80,7 @@ button.text = [improve choose:greetings context:@{ @"language": @"cowboy" }];
 
 Improve can optimize decisions for a given context of arbitrary complexity. We might imagine that "Howdy World!" would produce the highest rewards for { language: cowboy }, while another greeting might be best for other contexts.
 
-
+You can think of contexts like: If <context> then <variant>.
 ### Sort Stuff
 
 ```objc
