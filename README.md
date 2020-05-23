@@ -1,4 +1,4 @@
-# Improve.ai iOS SDK
+# Improve.ai for iOS
 
 ## An AI Library for Making Great Choices
  
