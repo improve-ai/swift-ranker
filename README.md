@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/cocoapods/l/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![Platform](https://img.shields.io/cocoapods/p/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 
-Use machine learning to quickly choose and sort data to maximize metrics such as user retention, application performance, or revenue.  It's like an AI if/then statement.
+Use machine learning to quickly choose and sort data to maximize user retention, application performance, revenue, or any other metric. It's like an AI if/then statement.
 
 ## Installation
 
