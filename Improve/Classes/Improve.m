@@ -73,18 +73,25 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 
 static Improve *sharedInstance;
 
-+ (Improve *) instance
++ (Improve *)instance
+{
+    return sharedInstance;
+}
+
++ (Improve *) instanceWithApiKey:(NSString *)apiKey
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] init];
+        sharedInstance = [[self alloc] initWithApiKey:apiKey];
     });
     return sharedInstance;
 }
 
-- (instancetype) init
+- (instancetype)initWithApiKey:(NSString *)apiKey
 {
     self.isReady = YES; // TODO remove
+
+    self.apiKey = apiKey;
     self.trackVariantsProbability = 0.01;
     
     self.historyId = [[NSUserDefaults standardUserDefaults] stringForKey:kHistoryIdDefaultsKey];

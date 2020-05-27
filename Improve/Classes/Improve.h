@@ -26,6 +26,13 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 + (Improve *) instance;
 
 /**
+ Initialize the singleton
+ 
+ @param apiKey The improve.ai api key
+ */
++ (Improve *) instanceWithApiKey:(NSString *)apiKey;
+
+/**
  @return true if the model is loaded and ready to make choices, false otherwise
  */
 - (BOOL) isReady;
