@@ -31,8 +31,7 @@
 
 - (void)setUp {
     // TODO test nil api key
-    config = [IMPConfiguration configurationWithAPIKey:@"api_key_for_test"];
-    [Improve configureWith:config];
+    Improve *improve = [Improve instance];
 }
 
 - (void)testCombinations {
@@ -68,9 +67,9 @@
 {
     NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};
-    NSArray *rankedVariants = [[Improve instance] sort:variants
-                                               context:context
-                                                domain:modelName];
+    NSArray *rankedVariants = [[Improve instance] sort:@"test"
+                                              variants:variants
+                                               context:context];
     XCTAssertNotNil(rankedVariants);
 
     NSArray *scores = [TestUtils defaultPredictions];

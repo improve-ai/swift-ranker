@@ -57,7 +57,6 @@
 		540B857E23E6CBF900D578A4 /* TestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestUtils.h; sourceTree = "<group>"; };
 		540FF46F245A2C4A00690EDA /* NSFileManager+SafeCopy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+SafeCopy.h"; sourceTree = "<group>"; };
 		540FF470245A2C4A00690EDA /* NSFileManager+SafeCopy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+SafeCopy.m"; sourceTree = "<group>"; };
-		540FF472245ADC7100690EDA /* IMPDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPDelegate.h; sourceTree = "<group>"; };
 		54160CD123E02C9B00030A6A /* singleEncodedTrial.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = singleEncodedTrial.json; sourceTree = "<group>"; };
 		54442CA223FFE37B00F278E8 /* ImproveTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImproveTest.m; sourceTree = "<group>"; };
 		544D3B3623DEF3F000CF95DB /* IMPMultiArrayBatchProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPMultiArrayBatchProvider.h; sourceTree = "<group>"; };
@@ -316,7 +315,6 @@
 				54CB9B3B23D988F10005BB94 /* Improve.m */,
 				54DAEBF924024F4000B81B9B /* IMPConfiguration.h */,
 				54DAEBFA24024F4000B81B9B /* IMPConfiguration.m */,
-				540FF472245ADC7100690EDA /* IMPDelegate.h */,
 			);
 			name = Classes;
 			path = ../Classes;

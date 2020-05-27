@@ -22,10 +22,10 @@ const NSUInteger kInitialTrialsCount = 100;
 @implementation IMPChooser
 
 + (instancetype)chooserWithModelBundle:(IMPModelBundle *)bundle
-                                domain:(NSString *)domain
+                             namespace:(NSString *)namespace
                                  error:(NSError *__autoreleasing  _Nullable *)error
 {
-    if (!domain) {
+    if (!namespace) {
         return nil;
     }
     MLModel *model = [MLModel modelWithContentsOfURL:bundle.compiledModelURL error:error];
@@ -36,16 +36,16 @@ const NSUInteger kInitialTrialsCount = 100;
     if (!metadata) {
         return nil;
     }
-    return [[self alloc] initWithModel:model metadata:metadata domain:domain];
+    return [[self alloc] initWithModel:model metadata:metadata namespace:namespace];
 }
 
-- (instancetype)initWithModel:(MLModel *)model metadata:(IMPModelMetadata *)metadata domain:(NSString *)domain
+- (instancetype)initWithModel:(MLModel *)model metadata:(IMPModelMetadata *)metadata namespace:(NSString *)namespace
 {
     self = [super init];
     if (self) {
         _model = model;
         _metadata = metadata;
-        _domain = domain;  // TODO prefix domain to the context and each variant before feature encoding.  @{ domain: context} and @{ domain: variant }  is what will be actually encoded.
+        _namespace = namespace;  // TODO prefix namespace to the context and each variant before feature encoding.  @{ namespace: context} and @{ namespace: variant }  is what will be actually encoded.
         _featureNamePrefix = @"f";
     }
     return self;
@@ -150,7 +150,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 
 #pragma mark Choosing
 
-- (NSDictionary *)choose:(NSDictionary *)variants
+- (NSDictionary *)choose:(NSArray *)variants
                  context:(NSDictionary *)context
 {
     IMPFeaturesMap *featuresMap = [self partialTrialsFeaturesMapWithContext:context
@@ -278,8 +278,8 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 
 #pragma mark - Ranking
 
-- (NSArray<NSDictionary*> *)sort:(NSArray<NSDictionary*> *)variants
-                         context:(NSDictionary *)context
+- (NSArray *)sort:(NSArray *)variants
+          context:(NSDictionary *)context
 {
     NSArray *features = [self makeFeaturesFromTrials:variants
                                          withContext:context];

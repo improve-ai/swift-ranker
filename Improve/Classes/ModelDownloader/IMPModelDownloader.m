@@ -21,8 +21,7 @@
  - modelname.mlmodelc
  - modelname.json
  */
-NSString *const kModelsFolderName = @"Models";
-
+NSString *const kModelsFolderName = @"ai.improve.models";
 
 @implementation IMPModelDownloader {
     NSURLSessionDataTask *_downloadTask;

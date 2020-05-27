@@ -14,21 +14,20 @@
 #import "IMPModelDownloader.h"
 #import "IMPModelMetadata.h"
 
+@import Security;
+
 typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 
 /// How soon model downloading will be retried in case of error.
 const NSTimeInterval kRetryInterval;
 
-NSString * const kDefaultDomain = @"default_domain";
-NSString * const kDefaultRewardKey = kDefaultDomain;
-
 NSString * const kHistoryIdKey = @"history_id";
 NSString * const kTimestampKey = @"timestamp";
 NSString * const kMessageIdKey = @"message_id";
 NSString * const kTypeKey = @"type";
-NSString * const kChosenKey = @"chosen";
+NSString * const kVariantKey = @"variant";
 NSString * const kContextKey = @"context";
-NSString * const kDomainKey = @"domain";
+NSString * const kNamespaceKey = @"namespace";
 NSString * const kRewardsKey = @"rewards";
 NSString * const kPropensityKey = @"propensity";
 NSString * const kVariantsKey = @"variants";
@@ -42,35 +41,30 @@ NSString * const kDecisionType = @"decision";
 NSString * const kRewardsType = @"rewards";
 NSString * const kEventType = @"event";
 NSString * const kVariantsType = @"variants";
+NSString * const kPropensityType = @"propensity";
 
 NSString * const kChooseMethod = @"choose";
 NSString * const kSortMethod = @"sort";
 
 NSString * const kApiKeyHeader = @"x-api-key";
 
+NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
+
 
 NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModelNotification";
-
-@interface IMPConfiguration ()
-- (NSURL *) modelURLForName:(NSString *)modelName;
-@end
-
 
 @interface Improve ()
 // Private vars
 
-@property (nonatomic, strong) NSString *trackUrl;
-
-@property (strong, nonatomic) IMPConfiguration *configuration;
-
 /// Already loaded models
-@property (strong, nonatomic)
 
 /* Initially empty. Then we load models from cache, if any, and
  then remote models. */
-NSMutableDictionary<NSString*, IMPModelBundle*> *modelBundlesByName;
+@property (strong, nonatomic) NSMutableDictionary<NSString*, IMPModelBundle*> *modelBundlesByName;
 
 @property (strong, nonatomic) IMPModelDownloader *downloader;
+
+@property (strong, atomic) NSString *historyId;
 
 @end
 
@@ -81,104 +75,91 @@ static Improve *sharedInstance;
 
 + (Improve *) instance
 {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] init];
+    });
     return sharedInstance;
 }
 
-+ (void) configureWith:(IMPConfiguration *)configuration
+- (instancetype) init
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] initWithConfiguration:configuration];
-    });
-}
-
-- (instancetype) initWithConfiguration:(IMPConfiguration *)config
-{
-    self = [super init];
-    if (!self) return nil;
-
-    _configuration = config;
-    _modelBundlesByName = [[IMPModelDownloader cachedModelBundlesByName] mutableCopy];
-
-    _trackUrl = @"placeholder";
-
-    [self loadModelsForConfiguration:config];
-
+    self.isReady = YES; // TODO remove
+    self.trackVariantsProbability = 0.01;
+    
+    self.historyId = [[NSUserDefaults standardUserDefaults] stringForKey:kHistoryIdDefaultsKey];
+    if (!self.historyId) {
+        // create a UUID if one isn't provided
+        self.historyId = [self generateHistoryId];
+        [[NSUserDefaults standardUserDefaults] setObject:self.historyId forKey:kHistoryIdDefaultsKey];
+    }
     return self;
 }
 
-- (NSString *) apiKey {
-    return self.configuration.apiKey;
+- (NSString *) generateHistoryId {
+    int historyIdSize = 32; // 256 bits
+    SInt8 bytes[historyIdSize];
+    int status = SecRandomCopyBytes(kSecRandomDefault, historyIdSize, bytes);
+    if (status != errSecSuccess) {
+        NSLog(@"-[%@ %@]: SecRandomCopyBytes failed, status: %d", CLASS_S, CMD_S, status);
+        return nil;
+    }
+    NSData *data = [[NSData alloc] initWithBytes:bytes length:historyIdSize];
+    NSString *historyId = [data base64EncodedStringWithOptions:0];
+    return historyId;
 }
 
-- (void) setApiKey:(NSString *)apiKey {
-    self.configuration.apiKey = apiKey;
+- (void) setModelBundleUrl:(NSString *) url {
+    @synchronized (self) {
+        self.modelBundleUrl = url;
+        _modelBundlesByName = [[IMPModelDownloader cachedModelBundlesByName] mutableCopy];
+        [self loadModels:[NSURL URLWithString:url]];
+    }
 }
 
-- (NSDictionary *) choose:(NSDictionary *)variants
+- (NSString *) modelBundleUrl {
+    @synchronized (self) {
+        return self.modelBundleUrl;
+    }
+}
+
+- (void) onReady:(void (^)(void)) block
 {
-    return [self choose:variants context:nil domain:nil rewardKey:nil autoTrack:YES];
+    block(); // TODO implement
 }
 
-- (NSDictionary *) choose:(NSDictionary *)variants
-                  context:(NSDictionary *)context
+
+- (id) choose:(NSString *) namespace
+     variants:(NSArray *) variants
 {
-    return [self choose:variants context:context domain:nil rewardKey:nil autoTrack:YES];
+    return [self choose:namespace variants:variants context:nil];
 }
 
-- (NSDictionary *) choose:(NSDictionary *)variants
-                  context:(NSDictionary *)context
-                   domain:(NSString *)domain
-{
-    return [self choose:variants context:context domain:domain rewardKey:nil autoTrack:YES];
-}
-
-- (NSDictionary *) choose:(NSDictionary *)variants
-                  context:(NSDictionary *)context
-                   domain:(NSString *)domain
-                rewardKey:(NSString *)rewardKey
-{
-    return [self choose:variants context:context domain:domain rewardKey:rewardKey autoTrack:YES];
-}
-
-- (NSDictionary *) choose:(NSDictionary *)variants
-                  context:(NSDictionary *)context
-                   domain:(NSString *)domain
-                autoTrack:(BOOL)autoTrack
-{
-    return [self choose:variants context:context domain:domain rewardKey:nil autoTrack:autoTrack];
-}
-
-- (NSDictionary *) choose:(NSDictionary *)variants
-                  context:(NSDictionary *)context
-                   domain:(NSString *)domain
-                rewardKey:(NSString *)rewardKey
-                autoTrack:(BOOL)autoTrack
+- (id) choose:(NSString *) namespace
+     variants:(NSArray *) variants
+      context:(NSDictionary *) context
 {
     if (!variants) {
         NSLog(@"+[%@ %@]: non-nil required for choose variants. returning nil.", CLASS_S, CMD_S);
         return nil;
     }
-    
-    // the domain is never nil for choose, sort, or trackChosen
-    if (!domain) {
-        domain = kDefaultDomain;
-    }
-    
-    IMPChooser *chooser = [self chooserForDomain:domain];
-    
-    NSDictionary *chosen;
-    
-    if (chooser) {
-        chosen = [chooser choose:variants context:context];
+
+    id chosen;
+
+    if (namespace) {
+        IMPChooser *chooser = [self chooserForNamespace:namespace];
+        
+        if (chooser) {
+            chosen = [chooser choose:variants context:context];
+        } else {
+            NSLog(@"-[%@ %@]: Model not loaded. Choosing random variant.", CLASS_S, CMD_S);
+        }
     } else {
-        NSLog(@"-[%@ %@]: Model not loaded. Choosing random variant.", CLASS_S, CMD_S);
-        chosen = [self chooseRandom:variants];
+        NSLog(@"+[%@ %@]: non-nil required for namespace. returning random variant.", CLASS_S, CMD_S);
     }
     
-    if (autoTrack) {
-        // trackChosen takes care of defining the rewardKey as the domain on nil rewardKey
-        [self trackChosen:chosen context:context domain:domain rewardKey:rewardKey propensity:nil]; // TODO calculate propensity
+    if (!chosen) {
+        chosen = [variants randomObject];
     }
 
     if (self.shouldTrackVariants) {
@@ -186,35 +167,43 @@ static Improve *sharedInstance;
             kTypeKey: kVariantsType,
             kMethodKey: kChooseMethod,
             kVariantsKey: variants,
-            kDomainKey: domain
+            kNamespaceKey: namespace
         }];
     }
-    
-    [self notifyDidChoose:chosen fromVariants:variants context:context domain:domain];
+
     return chosen;
 }
 
 
-- (NSArray<NSDictionary*> *) sort:(NSArray<NSDictionary*> *)variants
-                          context:(NSDictionary *)context
-                           domain:(NSString *)domain
+- (NSArray *) sort:(NSString *) namespace
+          variants:(NSArray *) variants
+{
+    return [self sort:namespace variants:variants context:nil];
+}
+
+- (NSArray *) sort:(NSString *) namespace
+          variants:(NSArray *) variants
+           context:(NSDictionary *) context
 {
     if (!variants) {
         NSLog(@"+[%@ %@]: non-nil required for sort variants. returning nil", CLASS_S, CMD_S);
         return nil;
     }
 
-    if (!domain) {
-        domain = kDefaultDomain;
+    NSArray *sorted;
+    if (namespace) {
+        IMPChooser *chooser = [self chooserForNamespace:namespace];
+        
+        if (chooser) {
+            sorted = [chooser sort:variants context:context];
+        } else {
+            NSLog(@"-[%@ %@]: Model not loaded. Sorting randomly.", CLASS_S, CMD_S);
+        }
+    } else {
+        NSLog(@"+[%@ %@]: non-nil required for namespace. sorting randomly.", CLASS_S, CMD_S);
     }
     
-    IMPChooser *chooser = [self chooserForDomain:domain];
-    
-    NSArray *sorted;
-    if (chooser) {
-        sorted = [chooser sort:variants context:context];
-    } else {
-        NSLog(@"-[%@ %@]: Model not loaded. Sorting randomly.", CLASS_S, CMD_S);
+    if (!sorted) {
         sorted = [self shuffleArray:variants];
     }
 
@@ -223,125 +212,115 @@ static Improve *sharedInstance;
             kTypeKey: kVariantsType,
             kMethodKey: kSortMethod,
             kVariantsKey: variants,
-            kDomainKey: domain
+            kNamespaceKey: namespace
         }];
     }
 
-    [self notifyDidSort:sorted fromVariants:variants context:context domain:domain];
     return sorted;
 }
 
 
-- (void) chooseRemote:(NSArray *)variants
-               context:(NSDictionary *)context
-               domain:(NSString *)domain
-                  url:(NSURL *)chooseURL
+- (void) chooseRemote:(NSString *) namespace
+             variants:(NSArray *)variants
+              context:(NSDictionary *)context
            completion:(void (^)(id, NSError *)) block
 {
-    if (!variants) {
-        block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: @"variants cannot be nil"}]);
+    if (!variants || !namespace || !_chooseUrl) {
+        block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: @"namespace, variants, and _chooseUrl cannot be nil"}]);
         return;
     }
-    
-    NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               kApiKeyHeader:  self.apiKey };
-
 
     NSMutableDictionary *body = [@{ kVariantsKey: variants} mutableCopy];
         
     if (context) {
         [body setObject:context forKey:kContextKey];
     }
-
-    if (!domain) {
-        domain = kDefaultDomain;
-    }
         
-    [body setObject:domain forKey:kDomainKey];
+    [body setObject:namespace forKey:kNamespaceKey];
 
-    NSError * err;
-    NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
-    if (err) {
-        block(nil, err);
+    [self postImproveRequest:body url:[NSURL URLWithString:self.chooseUrl] block:^(NSObject *response, NSError *error) {
+        if (error) {
+            block(nil, error);
+        } else {
+            // is this a dictionary?
+            if ([response isKindOfClass:[NSDictionary class]]) {
+                // extract the chosen
+                id chosen = [(NSDictionary *)response objectForKey:kVariantKey];
+                if (chosen) {
+                    block(chosen, nil);
+                    return;
+                }
+            }
+            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"malformed response from choose: %@", response]}]);
+        }
+    }];
+
+}
+
+- (void) trackDecision:(NSString *) namespace
+               variant:(id) variant
+{
+    [self trackDecision:namespace variant:variant context:nil rewardKey:nil];
+}
+
+- (void) trackDecision:(NSString *) namespace
+               variant:(id) variant
+               context:(NSDictionary *) context
+{
+    [self trackDecision:namespace variant:variant context:context rewardKey:nil];
+}
+
+- (void) trackDecision:(NSString *) namespace
+               variant:(id) variant
+               context:(NSDictionary *) context
+             rewardKey:(NSString *) rewardKey
+{
+    if (!variant) {
+        NSLog(@"+[%@ %@]: Skipping trackDecision for nil variant. To track null values use [NSNull null]", CLASS_S, CMD_S);
         return;
     }
 
-    // TODO decide if variants and decision tracking should be handled here or in the remote choose
-    [self postChooseRequest:headers
-                       data:postData
-                        url:chooseURL
-                      block:block];
-}
-
-- (void) trackChosen:(id)chosen
-{
-    [self trackChosen:chosen context:nil domain:nil rewardKey:nil propensity:nil];
-}
-
-- (void) trackChosen:(id)chosen context:(NSDictionary *)context
-{
-    [self trackChosen:chosen context:context domain:nil rewardKey:nil propensity:nil];
-}
-
-- (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *)domain
-{
-    [self trackChosen:chosen context:context domain:domain rewardKey:nil propensity:nil];
-}
-
-- (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *)domain rewardKey:(NSString *)rewardKey
-{
-    [self trackChosen:chosen context:context domain:domain rewardKey:rewardKey propensity:nil];
-}
-
-- (void) trackChosen:(id)chosen context:(NSDictionary *)context domain:(NSString *)domain rewardKey:(NSString *)rewardKey propensity:(NSNumber *) propensity
-{
-    if (!chosen) {
-        NSLog(@"+[%@ %@]: Skipping trackChosen for nil chosen value. To track null values use [NSNull null]", CLASS_S, CMD_S);
+    if (!namespace) {
+        NSLog(@"+[%@ %@]: Skipping trackChosen for nil namespace", CLASS_S, CMD_S);
         return;
     }
     
-    if (!propensity) {
-        // TODO try to connect propensity from previous choose
-        propensity = @1.0;
-    }
-    
-    // the tracked domain is never nil
-    if (!domain) {
-        domain = kDefaultDomain;
-    }
-    
-    // the tracked rewardKey is never nil
+    // the rewardKey is never nil
     if (!rewardKey) {
-        rewardKey = domain;
+        rewardKey = namespace;
     }
     
-    NSMutableDictionary *body = [@{ kChosenKey: chosen,
-                                    kDomainKey: domain,
-                                    kRewardKeyKey: rewardKey,
-                                    kPropensityKey: propensity } mutableCopy];
+    NSMutableDictionary *body = [@{ kVariantKey: variant,
+                                    kNamespaceKey: namespace,
+                                    kRewardKeyKey: rewardKey } mutableCopy];
     
     if (context) {
         [body setObject:context forKey:kContextKey];
     }
     
-    [self track:body];
+    [self postImproveRequest:body url:[NSURL URLWithString:_trackUrl] block:^(NSObject *result, NSError *error) {
+        if (error) {
+            NSLog(@"Improve.track error: %@", error);
+        }
+    }];
 }
 
-- (void) trackReward:(NSNumber *)reward
+- (void) trackReward:(NSString *) rewardKey value:(NSNumber *)reward
 {
-    if (reward) {
-        // This will match a trackChosen with a nil domain and nil rewardKey
-        [self trackRewards:@{ kDefaultRewardKey: reward }];
+    if (rewardKey && reward) {
+        [self trackRewards:@{ rewardKey: reward }];
     } else {
-        NSLog(@"Skipping trackReward for nil reward");
+        NSLog(@"Skipping trackReward for nil rewardKey or reward");
     }
 }
 
 - (void) trackRewards:(NSDictionary *)rewards
 {
     if (rewards) {
-        [self track:@{ kTypeKey: kRewardsType,
-                       kRewardsKey: rewards}];
+        [self track:@{
+            kTypeKey: kRewardsType,
+            kRewardsKey: rewards
+        }];
     } else {
         NSLog(@"Skipping trackRewards for nil rewards");
     }
@@ -371,10 +350,26 @@ static Improve *sharedInstance;
     [self track:body];
 }
 
-- (void) track:(NSDictionary *)bodyValues completion:(void(^)(BOOL))handler
+- (void) track:(NSDictionary *) body {
+    [self postImproveRequest:body url:[NSURL URLWithString:_trackUrl] block:^(NSObject *result, NSError *error) {
+        if (error) {
+            NSLog(@"Improve.track error: %@", error);
+        }
+    }];
+}
+
+- (void) postImproveRequest:(NSDictionary *) bodyValues url:(NSURL *) url block:(void (^)(NSObject *, NSError *)) block
 {
-    NSDictionary *headers = @{ @"Content-Type": @"application/json",
-                               kApiKeyHeader: self.apiKey };
+    if (!self.historyId) {
+        block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: @"_historyId cannot be nil"}]);
+        return;
+    }
+
+    NSMutableDictionary *headers = [@{ @"Content-Type": @"application/json" } mutableCopy];
+    
+    if (self.apiKey) {
+        [headers setObject:self.apiKey forKey:kApiKeyHeader];
+    }
 
     NSISO8601DateFormatOptions options = (NSISO8601DateFormatWithInternetDateTime
                                           | NSISO8601DateFormatWithFractionalSeconds
@@ -386,87 +381,24 @@ static Improve *sharedInstance;
 
     NSMutableDictionary *body = [@{
         kTimestampKey: dateStr,
-        kHistoryIdKey: self.configuration.historyId,
+        kHistoryIdKey: self.historyId,
         kMessageIdKey: [[NSUUID UUID] UUIDString]
     } mutableCopy];
+    
     [body addEntriesFromDictionary:bodyValues];
-
-    if (![self askDelegateShouldTrack:body]) {
-        // Event canceled by delegate
-        if (handler) handler(false);
-        return;
-    }
-
+    
     NSError * err;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
     if (err) {
-        NSLog(@"Improve.track error: %@", err);
-        if (handler) handler(false);
+        block(nil, err);
         return;
     }
-
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:_trackUrl]];
-
-    [request setHTTPMethod:@"POST"];
-    [request setAllHTTPHeaderFields:headers];
-    [request setHTTPBody:postData];
-
-    __weak Improve *weakSelf = self;
-    [self postImproveRequest:request block:^(NSObject *result, NSError *error) {
-        if (error) {
-            NSLog(@"Improve.track error: %@", error);
-            if (handler) handler(false);
-        } else {
-            [weakSelf notifyDidTrack:body];
-            if (handler) handler(true);
-        }
-    }];
-}
-
-- (void) track:(NSDictionary *)bodyValues {
-    [self track:bodyValues completion:nil];
-}
-
-- (void) postChooseRequest:(NSDictionary *)headers
-                      data:(NSData *)postData
-                       url:(NSURL *)url
-                     block:(void (^)(NSDictionary *, NSError *)) block
-{
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     
     [request setHTTPMethod:@"POST"];
     [request setAllHTTPHeaderFields:headers];
     [request setHTTPBody:postData];
-    
-    [self postImproveRequest:request block:^(NSObject *response, NSError *error) {
-        if (error) {
-            block(nil, error);
-        } else {
-            /*
-             The response from chooseRemote looks like this:
-             {
-             "chosen": {
-             "key": "value"
-             }
-             }
-             */
-            // is this a dictionary?
-            if ([response isKindOfClass:[NSDictionary class]]) {
-                // extract the chosen
-                NSObject *chosen = [(NSDictionary *)response objectForKey:kChosenKey];
-                if ([chosen isKindOfClass:[NSDictionary class]]) {
-                    block((NSDictionary *)chosen, nil);
-                    return;
-                }
-            }
-            block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"malformed response from choose: %@", response]}]);
-        }
-    }];
-}
-
-- (void) postImproveRequest:(NSURLRequest *)request block:(void (^)(NSObject *, NSError *)) block
-{
 
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                           delegate:nil
@@ -509,16 +441,16 @@ static Improve *sharedInstance;
     [dataTask resume];
 }
 
-- (IMPChooser *)chooserForDomain:(NSString *)domain
+- (IMPChooser *)chooserForNamespace:(NSString *)namespace
 {
-    IMPModelBundle *modelBundle = self.modelBundlesByName[domain];
+    IMPModelBundle *modelBundle = self.modelBundlesByName[namespace];
     if (!modelBundle) {
-        NSLog(@"-[%@ %@]: Model not found: %@", CLASS_S, CMD_S, domain);
+        NSLog(@"-[%@ %@]: Model not found: %@", CLASS_S, CMD_S, namespace);
         return nil;
     }
 
     NSError *error = nil;
-    IMPChooser *chooser = [IMPChooser chooserWithModelBundle:modelBundle domain:domain error:&error];
+    IMPChooser *chooser = [IMPChooser chooserWithModelBundle:modelBundle namespace:namespace error:&error];
     if (!chooser) {
         NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
         return nil;
@@ -529,11 +461,11 @@ static Improve *sharedInstance;
 
 
 // Recursively load models one by one
-- (void)loadModelsForConfiguration:(IMPConfiguration *)configuration
+- (void)loadModels:(NSURL *) modelBundleUrl
 {
     if (self.downloader && self.downloader.isLoading) return;
 
-    self.downloader = [[IMPModelDownloader alloc] initWithURL:configuration.remoteModelsArchiveURL];
+    self.downloader = [[IMPModelDownloader alloc] initWithURL:modelBundleUrl];
 
     __weak Improve *weakSelf = self;
     [self.downloader loadWithCompletion:^(NSDictionary *bundles, NSError *error) {
@@ -542,7 +474,7 @@ static Improve *sharedInstance;
 
             // Reload
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kRetryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [weakSelf loadModelsForConfiguration:configuration];
+                [weakSelf loadModels:modelBundleUrl];
             });
         } else if (bundles) {
             [weakSelf.modelBundlesByName setDictionary:bundles];
@@ -557,16 +489,16 @@ static Improve *sharedInstance;
         srand48(time(0));
     });
 
-    return self.configuration.variantTrackProbability > drand48();
+    return self.trackVariantsProbability > drand48();
 }
 
-- (double)calculatePropensity:(NSDictionary *)chosen
-                     variants:(NSDictionary *)variants
+- (double)calculatePropensity:(id)chosen
+                     variants:(NSArray *)variants
                       context:(NSDictionary *)context
                        domain:(NSString *)domain
                iterationCount:(NSUInteger)iterationCount
 {
-    IMPChooser *chooser = [self chooserForDomain:domain];
+    IMPChooser *chooser = [self chooserForNamespace:domain];
     if (!chooser) {
         return -1;
     }
@@ -595,8 +527,8 @@ domain and context.
 
 @returns The propensity value [0, 1.0], or -1 if there was an error. // FIX why would it return -1?
 */
-- (double)calculatePropensity:(NSDictionary *)chosen
-                     variants:(NSDictionary *)variants
+- (double)calculatePropensity:(id)chosen
+                     variants:(NSArray *)variants
                       context:(NSDictionary *)context
                        domain:(NSString *)domain
 {
@@ -607,80 +539,20 @@ domain and context.
                       iterationCount:9];
 }
 
-- (NSDictionary *)chooseRandom:(NSDictionary *)variants
-{
-    NSMutableDictionary *randomProperties = [NSMutableDictionary new];
-
-    for (NSString *key in variants)
-    {
-        NSArray *array = INSURE_CLASS(variants[key], [NSArray class]);
-        if (!array) { continue; }
-
-        randomProperties[key] = array.randomObject;
-    }
-
-    return randomProperties;
-}
-
 - (NSArray*)shuffleArray:(NSArray*)array {
 
-    NSMutableArray *temp = [[NSMutableArray alloc] initWithArray:array];
+    NSMutableArray *copy = [[NSMutableArray alloc] initWithArray:array];
 
     for(NSUInteger i = [array count]; i > 1; i--) {
         NSUInteger j = arc4random_uniform((uint32_t) i);
-        [temp exchangeObjectAtIndex:i-1 withObjectAtIndex:j];
+        [copy exchangeObjectAtIndex:i-1 withObjectAtIndex:j];
     }
 
-    return [NSArray arrayWithArray:temp];
+    return copy;
 }
-
-#pragma mark Delegate helpers
 
 - (void)notifyDidLoadModels {
-    SEL selector = @selector(notifyDidLoadModels);
-    if (self.delegate && [self.delegate respondsToSelector:selector])
-    {
-        [self.delegate improveDidLoadModels:self];
-    }
-
     [[NSNotificationCenter defaultCenter] postNotificationName:ImproveDidLoadModelNotification object:self];
-}
-
-- (void)notifyDidChoose:(NSDictionary *)chosen
-           fromVariants:(NSDictionary *)variants
-                context:(NSDictionary *)context
-                 domain:(NSString *)domain
-{
-    SEL selector = @selector(notifyDidChoose:fromVariants:context:domain:);
-    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
-
-    [self.delegate improve:self didChoose:chosen fromVariants:variants context:context domain:domain ];
-}
-
-- (void)notifyDidSort:(NSArray *)sorted
-         fromVariants:(NSArray *)variants
-              context:(NSDictionary *)context
-               domain:(NSString *)domain
-{
-    SEL selector = @selector(notifyDidSort:fromVariants:context:domain:);
-    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
-
-    [self.delegate improve:self didSort:sorted fromVariants:variants context:context domain:domain ];
-}
-
-- (BOOL)askDelegateShouldTrack:(NSMutableDictionary *)eventBody {
-    SEL selector = @selector(improve:shouldTrack:);
-    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return true;
-
-    return [self.delegate improve:self shouldTrack:eventBody];
-}
-
-- (void)notifyDidTrack:(NSDictionary *)eventBody
-{
-    SEL selector = @selector(improve:didTrack:);
-    if (!self.delegate || ![self.delegate respondsToSelector:selector]) return;
-
-    [self.delegate improve:self didTrack:eventBody];
 }
 
 @end

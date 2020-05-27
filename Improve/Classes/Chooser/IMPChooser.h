@@ -27,17 +27,17 @@ NS_ASSUME_NONNULL_BEGIN
 /// Used to convert column indexes to model feature names. Default: "f".
 @property(copy, nonatomic) NSString *featureNamePrefix;
 
-@property(copy, nonatomic) NSString *domain;
+@property(copy, nonatomic) NSString *namespace;
 
 @property(readonly, nonatomic) IMPModelMetadata *metadata;
 
 + (instancetype)chooserWithModelBundle:(IMPModelBundle *)bundle
-                                domain:(NSString *)domain
+                             namespace:(NSString *)namespace
                                  error:(NSError **)error;
 
 - (instancetype)initWithModel:(MLModel *)model
                      metadata:(IMPModelMetadata *)metadata
-                       domain:(NSString *)domain;
+                    namespace:(NSString *)namespace;
 
 /**
  Choses a trial from the given variants. The trial is chosen according to the model predictions.
@@ -45,11 +45,11 @@ NS_ASSUME_NONNULL_BEGIN
  @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
  @return A NSDictionary where keys are features similar to `varaiants`, and the values are the single choosen objects.
  */
-- (NSDictionary *)choose:(NSDictionary *)variants
-                 context:(NSDictionary *)context;
+- (id) choose:(NSArray *) variants
+      context:(NSDictionary *) context;
 
-- (NSArray<NSDictionary*> *)sort:(NSArray<NSDictionary*> *)variants
-                         context:(NSDictionary *)context;
+- (NSArray *)sort:(NSArray *)variants
+          context:(NSDictionary *)context;
 
 @end
 
