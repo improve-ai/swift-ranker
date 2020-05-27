@@ -18,10 +18,16 @@ pod "Improve"
 
 ## Import and initialize the SDK.
 
+Do this once in your AppDelegate.
+
 ```objc
 #import Improve.h
 
-[Improve instanceWithModelBundleURL:@"YOUR MODEL BUNDLE URL" apiKey:@"YOUR API KEY"];
+Improve *improve = [Improve instance];
+
+improve.apiKey = @"YOUR API KEY"; // set the api key first
+improve.modelBundleUrl = @"YOUR MODEL BUNDLE URL"; // fetches the bundle using the api key
+improve.trackUrl = @"YOUR MODEL GATEWAY TRACK ENDPOINT";
 
 ```
 
@@ -34,25 +40,32 @@ What is the best greeting?
 ```objc
 Improve *improve = [Improve instance];
 
-button.text = [improve choose:@[ @"Hello World!", @"Hi World!", @"Howdy World!" ]];
+// get the decision
+button.text = [improve choose:@"greeting" variants:@[ @"Hello World!", @"Hi World!", @"Howdy World!" ]];
 
-// ... later when the button is tapped
+// train the model using the decision
+[improve trackDecision:@"greeting" variant:button.text];
 
-[improve trackReward:@1.0];
+// ... later when the button is tapped, give the decision a reward
+[improve trackReward:@"greeting" value:@1.0];
 ```
 
 Improve quickly learns to choose the greeting with the highest chance of button tap.
+
+```@"greeting"``` in this example is the namespace for the type of variant being chosen. Namespaces ensure that multiple uses of Improve in the same project are decided and trained seperately.  A namespace can be a simple string like "discount" or "song" or can be more complicated like "SubscriptionViewController.buttonText".  Namespace strings are opaque and can be any format you wish.
 
 ### Numbers Too
 
 How many bonus gems should we offer on our In App Purchase?
 
 ```objc
-NSNumber *bonusGems = [improve choose:@[ @1000, @2000, @3000 ]];
+NSNumber *bonusGems = [improve choose:@"bonusGems" variants:@[ @1000, @2000, @3000 ]];
 
-// ... later when a purchase is made
+// train the model using the decision
+[improve trackDecision:@"bonusGems" variant:bonusGems];
 
-[improve trackReward:revenue];
+// ... later when the user makes a purchase, give the decision a reward
+[improve trackReward:@"bonusGems" value:revenue];
 ```
 
 ### Complex Objects
@@ -61,7 +74,7 @@ NSNumber *bonusGems = [improve choose:@[ @1000, @2000, @3000 ]];
 NSArray *themeVariants = @[ @{ @"textColor": @"#000000", @"backgroundColor": @"#ffffff" },
                             @{ @"textColor": @"#F0F0F0", @"backgroundColor": @"#aaaaaa" } ];
                             
-NSDictionary *theme = [improve choose:themeVariants];
+NSDictionary *theme = [improve choose:@"theme" variants:themeVariants];
 ```
 
 Improve learns to use the attributes of each key and value in a dictionary variant to make the optimal decision.  
@@ -75,40 +88,18 @@ If language is "cowboy", which greeting is best?
 ```objc
 NSArray *greetings = @[ @"Hello World!", @"Hi World!", @"Howdy World!" ];
 
-button.text = [improve choose:greetings context:@{ @"language": @"cowboy" }];
+button.text = [improve choose:@"greeting" variants:greetings context:@{ @"language": @"cowboy" }];
 ```
 
 Improve can optimize decisions for a given context of arbitrary complexity. We might imagine that "Howdy World!" would produce the highest rewards for { language: cowboy }, while another greeting might be best for other contexts.
 
 You can think of contexts like: If `<context>` then `<variant>`.
-### Sort Stuff
-
-```objc
-// No human could ever make this decision, but math can.
-NSArray *sortedDogs = [improve sort:@[ @"German Shepard", @"Border Collie", @"Labrador Retriever" ]];
-```
-
-Sort is handy for building personalized feeds or reducing huge lists of variants down to smaller lists for future contextual choose calls.  It is recommended to pass a context to sort that is similar to contexts the model was trained on.
-
-Sort calls are not automatically tracked.  Learning can only happen through choose: with autoTrack enabled or trackChosen.
-
-### Organize Decisions with Domains
-```objc
-
-NSNumber *discount = [improve choose:@[ @0.10, @0.20, @0.30 ] context:context domain:@"discounts"];
-
-// ...later
-[improve trackRewards:@{ @"discounts": @19.99 };
-```
-
-A domain is a descriptor and namespace for the type of variant being chosen. Domains ensure that multiple uses of Improve in the same project are decided and trained seperately.  A domain can be a simple string like "discounts" or "songs" or can be more complicated like "SubscriptionViewController.buttonText".  Domain strings are opaque and can be any format you wish.
-
-When using domains the reward must be tracked for that specific domain.
 
 ### Learning from Specific Types of Rewards
+Instead of having to manually track rewards for every seperate decision namespace, we can assign a custom rewardKey during trackDecision to listen for.
 
 ```objc
- NSString *backgroundSong = [improve choose:@[ @"Hey Jude", @"Hey Dude" ] context:context domain:@"songs" rewardKey:@"session_length"];
+ [improve trackDecision:@"song" variant:@"Hey Jude" context:context rewardKey:@"session_length"];
  
  // ...on app exit
  [improve trackRewards:@{ @"session_length": sessionLength];
@@ -120,27 +111,45 @@ When using domains the reward must be tracked for that specific domain.
 
 ```objc
  // Disable autotrack for this choose: call because we don't yet know the chosen variant
- NSDictionary *viralVideo = [improve choose:@[ videoA, videoB ] context:context domain:@"videos" autoTrack:@NO];
+ NSDictionary *viralVideo = [improve choose:@"viralVideo" variants:@[ videoA, videoB ]];
  
  // Create a custom rewardKey specific to this variant
- NSString rewardKey = [@"shared:" stringByAppendingString:[viralVideo objectForKey:@"videoId"]];
+ NSString rewardKey = [@"Video Shared.id=" stringByAppendingString:[viralVideo objectForKey:@"videoId"]];
  
  // Track the chosen variant along with its custom rewardKey
- [improve trackChosen:viralVideo context:context domain:@"videos" rewardKey:rewardKey];
+ [improve trackChosen:"viralVideo" variant:viralVideo context:context rewardKey:rewardKey];
  
  // ...later when a video is shared
- [improve trackRewards:@{ rewardKey: @1.0 }];
+ [improve trackReward:rewardKey value:@1.0];
+ 
+ 
  ```
+ 
+ ### Sort Stuff
+
+```objc
+// No human could ever make this decision, but math can.
+NSArray *sortedDogs = [improve sort:@"dogs" variants:@[ @"German Shepard", @"Border Collie", @"Labrador Retriever" ]];
+
+
+// With sort, training is done just as before, on one individual variant at a time.
+NSString *dog = [sortedDogs objectAtIndex:0];
+[improve trackDecision:@"dogs" variant:dog context:nil rewardKey:dog];
+
+// ... 
+[improve trackReward:dog value:@1000];
+```
+
+Sort is handy for building personalized feeds or reducing huge lists of variants down to smaller lists for future contextual choose calls.  It is recommended to pass a context to sort that is similar to contexts the model was trained on.
  
  ### Server-Side Decision/Rewards Processing
  
  Some deployments may wish to handle all rewards assignments on the server side during model training. In this case, you may simply track generic app events to be parsed by your custom backend scripts.
  
  ```objc
- // Probably disable auto tracking since it will all be handled by the back end.
- NSString *song = [improve choose:@[ @"Hey Jude", @"Hey Dude" ] context:context domain:@"songs" autoTrack:@NO];
+ // omit trackDecision and trackReward on the client and use custom code on the model gateway to do it instead
 
- //...later when the song is played
+ //...when the song is played
  [improve trackAnalyticsEvent:@"Song Played" properties:@{ @"song": song }];
 
  ```
@@ -151,11 +160,11 @@ For simple decisions with only NSString or NSNumber variants, and no context, th
  
  ## Security & Privacy
  
- Improve uses tracked variants, context, and rewards to continuously train statistical models.  If models will be distributed to unsecured clients, then the most conservative stance is to assume that what you put into the model you can get out.
+ Improve uses tracked variants, context, and rewards to continuously train statistical models.  If models will be distributed to unsecured clients, then the most conservative stance is to assume that what you put in the model you can get out.
  
- That said, all variant and context keys and values are hashed (using a secure pseudorandom function once siphash is deployed) and never transmitted in models so if a sensitive information were accidentally included in tracked data, it is not exposed by the model.
+ That said, all variant and context data is hashed (using a secure pseudorandom function once siphash is deployed) and never transmitted in models so if a sensitive information were accidentally included in tracked data, it is not exposed by the model.
  
-It is strongly recommended to never include Personally Identifiable Information (PII) in an Improve variant or context if for no other reason than to ensure that it is not persisted in analytics records on your server instances.
+It is strongly recommended to never include Personally Identifiable Information (PII) in an Improve variant or context if for no other reason than to ensure that it is not persisted in your Improve Model Gateway analytics records.
  
  The types of information that can be gleaned from an Improve model are the types of things it is designed for, such as the relative ranking and scoring of variants and contexts, and the relative frequency of variants and contexts.  Future versions will normalize rewards to zero, so absolute information about rewards will not be transmitted at that time.
  
