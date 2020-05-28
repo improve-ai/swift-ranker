@@ -27,7 +27,6 @@
 		549EE78923F2B94D0040D880 /* IMPModelBundle.m in Sources */ = {isa = PBXBuildFile; fileRef = 549EE78823F2B94D0040D880 /* IMPModelBundle.m */; };
 		54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 54A4D3F52403D56400BC1FA8 /* IMPModelMetadata.m */; };
 		54AC4DDD24537B80007CB073 /* TestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 54AC4DDC24537B80007CB073 /* TestUtils.m */; };
-		54BDBBD9242A802200703F12 /* IMPSimHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 54BDBBD8242A802200703F12 /* IMPSimHash.m */; };
 		54BDBBDB242B5A8900703F12 /* SimHashTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54BDBBDA242B5A8900703F12 /* SimHashTest.m */; };
 		54CA210323FDD09D00723655 /* NVHProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CA20F823FDD09D00723655 /* NVHProgress.m */; };
 		54CA210423FDD09D00723655 /* NVHTarFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CA20FA23FDD09D00723655 /* NVHTarFile.m */; };
@@ -88,8 +87,6 @@
 		54A4D3F42403D56400BC1FA8 /* IMPModelMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPModelMetadata.h; sourceTree = "<group>"; };
 		54A4D3F52403D56400BC1FA8 /* IMPModelMetadata.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPModelMetadata.m; sourceTree = "<group>"; };
 		54AC4DDC24537B80007CB073 /* TestUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestUtils.m; sourceTree = "<group>"; };
-		54BDBBD7242A802200703F12 /* IMPSimHash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPSimHash.h; sourceTree = "<group>"; };
-		54BDBBD8242A802200703F12 /* IMPSimHash.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPSimHash.m; sourceTree = "<group>"; };
 		54BDBBDA242B5A8900703F12 /* SimHashTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SimHashTest.m; sourceTree = "<group>"; };
 		54CA20F223FDB63300723655 /* libarchive.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libarchive.2.tbd; path = usr/lib/libarchive.2.tbd; sourceTree = SDKROOT; };
 		54CA20F723FDD09D00723655 /* NVHProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NVHProgress.h; sourceTree = "<group>"; };
@@ -337,8 +334,6 @@
 				54CB9B3723D988F10005BB94 /* IMPJSONFlattener.m */,
 				54CB9B3823D988F10005BB94 /* IMPJSONUtils.h */,
 				54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */,
-				54BDBBD7242A802200703F12 /* IMPSimHash.h */,
-				54BDBBD8242A802200703F12 /* IMPSimHash.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -439,7 +434,6 @@
 				548DA93C23EB4EF000825370 /* IMPMatrix.m in Sources */,
 				54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */,
 				5496CE5723EC04EE004E96C5 /* IMPMatrixBatchProvider.m in Sources */,
-				54BDBBD9242A802200703F12 /* IMPSimHash.m in Sources */,
 				54CA210623FDD09D00723655 /* NVHFile.m in Sources */,
 				54CB9B3D23D988F10005BB94 /* IMPMurmurHash.mm in Sources */,
 				54CA210723FDD09D00723655 /* NVHGzipFile.m in Sources */,
