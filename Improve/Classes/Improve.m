@@ -96,7 +96,6 @@ static Improve *sharedInstance;
     
     self.historyId = [[NSUserDefaults standardUserDefaults] stringForKey:kHistoryIdDefaultsKey];
     if (!self.historyId) {
-        // create a UUID if one isn't provided
         self.historyId = [self generateHistoryId];
         [[NSUserDefaults standardUserDefaults] setObject:self.historyId forKey:kHistoryIdDefaultsKey];
     }

@@ -246,6 +246,8 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     return features;
 }
 
+// !!!!!!! THIS CODE PROBABLY CONTAINS A MAJOR BUG WHERE IF A JSON KEY IS PRESENT IN ONE VARIANT BUT NOT ANOTHER THE KEY WILL BE COPIED !!!!!!
+
 /// Creates an array of slightly different trials, replacing one key in each adjacent trial by a random variant.
 - (void)getAdjacentTrials:(NSArray<NSDictionary*> **)trialsP
                featurized:(NSArray<NSDictionary*> **)featurizedTrialsP
