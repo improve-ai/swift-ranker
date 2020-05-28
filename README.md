@@ -95,7 +95,7 @@ Improve can optimize decisions for a given context of arbitrary complexity. We m
 You can think of contexts like: If `<context>` then `<variant>`.
 
 ### Learning from Specific Types of Rewards
-Instead of having to manually track rewards for every seperate decision namespace, we can assign a custom rewardKey during trackDecision to listen for.
+Instead of having to manually track rewards for every seperate decision namespace, we can assign a custom rewardKey during trackDecision for that specific decision to be trained on.
 
 ```objc
  [improve trackDecision:@"song" variant:@"Hey Jude" context:context rewardKey:@"session_length"];
@@ -143,7 +143,7 @@ Sort is handy for building personalized feeds or reducing huge lists of variants
  
  ### Server-Side Decision/Rewards Processing
  
- Some deployments may wish to handle all rewards assignments on the server side during model training. In this case, you may simply track generic app events to be parsed by your custom backend scripts.
+ Some deployments may wish to handle all training and reward assignements on the server side. In this case, you may simply track generic app events to be parsed by your custom backend scripts and converted to decisions and rewards.
  
  ```objc
  // omit trackDecision and trackReward on the client and use custom code on the model gateway to do it instead
