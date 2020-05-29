@@ -287,7 +287,7 @@ static Improve *sharedInstance;
     }
 
     if (!namespace) {
-        NSLog(@"+[%@ %@]: Skipping trackChosen for nil namespace", CLASS_S, CMD_S);
+        NSLog(@"+[%@ %@]: Skipping trackDecision for nil namespace", CLASS_S, CMD_S);
         return;
     }
     
