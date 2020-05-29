@@ -45,7 +45,6 @@
 		54CB9B5623DAE8170005BB94 /* MLMultiArray+NSArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B5523DAE8170005BB94 /* MLMultiArray+NSArray.m */; };
 		54CB9B5923DB02D20005BB94 /* NSArray+Multidimensional.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B5823DB02D10005BB94 /* NSArray+Multidimensional.m */; };
 		54CB9B6523DD9E0E0005BB94 /* ChooserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */; };
-		54DAEBFB24024F4000B81B9B /* IMPConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 54DAEBFA24024F4000B81B9B /* IMPConfiguration.m */; };
 		54E66A012401BEDD0032BC52 /* trials.json in Resources */ = {isa = PBXBuildFile; fileRef = 54E66A002401BEDC0032BC52 /* trials.json */; };
 /* End PBXBuildFile section */
 
@@ -120,8 +119,6 @@
 		54CB9B5723DB02D10005BB94 /* NSArray+Multidimensional.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSArray+Multidimensional.h"; sourceTree = "<group>"; };
 		54CB9B5823DB02D10005BB94 /* NSArray+Multidimensional.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Multidimensional.m"; sourceTree = "<group>"; };
 		54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChooserTest.m; sourceTree = "<group>"; };
-		54DAEBF924024F4000B81B9B /* IMPConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPConfiguration.h; sourceTree = "<group>"; };
-		54DAEBFA24024F4000B81B9B /* IMPConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPConfiguration.m; sourceTree = "<group>"; };
 		54E66A002401BEDC0032BC52 /* trials.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = trials.json; path = Python/trials.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -297,8 +294,6 @@
 				549EE77D23EF3D040040D880 /* ModelDownloader */,
 				54CB9B3C23D988F10005BB94 /* Improve.h */,
 				54CB9B3B23D988F10005BB94 /* Improve.m */,
-				54DAEBF924024F4000B81B9B /* IMPConfiguration.h */,
-				54DAEBFA24024F4000B81B9B /* IMPConfiguration.m */,
 			);
 			name = Classes;
 			path = ../Classes;
@@ -416,7 +411,6 @@
 				548BEE2624127C8300EFD26A /* IMPEncodedFeatureProvider.m in Sources */,
 				54CB9B5923DB02D20005BB94 /* NSArray+Multidimensional.m in Sources */,
 				54CB9B4D23D989140005BB94 /* JSONFlattenerTest.m in Sources */,
-				54DAEBFB24024F4000B81B9B /* IMPConfiguration.m in Sources */,
 				548DA93C23EB4EF000825370 /* IMPMatrix.m in Sources */,
 				54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */,
 				5496CE5723EC04EE004E96C5 /* IMPMatrixBatchProvider.m in Sources */,
