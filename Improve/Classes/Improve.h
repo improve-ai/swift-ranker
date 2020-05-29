@@ -5,8 +5,6 @@
 //  Copyright © 2016-2020 Mind Blown Apps, LLC. All rights reserved.
 //
 
-#import "IMPConfiguration.h"
-
 extern NSNotificationName const ImproveDidLoadModelNotification;
 
 @interface Improve : NSObject
@@ -69,7 +67,7 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
  
  @param namespace A descriptor and namespace for the type of variant being chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
  @param variants  A JSON encodeable list of variants to sort.  May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
- @return Variants sorted from largest to smallest expected future rewards, which may be different between calls even with the same inputs
+ @return A sorted copy of the variants array from largest to smallest expected future rewards, which may be different between calls even with the same inputs
 */
 - (NSArray *) sort:(NSString *) namespace
           variants:(NSArray *) variants;
@@ -80,7 +78,7 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
  @param namespace A descriptor and namespace for the type of variant being chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
  @param variants  A JSON encodeable list of variants to sort.  May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @param context A JSON encodeable dictionary of key value pairs that describe the context that sort should be optimized for. May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
- @return Variants sorted from largest to smallest expected future rewards, which may be different between calls even with the same inputs
+ @return A sorted copy of the variants array from largest to smallest expected future rewards, which may be different between calls even with the same inputs
 */
 - (NSArray *) sort:(NSString *) namespace
           variants:(NSArray *) variants

@@ -145,7 +145,7 @@ static Improve *sharedInstance;
      variants:(NSArray *) variants
       context:(NSDictionary *) context
 {
-    if (!variants) {
+    if (!variants) { // TODO variants length check
         NSLog(@"+[%@ %@]: non-nil required for choose variants. returning nil.", CLASS_S, CMD_S);
         return nil;
     }
@@ -191,7 +191,7 @@ static Improve *sharedInstance;
           variants:(NSArray *) variants
            context:(NSDictionary *) context
 {
-    if (!variants) {
+    if (!variants) { // TODO variants length check
         NSLog(@"+[%@ %@]: non-nil required for sort variants. returning nil", CLASS_S, CMD_S);
         return nil;
     }
