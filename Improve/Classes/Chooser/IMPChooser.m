@@ -13,7 +13,6 @@
 #import "IMPScoredObject.h"
 #import "IMPModelBundle.h"
 #import "IMPModelMetadata.h"
-#import "IMPFeaturesMap.h"
 
 
 const NSUInteger kInitialTrialsCount = 100;
@@ -45,7 +44,7 @@ const NSUInteger kInitialTrialsCount = 100;
     if (self) {
         _model = model;
         _metadata = metadata;
-        _namespace = namespace;  // TODO prefix namespace to the context and each variant before feature encoding.  @{ namespace: context} and @{ namespace: variant }  is what will be actually encoded.
+        _namespace = namespace;
         _featureNamePrefix = @"f";
     }
     return self;
