@@ -10,8 +10,6 @@
 		540FF471245A2C4A00690EDA /* NSFileManager+SafeCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = 540FF470245A2C4A00690EDA /* NSFileManager+SafeCopy.m */; };
 		54160CD223E02C9B00030A6A /* singleEncodedTrial.json in Resources */ = {isa = PBXBuildFile; fileRef = 54160CD123E02C9B00030A6A /* singleEncodedTrial.json */; };
 		54442CA323FFE37B00F278E8 /* ImproveTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54442CA223FFE37B00F278E8 /* ImproveTest.m */; };
-		544D3B3823DEF3F000CF95DB /* IMPMultiArrayBatchProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 544D3B3723DEF3F000CF95DB /* IMPMultiArrayBatchProvider.m */; };
-		544D3B3B23DEF57400CF95DB /* IMPMultiArrayFeatureProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 544D3B3A23DEF57400CF95DB /* IMPMultiArrayFeatureProvider.m */; };
 		544D3B3D23DEFFC800CF95DB /* choose.json in Resources */ = {isa = PBXBuildFile; fileRef = 544D3B3C23DEFFC800CF95DB /* choose.json */; };
 		548BEE1F241241F500EFD26A /* TestModel.json in Resources */ = {isa = PBXBuildFile; fileRef = 548BEE1D241241F500EFD26A /* TestModel.json */; };
 		548BEE20241241F500EFD26A /* TestModel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE1E241241F500EFD26A /* TestModel.mlmodel */; };
@@ -57,10 +55,6 @@
 		540FF470245A2C4A00690EDA /* NSFileManager+SafeCopy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+SafeCopy.m"; sourceTree = "<group>"; };
 		54160CD123E02C9B00030A6A /* singleEncodedTrial.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = singleEncodedTrial.json; sourceTree = "<group>"; };
 		54442CA223FFE37B00F278E8 /* ImproveTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImproveTest.m; sourceTree = "<group>"; };
-		544D3B3623DEF3F000CF95DB /* IMPMultiArrayBatchProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPMultiArrayBatchProvider.h; sourceTree = "<group>"; };
-		544D3B3723DEF3F000CF95DB /* IMPMultiArrayBatchProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPMultiArrayBatchProvider.m; sourceTree = "<group>"; };
-		544D3B3923DEF57400CF95DB /* IMPMultiArrayFeatureProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPMultiArrayFeatureProvider.h; sourceTree = "<group>"; };
-		544D3B3A23DEF57400CF95DB /* IMPMultiArrayFeatureProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPMultiArrayFeatureProvider.m; sourceTree = "<group>"; };
 		544D3B3C23DEFFC800CF95DB /* choose.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = choose.json; sourceTree = "<group>"; };
 		548BEE1D241241F500EFD26A /* TestModel.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TestModel.json; sourceTree = "<group>"; };
 		548BEE1E241241F500EFD26A /* TestModel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = TestModel.mlmodel; sourceTree = "<group>"; };
@@ -145,10 +139,6 @@
 		544D3B3223DEF35400CF95DB /* FeatureProviders */ = {
 			isa = PBXGroup;
 			children = (
-				544D3B3623DEF3F000CF95DB /* IMPMultiArrayBatchProvider.h */,
-				544D3B3723DEF3F000CF95DB /* IMPMultiArrayBatchProvider.m */,
-				544D3B3923DEF57400CF95DB /* IMPMultiArrayFeatureProvider.h */,
-				544D3B3A23DEF57400CF95DB /* IMPMultiArrayFeatureProvider.m */,
 				5496CE5523EC04EE004E96C5 /* IMPMatrixBatchProvider.h */,
 				5496CE5623EC04EE004E96C5 /* IMPMatrixBatchProvider.m */,
 				548BEE2424127C8300EFD26A /* IMPEncodedFeatureProvider.h */,
@@ -424,7 +414,6 @@
 				54CB9B4123D988F10005BB94 /* IMPJSONFlattener.m in Sources */,
 				549EE78923F2B94D0040D880 /* IMPModelBundle.m in Sources */,
 				548BEE2624127C8300EFD26A /* IMPEncodedFeatureProvider.m in Sources */,
-				544D3B3B23DEF57400CF95DB /* IMPMultiArrayFeatureProvider.m in Sources */,
 				54CB9B5923DB02D20005BB94 /* NSArray+Multidimensional.m in Sources */,
 				54CB9B4D23D989140005BB94 /* JSONFlattenerTest.m in Sources */,
 				54DAEBFB24024F4000B81B9B /* IMPConfiguration.m in Sources */,
@@ -435,7 +424,6 @@
 				54CB9B3D23D988F10005BB94 /* IMPMurmurHash.mm in Sources */,
 				54CA210723FDD09D00723655 /* NVHGzipFile.m in Sources */,
 				549EE78023EF3DD60040D880 /* IMPModelDownloader.m in Sources */,
-				544D3B3823DEF3F000CF95DB /* IMPMultiArrayBatchProvider.m in Sources */,
 				54442CA323FFE37B00F278E8 /* ImproveTest.m in Sources */,
 				549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */,
 				548BEE20241241F500EFD26A /* TestModel.mlmodel in Sources */,
