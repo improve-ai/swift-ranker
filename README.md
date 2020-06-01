@@ -116,7 +116,7 @@ Instead of having to manually track rewards for every seperate decision namespac
  NSString rewardKey = [@"Video Shared.id=" stringByAppendingString:[viralVideo objectForKey:@"videoId"]];
  
  // Track the chosen variant along with its custom rewardKey
- [improve trackChosen:"viralVideo" variant:viralVideo context:context rewardKey:rewardKey];
+ [improve trackDecision:"viralVideo" variant:viralVideo context:context rewardKey:rewardKey];
  
  // ...later when a video is shared
  [improve trackReward:rewardKey value:@1.0];
