@@ -128,12 +128,12 @@ Instead of tracking rewards for every seperate decision namespace, we can assign
 
 ```objc
 // No human could ever make this decision, but math can.
-NSArray *sortedDogs = [improve sort:@"dogs" variants:@[ @"German Shepard", @"Border Collie", @"Labrador Retriever" ]];
+NSArray *sortedDogs = [improve sort:@"dogs" variants:@[ @"German Shepard", @"Border Collie", @"Labrador Retriever" context:context]];
 
 
 // With sort, training is done just as before, on one individual variant at a time.
 NSString *dog = [sortedDogs objectAtIndex:0];
-[improve trackDecision:@"dogs" variant:dog context:nil rewardKey:dog];
+[improve trackDecision:@"dogs" variant:dog context:context rewardKey:dog];
 
 // ... 
 [improve trackReward:dog value:@1000];
