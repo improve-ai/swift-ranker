@@ -109,7 +109,7 @@ Instead of having to manually track rewards for every seperate decision namespac
  Instead of applying rewards to general categories of decisions, they can be scoped to specific variants by specifying a custom rewardKey for each variant.
 
 ```objc
- // Disable autotrack for this choose: call because we don't yet know the chosen variant
+
  NSDictionary *viralVideo = [improve choose:@"viralVideo" variants:@[ videoA, videoB ]];
  
  // Create a custom rewardKey specific to this variant
