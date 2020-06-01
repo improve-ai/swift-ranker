@@ -145,9 +145,18 @@ static Improve *sharedInstance;
      variants:(NSArray *) variants
       context:(NSDictionary *) context
 {
-    if (!variants) { // TODO variants length check
-        NSLog(@"+[%@ %@]: non-nil required for choose variants. returning nil.", CLASS_S, CMD_S);
+    if (!variants || [variants count] == 0) {
+        NSLog(@"+[%@ %@]: non-nil, non-empty array required for choose variants. returning nil.", CLASS_S, CMD_S);
         return nil;
+    }
+    
+    if (self.shouldTrackVariants) {
+        [self track:@{
+            kTypeKey: kVariantsType,
+            kMethodKey: kChooseMethod,
+            kVariantsKey: variants,
+            kNamespaceKey: namespace
+        }];
     }
 
     id chosen;
@@ -158,23 +167,14 @@ static Improve *sharedInstance;
         if (chooser) {
             chosen = [chooser choose:variants context:context];
         } else {
-            NSLog(@"-[%@ %@]: Model not loaded. Choosing random variant.", CLASS_S, CMD_S);
+            NSLog(@"-[%@ %@]: Model not loaded. Choosing first variant.", CLASS_S, CMD_S);
         }
     } else {
-        NSLog(@"+[%@ %@]: non-nil required for namespace. returning random variant.", CLASS_S, CMD_S);
+        NSLog(@"+[%@ %@]: non-nil required for namespace. returning first variant.", CLASS_S, CMD_S);
     }
     
     if (!chosen) {
-        chosen = [variants randomObject];
-    }
-
-    if (self.shouldTrackVariants) {
-        [self track:@{
-            kTypeKey: kVariantsType,
-            kMethodKey: kChooseMethod,
-            kVariantsKey: variants,
-            kNamespaceKey: namespace
-        }];
+        return [variants objectAtIndex:0];
     }
 
     return chosen;
@@ -191,28 +191,11 @@ static Improve *sharedInstance;
           variants:(NSArray *) variants
            context:(NSDictionary *) context
 {
-    if (!variants) { // TODO variants length check
-        NSLog(@"+[%@ %@]: non-nil required for sort variants. returning nil", CLASS_S, CMD_S);
-        return nil;
-    }
-
-    NSArray *sorted;
-    if (namespace) {
-        IMPChooser *chooser = [self chooserForNamespace:namespace];
-        
-        if (chooser) {
-            sorted = [chooser sort:variants context:context];
-        } else {
-            NSLog(@"-[%@ %@]: Model not loaded. Sorting randomly.", CLASS_S, CMD_S);
-        }
-    } else {
-        NSLog(@"+[%@ %@]: non-nil required for namespace. sorting randomly.", CLASS_S, CMD_S);
+    if (!variants || [variants count] == 0) {
+        NSLog(@"+[%@ %@]: non-nil, non-empty array required for sort variants. returning empty array", CLASS_S, CMD_S);
+        return @[];
     }
     
-    if (!sorted) {
-        sorted = [self shuffleArray:variants];
-    }
-
     if (self.shouldTrackVariants) {
         [self track:@{
             kTypeKey: kVariantsType,
@@ -220,6 +203,23 @@ static Improve *sharedInstance;
             kVariantsKey: variants,
             kNamespaceKey: namespace
         }];
+    }
+    
+    NSArray *sorted;
+    if (namespace) {
+        IMPChooser *chooser = [self chooserForNamespace:namespace];
+        
+        if (chooser) {
+            sorted = [chooser sort:variants context:context];
+        } else {
+            NSLog(@"-[%@ %@]: Model not loaded. Returning unsorted shallow copy of variants.", CLASS_S, CMD_S);
+        }
+    } else {
+        NSLog(@"+[%@ %@]: non-nil required for namespace. Return unsorted shallow copy of variants.", CLASS_S, CMD_S);
+    }
+    
+    if (!sorted) {
+        return [[NSArray alloc] initWithArray:variants];
     }
 
     return sorted;
