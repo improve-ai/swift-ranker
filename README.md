@@ -155,7 +155,7 @@ Sort is handy for building personalized feeds or reducing huge lists of variants
  
  ## Algorithm
  
-For simple decisions with only NSString or NSNumber variants, and no context, the Improve v5 algorithm has behavior similar to Thompson Sampling. Choices are initially random and then quickly hone in on the best variants. For contextual decisions or those with complex NSDictionary or NSArray variants, gradiented boosted trees are employed to create a fast and powerful contextual multi-armed bandit algorithm.
+The algorithm is a production tuned contextual multi-armed bandit algorithm related to Thompson Sampling.
  
  ## Security & Privacy
  
