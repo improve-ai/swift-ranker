@@ -95,7 +95,7 @@ Improve can optimize decisions for a given context of arbitrary complexity. We m
 You can think of contexts like: If `<context>` then `<variant>`.
 
 ### Learning from Specific Types of Rewards
-Instead of having to manually track rewards for every seperate decision namespace, we can assign a custom rewardKey during trackDecision for that specific decision to be trained on.
+Instead of tracking rewards for every seperate decision namespace, we can assign a custom rewardKey during trackDecision for that specific decision to be trained on.
 
 ```objc
  [improve trackDecision:@"song" variant:@"Hey Jude" context:context rewardKey:@"session_length"];
