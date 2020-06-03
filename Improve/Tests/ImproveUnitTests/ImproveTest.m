@@ -12,13 +12,11 @@
 #import "TestUtils.h"
 #import "IMPScoredObject.h"
 
+// Disclose private interface for test
 @interface Improve ()
+@property (strong, atomic) NSString *historyId;
 - (NSMutableDictionary<NSString*, IMPModelBundle*> *)modelBundlesByName;
-@end
-
-@interface IMPConfiguration ()
-- (NSString *)generateHistoryId;
-- (int)historyIdSize;
+- (NSString *) generateHistoryId;
 @end
 
 @interface ImproveTest : XCTestCase
@@ -26,12 +24,12 @@
 @end
 
 @implementation ImproveTest {
-    IMPConfiguration *config;
+    Improve *improve;
 }
 
 - (void)setUp {
     // TODO test nil api key
-    Improve *improve = [Improve instance];
+    improve = [Improve instanceWithApiKey:nil];
 }
 
 - (void)testCombinations {
@@ -55,12 +53,12 @@
 - (void)testHistoryId {
     for (int i = 0; i < 10; i++)
     {
-        NSString *historyId = [config generateHistoryId];
+        NSString *historyId = [improve generateHistoryId];
         NSLog(@"%@", historyId);
         XCTAssertNotNil(historyId);
-        XCTAssert(historyId.length > [config historyIdSize] / 3 * 4);
+        XCTAssert(historyId.length > 32 / 3 * 4);
     }
-    XCTAssertNotNil(config.historyId);
+    XCTAssertNotNil(improve.historyId);
 }
 
 - (void)testRankWithModelName:(NSString *)modelName

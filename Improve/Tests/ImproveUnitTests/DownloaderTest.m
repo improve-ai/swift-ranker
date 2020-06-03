@@ -25,8 +25,8 @@
 
 - (void)testCompile {
     // Insert url for local or remote .mlmodel file here
-    NSURL *modelDefinitionURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/XGBoost example/model-4/Chooser.mlmodel"];
-    NSURL *compiledURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/XGBoost example/model-4/Chooser.mlmodelc"];
+    NSURL *modelDefinitionURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/test models/29May/model.mlmodel"];
+    NSURL *compiledURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/test models/29May/model.mlmodelc"];
     XCTAssertNotNil(modelDefinitionURL);
 
     // Url isn't used here.

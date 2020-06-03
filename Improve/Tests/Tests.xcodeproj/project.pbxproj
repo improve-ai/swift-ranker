@@ -44,6 +44,7 @@
 		54CB9B5623DAE8170005BB94 /* MLMultiArray+NSArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B5523DAE8170005BB94 /* MLMultiArray+NSArray.m */; };
 		54CB9B5923DB02D20005BB94 /* NSArray+Multidimensional.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B5823DB02D10005BB94 /* NSArray+Multidimensional.m */; };
 		54CB9B6523DD9E0E0005BB94 /* ChooserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */; };
+		54E212B424880B6500802281 /* DSGTrainingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E212B324880B6500802281 /* DSGTrainingTest.m */; };
 		54E66A012401BEDD0032BC52 /* trials.json in Resources */ = {isa = PBXBuildFile; fileRef = 54E66A002401BEDC0032BC52 /* trials.json */; };
 /* End PBXBuildFile section */
 
@@ -116,6 +117,7 @@
 		54CB9B5723DB02D10005BB94 /* NSArray+Multidimensional.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSArray+Multidimensional.h"; sourceTree = "<group>"; };
 		54CB9B5823DB02D10005BB94 /* NSArray+Multidimensional.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Multidimensional.m"; sourceTree = "<group>"; };
 		54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChooserTest.m; sourceTree = "<group>"; };
+		54E212B324880B6500802281 /* DSGTrainingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DSGTrainingTest.m; sourceTree = "<group>"; };
 		54E66A002401BEDC0032BC52 /* trials.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = trials.json; path = Python/trials.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -219,6 +221,7 @@
 				548DA93D23EB570400825370 /* DataTests.m */,
 				549EE78123F1C4AC0040D880 /* DownloaderTest.m */,
 				54442CA223FFE37B00F278E8 /* ImproveTest.m */,
+				54E212B324880B6500802281 /* DSGTrainingTest.m */,
 				544D3B3C23DEFFC800CF95DB /* choose.json */,
 				54160CD123E02C9B00030A6A /* singleEncodedTrial.json */,
 				54E66A002401BEDC0032BC52 /* trials.json */,
@@ -411,6 +414,7 @@
 				5496CE5723EC04EE004E96C5 /* IMPMatrixBatchProvider.m in Sources */,
 				54CA210623FDD09D00723655 /* NVHFile.m in Sources */,
 				54CB9B3D23D988F10005BB94 /* IMPMurmurHash.mm in Sources */,
+				54E212B424880B6500802281 /* DSGTrainingTest.m in Sources */,
 				54CA210723FDD09D00723655 /* NVHGzipFile.m in Sources */,
 				549EE78023EF3DD60040D880 /* IMPModelDownloader.m in Sources */,
 				54442CA323FFE37B00F278E8 /* ImproveTest.m in Sources */,
