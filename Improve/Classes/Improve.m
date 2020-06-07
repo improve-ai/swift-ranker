@@ -89,15 +89,18 @@ static Improve *sharedInstance;
 
 - (instancetype)initWithApiKey:(NSString *)apiKey
 {
-    self.isReady = YES; // TODO remove
+    self = [super init];
+    if (!self) return nil;
 
-    self.apiKey = apiKey;
-    self.trackVariantsProbability = 0.01;
+    _isReady = YES; // TODO remove
+
+    _apiKey = apiKey;
+    _trackVariantsProbability = 0.01;
     
-    self.historyId = [[NSUserDefaults standardUserDefaults] stringForKey:kHistoryIdDefaultsKey];
-    if (!self.historyId) {
-        self.historyId = [self generateHistoryId];
-        [[NSUserDefaults standardUserDefaults] setObject:self.historyId forKey:kHistoryIdDefaultsKey];
+    _historyId = [[NSUserDefaults standardUserDefaults] stringForKey:kHistoryIdDefaultsKey];
+    if (!_historyId) {
+        _historyId = [self generateHistoryId];
+        [[NSUserDefaults standardUserDefaults] setObject:_historyId forKey:kHistoryIdDefaultsKey];
     }
     return self;
 }
