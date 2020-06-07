@@ -9,10 +9,15 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 
 @interface Improve : NSObject
 
+/// true if the model is loaded and ready to make choices, false otherwise
 @property (atomic, assign) BOOL isReady;
+
 @property (atomic, strong) NSString *modelBundleUrl;
+
 @property (atomic, strong) NSString *apiKey;
+
 @property (atomic, strong) NSString *trackUrl;
+
 @property (atomic, strong) NSString *chooseUrl;
 
 /// This probability affects how often "variants" input is tracked. Should be within [0, 1]. The default is 0.01.
@@ -34,12 +39,9 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 + (Improve *) instanceWithApiKey:(NSString *)apiKey;
 
 /**
- @return true if the model is loaded and ready to make choices, false otherwise
- */
-- (BOOL) isReady;
-
-/**
- @param block invoked when the model is loaded and ready to make choices
+ Adds block which is invoked when the model is loaded and ready to make choices. Block is executed synchronously
+ if model is loaded.
+ @param block A block to invoke when model is ready.
  */
 - (void) onReady:(void (^)(void)) block;
 

@@ -66,6 +66,8 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 
 @property (strong, atomic) NSString *historyId;
 
+@property (strong, nonatomic) NSMutableArray *onReadyBlocks;
+
 @end
 
 
@@ -92,7 +94,8 @@ static Improve *sharedInstance;
     self = [super init];
     if (!self) return nil;
 
-    _isReady = YES; // TODO remove
+    _isReady = NO;
+    _onReadyBlocks = [NSMutableArray new];
 
     _apiKey = apiKey;
     _trackVariantsProbability = 0.01;
@@ -134,7 +137,11 @@ static Improve *sharedInstance;
 
 - (void) onReady:(void (^)(void)) block
 {
-    block(); // TODO implement
+    if (self.isReady) {
+        block();
+    } else {
+        [self.onReadyBlocks addObject:block];
+    }
 }
 
 
@@ -561,6 +568,12 @@ domain and context.
 }
 
 - (void)notifyDidLoadModels {
+    self.isReady = YES;
+    for (void (^block)(void) in self.onReadyBlocks) {
+        block();
+    }
+    [self.onReadyBlocks removeAllObjects];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:ImproveDidLoadModelNotification object:self];
 }
 

@@ -93,6 +93,10 @@
 - (void)testModelLoadingAndDecisions {
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Stupidly waiting for models to load"];
     NSLog(@"Waiting for models to load...");
+    XCTestExpectation *onReadyExpectation = [[XCTestExpectation alloc] initWithDescription:@"Expects onReady block to be called"];
+    [improve onReady:^{
+        [onReadyExpectation fulfill];
+    }];
     NSTimeInterval seconds = 30;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 
@@ -107,7 +111,7 @@
         [expectation fulfill];
     });
 
-    [self waitForExpectations:@[expectation] timeout:(seconds + 5)];
+    [self waitForExpectations:@[expectation, onReadyExpectation] timeout:(seconds + 5)];
 }
 
 - (NSArray<NSDictionary*> *) combinationsFromVariants:(NSDictionary<NSString*, NSArray*> *)variantMap
