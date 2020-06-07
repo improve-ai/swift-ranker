@@ -44,4 +44,22 @@
     return [self defaultTrialsAndPredictions][@"predictions"];
 }
 
++ (NSString *)randomStringWithLength:(NSInteger)length
+{
+    NSString *chars = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
+
+    for (int i = 0; i < length; i++) {
+        NSUInteger randomIndex = arc4random() % [chars length];
+        [randomString appendFormat:@"%C", [chars characterAtIndex:randomIndex]];
+    }
+
+    return randomString;
+}
+
++ (NSString *)randomStringWithMinLength:(NSInteger)minLength maxLength:(NSInteger)maxLength {
+    NSInteger length = minLength + (NSInteger)arc4random_uniform((uint32_t)maxLength);
+    return [self randomStringWithLength:length];
+}
+
 @end

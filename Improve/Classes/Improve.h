@@ -98,19 +98,19 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 
 /**
  Track that a variant was chosen in order to train the system to learn what rewards it receives.
- @param namespace A descriptor and namespace for the type of variant chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
+ @param namespaceStr A descriptor and namespace for the type of variant chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
  @param variant The JSON encodeable chosen variant to track
  */
-- (void) trackDecision:(NSString *) namespace
+- (void) trackDecision:(NSString *) namespaceStr
                variant:(id) variant;
 
 /**
  Track that a variant was chosen in order to train the system to learn what rewards it receives.
- @param namespace A descriptor and namespace for the type of variant chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
+ @param namespaceStr A descriptor and namespace for the type of variant chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
  @param variant The JSON encodeable chosen variant to track
  @param context The JSON encodeable context that the chosen variant is being used in and should be rewarded against.  It is okay for this to be different from the context that was used during choose or sort.
 */
-- (void) trackDecision:(NSString *) namespace
+- (void) trackDecision:(NSString *) namespaceStr
                variant:(id) variant
                context:(NSDictionary *) context;
 

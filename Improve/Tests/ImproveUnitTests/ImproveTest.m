@@ -11,6 +11,7 @@
 #import "IMPModelBundle.h"
 #import "TestUtils.h"
 #import "IMPScoredObject.h"
+#import "NSArray+Random.h"
 
 // Disclose private interface for test
 @interface Improve ()
@@ -160,6 +161,213 @@
     free(indexes);
 
     return combos;
+}
+
+#pragma mark - Tests with training
+
+// Helper for training data generators
+- (void)printJSON:(id)jsonObject {
+    NSData *json = [NSJSONSerialization dataWithJSONObject:jsonObject options:NSJSONWritingPrettyPrinted error:nil];
+    XCTAssertNotNil(json);
+    NSString *string = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
+    XCTAssertNotNil(string);
+    NSLog(@"%@", string);
+}
+
+/*
+ It's not an actual test case. Creates random training data
+ including namespace, variants and rewards.
+ {
+    namespace: "",
+    variantsToRewardsMap: {
+        "variant1": 1.004,
+        "variant2": 99.2,
+        ...
+    }
+ }
+
+ You can paste this JSON to variantsTraining.json file which is included in the test target
+ bundle, and required for `-testVariantsTrainingChoosing` test case.
+ */
+/*- (void)testGenerateTrainingVariants {
+    const NSInteger variantsCount = 10;
+
+    // Generate
+    NSString *randomNamespace = [TestUtils randomStringWithMinLength:4
+                                                           maxLength:100];
+    NSMutableDictionary *variantsToRewards = [NSMutableDictionary dictionaryWithCapacity:variantsCount];
+    for (int i = 0; i < variantsCount; i++) {
+        NSString *variant = [TestUtils randomStringWithMinLength:1 maxLength:500];
+        double reward = 100 * drand48();
+        variantsToRewards[variant] = @(reward);
+    }
+
+    // Compose JSON object
+    NSDictionary *output = @{
+        @"namespace": randomNamespace,
+        @"variantsToRewardsMap": variantsToRewards
+    };
+
+    [self printJSON:output];
+}*/
+
+/**
+ Returns a dictionary from variantsTraining.json.
+ Dictionary contains "namespace" and "variantsToRewardsMap".
+ */
+- (NSDictionary *)variantsTrainingChoosingJSON {
+    NSURL *url = [[TestUtils bundle] URLForResource:@"variantsTraining" withExtension:@"json"];
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    XCTAssertNotNil(json);
+    return json;
+}
+
+/**
+ Performs training with a random variants and rewards, no context. Each variant has it's own predifined reward.
+ */
+- (void)testVariantsTraining {
+    // Get data
+    NSDictionary *json = [self variantsTrainingChoosingJSON];
+    NSString *namespaceString = json[@"namespace"];
+    NSDictionary *variantsToRewards = json[@"variantsToRewardsMap"];
+    NSArray *variants = [variantsToRewards allKeys];
+
+    // Train
+    for (int iteration = 0; iteration < 1000; iteration++) {
+        NSString *variant = [improve choose:namespaceString variants:variants];
+        [improve trackDecision:namespaceString variant:variant];
+        [improve trackReward:namespaceString value:variantsToRewards[variant]];
+    }
+}
+
+/**
+ Tests the trained model with variants and no context. Test passed if the best variant (one with the highest reward)
+ is chosen most of time, defined by the `desiredSuccess` constant.
+ */
+- (void)testVariantsChoosing {
+    const int iterations = 1000;
+    const float desiredSuccess = 0.95;
+
+    NSDictionary *json = [self variantsTrainingChoosingJSON];
+    NSDictionary *variantsToRewards = json[@"variantsToRewardsMap"];
+    NSString *correctVariant = nil;
+    double bestReward = -1;
+    for (NSString *variant in variantsToRewards) {
+        double reward = [variantsToRewards[variant] doubleValue];
+        if (reward > bestReward) {
+            correctVariant = variant;
+            bestReward = reward;
+        }
+    }
+    NSString *namespaceString = json[@"namespace"];
+    NSArray *variants = [variantsToRewards allKeys];
+
+    int successCount = 0;
+    for (int iteration = 0; iteration < iterations; iteration++) {
+        NSString *chosenVariant = [improve choose:namespaceString variants:variants];
+        successCount += [chosenVariant isEqualToString:correctVariant] ? 1 : 0;
+    }
+
+    float successRate = (float)successCount / iterations;
+    XCTAssert(successRate >= desiredSuccess);
+}
+
+/*
+ It's not an actual test case. Creates random training data
+ including namespace, variants and context {bestKey: bestVariant}.
+ {
+    namespace: "",
+    variants: [],
+    bestKey: "",
+    bestVariant: ""
+ }
+
+ You can paste this JSON to variantsContextTraining.json file which is included in
+ the test target bundle, and required for `-testVariantsAndContextTraining` test case.
+ */
+/*- (void)testGenerateVariantsForContext {
+    const NSInteger variantsCount = 5;
+
+    // Generate
+    NSString *randomNamespace = [TestUtils randomStringWithMinLength:3
+                                                           maxLength:150];
+    NSMutableArray *variants = [NSMutableArray arrayWithCapacity:variantsCount];
+    for (int i = 0; i < variantsCount; i++) {
+        [variants addObject:[TestUtils randomStringWithMinLength:4
+                                                       maxLength:500]];
+    }
+    NSString *bestKey = [TestUtils randomStringWithMinLength:4 maxLength:20];
+    NSString *bestVariant = [variants randomObject];
+
+    // Compose JSON object
+    NSDictionary *output = @{
+        @"namespace": randomNamespace,
+        @"variants": variants,
+        @"bestKey": bestKey,
+        @"bestVariant": bestVariant
+    };
+
+    [self printJSON:output];
+}*/
+
+/**
+
+ */
+- (NSDictionary *)variantsForContextTrainingChoosingJSON {
+    NSURL *url = [[TestUtils bundle] URLForResource:@"variantsForContextTraining" withExtension:@"json"];
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    XCTAssertNotNil(json);
+    return json;
+}
+
+/**
+
+ */
+- (void)testVariantsAndContextTraining {
+    // Get data
+    NSDictionary *json = [self variantsForContextTrainingChoosingJSON];
+    NSString *namespaceString = json[@"namespace"];
+    NSArray *variants = json[@"variants"];
+    NSString *bestVariant = json[@"bestVariant"];
+    NSDictionary *context = @{json[@"bestKey"]: bestVariant};
+
+    // Train
+    for (int iteration = 0; iteration < 1000; iteration++) {
+        NSString *variant = [improve choose:namespaceString
+                                   variants:variants
+                                    context:context];
+        [improve trackDecision:namespaceString variant:variant context:context];
+
+        double reward = [variant isEqualToString:bestVariant] ? 1.0 : 0.0;
+        [improve trackReward:namespaceString value:@(reward)];
+    }
+}
+
+/**
+
+ */
+- (void)testVariantsAndContextChoosing {
+    const int iterations = 1000;
+    const float desiredSuccess = 0.95;
+
+    NSDictionary *json = [self variantsForContextTrainingChoosingJSON];
+    NSString *namespaceString = json[@"namespace"];
+    NSArray *variants = json[@"variants"];
+    NSString *bestVariant = json[@"bestVariant"];
+    NSDictionary *context = @{json[@"bestKey"]: bestVariant};
+
+    int successCount = 0;
+    for (int iteration = 0; iteration < iterations; iteration++) {
+        NSString *chosenVariant = [improve choose:namespaceString
+                                         variants:variants
+                                          context:context];
+        successCount += [chosenVariant isEqualToString:bestVariant] ? 1 : 0;
+    }
+
+    float successRate = (float)successCount / iterations;
+    XCTAssert(successRate >= desiredSuccess);
 }
 
 @end
