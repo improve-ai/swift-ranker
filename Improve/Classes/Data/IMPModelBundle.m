@@ -11,6 +11,7 @@
 
 
 @implementation IMPModelBundle
+@synthesize metadata = _metadata;
 
 - (instancetype)initWithModelURL:(NSURL *)compiledModelURL metadataURL:(NSURL* )metadataURL
 {
@@ -63,6 +64,13 @@
     BOOL areExist = [self.compiledModelURL checkResourceIsReachableAndReturnError:NULL]
         && [self.metadataURL checkResourceIsReachableAndReturnError:NULL];
     return areExist;
+}
+
+- (IMPModelMetadata *)metadata {
+    if (_metadata) return _metadata;
+
+    _metadata = [IMPModelMetadata metadataWithURL:self.metadataURL];
+    return _metadata;
 }
 
 @end

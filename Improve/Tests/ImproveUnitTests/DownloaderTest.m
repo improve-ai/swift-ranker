@@ -57,12 +57,12 @@
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:remoteURL];
 
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader loadWithCompletion:^(NSDictionary * _Nullable modelBundlesByName, NSError * _Nullable error) {
+    [downloader loadWithCompletion:^(NSArray *modelBundles, NSError *error) {
         if (error != nil) {
             XCTFail(@"Downloading error: %@", error);
         }
-        XCTAssert(modelBundlesByName.count > 0);
-        NSLog(@"Model bundle: %@", modelBundlesByName);
+        XCTAssert(modelBundles.count > 0);
+        NSLog(@"Model bundle: %@", modelBundles);
 
         // Cleenup
 //        NSURL *folderURL = bundle.modelURL.URLByDeletingLastPathComponent;

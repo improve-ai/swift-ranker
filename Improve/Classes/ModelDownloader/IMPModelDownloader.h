@@ -10,7 +10,7 @@
 #import "IMPModelBundle.h"
 
 
-typedef void (^IMPModelDownloaderCompletion) (NSDictionary *_Nullable modelBundlesByName, NSError *_Nullable);
+typedef void (^IMPModelDownloaderCompletion) (NSArray *_Nullable modelBundles, NSError *_Nullable);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(readonly, nonatomic) BOOL isLoading;
 
-+ (NSDictionary *)cachedModelBundlesByName;
++ (nullable NSArray *)cachedModelBundles;
 
 - (instancetype)init NS_UNAVAILABLE;
 

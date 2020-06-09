@@ -12,7 +12,6 @@
 #import "NSArray+Random.h"
 #import "IMPCommon.h"
 #import "IMPModelDownloader.h"
-#import "IMPModelMetadata.h"
 
 @import Security;
 
@@ -56,11 +55,12 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 @interface Improve ()
 // Private vars
 
-/// Already loaded models
+/**
+ Already loaded models mapped by their namespaces. A single model may have many namespaces.
 
-/* Initially empty. Then we load models from cache, if any, and
- then remote models. */
-@property (strong, nonatomic) NSMutableDictionary<NSString*, IMPModelBundle*> *modelBundlesByName;
+ Initially nil. Then we load models from cache, if any, and then remote models.
+ */
+@property (strong, nonatomic) NSDictionary<NSString*, IMPModelBundle*> *modelBundlesByNamespace;
 
 @property (strong, nonatomic) IMPModelDownloader *downloader;
 
@@ -124,7 +124,11 @@ static Improve *sharedInstance;
 - (void) setModelBundleUrl:(NSString *) url {
     @synchronized (self) {
         self.modelBundleUrl = url;
-        _modelBundlesByName = [[IMPModelDownloader cachedModelBundlesByName] mutableCopy];
+        NSArray *cachedBundles = [IMPModelDownloader cachedModelBundles];
+        if (cachedBundles) {
+            _modelBundlesByNamespace = [self mapNamespacesToModels:cachedBundles];
+        }
+
         [self loadModels:[NSURL URLWithString:url]];
     }
 }
@@ -143,7 +147,6 @@ static Improve *sharedInstance;
         [self.onReadyBlocks addObject:block];
     }
 }
-
 
 - (id) choose:(NSString *) namespace
      variants:(NSArray *) variants
@@ -457,16 +460,16 @@ static Improve *sharedInstance;
     [dataTask resume];
 }
 
-- (IMPChooser *)chooserForNamespace:(NSString *)namespace
+- (IMPChooser *)chooserForNamespace:(NSString *)namespaceStr
 {
-    IMPModelBundle *modelBundle = self.modelBundlesByName[namespace];
+    IMPModelBundle *modelBundle = self.modelBundlesByNamespace[namespaceStr];
     if (!modelBundle) {
-        NSLog(@"-[%@ %@]: Model not found: %@", CLASS_S, CMD_S, namespace);
+        NSLog(@"-[%@ %@]: Model not found: %@", CLASS_S, CMD_S, namespaceStr);
         return nil;
     }
 
     NSError *error = nil;
-    IMPChooser *chooser = [IMPChooser chooserWithModelBundle:modelBundle namespace:namespace error:&error];
+    IMPChooser *chooser = [IMPChooser chooserWithModelBundle:modelBundle namespace:namespaceStr error:&error];
     if (!chooser) {
         NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
         return nil;
@@ -475,8 +478,6 @@ static Improve *sharedInstance;
     return chooser;
 }
 
-
-// Recursively load models one by one
 - (void)loadModels:(NSURL *) modelBundleUrl
 {
     if (self.downloader && self.downloader.isLoading) return;
@@ -484,7 +485,7 @@ static Improve *sharedInstance;
     self.downloader = [[IMPModelDownloader alloc] initWithURL:modelBundleUrl];
 
     __weak Improve *weakSelf = self;
-    [self.downloader loadWithCompletion:^(NSDictionary *bundles, NSError *error) {
+    [self.downloader loadWithCompletion:^(NSArray *bundles, NSError *error) {
         if (error) {
             NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
 
@@ -493,10 +494,23 @@ static Improve *sharedInstance;
                 [weakSelf loadModels:modelBundleUrl];
             });
         } else if (bundles) {
-            [weakSelf.modelBundlesByName setDictionary:bundles];
+            weakSelf.modelBundlesByNamespace = [weakSelf mapNamespacesToModels:bundles];
             [weakSelf notifyDidLoadModels];
         }
     }];
+}
+
+- (NSDictionary<NSString *, IMPModelBundle *> *)mapNamespacesToModels:(NSArray *)models
+{
+    NSMutableDictionary *bundlesByNamespace = [NSMutableDictionary new];
+
+    for (IMPModelBundle *bundle in models) {
+        NSArray *namespaces = bundle.metadata.namespaces;
+        for (NSString *namespaceString in namespaces) {
+            bundlesByNamespace[namespaceString] = bundle;
+        }
+    }
+    return bundlesByNamespace;
 }
 
 - (BOOL)shouldTrackVariants {

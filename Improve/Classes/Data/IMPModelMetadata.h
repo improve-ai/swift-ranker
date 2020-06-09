@@ -14,11 +14,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (assign, nonatomic) NSUInteger numberOfFeatures;
 
-@property (copy, nonatomic) NSString *modelId;
-
+/// Feature encoding lookup table. May be several MB big.
 @property (strong, nonatomic) NSArray *lookupTable;
 
 @property (assign, nonatomic) uint32_t seed;
+
+/// Namespaces advertised by the model
+@property(readonly, nonatomic) NSArray<NSString *> *namespaces;
 
 // coming later: hashing tables
 

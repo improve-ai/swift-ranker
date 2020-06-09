@@ -52,7 +52,7 @@ NSString *const kModelsFolderName = @"ai.improve.models";
     return url;
 }
 
-+ (NSDictionary *)cachedModelBundlesByName
++ (nullable NSArray *)cachedModelBundles
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
@@ -62,7 +62,7 @@ NSString *const kModelsFolderName = @"ai.improve.models";
         return nil;
     }
 
-    NSMutableDictionary *bundlesByName = [NSMutableDictionary new];
+    NSMutableArray *bundles = [NSMutableArray new];
     for (NSURL *url in fileURLs)
     {
         NSString *extension = url.pathExtension;
@@ -76,11 +76,11 @@ NSString *const kModelsFolderName = @"ai.improve.models";
 
         // Check if all files for the givent model name exists
         if (bundle.isReachable) {
-            bundlesByName[name] = bundle;
+            [bundles addObject:bundle];
         }
     }
 
-    return bundlesByName;
+    return bundles;
 }
 
 - (instancetype)initWithURL:(NSURL *)remoteArchiveURL
@@ -143,8 +143,8 @@ NSString *const kModelsFolderName = @"ai.improve.models";
             return;
         }
 
-        NSDictionary *bundlesByName = [self processUnarchivedModelFilesIn:unarchivePath];
-        if (completion) { completion(bundlesByName, nil); }
+        NSArray *bundles = [self processUnarchivedModelFilesIn:unarchivePath];
+        if (completion) { completion(bundles, nil); }
     }];
     [_downloadTask resume];
 }
@@ -179,8 +179,7 @@ NSString *const kModelsFolderName = @"ai.improve.models";
     return _downloadTask && _downloadTask.state != NSURLSessionTaskStateRunning;
 }
 
-/// @returns Dictionary { "model name": IMPModelBundle }
-- (NSDictionary *)processUnarchivedModelFilesIn:(NSString *)folder
+- (NSArray<IMPModelBundle *> *)processUnarchivedModelFilesIn:(NSString *)folder
 {
     NSURL *folderURL = [NSURL fileURLWithPath:folder];
     NSError *error;
@@ -207,7 +206,7 @@ NSString *const kModelsFolderName = @"ai.improve.models";
     [mlmodelNames intersectSet:jsonNames];
 
     // Process models
-    NSMutableDictionary *modelBundlesByName = [NSMutableDictionary new];
+    NSMutableArray *modelBundles = [NSMutableArray arrayWithCapacity:mlmodelNames.count];
     for (NSString *modelName in mlmodelNames)
     {
         NSString *mlmodelFileName = [NSString stringWithFormat:@"%@.mlmodel", modelName];
@@ -219,10 +218,10 @@ NSString *const kModelsFolderName = @"ai.improve.models";
         IMPModelBundle *bundleOrNil = [self processModelWithName:modelName
                                                         withPath:mlmodelPath
                                                         jsonPath:jsonPath];
-        modelBundlesByName[modelName] = bundleOrNil;
+        [modelBundles addObject:bundleOrNil];
     }
 
-    return modelBundlesByName;
+    return modelBundles;
 }
 
 - (IMPModelBundle *)processModelWithName:(NSString *)modelName

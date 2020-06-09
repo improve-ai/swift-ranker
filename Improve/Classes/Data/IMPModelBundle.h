@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "IMPModelMetadata.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,6 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly, nonatomic) NSDate *_Nullable creationDate;
 
 @property(readonly, nonatomic) BOOL isReachable;
+
+/**
+ Metadata extracted from JSON file at `metadataURL`. Initialized lazily because actual metadata file may
+ be missing at the moment of bundle creation.
+ */
+@property(readonly, nonatomic) IMPModelMetadata *metadata;
 
 - (instancetype)initWithModelURL:(NSURL *)modelURL metadataURL:(NSURL* )metadataURL
 NS_DESIGNATED_INITIALIZER;
