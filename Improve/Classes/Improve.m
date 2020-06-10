@@ -62,6 +62,13 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
  */
 @property (strong, nonatomic) NSDictionary<NSString*, IMPModelBundle*> *modelBundlesByNamespace;
 
+/**
+ The model which handles requests without namespace. Initially is nil.
+
+ Initially nil. Then is loaded from cache, if any, and then from the remote server.
+ */
+@property (strong, nonatomic) IMPModelBundle *defaultModel;
+
 @property (strong, nonatomic) IMPModelDownloader *downloader;
 
 @property (strong, atomic) NSString *historyId;
@@ -126,7 +133,7 @@ static Improve *sharedInstance;
         self.modelBundleUrl = url;
         NSArray *cachedBundles = [IMPModelDownloader cachedModelBundles];
         if (cachedBundles) {
-            _modelBundlesByNamespace = [self mapNamespacesToModels:cachedBundles];
+            [self fillNamespaceToModelsMap:cachedBundles];
         }
 
         [self loadModels:[NSURL URLWithString:url]];
@@ -460,9 +467,14 @@ static Improve *sharedInstance;
     [dataTask resume];
 }
 
-- (IMPChooser *)chooserForNamespace:(NSString *)namespaceStr
+- (IMPChooser *)chooserForNamespace:(nullable NSString *)namespaceStr
 {
-    IMPModelBundle *modelBundle = self.modelBundlesByNamespace[namespaceStr];
+    IMPModelBundle *modelBundle;
+    if (!namespaceStr || namespaceStr.length == 0) {
+        modelBundle = self.defaultModel;
+    } else {
+        modelBundle= self.modelBundlesByNamespace[namespaceStr];
+    }
     if (!modelBundle) {
         NSLog(@"-[%@ %@]: Model not found: %@", CLASS_S, CMD_S, namespaceStr);
         return nil;
@@ -494,23 +506,29 @@ static Improve *sharedInstance;
                 [weakSelf loadModels:modelBundleUrl];
             });
         } else if (bundles) {
-            weakSelf.modelBundlesByNamespace = [weakSelf mapNamespacesToModels:bundles];
+            [weakSelf fillNamespaceToModelsMap:bundles];
             [weakSelf notifyDidLoadModels];
         }
     }];
 }
 
-- (NSDictionary<NSString *, IMPModelBundle *> *)mapNamespacesToModels:(NSArray *)models
+/// Populates `modelBundlesByNamespace` and `defaultModel` properties.
+- (void)fillNamespaceToModelsMap:(NSArray<IMPModelBundle *> *)models
 {
     NSMutableDictionary *bundlesByNamespace = [NSMutableDictionary new];
 
     for (IMPModelBundle *bundle in models) {
         NSArray *namespaces = bundle.metadata.namespaces;
+        if (namespaces.count == 0) {
+            // Only the default model should have zero namespaces.
+            self.defaultModel = bundle;
+            continue;
+        }
         for (NSString *namespaceString in namespaces) {
             bundlesByNamespace[namespaceString] = bundle;
         }
     }
-    return bundlesByNamespace;
+    self.modelBundlesByNamespace = bundlesByNamespace;
 }
 
 - (BOOL)shouldTrackVariants {
