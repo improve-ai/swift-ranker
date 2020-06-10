@@ -12,7 +12,9 @@
 #import "IMPModelMetadata.h"
 
 
-@implementation IMPFeatureHasher
+@implementation IMPFeatureHasher {
+    IMPJSONFlattener *_flattener;
+}
 
 - (instancetype)initWithTable:(NSArray *)table seed:(uint32_t)seed
 {
@@ -22,6 +24,11 @@
     if (self) {
         _table = table;
         _modelSeed = seed;
+
+        _flattener = [[IMPJSONFlattener alloc] init];
+        _flattener.separator = @"\0";
+        _flattener.emptyArrayValue = @-2;
+        _flattener.emptyArrayValue = @-3;
     }
     return self;
 }
@@ -37,8 +44,7 @@
 
 - (IMPFeaturesDictT *)encodeFeatures:(NSDictionary *)properties
 {
-    return [self encodeFeaturesFromFlattened:[IMPJSONFlattener flatten:properties
-                                                             separator:@"\0"]];
+    return [self encodeFeaturesFromFlattened:[_flattener flatten:properties]];
 }
 
 - (IMPFeaturesDictT *)encodePartialFeaturesWithKey:(NSString *)propertyKey
@@ -62,6 +68,8 @@
         if ([value isKindOfClass:NSNumber.class]) {
             // Encode BOOL and int as double
             features[@(column)] = @([value doubleValue]);
+        } else if ([value isKindOfClass:NSNull.class]) {
+            features[@(column)] = @-1;
         } else if ([value isKindOfClass:NSString.class]) {
             NSString *string = value;
             features[@(column)] = @([self lookupValueForColumn:column

@@ -8,12 +8,19 @@
 
 #import "IMPJSONFlattener.h"
 
-NSString * const kDefaultSeparator = @"_";
+NSString * const kDefaultSeparator = @"";
 
 @implementation IMPJSONFlattener
 
-+ (NSData * _Nullable)flatten:(NSData *)jsonData
-                    separator:(NSString *)separator
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _separator = kDefaultSeparator;
+    }
+    return self;
+}
+
+- (NSData * _Nullable)flatten:(NSData *)jsonData
                         error:(NSError * _Nullable *)error
 {
     id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData
@@ -21,48 +28,51 @@ NSString * const kDefaultSeparator = @"_";
                                                       error:error];
     if (jsonObject == nil) { return nil; }
     
-    NSDictionary *flatObject = [self flatten:jsonObject separator:separator];
+    NSDictionary *flatObject = [self flatten:jsonObject];
     NSData *outputData = [NSJSONSerialization dataWithJSONObject:flatObject
                                                          options:0
                                                            error:error];
     return outputData;
 }
 
-+ (NSDictionary *)flatten:(id)jsonObject
-                separator:(NSString *)separator
+- (NSDictionary *)flatten:(id)jsonObject
 {
     NSMutableDictionary *rootDict = [NSMutableDictionary new];
     [self flatten:jsonObject
                to:rootDict
-        separator:separator
            prefix:@""];
     return rootDict;
 }
 
-+ (void)flatten:(id)jsonObject
+- (void)flatten:(id)jsonObject
              to:(NSMutableDictionary *)dictionary
-      separator:(NSString *)separator
          prefix:(NSString *)prefix
 {
     if ([jsonObject isKindOfClass:[NSDictionary class]]) {
         NSDictionary *jsonDict = jsonObject;
+        if (jsonDict.count == 0 && self.emptyDictionaryValue) {
+            dictionary[prefix] = self.emptyDictionaryValue;
+            return;
+        }
         for (NSString *key in jsonDict) {
             id val = jsonDict[key];
-            NSString *nextPrefix = [self extendPrefix:prefix withKey:key separator:separator];
+            NSString *nextPrefix = [self extendPrefix:prefix withKey:key separator:self.separator];
             [self flatten:val
                        to:dictionary
-                separator:separator
                    prefix:nextPrefix];
         }
     } else if ([jsonObject isKindOfClass:[NSArray class]]) {
         NSArray *jsonArray = jsonObject;
+        if (jsonArray.count == 0 && self.emptyArrayValue) {
+            dictionary[prefix] = self.emptyArrayValue;
+            return;
+        }
         for (NSInteger i = 0; i < jsonArray.count; i++) {
             id val = jsonArray[i];
             NSString *key = [NSString stringWithFormat:@"%ld", i];
-            NSString *nextPrefix = [self extendPrefix:prefix withKey:key separator:separator];
+            NSString *nextPrefix = [self extendPrefix:prefix withKey:key separator:self.separator];
             [self flatten:val
                        to:dictionary
-                separator:separator
                    prefix:nextPrefix];
         }
     } else {
@@ -71,7 +81,7 @@ NSString * const kDefaultSeparator = @"_";
     }
 }
 
-+ (NSString *)extendPrefix:(NSString *)prefix
+- (NSString *)extendPrefix:(NSString *)prefix
                    withKey:(NSString *)key
                  separator:(NSString *)separator
 {
@@ -80,10 +90,6 @@ NSString * const kDefaultSeparator = @"_";
     } else {
         return [NSString stringWithFormat:@"%@%@%@", prefix, separator, key];
     }
-}
-
-+ (NSDictionary * _Nullable)flatten:(id)jsonObject {
-    return [self flatten:jsonObject separator:kDefaultSeparator];
 }
 
 @end

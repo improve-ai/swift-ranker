@@ -12,20 +12,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPJSONFlattener : NSObject
 
-+ (NSData * _Nullable)flatten:(NSData *)jsonData
-                    separator:(NSString *)separator
+// The separator used to compose the output keys. Default is empty string.
+@property(nonatomic, copy) NSString *separator;
+
+@property(nonatomic, strong, nullable) id emptyArrayValue;
+
+@property(nonatomic, strong, nullable) id emptyDictionaryValue;
+
+- (NSData * _Nullable)flatten:(NSData *)jsonData
                         error:(NSError * _Nullable *)error;
 
-/**
- Flattens inner collections (NSArray, NSDictionary) of a json object.
- @param separator The separator used to compose the output keys.
- @return The flat JSON dictionary where keys are key paths in terms of original object.
- */
-+ (NSDictionary * _Nullable)flatten:(id)jsonObject
-                          separator:(NSString *)separator;
-
-/// The default separator is "_"
-+ (NSDictionary * _Nullable)flatten:(id)jsonObject;
+- (NSDictionary * _Nullable)flatten:(id)jsonObject;
 
 @end
 

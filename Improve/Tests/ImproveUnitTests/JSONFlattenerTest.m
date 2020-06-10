@@ -43,11 +43,13 @@
         @{@"in": @{@"a": @0.8, @"b": @1.8},
           @"out": @{@"a": @0.8, @"b": @1.8}}
     ];
-    
+
+    IMPJSONFlattener *flattener = [[IMPJSONFlattener alloc] init];
+    flattener.separator = @"_";
     for (NSDictionary *c in cases) {
         NSDictionary *input = c[@"in"];
         NSLog(@"in: %@", input);
-        NSDictionary *output = [IMPJSONFlattener flatten:input];
+        NSDictionary *output = [flattener flatten:input];
         NSLog(@"out: %@", output);
         NSDictionary *expectedOutp = c[@"out"];
         XCTAssert([output isEqualToDictionary:expectedOutp]);
@@ -58,9 +60,35 @@
     NSString *nulStr = @"\0";
     XCTAssert(nulStr.length == 1);
 
+    IMPJSONFlattener *flattener = [[IMPJSONFlattener alloc] init];
+    flattener.separator = nulStr;
+
     NSDictionary *input = @{@"game": @{@"team": @{@"user": @{@"score": @15}}}};
     NSDictionary *correctOut = @{@"game\0team\0user\0score": @15};
-    NSDictionary *realOut = [IMPJSONFlattener flatten:input separator:nulStr];
+    NSDictionary *realOut = [flattener flatten:input];
+    NSLog(@"%@", realOut);
+    XCTAssert([realOut isEqualToDictionary:correctOut]);
+}
+
+- (void)testSpecialValues {
+    NSDictionary *input = @{
+        @"true": @YES,
+        @"false": @NO,
+        @"array": @[],
+        @"dict": @{}
+    };
+    NSDictionary *correctOut = @{
+        @"true": @1,
+        @"false": @0,
+        @"array": @-2,
+        @"dict": @-3
+    };
+
+    IMPJSONFlattener *flattener = [[IMPJSONFlattener alloc] init];
+    flattener.emptyDictionaryValue = @-3;
+    flattener.emptyArrayValue = @-2;
+
+    NSDictionary *realOut = [flattener flatten:input];
     NSLog(@"%@", realOut);
     XCTAssert([realOut isEqualToDictionary:correctOut]);
 }
