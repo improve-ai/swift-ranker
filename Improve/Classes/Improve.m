@@ -80,6 +80,8 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 
 @implementation Improve
 
+@synthesize modelBundleUrl = _modelBundleUrl;
+
 static Improve *sharedInstance;
 
 + (Improve *)instance
@@ -130,7 +132,7 @@ static Improve *sharedInstance;
 
 - (void) setModelBundleUrl:(NSString *) url {
     @synchronized (self) {
-        self.modelBundleUrl = url;
+        _modelBundleUrl = url;
         NSArray *cachedBundles = [IMPModelDownloader cachedModelBundles];
         if (cachedBundles) {
             [self fillNamespaceToModelsMap:cachedBundles];
@@ -142,7 +144,7 @@ static Improve *sharedInstance;
 
 - (NSString *) modelBundleUrl {
     @synchronized (self) {
-        return self.modelBundleUrl;
+        return _modelBundleUrl;
     }
 }
 
