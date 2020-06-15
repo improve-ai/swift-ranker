@@ -30,6 +30,7 @@
 - (void)setUp {
     // TODO test nil api key
     improve = [Improve instanceWithApiKey:nil];
+    improve.modelBundleUrl = @"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/improve-mlmodel-2020-5-11-0-11-47-8f23be6d-7fe7-427a-93e5-5cc14fa60133.tar.gz";
 }
 
 - (void)testCombinations {
@@ -237,12 +238,22 @@
     NSDictionary *variantsToRewards = json[@"variantsToRewardsMap"];
     NSArray *variants = [variantsToRewards allKeys];
 
-    // Train
-    for (int iteration = 0; iteration < 1000; iteration++) {
-        NSString *variant = [improve choose:namespaceString variants:variants];
-        [improve trackDecision:namespaceString variant:variant];
-        [improve trackReward:namespaceString value:variantsToRewards[variant]];
-    }
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"onReady"];
+
+    [improve onReady:^{
+        // Train
+        for (int iteration = 0; iteration < 1000; iteration++) {
+            NSString *variant = [self->improve choose:namespaceString variants:variants];
+            [self->improve trackDecision:namespaceString variant:variant];
+            [self->improve trackReward:namespaceString value:variantsToRewards[variant]];
+        }
+
+        NSLog(@"Waiting for all track HTTP requests to complete");
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [expectation fulfill];
+        });
+    }];
+    [self waitForExpectations:@[expectation] timeout:60.0];
 }
 
 /**
@@ -274,6 +285,7 @@
     }
 
     float successRate = (float)successCount / iterations;
+    NSLog(@"success: %f", successRate);
     XCTAssert(successRate >= desiredSuccess);
 }
 
@@ -371,6 +383,7 @@
     }
 
     float successRate = (float)successCount / iterations;
+    NSLog(@"success: %f", successRate);
     XCTAssert(successRate >= desiredSuccess);
 }
 

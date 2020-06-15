@@ -92,9 +92,6 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     return [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:featureProviders];
 }
 
-#pragma mark Feature Extracting
-
-
 #pragma mark Choosing
 
 - (id) choose:(NSArray *)variants

@@ -188,6 +188,11 @@ static Improve *sharedInstance;
         
         if (chooser) {
             chosen = [chooser choose:variants context:context];
+            [self calculateAndTrackPropensityOfChosen:chosen
+                                        amongVariants:variants
+                                            inContext:context
+                                          withChooser:chooser
+                                           chooseDate:[NSDate date]];
         } else {
             NSLog(@"-[%@ %@]: Model not loaded. Choosing first variant.", CLASS_S, CMD_S);
         }
@@ -379,13 +384,22 @@ static Improve *sharedInstance;
 }
 
 - (void) track:(NSDictionary *) body {
-    [self postImproveRequest:body url:[NSURL URLWithString:_trackUrl] block:^(NSObject *result, NSError *error) {
+    [self postImproveRequest:body
+                         url:[NSURL URLWithString:_trackUrl]
+                       block:^
+     (NSObject *result, NSError *error) {
         if (error) {
             NSLog(@"Improve.track error: %@", error);
         }
     }];
 }
 
+/**
+ Sends POST HTTP request to the sepcified url.
+
+ Body values for kTimestampKey, kHistoryIdKey and kMessageIdKey are added autmatically. You can override them
+ providing values in the body.
+ */
 - (void) postImproveRequest:(NSDictionary *) bodyValues url:(NSURL *) url block:(void (^)(NSObject *, NSError *)) block
 {
     if (!self.historyId) {
@@ -399,20 +413,13 @@ static Improve *sharedInstance;
         [headers setObject:self.apiKey forKey:kApiKeyHeader];
     }
 
-    NSISO8601DateFormatOptions options = (NSISO8601DateFormatWithInternetDateTime
-                                          | NSISO8601DateFormatWithFractionalSeconds
-                                          | NSISO8601DateFormatWithTimeZone);
-    // Example: 2020-02-03T03:16:36.073Z
-    NSString *dateStr = [NSISO8601DateFormatter stringFromDate:[NSDate date]
-                                                      timeZone:[NSTimeZone localTimeZone]
-                                                 formatOptions:options];
+    NSString *dateStr = [self timestampFromDate:[NSDate date]];
 
     NSMutableDictionary *body = [@{
         kTimestampKey: dateStr,
         kHistoryIdKey: self.historyId,
         kMessageIdKey: [[NSUUID UUID] UUIDString]
     } mutableCopy];
-    
     [body addEntriesFromDictionary:bodyValues];
     
     NSError * err;
@@ -589,6 +596,39 @@ domain and context.
                       iterationCount:9];
 }
 
+- (void)calculateAndTrackPropensityOfChosen:(id)chosen
+                              amongVariants:(NSArray *)variants
+                                  inContext:(NSDictionary *)context
+                                withChooser:(IMPChooser *)chooser
+                                 chooseDate:(NSDate *)chooseDate
+{
+    if (self.propensityScoreTrialCount <= 1) return;
+
+    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(backgroundQueue, ^{
+        NSUInteger repeats = 0;
+        for (NSUInteger i = 0; i < self.propensityScoreTrialCount; i++)
+        {
+            NSDictionary *anotherChoice = [chooser choose:variants context:context];
+            if ([chosen isEqual:anotherChoice]) {
+                repeats += 1;
+            }
+        }
+        double propensity = 1.0 / (double)(repeats + 1);
+
+        NSDictionary *trackData = @{
+            kTypeKey: kPropensityType,
+            // Specify timestamp directly to override the default value
+            kTimestampKey: [self timestampFromDate:chooseDate],
+            kVariantKey: chosen,
+            kContextKey: context,
+            kPropensityKey: @(propensity)
+        };
+
+        [self track:trackData];
+    });
+}
+
 - (NSArray*)shuffleArray:(NSArray*)array {
 
     NSMutableArray *copy = [[NSMutableArray alloc] initWithArray:array];
@@ -609,6 +649,20 @@ domain and context.
     [self.onReadyBlocks removeAllObjects];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:ImproveDidLoadModelNotification object:self];
+}
+
+/// Example: 2020-02-03T03:16:36.073Z
+- (NSString *)timestampFromDate:(NSDate *)date
+{
+    NSISO8601DateFormatOptions options = (NSISO8601DateFormatWithInternetDateTime
+                                          | NSISO8601DateFormatWithFractionalSeconds
+                                          | NSISO8601DateFormatWithTimeZone);
+
+    NSString *dateStr = [NSISO8601DateFormatter stringFromDate:date
+                                                      timeZone:[NSTimeZone localTimeZone]
+                                                 formatOptions:options];
+
+    return dateStr;
 }
 
 @end

@@ -23,7 +23,10 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 /// This probability affects how often "variants" input is tracked. Should be within [0, 1]. The default is 0.01.
 @property (atomic, assign) double trackVariantsProbability;
 
-/// How many times will each choose() be run in a low priority thread to calculate the propensity score?  Lower numbers reduce CPU/energy use.  Default is 10. Set to <= 1 to disable.
+/**
+ How many times will each choose() be run in a low priority thread to calculate the propensity score?
+ Lower numbers reduce CPU/energy use.  Default is 10. Set to <= 1 to disable.
+ */
 @property (atomic, assign) int propensityScoreTrialCount;
 
 /**
