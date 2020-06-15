@@ -17,7 +17,7 @@
 #import "NVHTarGzip.h"
 
 /**
- The folder in Application Support directory. Contains models, for each model name there is two files:
+ The folder in Library/Caches directory. Contains models, for each model name there is two files:
  - modelname.mlmodelc
  - modelname.json
  */
@@ -33,11 +33,11 @@ NSString *const kModelsFolderName = @"ai.improve.models";
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
-    NSURL *appSupportDir = [fileManager URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
-    if (!appSupportDir) {
+    NSURL *cachesDir = [fileManager URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
+    if (!cachesDir) {
         NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
     }
-    NSURL *url = [appSupportDir URLByAppendingPathComponent:kModelsFolderName];
+    NSURL *url = [cachesDir URLByAppendingPathComponent:kModelsFolderName];
 
     // Ensure existance
     if (![url checkResourceIsReachableAndReturnError:nil]) {
