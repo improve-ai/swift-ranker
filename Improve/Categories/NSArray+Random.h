@@ -12,4 +12,6 @@
 
 - (nullable id)randomObject;
 
+- (nonnull NSArray *)shuffledArray;
+
 @end

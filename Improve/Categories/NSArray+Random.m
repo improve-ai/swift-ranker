@@ -18,4 +18,17 @@
     return self[randomIdx];
 }
 
+- (NSArray*)shuffledArray {
+
+    NSMutableArray *copy = [[NSMutableArray alloc] initWithArray:self];
+
+    for(NSUInteger i = copy.count; i > 1; i--)
+    {
+        NSUInteger j = arc4random_uniform((uint32_t) i);
+        [copy exchangeObjectAtIndex:i-1 withObjectAtIndex:j];
+    }
+
+    return copy;
+}
+
 @end

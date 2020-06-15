@@ -629,18 +629,6 @@ domain and context.
     });
 }
 
-- (NSArray*)shuffleArray:(NSArray*)array {
-
-    NSMutableArray *copy = [[NSMutableArray alloc] initWithArray:array];
-
-    for(NSUInteger i = [array count]; i > 1; i--) {
-        NSUInteger j = arc4random_uniform((uint32_t) i);
-        [copy exchangeObjectAtIndex:i-1 withObjectAtIndex:j];
-    }
-
-    return copy;
-}
-
 - (void)notifyDidLoadModels {
     self.isReady = YES;
     for (void (^block)(void) in self.onReadyBlocks) {
