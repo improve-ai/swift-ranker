@@ -97,7 +97,25 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 - (id) choose:(NSArray *)variants
       context:(NSDictionary *)context
 {
-    return [[self sort:variants context:context] objectAtIndex:0];
+    NSArray *features = [self makeFeaturesFromTrials:variants
+                                         withContext:context];
+    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
+    NSArray *encodedFeatures = [hasher batchEncode:features];
+    NSArray *scores = [self batchPrediction:encodedFeatures];
+    if (!scores) { return nil; }
+
+    double bestScore = 0;
+    id bestVariant = nil;
+    for (NSInteger i = 0; i < scores.count; i++)
+    {
+        double score = [scores[i] doubleValue];
+        if (score > bestScore) {
+            bestScore = score;
+            bestVariant = variants[i];
+        }
+    }
+
+    return bestVariant;
 }
 
 

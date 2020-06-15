@@ -10,7 +10,6 @@
 		540FF471245A2C4A00690EDA /* NSFileManager+SafeCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = 540FF470245A2C4A00690EDA /* NSFileManager+SafeCopy.m */; };
 		54160CD223E02C9B00030A6A /* singleEncodedTrial.json in Resources */ = {isa = PBXBuildFile; fileRef = 54160CD123E02C9B00030A6A /* singleEncodedTrial.json */; };
 		54442CA323FFE37B00F278E8 /* ImproveTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54442CA223FFE37B00F278E8 /* ImproveTest.m */; };
-		544D3B3D23DEFFC800CF95DB /* choose.json in Resources */ = {isa = PBXBuildFile; fileRef = 544D3B3C23DEFFC800CF95DB /* choose.json */; };
 		548BEE1F241241F500EFD26A /* TestModel.json in Resources */ = {isa = PBXBuildFile; fileRef = 548BEE1D241241F500EFD26A /* TestModel.json */; };
 		548BEE20241241F500EFD26A /* TestModel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE1E241241F500EFD26A /* TestModel.mlmodel */; };
 		548BEE232412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE222412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m */; };
@@ -55,7 +54,6 @@
 		540FF470245A2C4A00690EDA /* NSFileManager+SafeCopy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+SafeCopy.m"; sourceTree = "<group>"; };
 		54160CD123E02C9B00030A6A /* singleEncodedTrial.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = singleEncodedTrial.json; sourceTree = "<group>"; };
 		54442CA223FFE37B00F278E8 /* ImproveTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImproveTest.m; sourceTree = "<group>"; };
-		544D3B3C23DEFFC800CF95DB /* choose.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = choose.json; sourceTree = "<group>"; };
 		548BEE1D241241F500EFD26A /* TestModel.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TestModel.json; sourceTree = "<group>"; };
 		548BEE1E241241F500EFD26A /* TestModel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = TestModel.mlmodel; sourceTree = "<group>"; };
 		548BEE212412442300EFD26A /* MLDictionaryFeatureProvider+Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MLDictionaryFeatureProvider+Utils.h"; sourceTree = "<group>"; };
@@ -223,7 +221,6 @@
 				548DA93D23EB570400825370 /* DataTests.m */,
 				549EE78123F1C4AC0040D880 /* DownloaderTest.m */,
 				54442CA223FFE37B00F278E8 /* ImproveTest.m */,
-				544D3B3C23DEFFC800CF95DB /* choose.json */,
 				54160CD123E02C9B00030A6A /* singleEncodedTrial.json */,
 				54E66A002401BEDC0032BC52 /* trials.json */,
 				548BEE1D241241F500EFD26A /* TestModel.json */,
@@ -392,7 +389,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				54E212B824896EB200802281 /* variantsForContextTraining.json in Resources */,
-				544D3B3D23DEFFC800CF95DB /* choose.json in Resources */,
 				54160CD223E02C9B00030A6A /* singleEncodedTrial.json in Resources */,
 				548BEE1F241241F500EFD26A /* TestModel.json in Resources */,
 				54E212B62488FCC300802281 /* variantsTraining.json in Resources */,

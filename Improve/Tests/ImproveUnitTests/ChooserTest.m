@@ -20,7 +20,6 @@ const NSUInteger featuresCount = 10000;
 
 @interface IMPChooser ()
 - (NSArray *)batchPrediction:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatures;
-- (double)singleRowPrediction:(NSDictionary<NSNumber*,id> *)features;
 @end
 
 @interface ChooserTest : XCTestCase {
@@ -46,33 +45,7 @@ const NSUInteger featuresCount = 10000;
     return self;
 }
 
-- (void)testSingleRow {
-    XCTAssertNotNil(chooser);
-    NSLog(@"%ld", __STDC_VERSION__);
-
-    NSURL *jsonURL = [[TestUtils bundle] URLForResource:@"singleEncodedTrial" withExtension:@"json"];
-    XCTAssertNotNil(jsonURL);
-    NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
-    XCTAssertNotNil(jsonData);
-    NSError *error = nil;
-    NSDictionary *encodedTrial = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                                 options:0
-                                                                   error:&error];
-    if (!encodedTrial) {
-        XCTFail(@"%@", error);
-    }
-
-    encodedTrial = [IMPJSONUtils convertKeysToIntegers:encodedTrial];
-
-    double prediction = [chooser singleRowPrediction:encodedTrial];
-    NSLog(@"Single row prediction: %g", prediction);
-    XCTAssert(prediction != -1.0); // Check for errors
-    
-    double expectedPrediciton = 0.003574190428480506;
-    XCTAssert(isEqualRough(prediction, expectedPrediciton));
-}
-
-- (void)testSingleAndBatchConsistency {
+- (void)testBatchPrediction {
     NSArray *trials = [TestUtils defaultTrials];
     NSArray *predictions = [TestUtils defaultPredictions];
 
@@ -85,13 +58,9 @@ const NSUInteger featuresCount = 10000;
 
     for (NSUInteger i = 0; i < hashedTrials.count; i++)
     {
-        NSDictionary *hashedTrial = hashedTrials[i];
-        double singleScore = [chooser singleRowPrediction:hashedTrial];
         double batchScore = [batchScores[i] doubleValue];
         double XGBScore = [predictions[i] doubleValue];
-        NSLog(@"batch|single|xgboost: %f, %f, %f", batchScore, singleScore, XGBScore);
-
-        XCTAssert(isEqualRough(XGBScore, singleScore));
+        NSLog(@"batch|xgboost: %f, %f", batchScore, XGBScore);
         XCTAssert(isEqualRough(XGBScore, batchScore));
     }
 }
@@ -100,28 +69,25 @@ const NSUInteger featuresCount = 10000;
  Shallow test, only for general output shape. Choosing isn't reproducible because
  of it's random nature.
  */
-- (void)testBasicChoosing {
-    XCTAssertNotNil(chooser);
-
-    NSDictionary *variants;
-    NSDictionary *context;
-    [self getRealLifeVariants:&variants context:&context];
-
-    NSDictionary *chosen = [chooser choose:variants context:context];
-    XCTAssertNotNil(chosen);
-    NSLog(@"%@", chosen);
-
-    // This check insures that all keys are presented in the chosen variant
-    NSMutableDictionary *firstVariant = [NSMutableDictionary new];
-    for (NSString *propertyName in variants)
-    {
-        NSArray *propertyValues = variants[propertyName];
-        firstVariant[propertyName] = propertyValues.firstObject;
-    }
-    NSSet *chosenKeys = [NSSet setWithArray:chosen.allKeys];
-    NSSet *keys = [NSSet setWithArray:firstVariant.allKeys];
-    XCTAssert([chosenKeys isEqualToSet:keys]);
-}
+// TODO: provide variants and context
+//- (void)testBasicChoosing {
+//    XCTAssertNotNil(chooser);
+//
+//    NSDictionary *chosen = [chooser choose:variants context:context];
+//    XCTAssertNotNil(chosen);
+//    NSLog(@"%@", chosen);
+//
+//    // This check insures that all keys are presented in the chosen variant
+//    NSMutableDictionary *firstVariant = [NSMutableDictionary new];
+//    for (NSString *propertyName in variants)
+//    {
+//        NSArray *propertyValues = variants[propertyName];
+//        firstVariant[propertyName] = propertyValues.firstObject;
+//    }
+//    NSSet *chosenKeys = [NSSet setWithArray:chosen.allKeys];
+//    NSSet *keys = [NSSet setWithArray:firstVariant.allKeys];
+//    XCTAssert([chosenKeys isEqualToSet:keys]);
+//}
 
 - (void)testSort {
     NSArray *variants = [TestUtils defaultTrials];
@@ -148,42 +114,16 @@ const NSUInteger featuresCount = 10000;
     XCTAssert([rankedVariants isEqualToArray:expectedRankedVariants]);
 }
 
-- (void)testChoosePerformance {
-    XCTAssertNotNil(chooser);
-
-    NSDictionary *variants;
-    NSDictionary *context;
-    [self getRealLifeVariants:&variants context:&context];
-
-    XCTMeasureOptions *options = [[self class] defaultMeasureOptions];
-    options.iterationCount = 1000;
-    [self measureWithOptions:options block:^{
-        NSDictionary *chosen = [chooser choose:variants context:context];
-        XCTAssertNotNil(chosen);
-    }];
-}
-
-#pragma mark Helpers
-
-- (void)getRealLifeVariants:(NSDictionary **)variants context:(NSDictionary **)context {
-    NSURL *jsonURL = [[TestUtils bundle] URLForResource:@"choose"
-                                          withExtension:@"json"];
-    XCTAssertNotNil(jsonURL);
-    NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
-    XCTAssertNotNil(jsonData);
-    NSError *error = nil;
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                         options:0
-                                                           error:&error];
-    if (!json) {
-        XCTFail(@"%@", error);
-    }
-
-    *variants = json[@"variants"];
-    XCTAssertNotNil(*variants);
-    XCTAssert((*variants).count > 0);
-    *context = json[@"context"];
-    XCTAssertNotNil(*context);
-}
+// TODO: provide variants and context
+//- (void)testChoosePerformance {
+//    XCTAssertNotNil(chooser);
+//
+//    XCTMeasureOptions *options = [[self class] defaultMeasureOptions];
+//    options.iterationCount = 1000;
+//    [self measureWithOptions:options block:^{
+//        NSDictionary *chosen = [chooser choose:variants context:context];
+//        XCTAssertNotNil(chosen);
+//    }];
+//}
 
 @end
