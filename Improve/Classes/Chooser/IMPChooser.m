@@ -104,18 +104,22 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) { return nil; }
 
+    // Performs reservoir sampling to break ties when variants have the same score.
     double bestScore = 0;
-    id bestVariant = nil;
+    NSMutableArray *bestVariants = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSInteger i = 0; i < scores.count; i++)
     {
         double score = [scores[i] doubleValue];
         if (score > bestScore) {
             bestScore = score;
-            bestVariant = variants[i];
+            [bestVariants removeAllObjects];
+            [bestVariants addObject:variants[i]];
+        } else if (score == bestScore) {
+            [bestVariants addObject:variants[i]];
         }
     }
 
-    return bestVariant;
+    return [bestVariants randomObject];
 }
 
 
