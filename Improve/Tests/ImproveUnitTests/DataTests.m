@@ -35,4 +35,10 @@
     }
 }
 
+- (void)testBoundsCheck {
+    IMPMatrix *matrix = [[IMPMatrix alloc] initWithRows:5 columns:5];
+    XCTAssertThrows([matrix valueAtRow:-1 column:10]);
+    XCTAssertThrows([matrix setValue:19.99 atRow:5 column:-99]);
+}
+
 @end

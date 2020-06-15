@@ -41,11 +41,22 @@
 
 - (double)valueAtRow:(NSUInteger)row column:(NSUInteger)column
 {
+    if (row < 0 || row >= self.rows
+        || column < 0 || column >= self.columns)
+    {
+        [self raiseOutOfBoundsException];
+    }
+
     return *(_buffer + column + row * _columns);
 }
 
 - (void)setValue:(double)value atRow:(NSUInteger)row column:(NSUInteger)column
 {
+    if (row < 0 || row >= self.rows
+        || column < 0 || column >= self.columns)
+    {
+        [self raiseOutOfBoundsException];
+    }
     *(_buffer + column + row * _columns) = value;
 }
 
@@ -64,6 +75,12 @@
     }
 
     return a2DArray;
+}
+
+- (void)raiseOutOfBoundsException
+{
+    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:@"Column or row is out of matrix bounds." userInfo:nil];
+    [exception raise];
 }
 
 @end
