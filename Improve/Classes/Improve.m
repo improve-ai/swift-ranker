@@ -616,7 +616,7 @@ domain and context.
                 repeats += 1;
             }
         }
-        double propensity = 1.0 / (double)(repeats + 1);
+        double propensity = (double)(repeats + 1) / (double)(self.propensityScoreTrialCount + 1);
 
         NSDictionary *trackData = @{
             kTypeKey: kPropensityType,
