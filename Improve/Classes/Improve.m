@@ -606,7 +606,7 @@ domain and context.
 {
     if (self.propensityScoreTrialCount <= 1) return;
 
-    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0);
     dispatch_async(backgroundQueue, ^{
         NSUInteger repeats = 0;
         for (NSUInteger i = 0; i < self.propensityScoreTrialCount; i++)
