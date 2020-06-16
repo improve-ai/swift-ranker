@@ -19,7 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface IMPModelDownloader : NSObject
 
-@property(readonly, nonatomic) NSURL *remoteArchiveURL;
+@property(strong, nonatomic) NSURL *remoteArchiveURL;
+
+@property(strong, nonatomic) NSDictionary *headers;
 
 @property(readonly, nonatomic) BOOL isLoading;
 

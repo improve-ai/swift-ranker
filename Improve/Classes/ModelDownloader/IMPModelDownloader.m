@@ -96,7 +96,10 @@ NSString *const kModelsFolderName = @"ai.improve.models";
 - (void)loadWithCompletion:(IMPModelDownloaderCompletion)completion
 {
     NSURLSession *session = [NSURLSession sharedSession];
-    _downloadTask = [session dataTaskWithURL:self.remoteArchiveURL
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.remoteArchiveURL];
+    [request setHTTPMethod:@"GET"];
+    [request setAllHTTPHeaderFields:self.headers];
+    _downloadTask = [session dataTaskWithRequest:request
                            completionHandler:
                      ^(NSData * _Nullable data,
                        NSURLResponse * _Nullable response,

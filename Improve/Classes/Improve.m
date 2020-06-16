@@ -504,6 +504,8 @@ static Improve *sharedInstance;
     if (self.downloader && self.downloader.isLoading) return;
 
     self.downloader = [[IMPModelDownloader alloc] initWithURL:modelBundleUrl];
+    self.downloader.headers = @{@"Content-Type": @"application/json",
+                                kApiKeyHeader: self.apiKey};
 
     __weak Improve *weakSelf = self;
     [self.downloader loadWithCompletion:^(NSArray *bundles, NSError *error) {
