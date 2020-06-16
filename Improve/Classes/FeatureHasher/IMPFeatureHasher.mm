@@ -28,7 +28,7 @@
         _flattener = [[IMPJSONFlattener alloc] init];
         _flattener.separator = @"\0";
         _flattener.emptyArrayValue = @-2;
-        _flattener.emptyArrayValue = @-3;
+        _flattener.emptyDictionaryValue = @-3;
     }
     return self;
 }
