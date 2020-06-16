@@ -106,20 +106,26 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 
     // Performs reservoir sampling to break ties when variants have the same score.
     double bestScore = 0;
-    NSMutableArray *bestVariants = [NSMutableArray arrayWithCapacity:variants.count];
+    id bestVariant = nil;
+    NSInteger replacementCount = 0;
     for (NSInteger i = 0; i < scores.count; i++)
     {
         double score = [scores[i] doubleValue];
         if (score > bestScore) {
             bestScore = score;
-            [bestVariants removeAllObjects];
-            [bestVariants addObject:variants[i]];
-        } else if (score == bestScore) {
-            [bestVariants addObject:variants[i]];
+            bestVariant = variants[i];
+            replacementCount = 0;
+        } else {
+            double replacementProbability = 1.0 / (double)(1 + replacementCount);
+            replacementCount++;
+            if (drand48() <= replacementProbability) {
+                bestScore = score;
+                bestVariant = variants[i];
+            }
         }
     }
 
-    return [bestVariants randomObject];
+    return bestVariant;
 }
 
 
