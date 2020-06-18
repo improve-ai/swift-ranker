@@ -52,13 +52,20 @@ NSString *const kModelsFolderName = @"ai.improve.models";
     return url;
 }
 
-+ (nullable NSArray *)cachedModelBundles
-{
++ (NSArray *)cachedModelFileURLs {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
     NSArray *fileURLs = [fileManager contentsOfDirectoryAtURL:self.modelsDirURL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles error:&error];
     if (!fileURLs) {
-        NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
+        NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
+    }
+    return fileURLs;
+}
+
++ (nullable NSArray *)cachedModelBundles
+{
+    NSArray *fileURLs = [self cachedModelFileURLs];
+    if (!fileURLs) {
         return nil;
     }
 
@@ -81,6 +88,29 @@ NSString *const kModelsFolderName = @"ai.improve.models";
     }
 
     return bundles;
+}
+
++ (NSTimeInterval)cachedModelsAge {
+    // Age is based on the folder modification date.
+    
+    NSArray *fileURLs = [self cachedModelFileURLs];
+    if (!fileURLs || fileURLs.count == 0) {
+        // No files - no cached models yet
+        return DBL_MAX;
+    }
+
+    NSDate *modifiedDate;
+    NSError *error;
+    if (![self.modelsDirURL getResourceValue:&modifiedDate
+                                      forKey:NSFileModificationDate
+                                       error:&error])
+    {
+        NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
+        return DBL_MAX;
+    }
+
+    NSTimeInterval age = -[modifiedDate timeIntervalSinceNow];
+    return age;
 }
 
 - (instancetype)initWithURL:(NSURL *)remoteArchiveURL

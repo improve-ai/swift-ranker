@@ -76,4 +76,11 @@
     [self waitForExpectations:@[expectation] timeout:60.0];
 }
 
+- (void)testCacheAge {
+    // TODO: test with models and without models
+    NSTimeInterval age = [IMPModelDownloader cachedModelsAge];
+    NSLog(@"cachedModelsAge: %f", age);
+    XCTAssert(age > 0);
+}
+
 @end

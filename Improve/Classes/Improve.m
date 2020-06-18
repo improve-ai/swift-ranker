@@ -18,7 +18,9 @@
 typedef void(^ModelLoadCompletion)(BOOL isLoaded);
 
 /// How soon model downloading will be retried in case of error.
-const NSTimeInterval kRetryInterval;
+const NSTimeInterval kRetryInterval = 30.0;
+
+const NSTimeInterval kDefaultMaxModelStaleAge = 604800.0;
 
 NSString * const kHistoryIdKey = @"history_id";
 NSString * const kTimestampKey = @"timestamp";
@@ -81,6 +83,7 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 @implementation Improve
 
 @synthesize modelBundleUrl = _modelBundleUrl;
+@synthesize maxModelsStaleAge = _maxModelsStaleAge;
 
 static Improve *sharedInstance;
 
@@ -108,12 +111,13 @@ static Improve *sharedInstance;
 
     _apiKey = apiKey;
     _trackVariantsProbability = 0.01;
-    
+
     _historyId = [[NSUserDefaults standardUserDefaults] stringForKey:kHistoryIdDefaultsKey];
     if (!_historyId) {
         _historyId = [self generateHistoryId];
         [[NSUserDefaults standardUserDefaults] setObject:_historyId forKey:kHistoryIdDefaultsKey];
     }
+    _maxModelsStaleAge = kDefaultMaxModelStaleAge;
     return self;
 }
 
@@ -138,13 +142,26 @@ static Improve *sharedInstance;
             [self fillNamespaceToModelsMap:cachedBundles];
         }
 
-        [self loadModels:[NSURL URLWithString:url]];
+        [self loadModelsIfNeeded:[NSURL URLWithString:url]];
     }
 }
 
 - (NSString *) modelBundleUrl {
     @synchronized (self) {
         return _modelBundleUrl;
+    }
+}
+
+- (void)setMaxModelsStaleAge:(NSTimeInterval)maxModelsStaleAge {
+    @synchronized (self) {
+        _maxModelsStaleAge = maxModelsStaleAge;
+        [self loadModelsIfNeeded:[NSURL URLWithString:self.modelBundleUrl]];
+    }
+}
+
+- (NSTimeInterval)maxModelsStaleAge {
+    @synchronized(self) {
+        return _maxModelsStaleAge;
     }
 }
 
@@ -497,6 +514,11 @@ static Improve *sharedInstance;
     }
 
     return chooser;
+}
+
+- (void)loadModelsIfNeeded:(NSURL *)modelsURL {
+    if ([IMPModelDownloader cachedModelsAge] < self.maxModelsStaleAge) return;
+    [self loadModels:modelsURL];
 }
 
 - (void)loadModels:(NSURL *) modelBundleUrl

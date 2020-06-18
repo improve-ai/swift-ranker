@@ -27,6 +27,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable NSArray *)cachedModelBundles;
 
+/**
+ Returns age of the cached models if any. Returns DBL_MAX in case of error or if models are missing.
+ */
++ (NSTimeInterval)cachedModelsAge;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithURL:(NSURL *)remoteArchiveURL NS_DESIGNATED_INITIALIZER;

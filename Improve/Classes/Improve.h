@@ -30,6 +30,12 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 @property (atomic, assign) int propensityScoreTrialCount;
 
 /**
+ Max stale age of the cached models. If the cached models has expired, the new ones will be requested soon.
+ The default value is 604800 (1 week).
+ */
+@property (atomic, assign) NSTimeInterval maxModelsStaleAge;
+
+/**
  @return the current singleton.
  */
 + (Improve *) instance;
