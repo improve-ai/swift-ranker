@@ -524,8 +524,7 @@ static Improve *sharedInstance;
     }
 
     // Load remote models
-    downloader.headers = @{@"Content-Type": @"application/json",
-                           kApiKeyHeader: self.apiKey};
+    downloader.headers = @{kApiKeyHeader: self.apiKey};
 
     __weak Improve *weakSelf = self;
     self.downloader = downloader;
