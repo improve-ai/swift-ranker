@@ -16,6 +16,10 @@
 
 NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(double fl1, double fl2) {
     const double precision = 0.001;
+    return isEqualRough(fl1, fl2);
+}
+
+NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(double fl1, double fl2, double precision) {
     if (fl1 == fl2) {
         return YES;
     } if (fl1 == 0. || fl2 == 0.) {

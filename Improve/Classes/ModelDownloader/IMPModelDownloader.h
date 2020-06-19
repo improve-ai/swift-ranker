@@ -10,7 +10,7 @@
 #import "IMPModelBundle.h"
 
 
-typedef void (^IMPModelDownloaderCompletion) (NSArray *_Nullable modelBundles, NSError *_Nullable);
+typedef void (^IMPModelDownloaderCompletion) (NSArray *_Nullable modelBundles, NSError *_Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,12 +25,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(readonly, nonatomic) BOOL isLoading;
 
-+ (nullable NSArray *)cachedModelBundles;
+@property(readonly, nonatomic, nullable) NSArray *cachedModelBundles;
 
 /**
- Returns age of the cached models if any. Returns DBL_MAX in case of error or if models are missing.
+ Returns age of the cached models if any. Returns DBL_MAX if models are missing.
  */
-+ (NSTimeInterval)cachedModelsAge;
+@property(readonly, nonatomic) NSTimeInterval cachedModelsAge;
 
 - (instancetype)init NS_UNAVAILABLE;
 

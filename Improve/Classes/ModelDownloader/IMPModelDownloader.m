@@ -17,19 +17,61 @@
 #import "NVHTarGzip.h"
 
 /**
- The folder in Library/Caches directory. Contains models, for each model name there is two files:
- - modelname.mlmodelc
- - modelname.json
+ The folder in Library/Caches directory. Contains subfolders where individual downloaders store
+ the cached files. Each subfolder is associated with the corresponding remoteArchiveURL.
+ Subfolders contain compiled models file - .mlmodelc and metadata - .json.
+
+ Library/Caches/RootFolder
+ - subfoldr1
+ -- modelname1.mlmodelc
+ -- modelname1.json
+ -- modelname2.mlmodelc
+ -- modelname2.json
+ - subfoldr2
+ -- modelname3.mlmodelc
+ -- modelname3.json
  */
-NSString *const kModelsFolderName = @"ai.improve.models";
+NSString *const kModelsRootFolderName = @"ai.improve.models";
 
 @implementation IMPModelDownloader {
+    /// User Defaults contain NSString - folder name.
+    NSString *_userDefaultsFolderKey;
+
+    /// Key for NSDate object - date when the archive was sucesfully downloaded.
+    NSString *_userDefaultsLastDownloadDateKey;
+
+    /**
+     Random folder name which is associated with the archive URL and stored in User Defaults.
+     Cached models for that URL will be stored in this folder.
+     */
+    NSString *_folderName;
+
     NSURLSessionDataTask *_downloadTask;
 
     NSFileManager *_fileManager;
 }
 
-+ (NSURL *)modelsDirURL
+- (instancetype)initWithURL:(NSURL *)remoteArchiveURL
+{
+    self = [super init];
+    if (self) {
+        _remoteArchiveURL = [remoteArchiveURL copy];
+        _fileManager = [NSFileManager defaultManager];
+
+        _userDefaultsFolderKey = [NSString stringWithFormat:@"ai.improve.modelDirectory.%@", remoteArchiveURL.absoluteString];
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        _folderName = [defaults stringForKey:_userDefaultsFolderKey];
+        if (!_folderName) {
+            _folderName = [[NSUUID UUID] UUIDString];
+            [defaults setObject:_folderName forKey:_userDefaultsFolderKey];
+        }
+
+        _userDefaultsLastDownloadDateKey = [NSString stringWithFormat:@"ai.improve.lastDownloadDate.%@", remoteArchiveURL.absoluteString];
+    }
+    return self;
+}
+
+- (NSURL *)modelsDirURL
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
@@ -37,7 +79,8 @@ NSString *const kModelsFolderName = @"ai.improve.models";
     if (!cachesDir) {
         NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
     }
-    NSURL *url = [cachesDir URLByAppendingPathComponent:kModelsFolderName];
+    NSURL *url = [cachesDir URLByAppendingPathComponent:kModelsRootFolderName];
+    url = [cachesDir URLByAppendingPathComponent:_folderName];
 
     // Ensure existance
     if (![url checkResourceIsReachableAndReturnError:nil]) {
@@ -52,7 +95,7 @@ NSString *const kModelsFolderName = @"ai.improve.models";
     return url;
 }
 
-+ (NSArray *)cachedModelFileURLs {
+- (NSArray *)cachedModelFileURLs {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
     NSArray *fileURLs = [fileManager contentsOfDirectoryAtURL:self.modelsDirURL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles error:&error];
@@ -62,7 +105,7 @@ NSString *const kModelsFolderName = @"ai.improve.models";
     return fileURLs;
 }
 
-+ (nullable NSArray *)cachedModelBundles
+- (nullable NSArray *)cachedModelBundles
 {
     NSArray *fileURLs = [self cachedModelFileURLs];
     if (!fileURLs) {
@@ -90,37 +133,22 @@ NSString *const kModelsFolderName = @"ai.improve.models";
     return bundles;
 }
 
-+ (NSTimeInterval)cachedModelsAge {
-    // Age is based on the folder modification date.
-    
+- (NSTimeInterval)cachedModelsAge {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSArray *fileURLs = [self cachedModelFileURLs];
     if (!fileURLs || fileURLs.count == 0) {
-        // No files - no cached models yet
+        // No files - no cached models yet or cache was purged
+        [defaults removeObjectForKey:_userDefaultsLastDownloadDateKey];
         return DBL_MAX;
     }
 
-    NSDate *modifiedDate;
-    NSError *error;
-    if (![self.modelsDirURL getResourceValue:&modifiedDate
-                                      forKey:NSFileModificationDate
-                                       error:&error])
-    {
-        NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
+    NSDate *lastDownloadDate = [defaults objectForKey:_userDefaultsLastDownloadDateKey];
+    if (!lastDownloadDate) {
         return DBL_MAX;
     }
 
-    NSTimeInterval age = -[modifiedDate timeIntervalSinceNow];
+    NSTimeInterval age = -[lastDownloadDate timeIntervalSinceNow];
     return age;
-}
-
-- (instancetype)initWithURL:(NSURL *)remoteArchiveURL
-{
-    self = [super init];
-    if (self) {
-        _remoteArchiveURL = [remoteArchiveURL copy];
-        _fileManager = [NSFileManager defaultManager];
-    }
-    return self;
 }
 
 - (void)loadWithCompletion:(IMPModelDownloaderCompletion)completion
@@ -141,17 +169,22 @@ NSString *const kModelsFolderName = @"ai.improve.models";
 
         // Perform additional check to exit early and prevent further errors.
         NSError *error; // General purpose error
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-        NSInteger statusCode = httpResponse.statusCode;
-        if (statusCode != 200)
+
+        // Optional check for HTTP responses, will not be called for file URLs
+
+        if ([response isKindOfClass:NSHTTPURLResponse.class])
         {
-            NSString *statusCodeStr = [NSHTTPURLResponse localizedStringForStatusCode:statusCode];
-            NSString *msg = [NSString stringWithFormat:@"Model loading failed with status code: %ld %@.", statusCode, statusCodeStr];
-            error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
-                                        code:-1
-                                    userInfo:@{NSLocalizedDescriptionKey: msg}];
-            if (completion) { completion(nil, error); }
-            return;
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            NSInteger statusCode = httpResponse.statusCode;
+            if (statusCode != 200) {
+                NSString *statusCodeStr = [NSHTTPURLResponse localizedStringForStatusCode:statusCode];
+                NSString *msg = [NSString stringWithFormat:@"Model loading failed with status code: %ld %@.", statusCode, statusCodeStr];
+                error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
+                                            code:-1
+                                        userInfo:@{NSLocalizedDescriptionKey: msg}];
+                if (completion) { completion(nil, error); }
+                return;
+            }
         }
 
         // Save downloaded archive
@@ -177,6 +210,8 @@ NSString *const kModelsFolderName = @"ai.improve.models";
         }
 
         NSArray *bundles = [self processUnarchivedModelFilesIn:unarchivePath];
+        [[NSUserDefaults standardUserDefaults] setObject:[NSDate date]
+                                                  forKey:self->_userDefaultsLastDownloadDateKey];
         if (completion) { completion(bundles, nil); }
     }];
     [_downloadTask resume];
@@ -261,7 +296,7 @@ NSString *const kModelsFolderName = @"ai.improve.models";
                                 withPath:(NSString *)mlmodelPath
                                 jsonPath:(NSString *)jsonPath
 {
-    IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.class.modelsDirURL modelName:modelName];
+    IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.modelsDirURL modelName:modelName];
 
     // Compile model and put to the destination folder
     NSURL *modelDefinitionURL = [NSURL fileURLWithPath:mlmodelPath];

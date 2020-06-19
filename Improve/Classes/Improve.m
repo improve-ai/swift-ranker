@@ -137,12 +137,7 @@ static Improve *sharedInstance;
 - (void) setModelBundleUrl:(NSString *) url {
     @synchronized (self) {
         _modelBundleUrl = url;
-        NSArray *cachedBundles = [IMPModelDownloader cachedModelBundles];
-        if (cachedBundles) {
-            [self fillNamespaceToModelsMap:cachedBundles];
-        }
-
-        [self loadModelsIfNeeded:[NSURL URLWithString:url]];
+        [self loadModels:[NSURL URLWithString:url]];
     }
 }
 
@@ -155,7 +150,7 @@ static Improve *sharedInstance;
 - (void)setMaxModelsStaleAge:(NSTimeInterval)maxModelsStaleAge {
     @synchronized (self) {
         _maxModelsStaleAge = maxModelsStaleAge;
-        [self loadModelsIfNeeded:[NSURL URLWithString:self.modelBundleUrl]];
+        [self loadModels:[NSURL URLWithString:self.modelBundleUrl]];
     }
 }
 
@@ -516,21 +511,25 @@ static Improve *sharedInstance;
     return chooser;
 }
 
-- (void)loadModelsIfNeeded:(NSURL *)modelsURL {
-    if ([IMPModelDownloader cachedModelsAge] < self.maxModelsStaleAge) return;
-    [self loadModels:modelsURL];
-}
-
 - (void)loadModels:(NSURL *) modelBundleUrl
 {
     if (self.downloader && self.downloader.isLoading) return;
 
-    self.downloader = [[IMPModelDownloader alloc] initWithURL:modelBundleUrl];
-    self.downloader.headers = @{@"Content-Type": @"application/json",
-                                kApiKeyHeader: self.apiKey};
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelBundleUrl];
+    if (downloader.cachedModelsAge < self.maxModelsStaleAge) {
+        // Load models from cache
+        [self fillNamespaceToModelsMap:downloader.cachedModelBundles];
+        [self notifyDidLoadModels];
+        return;
+    }
+
+    // Load remote models
+    downloader.headers = @{@"Content-Type": @"application/json",
+                           kApiKeyHeader: self.apiKey};
 
     __weak Improve *weakSelf = self;
-    [self.downloader loadWithCompletion:^(NSArray *bundles, NSError *error) {
+    self.downloader = downloader;
+    [downloader loadWithCompletion:^(NSArray *bundles, NSError *error) {
         if (error) {
             NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
 
