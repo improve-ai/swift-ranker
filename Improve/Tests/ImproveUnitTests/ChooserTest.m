@@ -20,6 +20,8 @@ const NSUInteger featuresCount = 10000;
 
 @interface IMPChooser ()
 - (NSArray *)batchPrediction:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatures;
+
+- (id)bestSampleFrom:(NSArray *)variants forScores:(NSArray *)scores;
 @end
 
 @interface ChooserTest : XCTestCase {
@@ -125,5 +127,51 @@ const NSUInteger featuresCount = 10000;
 //        XCTAssertNotNil(chosen);
 //    }];
 //}
+
+- (void)testReservoirSampling {
+    // Input
+    NSArray *testSamples = @[@"a", @"b", @"c", @"d", @"e", @"f", @"g", @"h", @"i", @"j", @"k", @"l"];
+    NSArray *testScores = @[@1, @1, @5, @3, @2, @5, @1, @4, @5, @2, @-100, @0];
+    const NSInteger iterationsCount = 10000;
+    const double tolerance = 0.2;
+    assert(testSamples.count == testScores.count);
+
+    // Process input and predict expected results
+    NSNumber *bestScore = [testScores sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:NO]]][0];
+    NSMutableArray *bestSamples = [NSMutableArray new];
+    for (NSInteger i = 0; i < testScores.count; i++)
+    {
+        if ([testScores[i] isEqual:bestScore]) {
+            [bestSamples addObject:testSamples[i]];
+        }
+    }
+    NSLog(@"Predicted best samples: %@", bestSamples);
+    double expectedProportion = 1.0 / (double)(bestSamples.count);
+
+    // Perform randomised sampling
+    NSInteger *counts = calloc(testSamples.count, sizeof(NSInteger));
+    for (NSInteger iteration = 0; iteration < iterationsCount; iteration++)
+    {
+        id sample = [chooser bestSampleFrom:testSamples forScores:testScores];
+        NSInteger index = [testSamples indexOfObject:sample];
+        XCTAssert(index != NSNotFound);
+        counts[index] += 1;
+    }
+
+    // Analyze
+    for (NSInteger i = 0; i < testSamples.count; i++) {
+        id sample = testSamples[i];
+        NSInteger count = counts[i];
+        NSLog(@"%@: %ld", sample, count);
+        if ([bestSamples containsObject:sample]) {
+            double proportion = (double)count / iterationsCount;
+            XCTAssert(isEqualRough(proportion / expectedProportion, 1.0, tolerance));
+        } else {
+            XCTAssert(count == 0);
+        }
+    }
+
+    free(counts);
+}
 
 @end

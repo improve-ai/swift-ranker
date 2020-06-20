@@ -104,28 +104,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) { return nil; }
 
-    // Performs reservoir sampling to break ties when variants have the same score.
-    double bestScore = 0;
-    id bestVariant = nil;
-    NSInteger replacementCount = 0;
-    for (NSInteger i = 0; i < scores.count; i++)
-    {
-        double score = [scores[i] doubleValue];
-        if (score > bestScore) {
-            bestScore = score;
-            bestVariant = variants[i];
-            replacementCount = 0;
-        } else {
-            double replacementProbability = 1.0 / (double)(1 + replacementCount);
-            replacementCount++;
-            if (drand48() <= replacementProbability) {
-                bestScore = score;
-                bestVariant = variants[i];
-            }
-        }
-    }
-
-    return bestVariant;
+    return [self bestSampleFrom:variants forScores:scores];
 }
 
 
@@ -142,6 +121,35 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     }
 
     return features;
+}
+
+/// Performs reservoir sampling to break ties when variants have the same score.
+- (id)bestSampleFrom:(NSArray *)variants forScores:(NSArray *)scores
+{
+    double bestScore = -DBL_MAX;
+    id bestVariant = nil;
+    NSInteger replacementCount = 0;
+    for (NSInteger i = 0; i < scores.count; i++)
+    {
+        double score = [scores[i] doubleValue];
+        if (score > bestScore)
+        {
+            bestScore = score;
+            bestVariant = variants[i];
+            replacementCount = 0;
+        }
+        else if (score == bestScore)
+        {
+            double replacementProbability = 1.0 / (double)(2 + replacementCount);
+            replacementCount++;
+            if (drand48() <= replacementProbability) {
+                bestScore = score;
+                bestVariant = variants[i];
+            }
+        }
+    }
+
+    return bestVariant;
 }
 
 #pragma mark - Ranking
