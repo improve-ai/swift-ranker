@@ -87,12 +87,12 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 
 static Improve *sharedInstance;
 
-+ (Improve *)instance
++ (Improve *) instance
 {
     return [self instanceWithName:@""];
 }
 
-+ (Improve *)instanceWithName:(NSString *)name
++ (Improve *) instanceWithName:(NSString *)name
 {
     static NSMutableDictionary<NSString *, Improve *> *instances;
     static dispatch_once_t onceToken;
@@ -113,13 +113,12 @@ static Improve *sharedInstance;
     }
 }
 
-- (instancetype)init {
+- (instancetype) init {
     self = [super init];
     if (!self) return nil;
 
     _isReady = NO;
     _onReadyBlocks = [NSMutableArray new];
-    _isConfigured = NO;
     _trackVariantsProbability = 0.01;
 
     _historyId = [[NSUserDefaults standardUserDefaults] stringForKey:kHistoryIdDefaultsKey];
@@ -144,12 +143,10 @@ static Improve *sharedInstance;
     return historyId;
 }
 
-- (void)configureWithApiKey:(NSString *)apiKey modelBundleURL:(NSString *)urlStr
+- (void) initializeWithApiKey:(NSString *)apiKey modelBundleURL:(NSString *)urlStr
 {
     self.apiKey = apiKey;
     self.modelBundleUrl = urlStr;
-
-    _isConfigured = YES;
 }
 
 - (void) setModelBundleUrl:(NSString *) url {
