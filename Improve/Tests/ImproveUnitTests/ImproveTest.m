@@ -243,23 +243,19 @@ NSString *const kTrainingInstance = @"training_tests";
     NSDictionary *variantsToRewards = json[@"variantsToRewardsMap"];
     NSArray *variants = [variantsToRewards allKeys];
 
-    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"onReady"];
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
 
     Improve *impr = [Improve instanceWithName:kTrainingInstance];
-    [impr onReady:^{
-        // Train
-        for (int iteration = 0; iteration < 1000; iteration++) {
-            NSString *variant = [impr choose:namespaceString variants:variants];
-            [impr trackDecision:namespaceString variant:variant];
-            [impr trackReward:namespaceString value:variantsToRewards[variant]];
-        }
-
-        NSLog(@"Waiting for all track HTTP requests to complete");
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [expectation fulfill];
-        });
-    }];
-    [self waitForExpectations:@[expectation] timeout:60.0];
+    // Train
+    for (int iteration = 0; iteration < 1000; iteration++) {
+        NSString *variant = [impr choose:namespaceString variants:variants];
+        [impr trackDecision:namespaceString variant:variant];
+        [impr trackReward:namespaceString value:variantsToRewards[variant]];
+    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [expectation fulfill];
+    });
+    [self waitForExpectations:@[expectation] timeout:20.0];
 }
 
 /**
@@ -367,6 +363,12 @@ NSString *const kTrainingInstance = @"training_tests";
         double reward = [variant isEqualToString:bestVariant] ? 1.0 : 0.0;
         [impr trackReward:namespaceString value:@(reward)];
     }
+
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [expectation fulfill];
+    });
+    [self waitForExpectations:@[expectation] timeout:20.0];
 }
 
 /**
