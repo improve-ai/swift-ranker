@@ -178,7 +178,8 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
             NSInteger statusCode = httpResponse.statusCode;
             if (statusCode != 200) {
                 NSString *statusCodeStr = [NSHTTPURLResponse localizedStringForStatusCode:statusCode];
-                NSString *msg = [NSString stringWithFormat:@"Model loading failed with status code: %ld %@.", statusCode, statusCodeStr];
+                NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                NSString *msg = [NSString stringWithFormat:@"Model loading failed with status code: %ld %@. Data: %@", statusCode, statusCodeStr, dataStr];
                 error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                             code:-1
                                         userInfo:@{NSLocalizedDescriptionKey: msg}];
