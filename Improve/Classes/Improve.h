@@ -35,17 +35,21 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
  */
 @property (atomic, assign) NSTimeInterval maxModelsStaleAge;
 
+/// Initial value is NO. Becomes YES after succesful configuration.
+@property (nonatomic, readonly) BOOL isConfigured;
+
 /**
- @return the current singleton.
+ @return The dfeault singleton.
  */
 + (Improve *) instance;
 
++ (Improve *) instanceWithName:(NSString *)name;
+
 /**
- Initialize the singleton
- 
- @param apiKey The improve.ai api key
+ Perform required configuration. You should call this on the instance before using it.
+ Good place to configure instances is `didFinishLaunchingWithOptions` method of UIApplicationDelegate.
  */
-+ (Improve *) instanceWithApiKey:(NSString *)apiKey;
+- (void)configureWithApiKey:(NSString *)apiKey modelBundleURL:(NSString *)urlStr;
 
 /**
  Adds block which is invoked when the model is loaded and ready to make choices. Block is executed synchronously

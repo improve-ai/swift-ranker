@@ -13,6 +13,8 @@
 #import "IMPScoredObject.h"
 #import "NSArray+Random.h"
 
+NSString *const kTrainingInstance = @"training_tests";
+
 // Disclose private interface for test
 @interface Improve ()
 @property (strong, atomic) NSString *historyId;
@@ -24,13 +26,12 @@
 @end
 
 @implementation ImproveTest {
-    Improve *improve;
 }
 
 - (void)setUp {
-    // TODO test nil api key
-    improve = [Improve instanceWithApiKey:nil];
-    improve.modelBundleUrl = @"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/improve-mlmodel-2020-5-11-0-11-47-8f23be6d-7fe7-427a-93e5-5cc14fa60133.tar.gz";
+    [[Improve instance] configureWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL: @"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/improve-mlmodel-2020-5-11-0-11-47-8f23be6d-7fe7-427a-93e5-5cc14fa60133.tar.gz"];
+
+    [[Improve instanceWithName:kTrainingInstance] configureWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://u0cxvugtmi.execute-api.us-west-2.amazonaws.com/test/track"];
 }
 
 - (void)testCombinations {
@@ -52,14 +53,16 @@
 }
 
 - (void)testHistoryId {
+    // Generation
     for (int i = 0; i < 10; i++)
     {
-        NSString *historyId = [improve generateHistoryId];
+        NSString *historyId = [[Improve instance] generateHistoryId];
         NSLog(@"%@", historyId);
         XCTAssertNotNil(historyId);
         XCTAssert(historyId.length > 32 / 3 * 4);
     }
-    XCTAssertNotNil(improve.historyId);
+    // Initialization
+    XCTAssertNotNil([Improve instance].historyId);
 }
 
 - (void)testRankWithModelName:(NSString *)modelName
@@ -91,6 +94,7 @@
 }
 
 - (void)testModelLoadingAndDecisions {
+    Improve *improve = [Improve instance];
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Stupidly waiting for models to load"];
     NSLog(@"Waiting for models to load...");
     XCTestExpectation *onReadyExpectation = [[XCTestExpectation alloc] initWithDescription:@"Expects onReady block to be called"];
@@ -101,9 +105,9 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 
         // TODO: default model test
-//        NSDictionary *models = [[Improve instance] modelBundlesByName];
-//        NSLog(@"Finish waiting.\nLoaded models:\n%@", models);
-//        XCTAssertNotNil(models[@"default"]);
+        //        NSDictionary *models = [[Improve instance] modelBundlesByName];
+        //        NSLog(@"Finish waiting.\nLoaded models:\n%@", models);
+        //        XCTAssertNotNil(models[@"default"]);
 
         /* Note: in order to test model with rank we need better test trials to
          allow predictions without noise. */
@@ -183,12 +187,12 @@
  It's not an actual test case. Creates random training data
  including namespace, variants and rewards.
  {
-    namespace: "",
-    variantsToRewardsMap: {
-        "variant1": 1.004,
-        "variant2": 99.2,
-        ...
-    }
+ namespace: "",
+ variantsToRewardsMap: {
+ "variant1": 1.004,
+ "variant2": 99.2,
+ ...
+ }
  }
 
  You can paste this JSON to variantsTraining.json file which is included in the test target
@@ -240,12 +244,13 @@
 
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"onReady"];
 
-    [improve onReady:^{
+    Improve *impr = [Improve instanceWithName:kTrainingInstance];
+    [impr onReady:^{
         // Train
         for (int iteration = 0; iteration < 1000; iteration++) {
-            NSString *variant = [self->improve choose:namespaceString variants:variants];
-            [self->improve trackDecision:namespaceString variant:variant];
-            [self->improve trackReward:namespaceString value:variantsToRewards[variant]];
+            NSString *variant = [impr choose:namespaceString variants:variants];
+            [impr trackDecision:namespaceString variant:variant];
+            [impr trackReward:namespaceString value:variantsToRewards[variant]];
         }
 
         NSLog(@"Waiting for all track HTTP requests to complete");
@@ -278,9 +283,10 @@
     NSString *namespaceString = json[@"namespace"];
     NSArray *variants = [variantsToRewards allKeys];
 
+    Improve *impr = [Improve instanceWithName:kTrainingInstance];
     int successCount = 0;
     for (int iteration = 0; iteration < iterations; iteration++) {
-        NSString *chosenVariant = [improve choose:namespaceString variants:variants];
+        NSString *chosenVariant = [impr choose:namespaceString variants:variants];
         successCount += [chosenVariant isEqualToString:correctVariant] ? 1 : 0;
     }
 
@@ -293,10 +299,10 @@
  It's not an actual test case. Creates random training data
  including namespace, variants and context {bestKey: bestVariant}.
  {
-    namespace: "",
-    variants: [],
-    bestKey: "",
-    bestVariant: ""
+ namespace: "",
+ variants: [],
+ bestKey: "",
+ bestVariant: ""
  }
 
  You can paste this JSON to variantsContextTraining.json file which is included in
@@ -350,14 +356,15 @@
     NSDictionary *context = @{json[@"bestKey"]: bestVariant};
 
     // Train
+    Improve *impr = [Improve instanceWithName:kTrainingInstance];
     for (int iteration = 0; iteration < 1000; iteration++) {
-        NSString *variant = [improve choose:namespaceString
-                                   variants:variants
-                                    context:context];
-        [improve trackDecision:namespaceString variant:variant context:context];
+        NSString *variant = [impr choose:namespaceString
+                                variants:variants
+                                 context:context];
+        [impr trackDecision:namespaceString variant:variant context:context];
 
         double reward = [variant isEqualToString:bestVariant] ? 1.0 : 0.0;
-        [improve trackReward:namespaceString value:@(reward)];
+        [impr trackReward:namespaceString value:@(reward)];
     }
 }
 
@@ -373,12 +380,13 @@
     NSArray *variants = json[@"variants"];
     NSString *bestVariant = json[@"bestVariant"];
     NSDictionary *context = @{json[@"bestKey"]: bestVariant};
-
+    
+    Improve *impr = [Improve instanceWithName:kTrainingInstance];
     int successCount = 0;
     for (int iteration = 0; iteration < iterations; iteration++) {
-        NSString *chosenVariant = [improve choose:namespaceString
-                                         variants:variants
-                                          context:context];
+        NSString *chosenVariant = [impr choose:namespaceString
+                                      variants:variants
+                                       context:context];
         successCount += [chosenVariant isEqualToString:bestVariant] ? 1 : 0;
     }
 

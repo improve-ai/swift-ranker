@@ -89,27 +89,37 @@ static Improve *sharedInstance;
 
 + (Improve *)instance
 {
-    return sharedInstance;
+    return [self instanceWithName:@""];
 }
 
-+ (Improve *) instanceWithApiKey:(NSString *)apiKey
++ (Improve *)instanceWithName:(NSString *)name
 {
+    static NSMutableDictionary<NSString *, Improve *> *instances;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] initWithApiKey:apiKey];
+        instances = [NSMutableDictionary new];
     });
-    return sharedInstance;
+
+    @synchronized (instances)
+    {
+        Improve *existingInstance = instances[name];
+        if (existingInstance) {
+            return existingInstance;
+        } else {
+            Improve *newInstance = [[Improve alloc] init];
+            instances[name] = newInstance;
+            return newInstance;
+        }
+    }
 }
 
-- (instancetype)initWithApiKey:(NSString *)apiKey
-{
+- (instancetype)init {
     self = [super init];
     if (!self) return nil;
 
     _isReady = NO;
     _onReadyBlocks = [NSMutableArray new];
-
-    _apiKey = apiKey;
+    _isConfigured = NO;
     _trackVariantsProbability = 0.01;
 
     _historyId = [[NSUserDefaults standardUserDefaults] stringForKey:kHistoryIdDefaultsKey];
@@ -132,6 +142,14 @@ static Improve *sharedInstance;
     NSData *data = [[NSData alloc] initWithBytes:bytes length:historyIdSize];
     NSString *historyId = [data base64EncodedStringWithOptions:0];
     return historyId;
+}
+
+- (void)configureWithApiKey:(NSString *)apiKey modelBundleURL:(NSString *)urlStr
+{
+    self.apiKey = apiKey;
+    self.modelBundleUrl = urlStr;
+
+    _isConfigured = YES;
 }
 
 - (void) setModelBundleUrl:(NSString *) url {
