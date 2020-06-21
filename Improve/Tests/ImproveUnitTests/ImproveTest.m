@@ -252,10 +252,11 @@ NSString *const kTrainingInstance = @"training_tests";
         [impr trackDecision:namespaceString variant:variant];
         [impr trackReward:namespaceString value:variantsToRewards[variant]];
     }
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    const NSTimeInterval waitTime = 300.0;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [expectation fulfill];
     });
-    [self waitForExpectations:@[expectation] timeout:20.0];
+    [self waitForExpectations:@[expectation] timeout:waitTime + 0.2];
 }
 
 /**
