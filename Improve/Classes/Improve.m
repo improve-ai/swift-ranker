@@ -350,7 +350,8 @@ static Improve *sharedInstance;
         rewardKey = namespace;
     }
     
-    NSMutableDictionary *body = [@{ kVariantKey: variant,
+    NSMutableDictionary *body = [@{ kTypeKey: kDecisionType,
+                                    kVariantKey: variant,
                                     kNamespaceKey: namespace,
                                     kRewardKeyKey: rewardKey } mutableCopy];
     
