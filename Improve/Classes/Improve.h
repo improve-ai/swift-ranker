@@ -169,13 +169,11 @@ Tracks rewards for one or more chosen variants. Rewards are additive by default.
  Tracks a general analytics event that may be further processed by backend scripts.  You may use this for example to keep reward assignment logic on the backend.  In the case where all reward logic is handled on the backend you may wish to disable autoTrack on choose calls and not call trackRewards.
  @param event the name of the event to track
  @param properties JSON encodable event properties
- @param decisions optional decisions (chosen events) to attach to this event.  Some analytics events may infer information about multiple variants that are chosen, for example a screen may have a number of textual elements that were chosen but tracked together as a single element. decision dictionaries are the same format as the trackChosen wire format.
- @param rewards a JSON encodeable dictionary mapping rewardKeys to reward values to add to recent chosen variants.  Reward values may be negative numbers, must not be NaN or infinity.
-*/
+ @param context JSON encodeable context
+ */
 
 - (void) trackAnalyticsEvent:(NSString *) event
                   properties:(NSDictionary *) properties
-             attachDecisions:(NSArray<NSDictionary *> *) decisions
-               attachRewards:(NSDictionary *) rewards;
+                     context:(NSDictionary *) context;
 
 @end

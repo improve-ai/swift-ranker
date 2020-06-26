@@ -388,10 +388,10 @@ static Improve *sharedInstance;
 }
 
 - (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties {
-    [self trackAnalyticsEvent:event properties:properties attachDecisions:nil attachRewards:nil];
+    [self trackAnalyticsEvent:event properties:properties context:nil];
 }
 
-- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties attachDecisions:(NSArray *)decisions attachRewards:(NSDictionary *)rewards {
+- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context {
     
     NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
     
@@ -401,11 +401,8 @@ static Improve *sharedInstance;
     if (properties) {
         [body setObject:properties forKey:kPropertiesKey];
     }
-    if (decisions) {
-        [body setObject:decisions forKey:kDecisionsKey];
-    }
-    if (rewards) {
-        [body setObject:rewards forKey:kRewardsKey];
+    if (context) {
+        [body setObject:context forKey:kContextKey];
     }
 
     [self track:body];
