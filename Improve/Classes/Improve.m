@@ -117,7 +117,6 @@ static Improve *sharedInstance;
     self = [super init];
     if (!self) return nil;
 
-    _isReady = NO;
     _onReadyBlocks = [NSMutableArray new];
     _trackVariantsProbability = 0.01;
 
@@ -175,8 +174,19 @@ static Improve *sharedInstance;
     }
 }
 
+- (BOOL)isReady {
+    if (self.downloader) {
+        return (self.downloader.cachedModelsAge > self.maxModelsStaleAge
+                && self.modelBundlesByNamespace != nil
+                && self.modelBundlesByNamespace.count > 0);
+    } else {
+        return false;
+    }
+}
+
 - (void) onReady:(void (^)(void)) block
 {
+    // need to check stale age right here
     if (self.isReady) {
         block();
     } else {
@@ -529,10 +539,13 @@ static Improve *sharedInstance;
     if (self.downloader && self.downloader.isLoading) return;
 
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelBundleUrl];
+    self.downloader = downloader;
     if (downloader.cachedModelsAge < self.maxModelsStaleAge) {
         // Load models from cache
-        [self fillNamespaceToModelsMap:downloader.cachedModelBundles];
-        [self notifyDidLoadModels];
+        if (downloader.cachedModelBundles.count > 0) {
+            [self fillNamespaceToModelsMap:downloader.cachedModelBundles];
+            [self notifyDidLoadModels];
+        }
         return;
     }
 
@@ -540,7 +553,6 @@ static Improve *sharedInstance;
     downloader.headers = @{kApiKeyHeader: self.apiKey};
 
     __weak Improve *weakSelf = self;
-    self.downloader = downloader;
     [downloader loadWithCompletion:^(NSArray *bundles, NSError *error) {
         if (error) {
             NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
@@ -665,7 +677,6 @@ domain and context.
 }
 
 - (void)notifyDidLoadModels {
-    self.isReady = YES;
     for (void (^block)(void) in self.onReadyBlocks) {
         block();
     }

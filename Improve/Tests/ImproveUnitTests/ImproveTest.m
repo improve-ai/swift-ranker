@@ -31,8 +31,10 @@ NSString *const kTrainingInstance = @"training_tests";
 - (void)setUp {
     [[Improve instance] initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL: @"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/improve-mlmodel-2020-5-11-0-11-47-8f23be6d-7fe7-427a-93e5-5cc14fa60133.tar.gz"];
 
-    [[Improve instanceWithName:kTrainingInstance] initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz"];
-    [Improve instanceWithName:kTrainingInstance].trackUrl = @"https://u0cxvugtmi.execute-api.us-west-2.amazonaws.com/test/track";
+    Improve *trainingInstance = [Improve instanceWithName:kTrainingInstance];
+    [trainingInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz"];
+    trainingInstance.trackUrl = @"https://u0cxvugtmi.execute-api.us-west-2.amazonaws.com/test/track";
+    trainingInstance.maxModelsStaleAge = 10;
 }
 
 - (void)testCombinations {
