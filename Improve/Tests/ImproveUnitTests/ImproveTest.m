@@ -246,16 +246,20 @@ NSString *const kTrainingInstance = @"training_tests";
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
 
     Improve *impr = [Improve instanceWithName:kTrainingInstance];
-    // Train
-    for (int iteration = 0; iteration < 1000; iteration++) {
-        NSString *variant = [impr choose:namespaceString variants:variants];
-        [impr trackDecision:namespaceString variant:variant];
-        [impr trackReward:namespaceString value:variantsToRewards[variant]];
-    }
     const NSTimeInterval waitTime = 300.0;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [expectation fulfill];
-    });
+    // Comment-out onReady block to run initial trainig when there is no model
+    [impr onReady:^{
+        // Train
+        for (int iteration = 0; iteration < 1000; iteration++) {
+            NSString *variant = [impr choose:namespaceString variants:variants];
+            [impr trackDecision:namespaceString variant:variant];
+            [impr trackReward:namespaceString value:variantsToRewards[variant]];
+        }
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [expectation fulfill];
+        });
+    }];
+
     [self waitForExpectations:@[expectation] timeout:waitTime + 0.2];
 }
 
@@ -332,7 +336,8 @@ NSString *const kTrainingInstance = @"training_tests";
 }*/
 
 /**
-
+ Returns a dictionary containing "namespace", "variants" and "bestKey".
+ Best key is required for training context: {"bestKey": variant}.
  */
 - (NSDictionary *)variantsForContextTrainingChoosingJSON {
     NSURL *url = [[TestUtils bundle] URLForResource:@"variantsForContextTraining" withExtension:@"json"];
@@ -343,7 +348,7 @@ NSString *const kTrainingInstance = @"training_tests";
 }
 
 /**
-
+ Perfroms training with variants and context. Train model to choose the variant listed in the context.
  */
 - (void)testVariantsAndContextTraining {
     // Get data
@@ -355,20 +360,23 @@ NSString *const kTrainingInstance = @"training_tests";
 
     // Train
     Improve *impr = [Improve instanceWithName:kTrainingInstance];
-    for (int iteration = 0; iteration < 1000; iteration++) {
-        NSString *variant = [impr choose:namespaceString
-                                variants:variants
-                                 context:context];
-        [impr trackDecision:namespaceString variant:variant context:context];
+    // Comment-out onReady block to run initial trainig when there is no model
+    //[impr onReady:^{
+        for (int iteration = 0; iteration < 1000; iteration++) {
+            NSString *variant = [impr choose:namespaceString
+                                    variants:variants
+                                     context:context];
+            [impr trackDecision:namespaceString variant:variant context:context];
 
-        double reward = [variant isEqualToString:bestVariant] ? 1.0 : 0.0;
-        [impr trackReward:namespaceString value:@(reward)];
-    }
+            double reward = [variant isEqualToString:bestVariant] ? 1.0 : 0.0;
+            [impr trackReward:namespaceString value:@(reward)];
+        }
 
-    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [expectation fulfill];
-    });
+        XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [expectation fulfill];
+        });
+    //}];
     [self waitForExpectations:@[expectation] timeout:20.0];
 }
 
