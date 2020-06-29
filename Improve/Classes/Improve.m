@@ -297,6 +297,9 @@ static Improve *sharedInstance;
     }
         
     [body setObject:namespace forKey:kNamespaceKey];
+    
+    [body setObject:namespace forKey:@"model"]; // DEPRECATED, compatibility with Improve v4
+    [body setObject:_historyId forKey:@"user_id"]; // DEPRECATED, compatibility with Improve v4
 
     [self postImproveRequest:body url:[NSURL URLWithString:self.chooseUrl] block:^(NSObject *response, NSError *error) {
         if (error) {
@@ -304,8 +307,11 @@ static Improve *sharedInstance;
         } else {
             // is this a dictionary?
             if ([response isKindOfClass:[NSDictionary class]]) {
-                // extract the chosen
+                // extract the chosen variant
                 id chosen = [(NSDictionary *)response objectForKey:kVariantKey];
+                if (!chosen) {
+                    chosen = [(NSDictionary *)response objectForKey:@"properties"]; // DEPRECATED, compatibility with Improve v4
+                }
                 if (chosen) {
                     block(chosen, nil);
                     return;
