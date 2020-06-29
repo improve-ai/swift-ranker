@@ -31,8 +31,10 @@ NSString *const kTrainingInstance = @"training_tests";
 - (void)setUp {
     [[Improve instance] initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL: @"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/improve-mlmodel-2020-5-11-0-11-47-8f23be6d-7fe7-427a-93e5-5cc14fa60133.tar.gz"];
 
-    [[Improve instanceWithName:kTrainingInstance] initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz"];
-    [Improve instanceWithName:kTrainingInstance].trackUrl = @"https://u0cxvugtmi.execute-api.us-west-2.amazonaws.com/test/track";
+    Improve *trainingInstance = [Improve instanceWithName:kTrainingInstance];
+    [trainingInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz"];
+    trainingInstance.trackUrl = @"https://u0cxvugtmi.execute-api.us-west-2.amazonaws.com/test/track";
+    trainingInstance.maxModelsStaleAge = 10;
 }
 
 - (void)testCombinations {
@@ -246,16 +248,20 @@ NSString *const kTrainingInstance = @"training_tests";
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
 
     Improve *impr = [Improve instanceWithName:kTrainingInstance];
-    // Train
-    for (int iteration = 0; iteration < 1000; iteration++) {
-        NSString *variant = [impr choose:namespaceString variants:variants];
-        [impr trackDecision:namespaceString variant:variant];
-        [impr trackReward:namespaceString value:variantsToRewards[variant]];
-    }
     const NSTimeInterval waitTime = 300.0;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [expectation fulfill];
-    });
+    // Comment-out onReady block to run initial trainig when there is no model
+    [impr onReady:^{
+        // Train
+        for (int iteration = 0; iteration < 1000; iteration++) {
+            NSString *variant = [impr choose:namespaceString variants:variants];
+            [impr trackDecision:namespaceString variant:variant];
+            [impr trackReward:namespaceString value:variantsToRewards[variant]];
+        }
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [expectation fulfill];
+        });
+    }];
+
     [self waitForExpectations:@[expectation] timeout:waitTime + 0.2];
 }
 
@@ -332,7 +338,8 @@ NSString *const kTrainingInstance = @"training_tests";
 }*/
 
 /**
-
+ Returns a dictionary containing "namespace", "variants" and "bestKey".
+ Best key is required for training context: {"bestKey": variant}.
  */
 - (NSDictionary *)variantsForContextTrainingChoosingJSON {
     NSURL *url = [[TestUtils bundle] URLForResource:@"variantsForContextTraining" withExtension:@"json"];
@@ -343,7 +350,7 @@ NSString *const kTrainingInstance = @"training_tests";
 }
 
 /**
-
+ Perfroms training with variants and context. Train model to choose the variant listed in the context.
  */
 - (void)testVariantsAndContextTraining {
     // Get data
@@ -355,20 +362,23 @@ NSString *const kTrainingInstance = @"training_tests";
 
     // Train
     Improve *impr = [Improve instanceWithName:kTrainingInstance];
-    for (int iteration = 0; iteration < 1000; iteration++) {
-        NSString *variant = [impr choose:namespaceString
-                                variants:variants
-                                 context:context];
-        [impr trackDecision:namespaceString variant:variant context:context];
+    // Comment-out onReady block to run initial trainig when there is no model
+    //[impr onReady:^{
+        for (int iteration = 0; iteration < 1000; iteration++) {
+            NSString *variant = [impr choose:namespaceString
+                                    variants:variants
+                                     context:context];
+            [impr trackDecision:namespaceString variant:variant context:context];
 
-        double reward = [variant isEqualToString:bestVariant] ? 1.0 : 0.0;
-        [impr trackReward:namespaceString value:@(reward)];
-    }
+            double reward = [variant isEqualToString:bestVariant] ? 1.0 : 0.0;
+            [impr trackReward:namespaceString value:@(reward)];
+        }
 
-    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [expectation fulfill];
-    });
+        XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [expectation fulfill];
+        });
+    //}];
     [self waitForExpectations:@[expectation] timeout:20.0];
 }
 

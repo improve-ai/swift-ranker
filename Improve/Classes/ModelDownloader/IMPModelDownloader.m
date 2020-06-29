@@ -157,6 +157,8 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.remoteArchiveURL];
     [request setHTTPMethod:@"GET"];
     [request setAllHTTPHeaderFields:self.headers];
+    // Disable the built-in cache, because we rely on the custom one.
+    request.cachePolicy = NSURLRequestReloadIgnoringCacheData;
     _downloadTask = [session dataTaskWithRequest:request
                            completionHandler:
                      ^(NSData * _Nullable data,

@@ -10,7 +10,7 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 @interface Improve : NSObject
 
 /// true if the model is loaded and ready to make choices, false otherwise
-@property (atomic, assign) BOOL isReady;
+@property (readonly) BOOL isReady;
 
 @property (atomic, strong) NSString *modelBundleUrl;
 
