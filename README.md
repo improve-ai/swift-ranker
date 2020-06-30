@@ -8,6 +8,8 @@
 
 Quickly choose and sort objects to maximize user retention, performance, revenue, or any other metric. It's like an AI if/then statement.
 
+Improve.ai performs fast machine learning on any JSON encodable data structure including dictionaries, arrays, strings, integers, floats, and null values.
+
 ## Installation
 
 Improve is available through [CocoaPods](http://cocoapods.org). To install, add the following line to your Podfile:
