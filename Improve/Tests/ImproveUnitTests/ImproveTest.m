@@ -29,7 +29,9 @@ NSString *const kTrainingInstance = @"training_tests";
 }
 
 - (void)setUp {
-    [[Improve instance] initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL: @"https://improve-v5-resources-prod-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/latest.tar.gz"];
+    Improve *defaultInstance = [Improve instance];
+    [defaultInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL: @"https://improve-v5-resources-prod-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/latest.tar.gz"];
+    defaultInstance.maxModelsStaleAge = 10;
 
     Improve *trainingInstance = [Improve instanceWithName:kTrainingInstance];
     [trainingInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz"];
