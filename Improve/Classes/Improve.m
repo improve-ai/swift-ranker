@@ -186,7 +186,7 @@ static Improve *sharedInstance;
 
 - (void) onReady:(void (^)(void)) block
 {
-    // need to check stale age right here
+    // check stale age right here
     if (self.isReady) {
         block();
     } else {
