@@ -59,14 +59,12 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 
 /**
  Already loaded models mapped by their namespaces. A single model may have many namespaces.
-
  Initially nil. Then we load models from cache, if any, and then remote models.
  */
 @property (strong, nonatomic) NSDictionary<NSString*, IMPModelBundle*> *modelBundlesByNamespace;
 
 /**
- The model which handles requests without namespace. Initially is nil.
-
+ The model which handles requests without namespace or with any missing namespace. Initially is nil.
  Initially nil. Then is loaded from cache, if any, and then from the remote server.
  */
 @property (strong, nonatomic) IMPModelBundle *defaultModel;
@@ -525,8 +523,10 @@ static Improve *sharedInstance;
     } else {
         modelBundle= self.modelBundlesByNamespace[namespaceStr];
     }
-    if (!modelBundle) {
-        NSLog(@"-[%@ %@]: Model not found for namespace %@", CLASS_S, CMD_S, namespaceStr);
+    if (!modelBundle && self.defaultModel != nil) {
+        modelBundle = self.defaultModel;
+    } else {
+        NSLog(@"-[%@ %@]: Model not found for namespace %@. Default model is also nil.", CLASS_S, CMD_S, namespaceStr);
         return nil;
     }
 
