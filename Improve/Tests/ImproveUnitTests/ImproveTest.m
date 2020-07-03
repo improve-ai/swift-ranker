@@ -103,15 +103,6 @@ NSString *const kTrainingInstance = @"training_tests";
     NSLog(@"Waiting for models to load...");
     XCTestExpectation *onReadyExpectation = [[XCTestExpectation alloc] initWithDescription:@"Expects onReady block to be called"];
     [improve onReady:^{
-        // TODO: default model test
-        //        NSDictionary *models = [[Improve instance] modelBundlesByName];
-        //        NSLog(@"Finish waiting.\nLoaded models:\n%@", models);
-        //        XCTAssertNotNil(models[@"default"]);
-
-        /* Note: in order to test model with rank we need better test trials to
-         allow predictions without noise. */
-        //[self testRankWithModelName:@"model2"];
-
         [onReadyExpectation fulfill];
     }];
 

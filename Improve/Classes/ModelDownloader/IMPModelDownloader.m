@@ -181,7 +181,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
             if (statusCode != 200) {
                 NSString *statusCodeStr = [NSHTTPURLResponse localizedStringForStatusCode:statusCode];
                 NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                NSString *msg = [NSString stringWithFormat:@"Model loading failed with status code: %ld %@. Data: %@", statusCode, statusCodeStr, dataStr];
+                NSString *msg = [NSString stringWithFormat:@"Model loading failed with status code: %ld %@. Data: %@. URL: %@", statusCode, statusCodeStr, dataStr, response.URL];
                 error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                             code:-1
                                         userInfo:@{NSLocalizedDescriptionKey: msg}];
@@ -192,9 +192,26 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
 
         // Save downloaded archive
         NSString *tempDir = NSTemporaryDirectory();
-        NSString *archivePath = [tempDir stringByAppendingPathComponent:@"ai.improve.tmp/models.tar.gz"];
+        NSString *archiveDir = [tempDir stringByAppendingPathComponent:@"ai.improve.tmp/"];
+        NSError *dirError;
+        if (![self->_fileManager createDirectoryAtPath:archiveDir
+                     withIntermediateDirectories:true
+                                      attributes:nil
+                                           error:&dirError])
+        {
+            NSString *errMsg = [NSString stringWithFormat:@"Failed to create directory for archive: %@, Src URL: %@", archiveDir, self.remoteArchiveURL];
+
+            error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
+                                        code:-100
+                                    userInfo:@{NSLocalizedDescriptionKey: errMsg,
+                                               NSUnderlyingErrorKey: dirError}];
+            if (completion) { completion(nil, error); }
+            return;
+        }
+
+        NSString *archivePath = [archiveDir stringByAppendingPathComponent:@"models.tar.gz"];
         if (![data writeToFile:archivePath atomically:YES]) {
-            NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Path: %@ Size: %ld", archivePath, data.length];
+            NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Src URL: %@, Dest path: %@ Size: %ld", self.remoteArchiveURL, archivePath, data.length];
             error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                         code:-100
                                     userInfo:@{NSLocalizedDescriptionKey: errMsg}];
@@ -203,7 +220,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
         }
 
         // Unarchiving
-        NSString *unarchivePath = [tempDir stringByAppendingPathComponent:@"Unarchived Models"];
+        NSString *unarchivePath = [tempDir stringByAppendingPathComponent:@"ai.improve.tmp/Unarchived Models"];
         if (![[NVHTarGzip sharedInstance] unTarGzipFileAtPath:archivePath
                                                        toPath:unarchivePath
                                                         error:&error])
@@ -230,7 +247,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
                     error:(NSError **)error
 {
     if (![_fileManager fileExistsAtPath:modelDefinitionURL.path]) {
-        NSString *msg = [NSString stringWithFormat:@"Model definition not found %@", modelDefinitionURL.path];
+        NSString *msg = [NSString stringWithFormat:@"Model definition not found at local path: %@. Remove URL: %@", modelDefinitionURL.path, self.remoteArchiveURL];
         *error = [NSError errorWithDomain:@"ai.improve.compile_model"
                                      code:1
                                  userInfo:@{NSLocalizedDescriptionKey: msg}];
