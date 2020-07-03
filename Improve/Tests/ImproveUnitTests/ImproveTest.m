@@ -29,7 +29,7 @@ NSString *const kTrainingInstance = @"training_tests";
 }
 
 - (void)setUp {
-    [[Improve instance] initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL: @"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/improve-mlmodel-2020-5-11-0-11-47-8f23be6d-7fe7-427a-93e5-5cc14fa60133.tar.gz"];
+    [[Improve instance] initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL: @"https://improve-v5-resources-prod-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/latest.tar.gz"];
 
     Improve *trainingInstance = [Improve instanceWithName:kTrainingInstance];
     [trainingInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz"];
@@ -98,15 +98,9 @@ NSString *const kTrainingInstance = @"training_tests";
 
 - (void)testModelLoadingAndDecisions {
     Improve *improve = [Improve instance];
-    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Stupidly waiting for models to load"];
     NSLog(@"Waiting for models to load...");
     XCTestExpectation *onReadyExpectation = [[XCTestExpectation alloc] initWithDescription:@"Expects onReady block to be called"];
     [improve onReady:^{
-        [onReadyExpectation fulfill];
-    }];
-    NSTimeInterval seconds = 30;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-
         // TODO: default model test
         //        NSDictionary *models = [[Improve instance] modelBundlesByName];
         //        NSLog(@"Finish waiting.\nLoaded models:\n%@", models);
@@ -116,10 +110,10 @@ NSString *const kTrainingInstance = @"training_tests";
          allow predictions without noise. */
         //[self testRankWithModelName:@"model2"];
 
-        [expectation fulfill];
-    });
+        [onReadyExpectation fulfill];
+    }];
 
-    [self waitForExpectations:@[expectation, onReadyExpectation] timeout:(seconds + 5)];
+    [self waitForExpectations:@[onReadyExpectation] timeout:180];
 }
 
 - (NSArray<NSDictionary*> *) combinationsFromVariants:(NSDictionary<NSString*, NSArray*> *)variantMap
