@@ -526,7 +526,7 @@ static Improve *sharedInstance;
         modelBundle= self.modelBundlesByNamespace[namespaceStr];
     }
     if (!modelBundle) {
-        NSLog(@"-[%@ %@]: Model not found: %@", CLASS_S, CMD_S, namespaceStr);
+        NSLog(@"-[%@ %@]: Model not found for namespace %@", CLASS_S, CMD_S, namespaceStr);
         return nil;
     }
 
