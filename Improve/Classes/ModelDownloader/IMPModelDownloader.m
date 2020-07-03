@@ -192,9 +192,9 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
 
         // Save downloaded archive
         NSString *tempDir = NSTemporaryDirectory();
-        NSString *archivePath = [tempDir stringByAppendingPathExtension:@"models.tar.gz"];
+        NSString *archivePath = [tempDir stringByAppendingPathComponent:@"ai.improve.tmp/models.tar.gz"];
         if (![data writeToFile:archivePath atomically:YES]) {
-            NSString *errMsg = @"Failed to write received data to file.";
+            NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Path: %@ Size: %ld", archivePath, data.length];
             error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                         code:-100
                                     userInfo:@{NSLocalizedDescriptionKey: errMsg}];
