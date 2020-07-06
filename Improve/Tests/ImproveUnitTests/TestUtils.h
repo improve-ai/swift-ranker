@@ -14,11 +14,6 @@
 #ifndef TestUtils_h
 #define TestUtils_h
 
-NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(double fl1, double fl2) {
-    const double precision = 0.001;
-    return isEqualRough(fl1, fl2);
-}
-
 NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(double fl1, double fl2, double precision) {
     if (fl1 == fl2) {
         return YES;
@@ -29,6 +24,11 @@ NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(double fl1, double fl2
     } else {
         return (ABS(fl2 / fl1) - 1.) < precision;
     }
+}
+
+NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(double fl1, double fl2) {
+    const double precision = 0.001;
+    return isEqualRough(fl1, fl2, precision);
 }
 
 NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(int count, double *buf1, double *buf2) {
