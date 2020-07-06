@@ -47,25 +47,7 @@ const NSUInteger featuresCount = 10000;
     return self;
 }
 
-- (void)testBatchPrediction {
-    NSArray *trials = [TestUtils defaultTrials];
-    NSArray *predictions = [TestUtils defaultPredictions];
-
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:chooser.metadata];
-    NSArray *hashedTrials = [hasher batchEncode:trials];
-
-    NSArray *batchScores = [chooser batchPrediction:hashedTrials];
-    NSLog(@"%@", batchScores);
-    XCTAssertNotNil(batchScores);
-
-    for (NSUInteger i = 0; i < hashedTrials.count; i++)
-    {
-        double batchScore = [batchScores[i] doubleValue];
-        double XGBScore = [predictions[i] doubleValue];
-        NSLog(@"batch|xgboost: %f, %f", batchScore, XGBScore);
-        XCTAssert(isEqualRough(XGBScore, batchScore));
-    }
-}
+// TODO: Isolated test for batch prediction
 
 /*
  Shallow test, only for general output shape. Choosing isn't reproducible because
@@ -91,6 +73,7 @@ const NSUInteger featuresCount = 10000;
 //    XCTAssert([chosenKeys isEqualToSet:keys]);
 //}
 
+// TODO: Update python script for test data generation. Make it reuse context.
 - (void)testSort {
     NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};

@@ -43,8 +43,15 @@
 }
 
 - (IMPFeaturesDictT *)encodeFeatures:(NSDictionary *)properties
+                           startWith:(IMPFeaturesDictT * _Nullable)initialFeatures
 {
-    return [self encodeFeaturesFromFlattened:[_flattener flatten:properties]];
+    return [self encodeFeaturesFromFlattened:[_flattener flatten:properties]
+                                   startWith:initialFeatures];
+}
+
+- (IMPFeaturesDictT *)encodeFeatures:(NSDictionary *)properties
+{
+    return [self encodeFeatures:properties startWith:nil];
 }
 
 - (IMPFeaturesDictT *)encodePartialFeaturesWithKey:(NSString *)propertyKey
@@ -54,8 +61,12 @@
 }
 
 - (IMPFeaturesDictT *)encodeFeaturesFromFlattened:(NSDictionary *)flattenedProperties
+                                        startWith:(IMPFeaturesDictT * _Nullable)initialFeatures
 {
     NSMutableDictionary<NSNumber*, NSNumber*> *features = [NSMutableDictionary new];
+    if (initialFeatures) {
+        [features addEntriesFromDictionary:initialFeatures];
+    }
     double noise = [self generateRandomNoise];
 
     for (NSString *featureName in flattenedProperties)

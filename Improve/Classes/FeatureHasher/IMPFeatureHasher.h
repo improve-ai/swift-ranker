@@ -39,6 +39,17 @@ NS_ASSUME_NONNULL_BEGIN
  NSNumber values are encoded as double NSNumbers, string values are hashed and replaced with double NSNumbers.
  All other values are skipped.
  @param properties A dictionary with string keys.
+ @param initialFeatures Optional encoded features (context) to wich the encoded values will be added (overriding).
+ @return A dictionary where keys are columns (NSNumber, integer) and values are double-NSNumbers.
+ */
+- (IMPFeaturesDictT *)encodeFeatures:(NSDictionary *)properties
+                           startWith:(IMPFeaturesDictT * _Nullable)initialFeatures;
+
+/**
+ Performs flattening and encodes keys and values. Keys are encoded with integer numbers (columns).
+ NSNumber values are encoded as double NSNumbers, string values are hashed and replaced with double NSNumbers.
+ All other values are skipped.
+ @param properties A dictionary with string keys.
  @return A dictionary where keys are columns (NSNumber, integer) and values are double-NSNumbers.
  */
 - (IMPFeaturesDictT *)encodeFeatures:(NSDictionary *)properties;
@@ -51,11 +62,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Encodes flat dicitonary which shouldn't have nested dictionaries or arrays.
+ @param flattenedProperties A one-level dictionary to encode.
+ @param initialFeatures Optional encoded features (context) to wich the encoded values will be added (overriding).
  @return A dictionary where keys are columns (NSNumber, integer) and values are double-NSNumbers.
  */
-- (IMPFeaturesDictT *)encodeFeaturesFromFlattened:(NSDictionary *)flattenedProperties;
-
-- (NSArray<IMPFeaturesDictT*> *)batchEncode:(NSArray<NSDictionary*> *)properties;
+- (IMPFeaturesDictT *)encodeFeaturesFromFlattened:(NSDictionary *)flattenedProperties
+                                        startWith:(IMPFeaturesDictT * _Nullable)initialFeatures;
+//
+///**
+// If the context is present, it's 
+// @param context
+// @returns Array of encoded property dictionaries.
+// */
+//- (NSArray<IMPFeaturesDictT*> *)batchEncode:(NSArray<NSDictionary*> *)properties
+//                                    context:(NSDictionary * _Nullable)context;
 
 @end
 

@@ -59,7 +59,7 @@ const NSUInteger kInitialTrialsCount = 100;
 /**
 @returns Returns an array of NSNumber (double) objects.
 */
-- (NSArray *)batchPrediction:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatures
+- (NSArray *)batchPrediction:(NSArray<IMPFeaturesDictT*> *)batchFeatures
 {
     MLArrayBatchProvider *batchProvider = [self batchProviderForFeaturesArray:batchFeatures];
 
@@ -97,30 +97,37 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 - (id) choose:(NSArray *)variants
       context:(NSDictionary *)context
 {
-    NSArray *features = [self makeFeaturesFromTrials:variants
-                                         withContext:context];
     IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
-    NSArray *encodedFeatures = [hasher batchEncode:features];
+    IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{
+        @"context": @{ self.namespace: context }
+    }];
+    NSMutableArray *encodedFeatures = [NSMutableArray arrayWithCapacity:variants.count];
+    for (NSDictionary *variant in variants) {
+        NSDictionary *namespaced = @{ @"variant": @{ self.namespace: variant }};
+        [encodedFeatures addObject:[hasher encodeFeatures:namespaced
+                                                startWith:encodedContext]];
+    }
+
     NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) { return nil; }
 
     return [self bestSampleFrom:variants forScores:scores];
 }
 
-
-- (NSArray<NSDictionary*> *)makeFeaturesFromTrials:(NSArray *) trials
-                                       withContext:(NSDictionary *)context
+- (NSArray<IMPFeaturesDictT*> *)encodeVariants:(NSArray<NSDictionary*> *)variants
+                                   withContext:(NSDictionary *)context
 {
-    NSDictionary *namespacedContext = @{ @"context": @{ _namespace: context }};
-    
-    NSMutableArray<NSDictionary*> *features = [NSMutableArray arrayWithCapacity:trials.count];
-    for (NSDictionary *trial in trials) {
-        NSMutableDictionary *total = [namespacedContext mutableCopy];
-        [total addEntriesFromDictionary:@{ @"variant": @{ _namespace: trial }}];
-        [features addObject:total];
+    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
+    IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{
+        @"context": @{self.namespace: context}
+    }];
+    NSMutableArray *encodedFeatures = [NSMutableArray arrayWithCapacity:variants.count];
+    for (NSDictionary *variant in variants) {
+        NSDictionary *namespaced = @{@"variant": @{self.namespace: variant}};
+        [encodedFeatures addObject:[hasher encodeFeatures:namespaced
+                                                startWith:encodedContext]];
     }
-
-    return features;
+    return encodedFeatures;
 }
 
 /// Performs reservoir sampling to break ties when variants have the same score.
@@ -157,10 +164,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 - (NSArray *) sort:(NSArray *)variants
            context:(NSDictionary *)context
 {
-    NSArray *features = [self makeFeaturesFromTrials:variants
-                                         withContext:context];
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
-    NSArray *encodedFeatures = [hasher batchEncode:features];
+    NSArray *encodedFeatures = [self encodeVariants:variants withContext:context];
     NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) { return nil; }
 
