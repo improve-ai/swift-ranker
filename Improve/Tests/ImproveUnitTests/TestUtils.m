@@ -44,6 +44,10 @@
     return [self defaultTrialsAndPredictions][@"predictions"];
 }
 
++ (NSString *)defaultNamespace {
+    return @"test";
+}
+
 + (NSString *)randomStringWithLength:(NSInteger)length
 {
     NSString *chars = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

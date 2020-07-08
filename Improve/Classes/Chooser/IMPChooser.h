@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Choses a trial from the given variants. The trial is chosen according to the model predictions.
- @param variants A NSDictioary of NSArrays. Keys are feature names and arrays contain different options for the feature.
+ @param variants A JSON encodeable list of variants to choose from.  May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
  @return A NSDictionary where keys are features similar to `varaiants`, and the values are the single choosen objects.
  */

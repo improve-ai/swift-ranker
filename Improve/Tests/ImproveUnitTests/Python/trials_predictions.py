@@ -21,15 +21,35 @@ import os
 
 
 def random_key():
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=7))
+    length = random.randint(2, 5)
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
-def random_trial():
-    trial = {}
-    for i in range(30):
-        trial[random_key()] = random.random()
-    return trial
+def random_variant():
+    simple = random.random() < 0.8
+    if simple:
+        if random.random() < 0.9:
+            type = random.choice(['numb', 'str'])
+        else:
+            type = 'null'
+    else:
+        type = random.choice(['array', 'dict'])
 
-trials = [random_trial() for i in range(10)]
+    if type == 'numb':
+        return random.uniform(100, 1000000)
+    elif type == 'str':
+        return random_key()
+    elif type == 'null':
+        return None
+    elif type == 'array':
+        n = random.randint(2, 5)
+        return [random_variant() for i in range(n)]
+    elif type == 'dict':
+        n = random.randint(1, 4)
+        return dict([(random_key(), random_variant()) for i in range(n)])
+
+trials = [random_variant() for i in range(40)]
+context = {}
+namespace = "test"
 
 metadata = json.load(open(sys.argv[2]))
 lookupTable = metadata['table']
@@ -39,7 +59,8 @@ encoder_folder, encoder_filename = os.path.split(sys.argv[3])
 sys.path.append(os.path.abspath(encoder_folder))
 FeatureEncoder = importlib.import_module(os.path.splitext(encoder_filename)[0]).FeatureEncoder
 encoder = FeatureEncoder(lookupTable, metadata["model_seed"])
-encoded_trials = map(lambda trial: encoder.encode_features(trial), trials)
+encoded_context = encoder.encode_features({"context": {namespace: context}})
+encoded_trials = map(lambda trial: encoder.encode_features({"variant": {namespace: trial}}, encoded_context), trials)
 df = pd.DataFrame(encoded_trials, columns=[i for i in range(n_features)])
 testData = xgb.DMatrix(df)
 
