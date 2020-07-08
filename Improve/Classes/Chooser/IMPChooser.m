@@ -98,6 +98,10 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
       context:(NSDictionary *)context
 {
     IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
+    if (!context) {
+        // Safe nil context handling
+        context = @{};
+    }
     IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{
         @"context": @{ self.namespace: context }
     }];

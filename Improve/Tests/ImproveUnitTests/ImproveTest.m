@@ -222,6 +222,10 @@ NSString *const kTrainingInstance = @"training_tests";
     return json;
 }
 
+- (NSString *)randomRewardKey {
+    return [TestUtils randomStringWithMinLength:8 maxLength:10];
+}
+
 /**
  Performs training with a random variants and rewards, no context. Each variant has it's own predifined reward.
  */
@@ -241,8 +245,9 @@ NSString *const kTrainingInstance = @"training_tests";
         // Train
         for (int iteration = 0; iteration < 1000; iteration++) {
             NSString *variant = [impr choose:namespaceString variants:variants];
-            [impr trackDecision:namespaceString variant:variant];
-            [impr trackReward:namespaceString value:variantsToRewards[variant]];
+            NSString *rewardKey = [self randomRewardKey];
+            [impr trackDecision:namespaceString variant:variant context:nil rewardKey:rewardKey];
+            [impr trackReward:rewardKey value:variantsToRewards[variant]];
         }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [expectation fulfill];
@@ -352,13 +357,16 @@ NSString *const kTrainingInstance = @"training_tests";
     // Comment-out onReady block to run initial trainig when there is no model
     //[impr onReady:^{
         for (int iteration = 0; iteration < 1000; iteration++) {
+            NSString *rewardKey = [self randomRewardKey];
             NSString *variant = [impr choose:namespaceString
                                     variants:variants
                                      context:context];
-            [impr trackDecision:namespaceString variant:variant context:context];
+            [impr trackDecision:namespaceString
+                        variant:variant context:context
+                      rewardKey:rewardKey];
 
             double reward = [variant isEqualToString:bestVariant] ? 1.0 : 0.0;
-            [impr trackReward:namespaceString value:@(reward)];
+            [impr trackReward:rewardKey value:@(reward)];
         }
 
         XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
