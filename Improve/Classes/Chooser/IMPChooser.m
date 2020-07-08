@@ -168,7 +168,8 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 - (NSArray *) sort:(NSArray *)variants
            context:(NSDictionary *)context
 {
-    NSArray *encodedFeatures = [self encodeVariants:variants withContext:context];
+    NSArray *shuffledVariants = [variants shuffledArray];
+    NSArray *encodedFeatures = [self encodeVariants:shuffledVariants withContext:context];
     NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) { return nil; }
 
@@ -178,7 +179,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     for (NSUInteger i = 0; i < count; i++)
     {
         double score = [scores[i] doubleValue];
-        NSDictionary *variant = variants[i];
+        NSDictionary *variant = shuffledVariants[i];
         id scored = [IMPScoredObject withScore:score object:variant];
         [scoredVariants addObject:scored];
     }
