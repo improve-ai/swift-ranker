@@ -8,8 +8,8 @@
 
 #import "IMPModelDownloader.h"
 #import <CoreML/CoreML.h>
-#import "IMPCommon.h"
 #import "NSFileManager+SafeCopy.h"
+#import "IMPLogging.h"
 
 // https://github.com/nvh/NVHTarGzip
 // We can add pod dependency if the author will fix bug with `gzFile` pointers.
@@ -63,8 +63,10 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
         _folderName = [defaults stringForKey:_userDefaultsFolderKey];
         if (!_folderName) {
             _folderName = [[NSUUID UUID] UUIDString];
+            IMPLog("Folder name created.");
             [defaults setObject:_folderName forKey:_userDefaultsFolderKey];
         }
+        IMPLog("Cache folder name: %@", _folderName);
 
         _userDefaultsLastDownloadDateKey = [NSString stringWithFormat:@"ai.improve.lastDownloadDate.%@", remoteArchiveURL.absoluteString];
     }
@@ -77,7 +79,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
     NSError *error;
     NSURL *cachesDir = [fileManager URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
     if (!cachesDir) {
-        NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
+        IMPErrLog("Failed to get system caches directory: %@", error);
     }
     NSURL *url = [cachesDir URLByAppendingPathComponent:kModelsRootFolderName];
     url = [cachesDir URLByAppendingPathComponent:_folderName];
@@ -88,7 +90,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
                   withIntermediateDirectories:true
                                    attributes:nil
                                         error:nil]) {
-            NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
+            IMPErrLog("Failed to create models directory: %@", error);
         }
     }
 
@@ -100,17 +102,20 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
     NSError *error;
     NSArray *fileURLs = [fileManager contentsOfDirectoryAtURL:self.modelsDirURL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles error:&error];
     if (!fileURLs) {
-        NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
+        IMPErrLog("Directory enumeration error: %@", error);
     }
     return fileURLs;
 }
 
 - (nullable NSArray *)cachedModelBundles
 {
+    IMPLog("Retrieving cached models...");
     NSArray *fileURLs = [self cachedModelFileURLs];
     if (!fileURLs) {
+        IMPLog("Failed to get cached file urls.");
         return nil;
     }
+    IMPLog("File urls: %@", fileURLs);
 
     NSMutableArray *bundles = [NSMutableArray new];
     for (NSURL *url in fileURLs)
@@ -126,10 +131,12 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
 
         // Check if all files for the givent model name exists
         if (bundle.isReachable) {
+            IMPLog("Bundle is unreachable: %@", bundle);
             [bundles addObject:bundle];
         }
     }
 
+    IMPLog("Retrieved cached bunles: %@", bundles);
     return bundles;
 }
 
@@ -153,6 +160,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
 
 - (void)loadWithCompletion:(IMPModelDownloaderCompletion)completion
 {
+    IMPLog("Loading models at: %@", self.remoteArchiveURL);
     NSURLSession *session = [NSURLSession sharedSession];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.remoteArchiveURL];
     [request setHTTPMethod:@"GET"];
@@ -165,17 +173,17 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
                        NSURLResponse * _Nullable response,
                        NSError * _Nullable downloadingError) {
         if (!data) {
+            IMPLog("Finish loading - no data; response: %@, error: %@", response, downloadingError);
             if (completion) { completion(nil, downloadingError); }
             return;
         }
 
-        // Perform additional check to exit early and prevent further errors.
         NSError *error; // General purpose error
 
         // Optional check for HTTP responses, will not be called for file URLs
-
         if ([response isKindOfClass:NSHTTPURLResponse.class])
         {
+            // Perform additional check to exit early and prevent further errors.
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
             NSInteger statusCode = httpResponse.statusCode;
             if (statusCode != 200) {
@@ -185,14 +193,18 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
                 error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                             code:-1
                                         userInfo:@{NSLocalizedDescriptionKey: msg}];
+                IMPLog("Loading failed: %@", error);
                 if (completion) { completion(nil, error); }
                 return;
             }
         }
 
+        IMPLog("Loaded %ld bytes.", data.length);
+
         // Save downloaded archive
         NSString *tempDir = NSTemporaryDirectory();
         NSString *archiveDir = [tempDir stringByAppendingPathComponent:@"ai.improve.tmp/"];
+        IMPLog("Creating directory for the downloaded achive: %@ ...", archiveDir);
         NSError *dirError;
         if (![self->_fileManager createDirectoryAtPath:archiveDir
                      withIntermediateDirectories:true
@@ -205,33 +217,46 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
                                         code:-100
                                     userInfo:@{NSLocalizedDescriptionKey: errMsg,
                                                NSUnderlyingErrorKey: dirError}];
+            IMPLog("Directory creation failed: %@", errMsg);
             if (completion) { completion(nil, error); }
             return;
         }
+        IMPLog("Success.");
 
         NSString *archivePath = [archiveDir stringByAppendingPathComponent:@"models.tar.gz"];
+        IMPLog("Writing the archive data to path: %@ ...", archivePath);
         if (![data writeToFile:archivePath atomically:YES]) {
             NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Src URL: %@, Dest path: %@ Size: %ld", self.remoteArchiveURL, archivePath, data.length];
             error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                         code:-100
                                     userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+            IMPLog("Failed: %@", errMsg);
             if (completion) { completion(nil, error); }
             return;
         }
+        IMPLog("Success.");
 
         // Unarchiving
         NSString *unarchivePath = [tempDir stringByAppendingPathComponent:@"ai.improve.tmp/Unarchived Models"];
+        IMPLog("Untarin the archive to path: %@ ...", unarchivePath);
         if (![[NVHTarGzip sharedInstance] unTarGzipFileAtPath:archivePath
                                                        toPath:unarchivePath
                                                         error:&error])
         {
+            IMPLog("Untar failed: %@", error);
             if (completion) { completion(nil, error); }
             return;
         }
+        IMPLog("Success.");
 
-        NSArray *bundles = [self processUnarchivedModelFilesIn:unarchivePath];
+        NSArray *bundles = [self processUnarchivedModelFilesIn:unarchivePath
+                                                         error:&error];
+        if (!bundles) {
+            if (completion) { completion(nil, error); }
+        }
         [[NSUserDefaults standardUserDefaults] setObject:[NSDate date]
                                                   forKey:self->_userDefaultsLastDownloadDateKey];
+        IMPLog("Model downloaded finished. Returning bundles: %@", bundles);
         if (completion) { completion(bundles, nil); }
     }];
     [_downloadTask resume];
@@ -267,15 +292,21 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
     return _downloadTask && _downloadTask.state != NSURLSessionTaskStateRunning;
 }
 
-- (NSArray<IMPModelBundle *> *)processUnarchivedModelFilesIn:(NSString *)folder
+- (NSArray<IMPModelBundle *> * _Nullable)processUnarchivedModelFilesIn:(NSString *)folder
+                                                                 error:(NSError **)error
 {
+    IMPLog("Processing unarchived models in dir: %@", folder);
     NSURL *folderURL = [NSURL fileURLWithPath:folder];
-    NSError *error;
 
     NSArray *files = [_fileManager contentsOfDirectoryAtURL:folderURL
                                  includingPropertiesForKeys:nil
                                                     options:NSDirectoryEnumerationSkipsHiddenFiles
-                                                      error:&error];
+                                                      error:error];
+    if (!files) {
+        IMPLog("Failed to get files in the directory: %@", error);
+        return nil;
+    }
+    IMPLog("Contents: %@", files);
 
     // Filter files
     NSMutableSet *mlmodelNames = [NSMutableSet setWithCapacity:files.count];
@@ -292,6 +323,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
         }
     }
     [mlmodelNames intersectSet:jsonNames];
+    IMPLog("Found model names: %@", mlmodelNames);
 
     // Process models
     NSMutableArray *modelBundles = [NSMutableArray arrayWithCapacity:mlmodelNames.count];
@@ -309,6 +341,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
         [modelBundles addObject:bundleOrNil];
     }
 
+    IMPLog("Processing unarchived models finished. Bundles: %@", modelBundles);
     return modelBundles;
 }
 
@@ -317,26 +350,34 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
                                 jsonPath:(NSString *)jsonPath
 {
     IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.modelsDirURL modelName:modelName];
+    IMPLog("Processing model: %@", modelName);
 
     // Compile model and put to the destination folder
     NSURL *modelDefinitionURL = [NSURL fileURLWithPath:mlmodelPath];
     NSError *error;
+    IMPLog("Compiling model at: %@ to: %@ ...", modelDefinitionURL, bundle.compiledModelURL);
     if (![self compileModelAtURL:modelDefinitionURL
                            toURL:bundle.compiledModelURL
                            error:&error])
     {
+        IMPErrLog("Failed to compile model: %@, at: %@ to: %@ error: %@", modelName, modelDefinitionURL, bundle.compiledModelURL, error);
         return nil;
     }
+    IMPLog("Success.");
 
     // Put metadata to the destination folder
     NSURL *metadataURL = [NSURL fileURLWithPath:jsonPath];
+    IMPLog("Copying metadata: %@ to: %@ ...", metadataURL, bundle.metadataURL);
     if (![_fileManager safeCopyItemAtURL:metadataURL
                                    toURL:bundle.metadataURL
                                    error:&error])
     {
+        IMPErrLog("Failed to copy metadata for model: %@, from: %@ to: %@ error: %@", modelName, metadataURL, bundle.metadataURL, error);
         return nil;
     }
+    IMPLog("Success.");
 
+    IMPLog("Returning bundle: %@", bundle);
     return bundle;
 }
 

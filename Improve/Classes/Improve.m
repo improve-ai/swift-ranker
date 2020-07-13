@@ -10,7 +10,7 @@
 #import "Improve.h"
 #import "IMPChooser.h"
 #import "NSArray+Random.h"
-#import "IMPCommon.h"
+#import "IMPLogging.h"
 #import "IMPModelDownloader.h"
 
 @import Security;
@@ -102,10 +102,12 @@ static Improve *sharedInstance;
     {
         Improve *existingInstance = instances[name];
         if (existingInstance) {
+            IMPLog("Returning existing instance for name: @%", name);
             return existingInstance;
         } else {
             Improve *newInstance = [[Improve alloc] init];
             instances[name] = newInstance;
+            IMPLog("Created instance for name: @%", name);
             return newInstance;
         }
     }
@@ -132,7 +134,7 @@ static Improve *sharedInstance;
     SInt8 bytes[historyIdSize];
     int status = SecRandomCopyBytes(kSecRandomDefault, historyIdSize, bytes);
     if (status != errSecSuccess) {
-        NSLog(@"-[%@ %@]: SecRandomCopyBytes failed, status: %d", CLASS_S, CMD_S, status);
+        IMPErrLog("SecRandomCopyBytes failed, status: %d", status);
         return nil;
     }
     NSData *data = [[NSData alloc] initWithBytes:bytes length:historyIdSize];
@@ -203,7 +205,7 @@ static Improve *sharedInstance;
       context:(NSDictionary *) context
 {
     if (!variants || [variants count] == 0) {
-        NSLog(@"+[%@ %@]: non-nil, non-empty array required for choose variants. returning nil.", CLASS_S, CMD_S);
+        IMPErrLog("Non-nil, non-empty array required for choose variants. returning nil.");
         return nil;
     }
     
@@ -229,13 +231,14 @@ static Improve *sharedInstance;
                                           withChooser:chooser
                                            chooseDate:[NSDate date]];
         } else {
-            NSLog(@"-[%@ %@]: Model not loaded. Choosing first variant.", CLASS_S, CMD_S);
+            IMPLog("Model not loaded.");
         }
     } else {
-        NSLog(@"+[%@ %@]: non-nil required for namespace. returning first variant.", CLASS_S, CMD_S);
+        IMPErrLog("Non-nil required for namespace!");
     }
     
     if (!chosen) {
+        IMPLog("Choosing first variant.");
         return [variants objectAtIndex:0];
     }
 
@@ -254,7 +257,7 @@ static Improve *sharedInstance;
            context:(NSDictionary *) context
 {
     if (!variants || [variants count] == 0) {
-        NSLog(@"+[%@ %@]: non-nil, non-empty array required for sort variants. returning empty array", CLASS_S, CMD_S);
+        IMPLog("Non-nil, non-empty array required for sort variants. returning empty array");
         return @[];
     }
     
@@ -274,13 +277,14 @@ static Improve *sharedInstance;
         if (chooser) {
             sorted = [chooser sort:variants context:context];
         } else {
-            NSLog(@"-[%@ %@]: Model not loaded. Returning unsorted shallow copy of variants.", CLASS_S, CMD_S);
+            IMPLog("Model not loaded.");
         }
     } else {
-        NSLog(@"+[%@ %@]: non-nil required for namespace. Return unsorted shallow copy of variants.", CLASS_S, CMD_S);
+        IMPErrLog("Non-nil required for namespace.");
     }
     
     if (!sorted) {
+        IMPLog("Returning unsorted shallow copy of variants.");
         return [[NSArray alloc] initWithArray:variants];
     }
 
@@ -350,12 +354,12 @@ static Improve *sharedInstance;
              rewardKey:(NSString *) rewardKey
 {
     if (!variant) {
-        NSLog(@"+[%@ %@]: Skipping trackDecision for nil variant. To track null values use [NSNull null]", CLASS_S, CMD_S);
+        IMPErrLog("Skipping trackDecision for nil variant. To track null values use [NSNull null]");
         return;
     }
 
     if (!namespace) {
-        NSLog(@"+[%@ %@]: Skipping trackDecision for nil namespace", CLASS_S, CMD_S);
+        IMPErrLog("Skipping trackDecision for nil namespace");
         return;
     }
     
@@ -375,7 +379,7 @@ static Improve *sharedInstance;
     
     [self postImproveRequest:body url:[NSURL URLWithString:_trackUrl] block:^(NSObject *result, NSError *error) {
         if (error) {
-            NSLog(@"Improve.track error: %@", error);
+            IMPErrLog("Improve.track error: %@", error);
         }
     }];
 }
@@ -385,7 +389,7 @@ static Improve *sharedInstance;
     if (rewardKey && reward) {
         [self trackRewards:@{ rewardKey: reward }];
     } else {
-        NSLog(@"Skipping trackReward for nil rewardKey or reward");
+        IMPErrLog("Skipping trackReward for nil rewardKey or reward");
     }
 }
 
@@ -397,7 +401,7 @@ static Improve *sharedInstance;
             kRewardsKey: rewards
         }];
     } else {
-        NSLog(@"Skipping trackRewards for nil rewards");
+        IMPErrLog("Skipping trackRewards for nil rewards");
     }
 }
 
@@ -428,7 +432,7 @@ static Improve *sharedInstance;
                        block:^
      (NSObject *result, NSError *error) {
         if (error) {
-            NSLog(@"Improve.track error: %@", error);
+            IMPErrLog("Improve.track error: %@", error);
         }
     }];
 }
@@ -526,14 +530,14 @@ static Improve *sharedInstance;
     if (!modelBundle && self.defaultModel != nil) {
         modelBundle = self.defaultModel;
     } else {
-        NSLog(@"-[%@ %@]: Model not found for namespace %@. Default model is also nil.", CLASS_S, CMD_S, namespaceStr);
+        IMPErrLog("Model not found for namespace %@. Default model is also nil.", namespaceStr);
         return nil;
     }
 
     NSError *error = nil;
     IMPChooser *chooser = [IMPChooser chooserWithModelBundle:modelBundle namespace:namespaceStr error:&error];
     if (!chooser) {
-        NSLog(@"-[%@ %@]: %@", CLASS_S, CMD_S, error);
+        IMPErrLog("Failed to initialize Chooser: %@", error);
         return nil;
     }
 
@@ -548,8 +552,9 @@ static Improve *sharedInstance;
     self.downloader = downloader;
     if (downloader.cachedModelsAge < self.maxModelsStaleAge) {
         // Load models from cache
-        if (downloader.cachedModelBundles.count > 0) {
-            [self fillNamespaceToModelsMap:downloader.cachedModelBundles];
+        NSArray *cachedModels = downloader.cachedModelBundles;
+        if (cachedModels.count > 0) {
+            [self fillNamespaceToModelsMap:cachedModels];
             [self notifyDidLoadModels];
         }
         return;
@@ -561,7 +566,7 @@ static Improve *sharedInstance;
     __weak Improve *weakSelf = self;
     [downloader loadWithCompletion:^(NSArray *bundles, NSError *error) {
         if (error) {
-            NSLog(@"+[%@ %@]: %@", CLASS_S, CMD_S, error);
+            IMPErrLog("Failed to load models: %@", error);
 
             // Reload
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kRetryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{

@@ -7,7 +7,7 @@
 //
 
 #import "IMPModelMetadata.h"
-#import "IMPCommon.h"
+#import "IMPLogging.h"
 
 @implementation IMPModelMetadata
 
@@ -23,12 +23,12 @@
     NSError *error;
     NSData *data = [NSData dataWithContentsOfURL:url options:0 error:&error];
     if (!data) {
-        NSLog(@"-[%@ %@] data reading error: %@", CLASS_S, CMD_S, error);
+        IMPErrLog("Data reading error: %@", error);
         return nil;
     }
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     if (!json) {
-        NSLog(@"-[%@ %@] json parse error: %@", CLASS_S, CMD_S, error);
+        IMPErrLog("Json parse error: %@", error);
         return nil;
     }
 

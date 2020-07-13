@@ -13,6 +13,7 @@
 #import "IMPScoredObject.h"
 #import "IMPModelBundle.h"
 #import "IMPModelMetadata.h"
+#import "IMPLogging.h"
 
 
 const NSUInteger kInitialTrialsCount = 100;
@@ -67,7 +68,7 @@ const NSUInteger kInitialTrialsCount = 100;
     id<MLBatchProvider> prediction
     = [self.model predictionsFromBatch:batchProvider error:&error];
     if (!prediction) {
-        NSLog(@"predictionsFromBatch error: %@", error);
+        IMPLog(@"predictionsFromBatch error: %@", error);
         return nil;
     }
 

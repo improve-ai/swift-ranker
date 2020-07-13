@@ -10,6 +10,7 @@
 		540FF471245A2C4A00690EDA /* NSFileManager+SafeCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = 540FF470245A2C4A00690EDA /* NSFileManager+SafeCopy.m */; };
 		54160CD223E02C9B00030A6A /* singleEncodedTrial.json in Resources */ = {isa = PBXBuildFile; fileRef = 54160CD123E02C9B00030A6A /* singleEncodedTrial.json */; };
 		54442CA323FFE37B00F278E8 /* ImproveTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54442CA223FFE37B00F278E8 /* ImproveTest.m */; };
+		544A0E8024BB7B5E007BB69D /* LoggingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 544A0E7F24BB7B5E007BB69D /* LoggingTest.m */; };
 		548BEE1F241241F500EFD26A /* TestModel.json in Resources */ = {isa = PBXBuildFile; fileRef = 548BEE1D241241F500EFD26A /* TestModel.json */; };
 		548BEE20241241F500EFD26A /* TestModel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE1E241241F500EFD26A /* TestModel.mlmodel */; };
 		548BEE232412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE222412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m */; };
@@ -54,6 +55,8 @@
 		540FF470245A2C4A00690EDA /* NSFileManager+SafeCopy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+SafeCopy.m"; sourceTree = "<group>"; };
 		54160CD123E02C9B00030A6A /* singleEncodedTrial.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = singleEncodedTrial.json; sourceTree = "<group>"; };
 		54442CA223FFE37B00F278E8 /* ImproveTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImproveTest.m; sourceTree = "<group>"; };
+		544A0E7E24B6FF8B007BB69D /* IMPLogging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPLogging.h; sourceTree = "<group>"; };
+		544A0E7F24BB7B5E007BB69D /* LoggingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoggingTest.m; sourceTree = "<group>"; };
 		548BEE1D241241F500EFD26A /* TestModel.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TestModel.json; sourceTree = "<group>"; };
 		548BEE1E241241F500EFD26A /* TestModel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = TestModel.mlmodel; sourceTree = "<group>"; };
 		548BEE212412442300EFD26A /* MLDictionaryFeatureProvider+Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MLDictionaryFeatureProvider+Utils.h"; sourceTree = "<group>"; };
@@ -221,6 +224,7 @@
 				548DA93D23EB570400825370 /* DataTests.m */,
 				549EE78123F1C4AC0040D880 /* DownloaderTest.m */,
 				54442CA223FFE37B00F278E8 /* ImproveTest.m */,
+				544A0E7F24BB7B5E007BB69D /* LoggingTest.m */,
 				54160CD123E02C9B00030A6A /* singleEncodedTrial.json */,
 				54E66A002401BEDC0032BC52 /* trials.json */,
 				548BEE1D241241F500EFD26A /* TestModel.json */,
@@ -312,6 +316,7 @@
 			isa = PBXGroup;
 			children = (
 				5496CE5C23ED5FFE004E96C5 /* IMPCommon.h */,
+				544A0E7E24B6FF8B007BB69D /* IMPLogging.h */,
 				54CB9B3923D988F10005BB94 /* IMPJSONFlattener.h */,
 				54CB9B3723D988F10005BB94 /* IMPJSONFlattener.m */,
 				54CB9B3823D988F10005BB94 /* IMPJSONUtils.h */,
@@ -411,6 +416,7 @@
 				54CB9B5923DB02D20005BB94 /* NSArray+Multidimensional.m in Sources */,
 				54CB9B4D23D989140005BB94 /* JSONFlattenerTest.m in Sources */,
 				548DA93C23EB4EF000825370 /* IMPMatrix.m in Sources */,
+				544A0E8024BB7B5E007BB69D /* LoggingTest.m in Sources */,
 				54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */,
 				5496CE5723EC04EE004E96C5 /* IMPMatrixBatchProvider.m in Sources */,
 				54CA210623FDD09D00723655 /* NVHFile.m in Sources */,

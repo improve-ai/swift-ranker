@@ -7,7 +7,7 @@
 //
 
 #import "IMPModelBundle.h"
-#import "IMPCommon.h"
+#import "IMPLogging.h"
 
 
 @implementation IMPModelBundle
@@ -55,7 +55,7 @@
     }
     else
     {
-        NSLog(@"-[%@ %@] error while reading date: %@", CLASS_S, CMD_S, err);
+        IMPErrLog("Error while reading date: %@", err);
         return nil;
     }
 }

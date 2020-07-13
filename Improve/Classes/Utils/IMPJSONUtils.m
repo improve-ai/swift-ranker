@@ -8,6 +8,7 @@
 
 #import "IMPJSONUtils.h"
 #import "IMPJSONFlattener.h"
+#import "IMPLogging.h"
 
 @implementation IMPJSONUtils
 
@@ -31,7 +32,7 @@
         NSScanner *scanner = [NSScanner scannerWithString:keyStr];
         NSInteger intKey = 0;
         if (![scanner scanInteger:&intKey]) {
-            NSLog(@"Key '%@' can't be converted to int! Skipped.", key);
+            IMPLog("Key '%@' can't be converted to int! Skipped.", key);
             continue;
         }
         outJSON[@(intKey)] = inputJSON[key];
