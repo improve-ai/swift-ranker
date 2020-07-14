@@ -10,7 +10,6 @@
 #import "IMPEncodedFeatureProvider.h"
 #import "NSArray+Random.h"
 #import "IMPCommon.h"
-#import "IMPScoredObject.h"
 #import "IMPModelBundle.h"
 #import "IMPModelMetadata.h"
 #import "IMPLogging.h"
@@ -98,24 +97,8 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 - (id) choose:(NSArray *)variants
       context:(NSDictionary *)context
 {
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
-    if (!context) {
-        // Safe nil context handling
-        context = @{};
-    }
     IMPLog("Starting choose...");
-    IMPLog("Context: %@", context);
-    IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{
-        @"context": @{ self.namespace: context }
-    }];
-    IMPLog("Encoded context: %@", encodedContext);
-    IMPLog("Encoding variants... Count: %ld", variants.count);
-    NSMutableArray *encodedFeatures = [NSMutableArray arrayWithCapacity:variants.count];
-    for (NSDictionary *variant in variants) {
-        NSDictionary *namespaced = @{ @"variant": @{ self.namespace: variant }};
-        [encodedFeatures addObject:[hasher encodeFeatures:namespaced
-                                                startWith:encodedContext]];
-    }
+    NSArray *encodedFeatures = [self encodeVariants:variants withContext:context];
 
     IMPLog("Calculating scores...");
     NSArray *scores = [self batchPrediction:encodedFeatures];
@@ -126,7 +109,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 
 #ifdef IMP_DEBUG
     // Print out variant, encoded variant and score, sorted by score
-    IMPLog("Printing out scored variants...");
+    IMPLog("Sorted variants...");
     NSMutableArray *debugVariants = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSInteger i = 0; i < variants.count; i++)
     {
@@ -143,20 +126,29 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     for (NSInteger i = 0; i < debugVariants.count; i++)
     {
         NSDictionary *debugVariant = debugVariants[i];
-        IMPLog("#%ld\nVariant: %@\nEncoded variant: %@\nScore: %@", i, debugVariant[@"variant"], debugVariant[@"encodedVariant"], debugVariant[@"score"]);
+        IMPLog("Sorted variant #%ld\nVariant: %@\nEncoded variant: %@\nScore: %@", i, debugVariant[@"variant"], debugVariant[@"encodedVariant"], debugVariant[@"score"]);
     }
 #endif
 
-    return [self bestSampleFrom:variants forScores:scores];
+    id best = [self bestSampleFrom:variants forScores:scores];
+    IMPLog("Choose finished.");
+    return best;
 }
 
 - (NSArray<IMPFeaturesDictT*> *)encodeVariants:(NSArray<NSDictionary*> *)variants
                                    withContext:(NSDictionary *)context
 {
+    if (!context) {
+        // Safe nil context handling
+        context = @{};
+    }
+    IMPLog("Context: %@", context);
     IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
     IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{
         @"context": @{self.namespace: context}
     }];
+    IMPLog("Encoded context: %@", encodedContext);
+    IMPLog("Encoding variants... Count: %ld", variants.count);
     NSMutableArray *encodedFeatures = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSDictionary *variant in variants) {
         NSDictionary *namespaced = @{@"variant": @{self.namespace: variant}};
@@ -200,33 +192,50 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 - (NSArray *) sort:(NSArray *)variants
            context:(NSDictionary *)context
 {
+    IMPLog("Starting sort...");
+    IMPLog("Shuffeling variants...");
     NSArray *shuffledVariants = [variants shuffledArray];
     NSArray *encodedFeatures = [self encodeVariants:shuffledVariants withContext:context];
+    IMPLog("Calculating scores...");
     NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) { return nil; }
 
     NSUInteger count = scores.count;
     NSMutableArray *scoredVariants = [NSMutableArray arrayWithCapacity:count];
-
     for (NSUInteger i = 0; i < count; i++)
     {
-        double score = [scores[i] doubleValue];
-        NSDictionary *variant = shuffledVariants[i];
-        id scored = [IMPScoredObject withScore:score object:variant];
-        [scoredVariants addObject:scored];
+        NSDictionary *scoredVariant = @{
+            @"variant": shuffledVariants[i],
+#ifdef IMP_DEBUG
+            @"encodedVariant": encodedFeatures[i],
+#endif
+            @"score": scores[i]
+        };
+        [scoredVariants addObject:scoredVariant];
     }
 
+    IMPLog("Sorting...");
     [scoredVariants sortUsingDescriptors:@[
         [NSSortDescriptor sortDescriptorWithKey:@"score" ascending:NO]
     ]];
 
+#ifdef IMP_DEBUG
+    IMPLog("Sorted variants...");
+    for (NSInteger i = 0; i < scoredVariants.count; i++)
+    {
+        NSDictionary *variant = scoredVariants[i];
+        IMPLog("Sorted variant #%ld\nVariant: %@\nEncoded variant: %@\nScore: %@", i, variant[@"variant"], variant[@"encodedVariant"], variant[@"score"]);
+    }
+#endif
+
     NSMutableArray *outputVariants = [NSMutableArray arrayWithCapacity:count];
     for (NSUInteger i = 0; i < count; i++)
     {
-        IMPScoredObject *scored = scoredVariants[i];
-        [outputVariants addObject:scored.object];
+        NSDictionary *scoredVariant = scoredVariants[i];
+        [outputVariants addObject:scoredVariant[@"variant"]];
     }
 
+    IMPLog("Sort finished.");
     return outputVariants;
 }
 
