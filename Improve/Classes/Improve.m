@@ -365,6 +365,7 @@ static Improve *sharedInstance;
     
     // the rewardKey is never nil
     if (!rewardKey) {
+        IMPLog("Using namespace as rewardKey: %@", namespace);
         rewardKey = namespace;
     }
     
@@ -380,6 +381,9 @@ static Improve *sharedInstance;
     [self postImproveRequest:body url:[NSURL URLWithString:_trackUrl] block:^(NSObject *result, NSError *error) {
         if (error) {
             IMPErrLog("Improve.track error: %@", error);
+            IMPLog("trackDecision failed! Namespace: %@, variant: %@, context: %@, rewardKey: %@", namespace, variant, context, rewardKey);
+        } else {
+            IMPLog("trackDecision succeed with namespace: %@, variant: %@, context: %@, rewardKey: %@", namespace, variant, context, rewardKey);
         }
     }];
 }
@@ -396,6 +400,7 @@ static Improve *sharedInstance;
 - (void) trackRewards:(NSDictionary *)rewards
 {
     if (rewards) {
+        IMPLog("Tracking rewards: %@", rewards);
         [self track:@{
             kTypeKey: kRewardsType,
             kRewardsKey: rewards
@@ -468,6 +473,7 @@ static Improve *sharedInstance;
     NSError * err;
     NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
     if (err) {
+        IMPLog("Data serialization error: %@\nbody: %@", err, body);
         block(nil, err);
         return;
     }
@@ -546,12 +552,18 @@ static Improve *sharedInstance;
 
 - (void)loadModels:(NSURL *) modelBundleUrl
 {
-    if (self.downloader && self.downloader.isLoading) return;
+    IMPLog("Initializing model loading...");
+    if (self.downloader && self.downloader.isLoading) {
+        IMPLog("Allready loading. Skipping.");
+        return;
+    }
 
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelBundleUrl];
     self.downloader = downloader;
+    IMPLog("Checking for cached models...");
     if (downloader.cachedModelsAge < self.maxModelsStaleAge) {
         // Load models from cache
+        IMPLog("Found cached models. Finished.");
         NSArray *cachedModels = downloader.cachedModelBundles;
         if (cachedModels.count > 0) {
             [self fillNamespaceToModelsMap:cachedModels];
@@ -561,6 +573,7 @@ static Improve *sharedInstance;
     }
 
     // Load remote models
+    IMPLog("No cached models. Starting download...");
     downloader.headers = @{kApiKeyHeader: self.apiKey};
 
     __weak Improve *weakSelf = self;
@@ -569,10 +582,13 @@ static Improve *sharedInstance;
             IMPErrLog("Failed to load models: %@", error);
 
             // Reload
+            IMPLog("Will retry after %g sec", kRetryInterval);
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kRetryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                IMPLog("Retrying...");
                 [weakSelf loadModels:modelBundleUrl];
             });
         } else if (bundles) {
+            IMPLog("Models loaded.");
             [weakSelf fillNamespaceToModelsMap:bundles];
             [weakSelf notifyDidLoadModels];
         }
