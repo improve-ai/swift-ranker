@@ -102,12 +102,12 @@ static Improve *sharedInstance;
     {
         Improve *existingInstance = instances[name];
         if (existingInstance) {
-            IMPLog("Returning existing instance for name: @%", name);
+            IMPLog("Returning existing instance for name: %@", name);
             return existingInstance;
         } else {
             Improve *newInstance = [[Improve alloc] init];
             instances[name] = newInstance;
-            IMPLog("Created instance for name: @%", name);
+            IMPLog("Created instance for name: %@", name);
             return newInstance;
         }
     }

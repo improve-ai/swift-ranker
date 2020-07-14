@@ -68,7 +68,7 @@ const NSUInteger kInitialTrialsCount = 100;
     id<MLBatchProvider> prediction
     = [self.model predictionsFromBatch:batchProvider error:&error];
     if (!prediction) {
-        IMPLog(@"predictionsFromBatch error: %@", error);
+        IMPErrLog("predictionsFromBatch error: %@", error);
         return nil;
     }
 
@@ -103,9 +103,13 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
         // Safe nil context handling
         context = @{};
     }
+    IMPLog("Starting choose...");
+    IMPLog("Context: %@", context);
     IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{
         @"context": @{ self.namespace: context }
     }];
+    IMPLog("Encoded context: %@", encodedContext);
+    IMPLog("Encoding variants... Count: %ld", variants.count);
     NSMutableArray *encodedFeatures = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSDictionary *variant in variants) {
         NSDictionary *namespaced = @{ @"variant": @{ self.namespace: variant }};
@@ -113,8 +117,35 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
                                                 startWith:encodedContext]];
     }
 
+    IMPLog("Calculating scores...");
     NSArray *scores = [self batchPrediction:encodedFeatures];
-    if (!scores) { return nil; }
+    if (!scores) {
+        IMPLog("Choosig failed because batch prediction failed. Returning nil.");
+        return nil;
+    }
+
+#ifdef IMP_DEBUG
+    // Print out variant, encoded variant and score, sorted by score
+    IMPLog("Printing out scored variants...");
+    NSMutableArray *debugVariants = [NSMutableArray arrayWithCapacity:variants.count];
+    for (NSInteger i = 0; i < variants.count; i++)
+    {
+        NSDictionary *debugVariant = @{
+            @"variant": variants[i],
+            @"encodedVariant": encodedFeatures[i],
+            @"score": scores[i]
+        };
+        [debugVariants addObject:debugVariant];
+    }
+    [debugVariants sortUsingDescriptors:@[
+        [NSSortDescriptor sortDescriptorWithKey:@"score" ascending:NO]
+    ]];
+    for (NSInteger i = 0; i < debugVariants.count; i++)
+    {
+        NSDictionary *debugVariant = debugVariants[i];
+        IMPLog("#%ld\nVariant: %@\nEncoded variant: %@\nScore: %@", i, debugVariant[@"variant"], debugVariant[@"encodedVariant"], debugVariant[@"score"]);
+    }
+#endif
 
     return [self bestSampleFrom:variants forScores:scores];
 }

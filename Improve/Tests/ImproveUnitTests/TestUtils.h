@@ -8,11 +8,6 @@
 
 // Helper utilities for testing.
 
-// Enable debug mode
-#ifndef IMP_DEBUG
-#   define IMP_DEBUG
-#endif
-
 #include <math.h>
 #import <Foundation/Foundation.h>
 #import "IMPLogging.h"

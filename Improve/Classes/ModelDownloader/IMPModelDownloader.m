@@ -303,7 +303,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
                                                     options:NSDirectoryEnumerationSkipsHiddenFiles
                                                       error:error];
     if (!files) {
-        IMPLog("Failed to get files in the directory: %@", error);
+        IMPLog("Failed to get files in the directory: %@", *error);
         return nil;
     }
     IMPLog("Contents: %@", files);

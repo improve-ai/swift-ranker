@@ -1,0 +1,18 @@
+//
+//  Tests.pch
+//  Tests
+//
+//  Created by Vladimir on 7/14/20.
+//  Copyright © 2020 Mind Blown Apps, LLC. All rights reserved.
+//
+
+#ifndef Tests_pch
+#define Tests_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+// Enable debug mode
+#define IMP_DEBUG
+
+#endif /* Tests_pch */

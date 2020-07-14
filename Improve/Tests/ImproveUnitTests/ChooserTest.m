@@ -6,11 +6,11 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "TestUtils.h"
 #import "IMPChooser.h"
 #import "IMPFeatureHasher.h"
 #import "MLMultiArray+NSArray.h"
 #import "NSArray+Padding.h"
-#import "TestUtils.h"
 #import "IMPScoredObject.h"
 #import "IMPModelBundle.h"
 #import "IMPJSONUtils.h"
@@ -51,31 +51,15 @@ const NSUInteger featuresCount = 10000;
 
 // TODO: Isolated test for batch prediction
 
-/*
- Shallow test, only for general output shape. Choosing isn't reproducible because
- of it's random nature.
- */
-// TODO: provide variants and context
-//- (void)testBasicChoosing {
-//    XCTAssertNotNil(chooser);
-//
-//    NSDictionary *chosen = [chooser choose:variants context:context];
-//    XCTAssertNotNil(chosen);
-//    NSLog(@"%@", chosen);
-//
-//    // This check insures that all keys are presented in the chosen variant
-//    NSMutableDictionary *firstVariant = [NSMutableDictionary new];
-//    for (NSString *propertyName in variants)
-//    {
-//        NSArray *propertyValues = variants[propertyName];
-//        firstVariant[propertyName] = propertyValues.firstObject;
-//    }
-//    NSSet *chosenKeys = [NSSet setWithArray:chosen.allKeys];
-//    NSSet *keys = [NSSet setWithArray:firstVariant.allKeys];
-//    XCTAssert([chosenKeys isEqualToSet:keys]);
-//}
+- (void)testBasicChoosing {
+    XCTAssertNotNil(chooser);
+    NSArray *variants = [TestUtils defaultTrials];
+    NSDictionary *context = @{};
+    NSDictionary *chosen = [chooser choose:variants context:context];
+    XCTAssertNotNil(chosen);
+    NSLog(@"Chosen: %@", chosen);
+}
 
-// TODO: Update python script for test data generation. Make it reuse context.
 - (void)testSort {
     NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};
