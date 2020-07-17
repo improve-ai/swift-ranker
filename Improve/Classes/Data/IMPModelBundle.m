@@ -61,9 +61,16 @@
 }
 
 - (BOOL)isReachable {
-    BOOL areExist = [self.compiledModelURL checkResourceIsReachableAndReturnError:NULL]
-        && [self.metadataURL checkResourceIsReachableAndReturnError:NULL];
-    return areExist;
+    NSError *error;
+    if (![self.compiledModelURL checkResourceIsReachableAndReturnError:&error]) {
+        IMPLog("Compiled model file is missing at: %@ error: %@", self.compiledModelURL, error);
+        return false;
+    }
+    if (![self.metadataURL checkResourceIsReachableAndReturnError:&error]) {
+        IMPLog("Metadata file is missing at: %@ error: %@", self.metadataURL, error);
+        return false;
+    }
+    return true;
 }
 
 - (IMPModelMetadata *)metadata {
