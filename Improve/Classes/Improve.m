@@ -75,6 +75,9 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 
 @property (strong, nonatomic) NSMutableArray *onReadyBlocks;
 
+/// Becomes YES after you call `-initializeWithApiKey:modelBundleURL:`
+@property (readonly) BOOL isInitialized;
+
 @end
 
 
@@ -144,8 +147,13 @@ static Improve *sharedInstance;
 
 - (void) initializeWithApiKey:(NSString *)apiKey modelBundleURL:(NSString *)urlStr
 {
+    if (self.isInitialized) {
+        IMPLog("Trying to initialize more than once! Ignoring.");
+        return;
+    }
     self.apiKey = apiKey;
     self.modelBundleUrl = urlStr;
+    _isInitialized = YES;
 }
 
 - (void) setModelBundleUrl:(NSString *) url {

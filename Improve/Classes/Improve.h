@@ -45,6 +45,7 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 /**
  Perform required initialization. You should call this on the instance before using it.
  Good place to initialize instances is `didFinishLaunchingWithOptions` method of UIApplicationDelegate.
+ You should call this only once, consequentive calls will be ignored.
  */
 - (void) initializeWithApiKey:(NSString *)apiKey modelBundleURL:(NSString *)urlStr;
 
