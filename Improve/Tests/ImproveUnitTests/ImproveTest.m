@@ -247,7 +247,7 @@ NSString *const kTrainingInstance = @"training_tests";
             NSString *variant = [impr choose:namespaceString variants:variants];
             NSString *rewardKey = [self randomRewardKey];
             [impr trackDecision:namespaceString variant:variant context:nil rewardKey:rewardKey];
-            [impr trackReward:rewardKey value:variantsToRewards[variant]];
+            [impr addReward:variantsToRewards[variant] forKey:rewardKey];
         }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [expectation fulfill];
@@ -366,7 +366,7 @@ NSString *const kTrainingInstance = @"training_tests";
                       rewardKey:rewardKey];
 
             double reward = [variant isEqualToString:bestVariant] ? 1.0 : 0.0;
-            [impr trackReward:rewardKey value:@(reward)];
+            [impr addReward:@(reward) forKey:rewardKey];
         }
 
         XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
