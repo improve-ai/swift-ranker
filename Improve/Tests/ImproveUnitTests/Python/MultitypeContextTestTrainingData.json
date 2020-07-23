@@ -1,0 +1,129 @@
+[
+  {
+    "variants": [
+      "bJ",
+      [
+        34289.571084399475,
+        "eXj4k"
+      ],
+      665910.3013242014,
+      [
+        "adn",
+        {
+          "URdb": "3Gb2c",
+          "B3IdJ": "4XwbV",
+          "u1": "Fuy1q"
+        },
+        "AX8"
+      ],
+      "Qm"
+    ],
+    "bestVariant": "Qm",
+    "bestVariantKey": "UpI",
+    "namespace": "multitype_context_test_str-pJbU"
+  },
+  {
+    "variants": [
+      "xPvHv",
+      "TxS10X",
+      "Ta",
+      "vv",
+      362016.3440766049
+    ],
+    "bestVariant": 362016.3440766049,
+    "bestVariantKey": "iiQaFu",
+    "namespace": "multitype_context_test_numb-0KKq"
+  },
+  {
+    "variants": [
+      "APME",
+      "HCtr",
+      133158.1592728397,
+      {
+        "phrmCB": 999708.2365387415,
+        "hh": 837519.5330004281,
+        "3c": "ex4ZI4",
+        "45e6tO": 55800.09130460565
+      },
+      {
+        "A0Xvht": "N1b",
+        "gUi1Q": 40552.95124083645,
+        "zPczUm": {
+          "MtrPE": "E5zV",
+          "VxFih": 997199.4947756834,
+          "MITLd": {
+            "BJp6Yh": "oEKoa",
+            "TpY": 804405.4934782906
+          },
+          "2qEfpz": {
+            "a7T": 425591.9404880914
+          }
+        },
+        "1CCou": "tz"
+      }
+    ],
+    "bestVariant": {
+      "A0Xvht": "N1b",
+      "gUi1Q": 40552.95124083645,
+      "zPczUm": {
+        "MtrPE": "E5zV",
+        "VxFih": 997199.4947756834,
+        "MITLd": {
+          "BJp6Yh": "oEKoa",
+          "TpY": 804405.4934782906
+        },
+        "2qEfpz": {
+          "a7T": 425591.9404880914
+        }
+      },
+      "1CCou": "tz"
+    },
+    "bestVariantKey": "JTagge",
+    "namespace": "multitype_context_test_dict-0RyX8"
+  },
+  {
+    "variants": [
+      268949.49201715115,
+      [
+        "DX",
+        "ldA"
+      ],
+      {
+        "JkKIo8": "fxJJ"
+      },
+      81532.98043223696,
+      [
+        {
+          "tLngOp": "gku5v3",
+          "ev500m": 666056.8414376514,
+          "Pp8V": "eB"
+        },
+        "oc",
+        "uJy"
+      ]
+    ],
+    "bestVariant": [
+      {
+        "tLngOp": "gku5v3",
+        "ev500m": 666056.8414376514,
+        "Pp8V": "eB"
+      },
+      "oc",
+      "uJy"
+    ],
+    "bestVariantKey": "yUHv",
+    "namespace": "multitype_context_test_array-B2ROp"
+  },
+  {
+    "variants": [
+      "knQKyY",
+      607053.0413704448,
+      "lm4",
+      "tb",
+      null
+    ],
+    "bestVariant": null,
+    "bestVariantKey": "dzav",
+    "namespace": "multitype_context_test_null-ccSQ"
+  }
+]
