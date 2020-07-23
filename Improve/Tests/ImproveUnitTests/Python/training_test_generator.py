@@ -48,8 +48,8 @@ def random_variant(type='rand', nested_weight_multiplier=1):
     nw = nested_weight_multiplier
     if type == 'rand':
         type = random.choices(
-            ['str', 'numb', 'dict', 'array', 'null'],
-            [100, 30, 20 * nw, 20 * nw, 3]
+            ['str', 'numb', 'dict', 'array', 'bool', 'null', 'empty_str', 'empty_dict', 'empty_arr'],
+            [100, 30, 20 * nw, 20 * nw, 9, 3, 2, 2, 2]
         )[0]
 
     if type == 'numb':
@@ -64,6 +64,14 @@ def random_variant(type='rand', nested_weight_multiplier=1):
     elif type == 'dict':
         n = random.randint(1, 4)
         return { random_key(): random_variant(nested_weight_multiplier=0.5) for i in range(n) }
+    elif type == 'bool':
+        return bool(random.getrandbits(1))
+    elif type == 'empty_str':
+        return ""
+    elif type == 'empty_dict':
+        return {}
+    elif type == 'empty_arr':
+        return []
 
 def generate_sort_trials():
     trials_count = int(sys.argv[2])
@@ -87,7 +95,7 @@ def generate_sort_trials():
 def generate_context_trials():
     trials_count = int(sys.argv[2])
     output = []
-    all_types = ['str', 'numb', 'dict', 'array', 'null']
+    all_types = ['str', 'numb', 'dict', 'array', 'bool', 'null', 'empty_str', 'empty_dict', 'empty_arr']
     for type in all_types:
         variants = [random_variant() for i in range(trials_count - 1)]
         bestVariant = random_variant(type)
