@@ -14,6 +14,8 @@
 
 NSString *const kTrainingInstance = @"training_tests";
 
+NSString *const kHappySundayWeekdayKey = @"weekday";
+
 
 @interface TrainingTestHelper : NSObject
 
@@ -25,9 +27,29 @@ NSString *const kTrainingInstance = @"training_tests";
 /// Data from MultitypeContextTestTrainingData.json
 @property(nonatomic, strong) NSArray *contextTestTrainingData;
 
+/**
+ {
+     @"namespace": @"happy_sunday_test",
+     @"variants": @[
+         @"Have a Great Day!",
+         @"Have an Okay Day.",
+         @"Happy Sunday",
+         @"Happy Monday",
+         @"Happy Tuesday",
+         @"Happy Wednesday",
+         @"Happy Thursday",
+         @"Happy Friday",
+         @"Happy Saturday"
+     ]
+ };
+ */
+@property(readonly, strong) NSDictionary *happySundayTestData;
+
 - (void)configureTrainingInstance:(Improve *)instance;
 
 - (void)printJSON:(id)jsonObject;
+
+- (double)rewardForHappySundayVariant:(NSString *)variant day:(int)day;
 
 @end
 
@@ -101,6 +123,8 @@ NSString *const kTrainingInstance = @"training_tests";
 
         // Train
         Improve *impr = [Improve instanceWithName:kTrainingInstance];
+        XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
+        [expectations addObject: expectation];
         // Comment-out onReady block to run initial trainig when there is no model
         //[impr onReady:^{
             for (int iteration = 0; iteration < 1000; iteration++) {
@@ -109,21 +133,51 @@ NSString *const kTrainingInstance = @"training_tests";
                                         variants:variants
                                          context:context];
                 [impr trackDecision:namespaceString
-                            variant:variant context:context
+                            variant:variant
+                            context:context
                           rewardKey:rewardKey];
 
                 double reward = [variant isEqualToString:bestVariant] ? 1.0 : 0.0;
                 [impr addReward:@(reward) forKey:rewardKey];
             }
 
-            XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
-        [expectations addObject: expectation];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [expectation fulfill];
             });
         //}];
     }
     [self waitForExpectations:expectations timeout:20.0];
+}
+
+- (void)testHappySundayTraining {
+    const int trainIterations = 5000;
+    NSTimeInterval waitTime = 100; // wait for HTTP requests to be posted
+    NSString *namespace = self.helper.happySundayTestData[@"namespace"];
+    NSArray *variants = self.helper.happySundayTestData[@"variants"];
+
+    Improve *impr = [Improve instanceWithName:kTrainingInstance];
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
+    [self waitForExpectations:@[expectation] timeout:waitTime];
+    [impr onReady:^{
+        for (int iteration = 0; iteration < trainIterations; iteration++) {
+            NSString *rewardKey = [self randomRewardKey];
+            int dayOfWeek = arc4random_uniform(6);
+            NSDictionary *context = @{kHappySundayWeekdayKey: @(dayOfWeek)};
+            NSString *variant = [impr choose:namespace
+                                    variants:variants
+                                     context:context];
+            [impr trackDecision:namespace
+                        variant:variant
+                        context:context
+                      rewardKey:rewardKey];
+
+            double reward = [self.helper rewardForHappySundayVariant:variant day:dayOfWeek];
+            [impr addReward:@(reward) forKey:rewardKey];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [expectation fulfill];
+            });
+        }
+    }];
 }
 
 @end
@@ -220,6 +274,29 @@ NSString *const kTrainingInstance = @"training_tests";
     }];
 }
 
+- (void)testHappySunday {
+    const int testIterations = 1000;
+    // The test will be considered to pass when the cumulative reward is > then this value
+    const double targetCummulativeReward = (double)testIterations * 0.9;
+    NSString *namespace = self.helper.happySundayTestData[@"namespace"];
+    NSArray *variants = self.helper.happySundayTestData[@"variants"];
+
+    Improve *impr = [Improve instanceWithName:kTrainingInstance];
+    [impr onReady:^{
+        double cummulativeReward = 0;
+        for (int iteration = 0; iteration < testIterations; iteration++) {
+            int dayOfWeek = arc4random_uniform(6);
+            NSDictionary *context = @{kHappySundayWeekdayKey: @(dayOfWeek)};
+            NSString *variant = [impr choose:namespace
+                                    variants:variants
+                                     context:context];
+            cummulativeReward += [self.helper rewardForHappySundayVariant:variant day:dayOfWeek];
+        }
+        NSLog(@"iterations: %d, cummulative reward: %g (of %g)", testIterations, cummulativeReward, targetCummulativeReward);
+        XCTAssert(cummulativeReward > targetCummulativeReward);
+    }];
+}
+
 @end
 
 #pragma mark - Helper
@@ -246,6 +323,21 @@ NSString *const kTrainingInstance = @"training_tests";
         url = [[TestUtils bundle] URLForResource:@"MultitypeContextTestTrainingData" withExtension:@"json"];
         data = [NSData dataWithContentsOfURL:url];
         _contextTestTrainingData = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+
+        _happySundayTestData = @{
+            @"namespace": @"happy_sunday_test",
+            @"variants": @[
+                @"Have a Great Day!",
+                @"Have an Okay Day.",
+                @"Happy Sunday",
+                @"Happy Monday",
+                @"Happy Tuesday",
+                @"Happy Wednesday",
+                @"Happy Thursday",
+                @"Happy Friday",
+                @"Happy Saturday"
+            ]
+        };
     }
     return self;
 }
@@ -261,6 +353,36 @@ NSString *const kTrainingInstance = @"training_tests";
     [trainingInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz"];
     trainingInstance.trackUrl = @"https://u0cxvugtmi.execute-api.us-west-2.amazonaws.com/test/track";
     trainingInstance.maxModelsStaleAge = 10;
+}
+
+/**
+ Reward for a variant for "Happy Sunday" test. See `happySundayTestData` for possible variants.
+ @param variant One of predefined variants.
+ @param day Day of week, starting from Sunday (0) to Saturday (6).
+ */
+- (double)rewardForHappySundayVariant:(NSString *)variant day:(int)day
+{
+    if ([variant isEqualToString:@"Have a Great Day!"]) {
+        return 1.0;
+    } else if ([variant isEqualToString:@"Have an Okay Day."]) {
+        return 0.0;
+    } else if (day == 0 && [variant isEqualToString:@"Happy Sunday"]) {
+        return 2.0;
+    } else if (day == 1 && [variant isEqualToString:@"Happy Monday"]) {
+        return 2.0;
+    } else if (day == 2 && [variant isEqualToString:@"Happy Tuesday"]) {
+        return 2.0;
+    } else if (day == 3 && [variant isEqualToString:@"Happy Wednesday"]) {
+        return 2.0;
+    } else if (day == 4 && [variant isEqualToString:@"Happy Thursday"]) {
+        return 2.0;
+    } else if (day == 5 && [variant isEqualToString:@"Happy Friday"]) {
+        return 2.0;
+    } else if (day == 6 && [variant isEqualToString:@"Happy Saturday"]) {
+        return 2.0;
+    } else {
+        return -1.0;
+    }
 }
 
 @end
