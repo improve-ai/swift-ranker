@@ -10,12 +10,14 @@
 #import "Improve.h"
 #import "IMPModelBundle.h"
 #import "TestUtils.h"
+#import "NSArray+Random.h"
 
 
 NSString *const kTrainingInstance = @"training_tests";
 
-NSString *const kHappySundayWeekdayKey = @"weekday";
+NSString *const kHappySundayWeekdayContextKey = @"weekday";
 
+NSString *const kHappySundayObjectContextKey = @"object";
 
 @interface TrainingTestHelper : NSObject
 
@@ -39,9 +41,13 @@ NSString *const kHappySundayWeekdayKey = @"weekday";
          @"Happy Wednesday",
          @"Happy Thursday",
          @"Happy Friday",
-         @"Happy Saturday"
+         @"Happy Saturday",
+         @"Happy \"string\"",
+         @"Happy []",
+         @"Happy {}",
+         @"Happy null"
      ]
- };
+ }
  */
 @property(readonly, strong) NSDictionary *happySundayTestData;
 
@@ -49,7 +55,9 @@ NSString *const kHappySundayWeekdayKey = @"weekday";
 
 - (void)printJSON:(id)jsonObject;
 
-- (double)rewardForHappySundayVariant:(NSString *)variant day:(int)day;
+- (NSDictionary *)randomHappySundayContext;
+
+- (double)rewardForHappySundayVariant:(NSString *)variant context:(NSDictionary *)context;
 
 @end
 
@@ -161,8 +169,7 @@ NSString *const kHappySundayWeekdayKey = @"weekday";
     [impr onReady:^{
         for (int iteration = 0; iteration < trainIterations; iteration++) {
             NSString *rewardKey = [self randomRewardKey];
-            int dayOfWeek = arc4random_uniform(6);
-            NSDictionary *context = @{kHappySundayWeekdayKey: @(dayOfWeek)};
+            NSDictionary *context = [self.helper randomHappySundayContext];
             NSString *variant = [impr choose:namespace
                                     variants:variants
                                      context:context];
@@ -171,7 +178,7 @@ NSString *const kHappySundayWeekdayKey = @"weekday";
                         context:context
                       rewardKey:rewardKey];
 
-            double reward = [self.helper rewardForHappySundayVariant:variant day:dayOfWeek];
+            double reward = [self.helper rewardForHappySundayVariant:variant context:context];
             [impr addReward:@(reward) forKey:rewardKey];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [expectation fulfill];
@@ -285,12 +292,11 @@ NSString *const kHappySundayWeekdayKey = @"weekday";
     [impr onReady:^{
         double cummulativeReward = 0;
         for (int iteration = 0; iteration < testIterations; iteration++) {
-            int dayOfWeek = arc4random_uniform(6);
-            NSDictionary *context = @{kHappySundayWeekdayKey: @(dayOfWeek)};
+            NSDictionary *context = [self.helper randomHappySundayContext];
             NSString *variant = [impr choose:namespace
                                     variants:variants
                                      context:context];
-            cummulativeReward += [self.helper rewardForHappySundayVariant:variant day:dayOfWeek];
+            cummulativeReward += [self.helper rewardForHappySundayVariant:variant context:context];
         }
         NSLog(@"iterations: %d, cummulative reward: %g (of %g)", testIterations, cummulativeReward, targetCummulativeReward);
         XCTAssert(cummulativeReward > targetCummulativeReward);
@@ -335,7 +341,11 @@ NSString *const kHappySundayWeekdayKey = @"weekday";
                 @"Happy Wednesday",
                 @"Happy Thursday",
                 @"Happy Friday",
-                @"Happy Saturday"
+                @"Happy Saturday",
+                @"Happy \"string\"",
+                @"Happy []",
+                @"Happy {}",
+                @"Happy null"
             ]
         };
     }
@@ -358,30 +368,64 @@ NSString *const kHappySundayWeekdayKey = @"weekday";
 /**
  Reward for a variant for "Happy Sunday" test. See `happySundayTestData` for possible variants.
  @param variant One of predefined variants.
- @param day Day of week, starting from Sunday (0) to Saturday (6).
+ @param context Contex containing day of week - NSNumber starting from Sunday (0) to Saturday (6). May also contain [], {}, NSNull, boolean or other test objects.
  */
-- (double)rewardForHappySundayVariant:(NSString *)variant day:(int)day
+- (double)rewardForHappySundayVariant:(NSString *)variant context:(NSDictionary *)context
 {
-    if ([variant isEqualToString:@"Have a Great Day!"]) {
-        return 1.0;
-    } else if ([variant isEqualToString:@"Have an Okay Day."]) {
-        return 0.0;
-    } else if (day == 0 && [variant isEqualToString:@"Happy Sunday"]) {
-        return 2.0;
-    } else if (day == 1 && [variant isEqualToString:@"Happy Monday"]) {
-        return 2.0;
-    } else if (day == 2 && [variant isEqualToString:@"Happy Tuesday"]) {
-        return 2.0;
-    } else if (day == 3 && [variant isEqualToString:@"Happy Wednesday"]) {
-        return 2.0;
-    } else if (day == 4 && [variant isEqualToString:@"Happy Thursday"]) {
-        return 2.0;
-    } else if (day == 5 && [variant isEqualToString:@"Happy Friday"]) {
-        return 2.0;
-    } else if (day == 6 && [variant isEqualToString:@"Happy Saturday"]) {
-        return 2.0;
-    } else {
-        return -1.0;
+    NSNumber *dayNumber = context[kHappySundayWeekdayContextKey];
+    if (dayNumber) {
+        int day = dayNumber.intValue;
+        if ([variant isEqualToString:@"Have a Great Day!"]) {
+            return 1.0;
+        } else if ([variant isEqualToString:@"Have an Okay Day."]) {
+            return 0.0;
+        } else if (day == 0 && [variant isEqualToString:@"Happy Sunday"]) {
+            return 2.0;
+        } else if (day == 1 && [variant isEqualToString:@"Happy Monday"]) {
+            return 2.0;
+        } else if (day == 2 && [variant isEqualToString:@"Happy Tuesday"]) {
+            return 2.0;
+        } else if (day == 3 && [variant isEqualToString:@"Happy Wednesday"]) {
+            return 2.0;
+        } else if (day == 4 && [variant isEqualToString:@"Happy Thursday"]) {
+            return 2.0;
+        } else if (day == 5 && [variant isEqualToString:@"Happy Friday"]) {
+            return 2.0;
+        } else if (day == 6 && [variant isEqualToString:@"Happy Saturday"]) {
+            return 2.0;
+        }
+    }
+
+    id object = context[kHappySundayObjectContextKey];
+    if (object) {
+        if ([object isEqual:@"string"] && [variant isEqualToString:@"Happy \"string\""]) {
+            return 2.0;
+        } else if ([object isEqual:@[]] && [variant isEqualToString:@"Happy []"]) {
+            return 2.0;
+        } else if ([object isEqual:@{}] && [variant isEqualToString:@"Happy {}"]) {
+            return 2.0;
+        } else if ([object isEqual:[NSNull null]] && [variant isEqualToString:@"Happy null"]) {
+            return 2.0;
+        }
+    }
+
+    return -1.0;
+}
+
+/**
+ Context may contain either a day value for "weekday" key or a special value for "object" key.
+ Special values may include NSNull, [], {}, NSString etc.
+ */
+- (NSDictionary *)randomHappySundayContext {
+    if (drand48() < 0.8)
+    {
+        int dayOfWeek = arc4random_uniform(6);
+        return @{kHappySundayWeekdayContextKey: @(dayOfWeek)};
+    }
+    else
+    {
+        NSArray *objects = @[[NSNull null], @[], @{}, @"string"];
+        return @{kHappySundayObjectContextKey: objects.randomObject};
     }
 }
 
