@@ -159,7 +159,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
 
 - (void)testHappySundayTraining {
     const int trainIterations = 5000;
-    NSTimeInterval waitTime = 100; // wait for HTTP requests to be posted
+    NSTimeInterval waitTime = 240; // wait for HTTP requests to be posted
     NSString *namespace = self.helper.happySundayTestData[@"namespace"];
     NSArray *variants = self.helper.happySundayTestData[@"variants"];
 
@@ -289,6 +289,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     NSArray *variants = self.helper.happySundayTestData[@"variants"];
 
     Improve *impr = [Improve instanceWithName:kTrainingInstance];
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model to load"];
     [impr onReady:^{
         double cummulativeReward = 0;
         for (int iteration = 0; iteration < testIterations; iteration++) {
@@ -300,7 +301,9 @@ NSString *const kHappySundayObjectContextKey = @"object";
         }
         NSLog(@"iterations: %d, cummulative reward: %g (of %g)", testIterations, cummulativeReward, targetCummulativeReward);
         XCTAssert(cummulativeReward > targetCummulativeReward);
+        [expectation fulfill];
     }];
+    [self waitForExpectations:@[expectation] timeout:60];
 }
 
 @end
