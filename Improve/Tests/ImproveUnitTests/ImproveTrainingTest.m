@@ -297,7 +297,9 @@ NSString *const kHappySundayObjectContextKey = @"object";
             NSString *variant = [impr choose:namespace
                                     variants:variants
                                      context:context];
-            cummulativeReward += [self.helper rewardForHappySundayVariant:variant context:context];
+            double reward = [self.helper rewardForHappySundayVariant:variant context:context];
+            NSLog(@"Happy Sunday test iteration\nvariant: %@\ncontext: %@\nreward: %g", variant, context, reward);
+            cummulativeReward += reward;
         }
         NSLog(@"iterations: %d, cummulative reward: %g (of %g)", testIterations, cummulativeReward, targetCummulativeReward);
         XCTAssert(cummulativeReward > targetCummulativeReward);
