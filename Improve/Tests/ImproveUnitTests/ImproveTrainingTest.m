@@ -165,7 +165,6 @@ NSString *const kHappySundayObjectContextKey = @"object";
 
     Improve *impr = [Improve instanceWithName:kTrainingInstance];
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
-    [self waitForExpectations:@[expectation] timeout:waitTime];
     [impr onReady:^{
         for (int iteration = 0; iteration < trainIterations; iteration++) {
             NSString *rewardKey = [self randomRewardKey];
@@ -185,6 +184,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
             });
         }
     }];
+    [self waitForExpectations:@[expectation] timeout:waitTime];
 }
 
 @end
