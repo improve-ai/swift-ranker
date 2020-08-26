@@ -65,7 +65,9 @@ const NSUInteger kInitialTrialsCount = 100;
 
     NSError *error = nil;
     id<MLBatchProvider> prediction
-    = [self.model predictionsFromBatch:batchProvider error:&error];
+    = [self.model predictionsFromBatch:batchProvider
+                               options:[MLPredictionOptions new]
+                                 error:&error];
     if (!prediction) {
         IMPErrLog("predictionsFromBatch error: %@", error);
         return nil;
