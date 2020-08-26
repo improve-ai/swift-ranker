@@ -75,6 +75,9 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 
 @property (strong, nonatomic) NSMutableArray *onReadyBlocks;
 
+/// Becomes YES after you call `-initializeWithApiKey:modelBundleURL:`
+@property (readonly) BOOL isInitialized;
+
 @end
 
 
@@ -144,8 +147,13 @@ static Improve *sharedInstance;
 
 - (void) initializeWithApiKey:(NSString *)apiKey modelBundleURL:(NSString *)urlStr
 {
+    if (self.isInitialized) {
+        IMPLog("Trying to initialize more than once! Ignoring.");
+        return;
+    }
     self.apiKey = apiKey;
     self.modelBundleUrl = urlStr;
+    _isInitialized = YES;
 }
 
 - (void) setModelBundleUrl:(NSString *) url {
@@ -388,16 +396,16 @@ static Improve *sharedInstance;
     }];
 }
 
-- (void) trackReward:(NSString *) rewardKey value:(NSNumber *)reward
+- (void) addReward:(NSNumber *) reward forKey:(NSString *) rewardKey
 {
     if (rewardKey && reward) {
-        [self trackRewards:@{ rewardKey: reward }];
+        [self addRewards:@{ rewardKey: reward }];
     } else {
         IMPErrLog("Skipping trackReward for nil rewardKey or reward");
     }
 }
 
-- (void) trackRewards:(NSDictionary *)rewards
+- (void) addRewards:(NSDictionary *)rewards
 {
     if (rewards) {
         IMPLog("Tracking rewards: %@", rewards);

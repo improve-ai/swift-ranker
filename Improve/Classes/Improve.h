@@ -45,6 +45,7 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 /**
  Perform required initialization. You should call this on the instance before using it.
  Good place to initialize instances is `didFinishLaunchingWithOptions` method of UIApplicationDelegate.
+ You should call this only once, consequentive calls will be ignored.
  */
 - (void) initializeWithApiKey:(NSString *)apiKey modelBundleURL:(NSString *)urlStr;
 
@@ -139,18 +140,17 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
              rewardKey:(NSString *) rewardKey;
 
 /**
- Tracks a reward value for one or more chosen variants. Rewards are additive by default. Multiple chosen variants can be listening for the same reward key.
- @param rewardKey the namespace or custom rewardKey to track this reward for.
+ Tracks a reward value for one or more chosen variants. Rewards are additive by default. Multiple chosen variants can be listening for the same reward key
  @param reward a JSON encodeable reward vaue to add to recent chosen variants for rewardKey.  May be a negative number.  Must not be NaN or infinity.
+ @param rewardKey the namespace or custom rewardKey to track this reward for.
  */
-- (void) trackReward:(NSString *) rewardKey
-               value:(NSNumber *) reward;
+- (void) addReward:(NSNumber *) reward forKey:(NSString *) rewardKey;
 
 /**
 Tracks rewards for one or more chosen variants. Rewards are additive by default.  Multiple chosen variants can be listening for the same reward key.
 @param rewards a JSON encodeable dictionary mapping rewardKeys to reward values to add to recent chosen variants.  Reward values may be negative numbers, must not be NaN or infinity.
 */
-- (void) trackRewards:(NSDictionary<NSString *, NSNumber *> *) rewards;
+- (void) addRewards:(NSDictionary<NSString *, NSNumber *> *) rewards;
 
 /**
  I'm contemplating adding a $set mode to rewards to allow non-accumulating rewards such as binary rewards.
