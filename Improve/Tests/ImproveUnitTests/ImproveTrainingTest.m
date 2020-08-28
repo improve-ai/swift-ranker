@@ -288,6 +288,16 @@ NSString *const kHappySundayObjectContextKey = @"object";
     NSString *namespace = self.helper.happySundayTestData[@"namespace"];
     NSArray *variants = self.helper.happySundayTestData[@"variants"];
 
+    // Generate random cumulative reward in order to compare it to the actual reward
+    double randomCumulativeReward = 0;
+    for (int i = 0; i < testIterations; i++) {
+        NSDictionary *context = [self.helper randomHappySundayContext];
+        NSString *variant = [variants randomObject];
+        double reward = [self.helper rewardForHappySundayVariant:variant context:context];
+        randomCumulativeReward += reward;
+    }
+    NSLog(@"random cumulative reward: %g (of %g)", randomCumulativeReward, targetCummulativeReward);
+
     Improve *impr = [Improve instanceWithName:kTrainingInstance];
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model to load"];
     [impr onReady:^{
