@@ -5,7 +5,11 @@
 //  Copyright © 2016-2020 Mind Blown Apps, LLC. All rights reserved.
 //
 
+NS_ASSUME_NONNULL_BEGIN
+
 extern NSNotificationName const ImproveDidLoadModelNotification;
+
+typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
 
 @interface Improve : NSObject
 
@@ -125,7 +129,7 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 */
 - (void) trackDecision:(NSString *) namespaceStr
                variant:(id) variant
-               context:(NSDictionary *) context;
+               context:(nullable NSDictionary *) context;
 
 /**
  Track that a variant was chosen in order to train the system to learn what rewards it receives.
@@ -136,8 +140,22 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 */
 - (void) trackDecision:(NSString *) namespaceStr
                variant:(id) variant
-               context:(NSDictionary *) context
-             rewardKey:(NSString *) rewardKey;
+               context:(nullable NSDictionary *) context
+             rewardKey:(nullable NSString *) rewardKey;
+
+/**
+ Track that a variant was chosen in order to train the system to learn what rewards it receives.
+ @param namespaceStr A descriptor and namespace for the type of variant chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
+ @param variant The JSON encodeable chosen variant to track
+ @param context The JSON encodeable context that the chosen variant is being used in and should be rewarded against.  It is okay for this to be different from the context that was used during choose or sort.
+ @param rewardKey The rewardKey used to assign rewards to the chosen variant. If nil, rewardKey is set to the namespace.  trackRewards must also use this key to assign rewards to this chosen variant.
+ @param completionHandler Called after sending the decision to the server.
+ */
+- (void) trackDecision:(NSString *) namespaceStr
+               variant:(id) variant
+               context:(nullable NSDictionary *) context
+             rewardKey:(nullable NSString *) rewardKey
+            completion:(nullable IMPTrackCompletion) completionHandler;
 
 /**
  Tracks a reward value for one or more chosen variants. Rewards are additive by default. Multiple chosen variants can be listening for the same reward key
@@ -147,10 +165,28 @@ extern NSNotificationName const ImproveDidLoadModelNotification;
 - (void) addReward:(NSNumber *) reward forKey:(NSString *) rewardKey;
 
 /**
+ Tracks a reward value for one or more chosen variants. Rewards are additive by default. Multiple chosen variants can be listening for the same reward key
+ @param reward a JSON encodeable reward vaue to add to recent chosen variants for rewardKey.  May be a negative number.  Must not be NaN or infinity.
+ @param rewardKey the namespace or custom rewardKey to track this reward for.
+ @param completionHandler Called after sending the reward.
+ */
+- (void) addReward:(NSNumber *) reward
+            forKey:(NSString *) rewardKey
+        completion:(nullable IMPTrackCompletion) completionHandler;
+
+/**
 Tracks rewards for one or more chosen variants. Rewards are additive by default.  Multiple chosen variants can be listening for the same reward key.
 @param rewards a JSON encodeable dictionary mapping rewardKeys to reward values to add to recent chosen variants.  Reward values may be negative numbers, must not be NaN or infinity.
 */
 - (void) addRewards:(NSDictionary<NSString *, NSNumber *> *) rewards;
+
+/**
+ Tracks rewards for one or more chosen variants. Rewards are additive by default.  Multiple chosen variants can be listening for the same reward key.
+ @param rewards a JSON encodeable dictionary mapping rewardKeys to reward values to add to recent chosen variants.  Reward values may be negative numbers, must not be NaN or infinity.
+ @param completionHandler Called after sending the rewards.
+*/
+- (void) addRewards:(NSDictionary<NSString *, NSNumber *> *) rewards
+         completion:(nullable IMPTrackCompletion) completionHandler;
 
 /**
  I'm contemplating adding a $set mode to rewards to allow non-accumulating rewards such as binary rewards.
@@ -171,9 +207,10 @@ Tracks rewards for one or more chosen variants. Rewards are additive by default.
  @param properties JSON encodable event properties
  @param context JSON encodeable context
  */
-
 - (void) trackAnalyticsEvent:(NSString *) event
                   properties:(NSDictionary *) properties
-                     context:(NSDictionary *) context;
+                     context:(nullable NSDictionary *) context;
 
 @end
+
+NS_ASSUME_NONNULL_END

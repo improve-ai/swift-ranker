@@ -361,6 +361,19 @@ static Improve *sharedInstance;
                context:(NSDictionary *) context
              rewardKey:(NSString *) rewardKey
 {
+    [self trackDecision:namespace
+                variant:variant
+                context:context
+              rewardKey:rewardKey
+             completion:nil];
+}
+
+- (void) trackDecision:(NSString *) namespace
+               variant:(id) variant
+               context:(NSDictionary *) context
+             rewardKey:(NSString *) rewardKey
+            completion:(nullable IMPTrackCompletion) completionHandler
+{
     if (!variant) {
         IMPErrLog("Skipping trackDecision for nil variant. To track null values use [NSNull null]");
         return;
@@ -370,22 +383,22 @@ static Improve *sharedInstance;
         IMPErrLog("Skipping trackDecision for nil namespace");
         return;
     }
-    
+
     // the rewardKey is never nil
     if (!rewardKey) {
         IMPLog("Using namespace as rewardKey: %@", namespace);
         rewardKey = namespace;
     }
-    
+
     NSMutableDictionary *body = [@{ kTypeKey: kDecisionType,
                                     kVariantKey: variant,
                                     kNamespaceKey: namespace,
                                     kRewardKeyKey: rewardKey } mutableCopy];
-    
+
     if (context) {
         [body setObject:context forKey:kContextKey];
     }
-    
+
     [self postImproveRequest:body url:[NSURL URLWithString:_trackUrl] block:^(NSObject *result, NSError *error) {
         if (error) {
             IMPErrLog("Improve.track error: %@", error);
@@ -393,28 +406,47 @@ static Improve *sharedInstance;
         } else {
             IMPLog("trackDecision succeed with namespace: %@, variant: %@, context: %@, rewardKey: %@", namespace, variant, context, rewardKey);
         }
+        if (completionHandler) completionHandler(error);
     }];
 }
 
 - (void) addReward:(NSNumber *) reward forKey:(NSString *) rewardKey
 {
+    [self addReward:reward forKey:rewardKey completion:nil];
+}
+
+- (void) addReward:(NSNumber *) reward
+            forKey:(NSString *) rewardKey
+        completion:(nullable IMPTrackCompletion) completionHandler
+{
     if (rewardKey && reward) {
-        [self addRewards:@{ rewardKey: reward }];
+        [self addRewards:@{ rewardKey: reward } completion:completionHandler];
     } else {
         IMPErrLog("Skipping trackReward for nil rewardKey or reward");
+        if (completionHandler) completionHandler(nil);
     }
 }
 
 - (void) addRewards:(NSDictionary *)rewards
+{
+    [self addRewards:rewards completion:nil];
+}
+
+- (void) addRewards:(NSDictionary<NSString *, NSNumber *> *) rewards
+         completion:(nullable IMPTrackCompletion) completionHandler
 {
     if (rewards) {
         IMPLog("Tracking rewards: %@", rewards);
         [self track:@{
             kTypeKey: kRewardsType,
             kRewardsKey: rewards
+        }
+         completion:^(NSError *error) {
+            if (completionHandler) completionHandler(error);
         }];
     } else {
         IMPErrLog("Skipping trackRewards for nil rewards");
+        if (completionHandler) completionHandler(nil);
     }
 }
 
@@ -440,6 +472,11 @@ static Improve *sharedInstance;
 }
 
 - (void) track:(NSDictionary *) body {
+    [self track:body completion:nil];
+}
+
+- (void) track:(NSDictionary *)body completion:(nullable IMPTrackCompletion)completionBlock
+{
     [self postImproveRequest:body
                          url:[NSURL URLWithString:_trackUrl]
                        block:^
@@ -447,6 +484,7 @@ static Improve *sharedInstance;
         if (error) {
             IMPErrLog("Improve.track error: %@", error);
         }
+        if (completionBlock) completionBlock(error);
     }];
 }
 

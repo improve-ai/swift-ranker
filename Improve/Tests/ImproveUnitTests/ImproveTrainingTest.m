@@ -159,12 +159,12 @@ NSString *const kHappySundayObjectContextKey = @"object";
 
 - (void)testHappySundayTraining {
     const int trainIterations = 5000;
-    NSTimeInterval waitTime = 240; // wait for HTTP requests to be posted
     NSString *namespace = self.helper.happySundayTestData[@"namespace"];
     NSArray *variants = self.helper.happySundayTestData[@"variants"];
 
     Improve *impr = [Improve instanceWithName:kTrainingInstance];
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
+    expectation.expectedFulfillmentCount = trainIterations;
     [impr onReady:^{
         for (int iteration = 0; iteration < trainIterations; iteration++) {
             NSString *rewardKey = [self randomRewardKey];
@@ -172,19 +172,19 @@ NSString *const kHappySundayObjectContextKey = @"object";
             NSString *variant = [impr choose:namespace
                                     variants:variants
                                      context:context];
+            double reward = [self.helper rewardForHappySundayVariant:variant context:context];
             [impr trackDecision:namespace
                         variant:variant
                         context:context
-                      rewardKey:rewardKey];
-
-            double reward = [self.helper rewardForHappySundayVariant:variant context:context];
-            [impr addReward:@(reward) forKey:rewardKey];
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(waitTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [expectation fulfill];
-            });
+                      rewardKey:rewardKey
+                     completion:^(NSError *error) {
+                [impr addReward:@(reward) forKey:rewardKey completion:^(NSError *error) {
+                    [expectation fulfill];
+                }];
+            }];
         }
     }];
-    [self waitForExpectations:@[expectation] timeout:waitTime];
+    [self waitForExpectations:@[expectation] timeout:1000];
 }
 
 @end
