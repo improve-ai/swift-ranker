@@ -376,17 +376,20 @@ static Improve *sharedInstance;
 {
     if (!variant) {
         IMPErrLog("Skipping trackDecision for nil variant. To track null values use [NSNull null]");
+        if (completionHandler) completionHandler(nil);
         return;
     }
 
     if (!namespace) {
         IMPErrLog("Skipping trackDecision for nil namespace");
+        if (completionHandler) completionHandler(nil);
         return;
     }
 
     // the rewardKey is never nil
     if (!rewardKey) {
         IMPLog("Using namespace as rewardKey: %@", namespace);
+        if (completionHandler) completionHandler(nil);
         rewardKey = namespace;
     }
 
