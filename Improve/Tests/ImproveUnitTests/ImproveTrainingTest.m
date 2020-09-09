@@ -12,6 +12,7 @@
 #import "TestUtils.h"
 #import "NSArray+Random.h"
 
+#warning TODO Update after refactoring
 
 NSString *const kTrainingInstance = @"training_tests";
 
@@ -75,7 +76,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     XCTAssertNotNil(self.helper.sortTestTrainingData);
     XCTAssertNotNil(self.helper.contextTestTrainingData);
 
-    Improve *trainingInstance = [Improve instanceWithName:kTrainingInstance];
+    Improve *trainingInstance = [Improve instanceWithNamespace:kTrainingInstance];
     [self.helper configureTrainingInstance:trainingInstance];
 }
 
@@ -98,17 +99,16 @@ NSString *const kHappySundayObjectContextKey = @"object";
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
     expectation.expectedFulfillmentCount = iterationsCount;
 
-    Improve *impr = [Improve instanceWithName:kTrainingInstance];
+    Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
     // Comment-out onReady block to run initial trainig when there is no model
     [impr onReady:^{
         // Train
         for (int iteration = 0; iteration < iterationsCount; iteration++) {
-            NSString *variant = [impr choose:namespaceString variants:trials context:context];
+            NSString *variant = [impr choose:trials context:context];
             NSString *rewardKey = [self randomRewardKey];
             // Add semaphore so requests will be sent one by one
             dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-            [impr trackDecision:namespaceString
-                        variant:variant
+            [impr trackDecision:variant
                         context:context
                       rewardKey:rewardKey
                      completion:^(NSError * _Nullable error) {
@@ -142,7 +142,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
         NSDictionary *context = @{test[@"bestVariantKey"]: bestVariant};
 
         // Train
-        Improve *impr = [Improve instanceWithName:kTrainingInstance];
+        Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
         XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
         expectation.expectedFulfillmentCount = iterationsCount;
         [expectations addObject:expectation];
@@ -150,15 +150,13 @@ NSString *const kHappySundayObjectContextKey = @"object";
         //[impr onReady:^{
             for (int iteration = 0; iteration < iterationsCount; iteration++) {
                 NSString *rewardKey = [self randomRewardKey];
-                NSString *variant = [impr choose:namespaceString
-                                        variants:variants
+                NSString *variant = [impr choose:variants
                                          context:context];
                 double reward = [variant isEqual:bestVariant] ? 1.0 : 0.0;
 
                 // Add semaphore so requests will be sent one by one
                 dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-                [impr trackDecision:namespaceString
-                            variant:variant
+                [impr trackDecision:variant
                             context:context
                           rewardKey:rewardKey
                          completion:^(NSError * _Nullable error) {
@@ -181,7 +179,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     NSString *namespace = self.helper.happySundayTestData[@"namespace"];
     NSArray *variants = self.helper.happySundayTestData[@"variants"];
 
-    Improve *impr = [Improve instanceWithName:kTrainingInstance];
+    Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
     expectation.expectedFulfillmentCount = trainIterations;
     [impr onReady:^{
@@ -189,14 +187,12 @@ NSString *const kHappySundayObjectContextKey = @"object";
             NSLog(@"### Iteration: %d", iteration);
             NSString *rewardKey = [self randomRewardKey];
             NSDictionary *context = [self.helper randomHappySundayContext];
-            NSString *variant = [impr choose:namespace
-                                    variants:variants
+            NSString *variant = [impr choose:variants
                                      context:context];
             double reward = [self.helper rewardForHappySundayVariant:variant context:context];
             // Add semaphore so requests will be sent one by one
             dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-            [impr trackDecision:namespace
-                        variant:variant
+            [impr trackDecision:variant
                         context:context
                       rewardKey:rewardKey
                      completion:^(NSError *error) {
@@ -227,7 +223,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     XCTAssertNotNil(self.helper.sortTestTrainingData);
     XCTAssertNotNil(self.helper.contextTestTrainingData);
 
-    Improve *trainingInstance = [Improve instanceWithName:kTrainingInstance];
+    Improve *trainingInstance = [Improve instanceWithNamespace:kTrainingInstance];
     [self.helper configureTrainingInstance:trainingInstance];
 }
 
@@ -245,11 +241,11 @@ NSString *const kHappySundayObjectContextKey = @"object";
     NSArray *variants = json[@"trials"];
     NSDictionary *context = json[@"context"];
 
-    Improve *impr = [Improve instanceWithName:kTrainingInstance];
+    Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
     [impr onReady:^{
         int successCount = 0;
         for (int iteration = 0; iteration < iterations; iteration++) {
-            NSArray *sortedVariants = [impr sort:namespaceString variants:variants context:context];
+            NSArray *sortedVariants = [impr sort:variants context:context];
             successCount += [sortedVariants isEqualToArray:variants] ? 1 : 0;
         }
 
@@ -269,7 +265,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     const float desiredSuccess = 0.95;
 
     NSArray *json = self.helper.contextTestTrainingData;
-    Improve *impr = [Improve instanceWithName:kTrainingInstance];
+    Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
 
     [impr onReady:^{
         int accumulatedSuccessCount = 0;
@@ -285,8 +281,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
             int successCount = 0;
             accumulatedIterations += iterations;
             for (int iteration = 0; iteration < iterations; iteration++) {
-                NSString *chosenVariant = [impr choose:namespaceString
-                                              variants:variants
+                NSString *chosenVariant = [impr choose:variants
                                                context:context];
                 if ([chosenVariant isEqualToString:bestVariant]) {
                     successCount++;
@@ -322,14 +317,13 @@ NSString *const kHappySundayObjectContextKey = @"object";
     }
     NSLog(@"random cumulative reward: %g (of %g)", randomCumulativeReward, targetCummulativeReward);
 
-    Improve *impr = [Improve instanceWithName:kTrainingInstance];
+    Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model to load"];
     [impr onReady:^{
         double cummulativeReward = 0;
         for (int iteration = 0; iteration < testIterations; iteration++) {
             NSDictionary *context = [self.helper randomHappySundayContext];
-            NSString *variant = [impr choose:namespace
-                                    variants:variants
+            NSString *variant = [impr choose:variants
                                      context:context];
             double reward = [self.helper rewardForHappySundayVariant:variant context:context];
             NSLog(@"Happy Sunday test iteration\nvariant: %@\ncontext: %@\nreward: %g", variant, context, reward);
@@ -399,7 +393,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
 
 - (void)configureTrainingInstance:(Improve *)trainingInstance
 {
-    [trainingInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz"];
+//    [trainingInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz"];
     trainingInstance.trackUrl = @"https://u0cxvugtmi.execute-api.us-west-2.amazonaws.com/test/track";
     trainingInstance.maxModelsStaleAge = 10;
 }

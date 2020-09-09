@@ -12,6 +12,8 @@
 #import "NSArray+Random.h"
 #import "IMPLogging.h"
 #import "IMPModelDownloader.h"
+#import "IMPCredential.h"
+
 
 @import Security;
 
@@ -57,43 +59,23 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 @interface Improve ()
 // Private vars
 
-/**
- Already loaded models mapped by their namespaces. A single model may have many namespaces.
- Initially nil. Then we load models from cache, if any, and then remote models.
- */
-@property (strong, nonatomic) NSDictionary<NSString*, IMPModelBundle*> *modelBundlesByNamespace;
-
-/**
- The model which handles requests without namespace or with any missing namespace. Initially is nil.
- Initially nil. Then is loaded from cache, if any, and then from the remote server.
- */
-@property (strong, nonatomic) IMPModelBundle *defaultModel;
-
-@property (strong, nonatomic) IMPModelDownloader *downloader;
-
 @property (strong, atomic) NSString *historyId;
 
 @property (strong, nonatomic) NSMutableArray *onReadyBlocks;
-
-/// Becomes YES after you call `-initializeWithApiKey:modelBundleURL:`
-@property (readonly) BOOL isInitialized;
 
 @end
 
 
 @implementation Improve
 
-@synthesize modelBundleUrl = _modelBundleUrl;
 @synthesize maxModelsStaleAge = _maxModelsStaleAge;
-
-static Improve *sharedInstance;
 
 + (Improve *) instance
 {
-    return [self instanceWithName:@""];
+    return [self instanceWithNamespace:@""];
 }
 
-+ (Improve *) instanceWithName:(NSString *)name
++ (Improve *) instanceWithNamespace:(NSString *)namespaceStr;
 {
     static NSMutableDictionary<NSString *, Improve *> *instances;
     static dispatch_once_t onceToken;
@@ -103,23 +85,54 @@ static Improve *sharedInstance;
 
     @synchronized (instances)
     {
-        Improve *existingInstance = instances[name];
+        if (!namespaceStr)
+        {
+            IMPErrLog("Non-nil required for namespace.");
+            return nil;
+        }
+
+        Improve *existingInstance = instances[namespaceStr];
         if (existingInstance) {
-            IMPLog("Returning existing instance for name: %@", name);
+            IMPLog("Returning existing instance for namespace: %@", namespaceStr);
             return existingInstance;
         } else {
-            Improve *newInstance = [[Improve alloc] init];
-            instances[name] = newInstance;
-            IMPLog("Created instance for name: %@", name);
+            Improve *newInstance = [[Improve alloc] initWithNamespace:namespaceStr];
+            instances[namespaceStr] = newInstance;
+            IMPLog("Created instance for namespace: %@", namespaceStr);
             return newInstance;
         }
     }
 }
 
-- (instancetype) init {
++ (void) addModelUrl:(NSString *)urlStr apiKey:(NSString *)apiKey
+{
+   // TODO
+}
+
++ (NSArray<IMPModelBundle*> *)sharedModels
+{
+#warning TODO: shared models, models downloading queue, models manager.
+    return @[];
+}
+
++ (IMPModelBundle *)modelForNamespace:(NSString *)namespaceStr
+{
+    for (IMPModelBundle *modelBundle in [[self class] sharedModels])
+    {
+        if ([modelBundle.namespaces containsObject:namespaceStr])
+        {
+            return modelBundle;
+        }
+    }
+    return nil;
+}
+
+- (instancetype) initWithNamespace:(NSString *)namespaceStr {
     self = [super init];
     if (!self) return nil;
 
+    assert(namespaceStr != nil);
+    _modelNamespace = namespaceStr;
     _onReadyBlocks = [NSMutableArray new];
     _trackVariantsProbability = 0.01;
 
@@ -145,34 +158,10 @@ static Improve *sharedInstance;
     return historyId;
 }
 
-- (void) initializeWithApiKey:(NSString *)apiKey modelBundleURL:(NSString *)urlStr
-{
-    if (self.isInitialized) {
-        IMPLog("Trying to initialize more than once! Ignoring.");
-        return;
-    }
-    self.apiKey = apiKey;
-    self.modelBundleUrl = urlStr;
-    _isInitialized = YES;
-}
-
-- (void) setModelBundleUrl:(NSString *) url {
-    @synchronized (self) {
-        _modelBundleUrl = url;
-        [self loadModels:[NSURL URLWithString:url]];
-    }
-}
-
-- (NSString *) modelBundleUrl {
-    @synchronized (self) {
-        return _modelBundleUrl;
-    }
-}
-
 - (void)setMaxModelsStaleAge:(NSTimeInterval)maxModelsStaleAge {
     @synchronized (self) {
+#warning TODO Delegate to the model manager
         _maxModelsStaleAge = maxModelsStaleAge;
-        [self loadModels:[NSURL URLWithString:self.modelBundleUrl]];
     }
 }
 
@@ -183,13 +172,7 @@ static Improve *sharedInstance;
 }
 
 - (BOOL)isReady {
-    if (self.downloader) {
-        return (self.downloader.cachedModelsAge > self.maxModelsStaleAge
-                && self.modelBundlesByNamespace != nil
-                && self.modelBundlesByNamespace.count > 0);
-    } else {
-        return false;
-    }
+    return [[self class] modelForNamespace:self.modelNamespace] != nil;
 }
 
 - (void) onReady:(void (^)(void)) block
@@ -202,15 +185,13 @@ static Improve *sharedInstance;
     }
 }
 
-- (id) choose:(NSString *) namespace
-     variants:(NSArray *) variants
+- (id) choose:(NSArray *) variants
 {
-    return [self choose:namespace variants:variants context:nil];
+    return [self choose:variants context:nil];
 }
 
-- (id) choose:(NSString *) namespace
-     variants:(NSArray *) variants
-      context:(NSDictionary *) context
+- (id) choose:(NSArray *) variants
+      context:(nullable NSDictionary *) context
 {
     if (!variants || [variants count] == 0) {
         IMPErrLog("Non-nil, non-empty array required for choose variants. returning nil.");
@@ -221,28 +202,22 @@ static Improve *sharedInstance;
         [self track:@{
             kTypeKey: kVariantsType,
             kMethodKey: kChooseMethod,
-            kVariantsKey: variants,
-            kNamespaceKey: namespace
+            kVariantsKey: variants
         }];
     }
 
     id chosen;
 
-    if (namespace) {
-        IMPChooser *chooser = [self chooserForNamespace:namespace];
-        
-        if (chooser) {
-            chosen = [chooser choose:variants context:context];
-            [self calculateAndTrackPropensityOfChosen:chosen
-                                        amongVariants:variants
-                                            inContext:context
-                                          withChooser:chooser
-                                           chooseDate:[NSDate date]];
-        } else {
-            IMPLog("Model not loaded.");
-        }
+    IMPChooser *chooser = [self chooser];
+    if (chooser) {
+        chosen = [chooser choose:variants context:context];
+        [self calculateAndTrackPropensityOfChosen:chosen
+                                    amongVariants:variants
+                                        inContext:context
+                                      withChooser:chooser
+                                       chooseDate:[NSDate date]];
     } else {
-        IMPErrLog("Non-nil required for namespace!");
+        IMPLog("Model not loaded.");
     }
     
     if (!chosen) {
@@ -254,15 +229,13 @@ static Improve *sharedInstance;
 }
 
 
-- (NSArray *) sort:(NSString *) namespace
-          variants:(NSArray *) variants
+- (NSArray *) sort:(NSArray *) variants
 {
-    return [self sort:namespace variants:variants context:nil];
+    return [self sort:variants context:nil];
 }
 
-- (NSArray *) sort:(NSString *) namespace
-          variants:(NSArray *) variants
-           context:(NSDictionary *) context
+- (NSArray *) sort:(NSArray *) variants
+           context:(nullable NSDictionary *) context
 {
     if (!variants || [variants count] == 0) {
         IMPLog("Non-nil, non-empty array required for sort variants. returning empty array");
@@ -273,22 +246,17 @@ static Improve *sharedInstance;
         [self track:@{
             kTypeKey: kVariantsType,
             kMethodKey: kSortMethod,
-            kVariantsKey: variants,
-            kNamespaceKey: namespace
+            kVariantsKey: variants
         }];
     }
     
     NSArray *sorted;
-    if (namespace) {
-        IMPChooser *chooser = [self chooserForNamespace:namespace];
-        
-        if (chooser) {
-            sorted = [chooser sort:variants context:context];
-        } else {
-            IMPLog("Model not loaded.");
-        }
+
+    IMPChooser *chooser = [self chooser];
+    if (chooser) {
+        sorted = [chooser sort:variants context:context];
     } else {
-        IMPErrLog("Non-nil required for namespace.");
+        IMPLog("Model not loaded.");
     }
     
     if (!sorted) {
@@ -300,12 +268,11 @@ static Improve *sharedInstance;
 }
 
 
-- (void) chooseRemote:(NSString *) namespace
-             variants:(NSArray *)variants
+- (void) chooseRemote:(NSArray *)variants
               context:(NSDictionary *)context
            completion:(void (^)(id, NSError *)) block
 {
-    if (!variants || !namespace || !_chooseUrl) {
+    if (!variants || !self.modelNamespace || !_chooseUrl) {
         block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: @"namespace, variants, and _chooseUrl cannot be nil"}]);
         return;
     }
@@ -316,9 +283,9 @@ static Improve *sharedInstance;
         [body setObject:context forKey:kContextKey];
     }
         
-    [body setObject:namespace forKey:kNamespaceKey];
+    [body setObject:self.modelNamespace forKey:kNamespaceKey];
     
-    [body setObject:namespace forKey:@"model"]; // DEPRECATED, compatibility with Improve v4
+    [body setObject:self.modelNamespace forKey:@"model"]; // DEPRECATED, compatibility with Improve v4
     [body setObject:_historyId forKey:@"user_id"]; // DEPRECATED, compatibility with Improve v4
 
     [self postImproveRequest:body url:[NSURL URLWithString:self.chooseUrl] block:^(NSObject *response, NSError *error) {
@@ -343,33 +310,28 @@ static Improve *sharedInstance;
 
 }
 
-- (void) trackDecision:(NSString *) namespace
-               variant:(id) variant
+- (void) trackDecision:(id) variant
 {
-    [self trackDecision:namespace variant:variant context:nil rewardKey:nil];
+    [self trackDecision:variant context:nil rewardKey:nil];
 }
 
-- (void) trackDecision:(NSString *) namespace
-               variant:(id) variant
+- (void) trackDecision:(id) variant
                context:(NSDictionary *) context
 {
-    [self trackDecision:namespace variant:variant context:context rewardKey:nil];
+    [self trackDecision:variant context:context rewardKey:nil];
 }
 
-- (void) trackDecision:(NSString *) namespace
-               variant:(id) variant
+- (void) trackDecision:(id) variant
                context:(NSDictionary *) context
              rewardKey:(NSString *) rewardKey
 {
-    [self trackDecision:namespace
-                variant:variant
+    [self trackDecision:variant
                 context:context
               rewardKey:rewardKey
              completion:nil];
 }
 
-- (void) trackDecision:(NSString *) namespace
-               variant:(id) variant
+- (void) trackDecision:(id) variant
                context:(NSDictionary *) context
              rewardKey:(NSString *) rewardKey
             completion:(nullable IMPTrackCompletion) completionHandler
@@ -380,22 +342,16 @@ static Improve *sharedInstance;
         return;
     }
 
-    if (!namespace) {
-        IMPErrLog("Skipping trackDecision for nil namespace");
-        if (completionHandler) completionHandler(nil);
-        return;
-    }
-
     // the rewardKey is never nil
     if (!rewardKey) {
-        IMPLog("Using namespace as rewardKey: %@", namespace);
+        IMPLog("Using namespace as rewardKey: %@", self.modelNamespace);
         if (completionHandler) completionHandler(nil);
-        rewardKey = namespace;
+        rewardKey = self.modelNamespace;
     }
 
     NSMutableDictionary *body = [@{ kTypeKey: kDecisionType,
                                     kVariantKey: variant,
-                                    kNamespaceKey: namespace,
+                                    kNamespaceKey: self.modelNamespace,
                                     kRewardKeyKey: rewardKey } mutableCopy];
 
     if (context) {
@@ -405,9 +361,9 @@ static Improve *sharedInstance;
     [self postImproveRequest:body url:[NSURL URLWithString:_trackUrl] block:^(NSObject *result, NSError *error) {
         if (error) {
             IMPErrLog("Improve.track error: %@", error);
-            IMPLog("trackDecision failed! Namespace: %@, variant: %@, context: %@, rewardKey: %@", namespace, variant, context, rewardKey);
+            IMPLog("trackDecision failed! Namespace: %@, variant: %@, context: %@, rewardKey: %@", self.modelNamespace, variant, context, rewardKey);
         } else {
-            IMPLog("trackDecision succeed with namespace: %@, variant: %@, context: %@, rewardKey: %@", namespace, variant, context, rewardKey);
+            IMPLog("trackDecision succeed with namespace: %@, variant: %@, context: %@, rewardKey: %@", self.modelNamespace, variant, context, rewardKey);
         }
         if (completionHandler) completionHandler(error);
     }];
@@ -574,23 +530,17 @@ static Improve *sharedInstance;
     [dataTask resume];
 }
 
-- (IMPChooser *)chooserForNamespace:(nullable NSString *)namespaceStr
+// Namespace can't be changed now, so we can cache chooser?
+- (IMPChooser *)chooser
 {
-    IMPModelBundle *modelBundle;
-    if (!namespaceStr || namespaceStr.length == 0) {
-        modelBundle = self.defaultModel;
-    } else {
-        modelBundle= self.modelBundlesByNamespace[namespaceStr];
-    }
-    if (!modelBundle && self.defaultModel != nil) {
-        modelBundle = self.defaultModel;
-    } else {
-        IMPErrLog("Model not found for namespace %@. Default model is also nil.", namespaceStr);
+    IMPModelBundle *modelBundle = [[self class] modelForNamespace:self.modelNamespace];
+    if (!modelBundle) {
+        IMPErrLog("Model not found for namespace %@", self.modelNamespace);
         return nil;
     }
 
     NSError *error = nil;
-    IMPChooser *chooser = [IMPChooser chooserWithModelBundle:modelBundle namespace:namespaceStr error:&error];
+    IMPChooser *chooser = [IMPChooser chooserWithModelBundle:modelBundle namespace:self.modelNamespace error:&error];
     if (!chooser) {
         IMPErrLog("Failed to initialize Chooser: %@", error);
         return nil;
@@ -599,69 +549,69 @@ static Improve *sharedInstance;
     return chooser;
 }
 
-- (void)loadModels:(NSURL *) modelBundleUrl
-{
-    IMPLog("Initializing model loading...");
-    if (self.downloader && self.downloader.isLoading) {
-        IMPLog("Allready loading. Skipping.");
-        return;
-    }
+//- (void)loadModels:(NSURL *) modelBundleUrl
+//{
+//    IMPLog("Initializing model loading...");
+//    if (self.downloader && self.downloader.isLoading) {
+//        IMPLog("Allready loading. Skipping.");
+//        return;
+//    }
+//
+//    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelBundleUrl];
+//    self.downloader = downloader;
+//    IMPLog("Checking for cached models...");
+//    if (downloader.cachedModelsAge < self.maxModelsStaleAge) {
+//        // Load models from cache
+//        IMPLog("Found cached models. Finished.");
+//        NSArray *cachedModels = downloader.cachedModelBundles;
+//        if (cachedModels.count > 0) {
+//            [self fillNamespaceToModelsMap:cachedModels];
+//            [self notifyDidLoadModels];
+//        }
+//        return;
+//    }
+//
+//    // Load remote models
+//    IMPLog("No cached models. Starting download...");
+//    downloader.headers = @{kApiKeyHeader: self.apiKey};
+//
+//    __weak Improve *weakSelf = self;
+//    [downloader loadWithCompletion:^(NSArray *bundles, NSError *error) {
+//        if (error) {
+//            IMPErrLog("Failed to load models: %@", error);
+//
+//            // Reload
+//            IMPLog("Will retry after %g sec", kRetryInterval);
+//            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kRetryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//                IMPLog("Retrying...");
+//                [weakSelf loadModels:modelBundleUrl];
+//            });
+//        } else if (bundles) {
+//            IMPLog("Models loaded.");
+//            [weakSelf fillNamespaceToModelsMap:bundles];
+//            [weakSelf notifyDidLoadModels];
+//        }
+//    }];
+//}
 
-    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelBundleUrl];
-    self.downloader = downloader;
-    IMPLog("Checking for cached models...");
-    if (downloader.cachedModelsAge < self.maxModelsStaleAge) {
-        // Load models from cache
-        IMPLog("Found cached models. Finished.");
-        NSArray *cachedModels = downloader.cachedModelBundles;
-        if (cachedModels.count > 0) {
-            [self fillNamespaceToModelsMap:cachedModels];
-            [self notifyDidLoadModels];
-        }
-        return;
-    }
-
-    // Load remote models
-    IMPLog("No cached models. Starting download...");
-    downloader.headers = @{kApiKeyHeader: self.apiKey};
-
-    __weak Improve *weakSelf = self;
-    [downloader loadWithCompletion:^(NSArray *bundles, NSError *error) {
-        if (error) {
-            IMPErrLog("Failed to load models: %@", error);
-
-            // Reload
-            IMPLog("Will retry after %g sec", kRetryInterval);
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kRetryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                IMPLog("Retrying...");
-                [weakSelf loadModels:modelBundleUrl];
-            });
-        } else if (bundles) {
-            IMPLog("Models loaded.");
-            [weakSelf fillNamespaceToModelsMap:bundles];
-            [weakSelf notifyDidLoadModels];
-        }
-    }];
-}
-
-/// Populates `modelBundlesByNamespace` and `defaultModel` properties.
-- (void)fillNamespaceToModelsMap:(NSArray<IMPModelBundle *> *)models
-{
-    NSMutableDictionary *bundlesByNamespace = [NSMutableDictionary new];
-
-    for (IMPModelBundle *bundle in models) {
-        NSArray *namespaces = bundle.metadata.namespaces;
-        if (namespaces.count == 0) {
-            // Only the default model should have zero namespaces.
-            self.defaultModel = bundle;
-            continue;
-        }
-        for (NSString *namespaceString in namespaces) {
-            bundlesByNamespace[namespaceString] = bundle;
-        }
-    }
-    self.modelBundlesByNamespace = bundlesByNamespace;
-}
+///// Populates `modelBundlesByNamespace` and `defaultModel` properties.
+//- (void)fillNamespaceToModelsMap:(NSArray<IMPModelBundle *> *)models
+//{
+//    NSMutableDictionary *bundlesByNamespace = [NSMutableDictionary new];
+//
+//    for (IMPModelBundle *bundle in models) {
+//        NSArray *namespaces = bundle.metadata.namespaces;
+//        if (namespaces.count == 0) {
+//            // Only the default model should have zero namespaces.
+//            self.defaultModel = bundle;
+//            continue;
+//        }
+//        for (NSString *namespaceString in namespaces) {
+//            bundlesByNamespace[namespaceString] = bundle;
+//        }
+//    }
+//    self.modelBundlesByNamespace = bundlesByNamespace;
+//}
 
 - (BOOL)shouldTrackVariants {
     static dispatch_once_t onceToken;
@@ -678,7 +628,7 @@ static Improve *sharedInstance;
                        domain:(NSString *)domain
                iterationCount:(NSUInteger)iterationCount
 {
-    IMPChooser *chooser = [self chooserForNamespace:domain];
+    IMPChooser *chooser = [self chooser];
     if (!chooser) {
         return -1;
     }

@@ -16,7 +16,10 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
 /// true if the model is loaded and ready to make choices, false otherwise
 @property (readonly) BOOL isReady;
 
-@property (atomic, strong) NSString *modelBundleUrl;
+/**
+ A descriptor and namespace for the type of variant being chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
+ */
+@property (nonatomic, readonly) NSString *modelNamespace;
 
 @property (atomic, strong) NSString *apiKey;
 
@@ -44,14 +47,12 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
  */
 + (Improve *) instance;
 
-+ (Improve *) instanceWithName:(NSString *)name;
-
 /**
- Perform required initialization. You should call this on the instance before using it.
- Good place to initialize instances is `didFinishLaunchingWithOptions` method of UIApplicationDelegate.
- You should call this only once, consequentive calls will be ignored.
+ @param namespaceStr A descriptor and namespace for the type of variant being chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions. Can't be nil.
  */
-- (void) initializeWithApiKey:(NSString *)apiKey modelBundleURL:(NSString *)urlStr;
++ (Improve *) instanceWithNamespace:(NSString *)namespaceStr;
+
++ (void) addModelUrl:(NSString *)urlStr apiKey:(NSString *)apiKey;
 
 /**
  Adds block which is invoked when the model is loaded and ready to make choices. Block is executed synchronously
@@ -61,26 +62,24 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
 - (void) onReady:(void (^)(void)) block;
 
 /**
- Chooses a variant that is expected to maximize future rewards. The chosen variant will be automatically tracked to learn from its future rewards so do not call trackChosen.
- 
- @param namespaceStr A descriptor and namespace for the type of variant being chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
+ Chooses a variant that is expected to maximize future rewards. Call `-trackDecision:` and
+ `-addReward:` in order to train the model after choosing.
+
  @param variants  A JSON encodeable list of variants to choose from.  May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @return The chosen variant, which may be different between calls even with the same inputs. If model is not ready, immediately returns the first variant.
  */
-- (id) choose:(NSString *) namespaceStr
-     variants:(NSArray *) variants;
+- (id) choose:(NSArray *) variants;
 
 /**
- Chooses a variant that is expected to maximize future rewards for the given context. The chosen variant will be automatically tracked to learn from its future rewards so do not call trackChosen.
- 
- @param namespaceStr A descriptor and namespace for the type of variant being chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
+ Chooses a variant that is expected to maximize future rewards for the given context. Call `-trackDecision:` and
+ `-addReward:` in order to train the model after choosing.
+
  @param variants  A JSON encodeable list of variants to choose from.  May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @param context A JSON encodeable dictionary of key value pairs that describe the context that choose should be optimized for. May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @return The chosen variant, which may be different between calls even with the same inputs.  If model is not ready, immediately returns the first variant.
 */
-- (id) choose:(NSString *) namespaceStr
-     variants:(NSArray *) variants
-      context:(NSDictionary *) context;
+- (id) choose:(NSArray *) variants
+      context:(nullable NSDictionary *) context;
 
 /**
  Sorts variants from largest to smallest expected future rewards.
@@ -89,70 +88,59 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
  @param variants  A JSON encodeable list of variants to sort.  May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @return A sorted copy of the variants array from largest to smallest expected future rewards, which may be different between calls even with the same inputs.  If model is not ready, immediately returns a shallow unsorted copy of the variants.
 */
-- (NSArray *) sort:(NSString *) namespaceStr
-          variants:(NSArray *) variants;
+- (NSArray *) sort:(NSArray *) variants;
 
 /**
  Sorts variants from largest to smallest expected future rewards for the given context.  None of the variants will be tracked, so no learning will take place unless trackChosen, or choose with autoTrack enabled, are called.
- 
- @param namespaceStr A descriptor and namespace for the type of variant being chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
+
  @param variants  A JSON encodeable list of variants to sort.  May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @param context A JSON encodeable dictionary of key value pairs that describe the context that sort should be optimized for. May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @return A sorted copy of the variants array from largest to smallest expected future rewards, which may be different between calls even with the same inputs.  If model is not ready, immediately returns a shallow unsorted copy of the variants.
 */
-- (NSArray *) sort:(NSString *) namespaceStr
-          variants:(NSArray *) variants
-           context:(NSDictionary *) context;
+- (NSArray *) sort:(NSArray *) variants
+           context:(nullable NSDictionary *) context;
 
 
 /**
  EXPERIMENTAL: Let us know at support@improve.ai if you're using this.  I'm not sure if remote choose flows with this library.
  */
-- (void) chooseRemote:(NSString *) namespaceStr
-           variants:(NSArray *) variants
-            context:(NSDictionary *) context
-         completion:(void (^)(id, NSError *)) block;
+- (void) chooseRemote:(NSArray *) variants
+              context:(NSDictionary *) context
+           completion:(void (^)(id, NSError *)) block;
 
 /**
  Track that a variant was chosen in order to train the system to learn what rewards it receives.
- @param namespaceStr A descriptor and namespace for the type of variant chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
  @param variant The JSON encodeable chosen variant to track
  */
-- (void) trackDecision:(NSString *) namespaceStr
-               variant:(id) variant;
+- (void) trackDecision:(id) variant;
 
 /**
  Track that a variant was chosen in order to train the system to learn what rewards it receives.
- @param namespaceStr A descriptor and namespace for the type of variant chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
+
  @param variant The JSON encodeable chosen variant to track
  @param context The JSON encodeable context that the chosen variant is being used in and should be rewarded against.  It is okay for this to be different from the context that was used during choose or sort.
 */
-- (void) trackDecision:(NSString *) namespaceStr
-               variant:(id) variant
+- (void) trackDecision:(id) variant
                context:(nullable NSDictionary *) context;
 
 /**
  Track that a variant was chosen in order to train the system to learn what rewards it receives.
- @param namespaceStr A descriptor and namespace for the type of variant chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
  @param variant The JSON encodeable chosen variant to track
  @param context The JSON encodeable context that the chosen variant is being used in and should be rewarded against.  It is okay for this to be different from the context that was used during choose or sort.
  @param rewardKey The rewardKey used to assign rewards to the chosen variant. If nil, rewardKey is set to the namespace.  trackRewards must also use this key to assign rewards to this chosen variant.
 */
-- (void) trackDecision:(NSString *) namespaceStr
-               variant:(id) variant
+- (void) trackDecision:(id) variant
                context:(nullable NSDictionary *) context
              rewardKey:(nullable NSString *) rewardKey;
 
 /**
  Track that a variant was chosen in order to train the system to learn what rewards it receives.
- @param namespaceStr A descriptor and namespace for the type of variant chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
  @param variant The JSON encodeable chosen variant to track
  @param context The JSON encodeable context that the chosen variant is being used in and should be rewarded against.  It is okay for this to be different from the context that was used during choose or sort.
  @param rewardKey The rewardKey used to assign rewards to the chosen variant. If nil, rewardKey is set to the namespace.  trackRewards must also use this key to assign rewards to this chosen variant.
  @param completionHandler Called after sending the decision to the server.
  */
-- (void) trackDecision:(NSString *) namespaceStr
-               variant:(id) variant
+- (void) trackDecision:(id) variant
                context:(nullable NSDictionary *) context
              rewardKey:(nullable NSString *) rewardKey
             completion:(nullable IMPTrackCompletion) completionHandler;

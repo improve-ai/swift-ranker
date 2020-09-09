@@ -14,6 +14,9 @@ NS_ASSUME_NONNULL_BEGIN
 // A bunch of asset URLs related to a model.
 @interface IMPModelBundle : NSObject
 
+/// Namespaces supported by the model.
+@property(readonly, nonatomic) NSSet<NSString *> *namespaces;
+
 /// URL to compiled .mlmodelc file.
 @property(readonly, nonatomic) NSURL *compiledModelURL;
 

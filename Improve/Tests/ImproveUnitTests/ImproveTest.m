@@ -27,8 +27,11 @@
 }
 
 - (void)setUp {
+    NSString *apiKey = @"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI";
+    NSString *modelURL = @"https://improve-v5-resources-prod-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/latest.tar.gz";
+    [Improve addModelUrl:modelURL apiKey:apiKey];
     Improve *defaultInstance = [Improve instance];
-    [defaultInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL: @"https://improve-v5-resources-prod-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/latest.tar.gz"];
+    defaultInstance.apiKey = apiKey;
     defaultInstance.maxModelsStaleAge = 10;
 }
 
@@ -67,8 +70,7 @@
 {
     NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};
-    NSArray *rankedVariants = [[Improve instance] sort:@"test"
-                                              variants:variants
+    NSArray *rankedVariants = [[Improve instance] sort:variants
                                                context:context];
     XCTAssertNotNil(rankedVariants);
 
