@@ -73,7 +73,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
     return self;
 }
 
-- (NSURL *)modelsDirURL
+- (NSURL *)modelDirURL
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
@@ -100,24 +100,23 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
 - (NSArray *)cachedModelFileURLs {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
-    NSArray *fileURLs = [fileManager contentsOfDirectoryAtURL:self.modelsDirURL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles error:&error];
+    NSArray *fileURLs = [fileManager contentsOfDirectoryAtURL:self.modelDirURL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles error:&error];
     if (!fileURLs) {
         IMPErrLog("Directory enumeration error: %@", error);
     }
     return fileURLs;
 }
 
-- (nullable NSArray *)cachedModelBundles
+- (nullable IMPModelBundle *)cachedModelBundle
 {
-    IMPLog("Retrieving cached models...");
+    IMPLog("Retrieving cached model...");
     NSArray *fileURLs = [self cachedModelFileURLs];
     if (!fileURLs) {
-        IMPLog("Failed to get cached file urls.");
+        IMPLog("Failed to get cached files urls.");
         return nil;
     }
     IMPLog("File urls: %@", fileURLs);
 
-    NSMutableArray *bundles = [NSMutableArray new];
     for (NSURL *url in fileURLs)
     {
         NSString *extension = url.pathExtension;
@@ -127,20 +126,21 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
             continue;
         }
 
-        IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.modelsDirURL modelName:name];
+        IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.modelDirURL modelName:name];
 
         // Check if all files for the givent model name exists
         if (bundle.isReachable) {
+            IMPLog("Retrieved cached bunle: %@", bundle);
+            return bundle;
+        } else {
             IMPLog("Bundle is unreachable: %@", bundle);
-            [bundles addObject:bundle];
         }
     }
 
-    IMPLog("Retrieved cached bunles: %@", bundles);
-    return bundles;
+    return nil;
 }
 
-- (NSTimeInterval)cachedModelsAge {
+- (NSTimeInterval)cachedModelAge {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSArray *fileURLs = [self cachedModelFileURLs];
     if (!fileURLs || fileURLs.count == 0) {
@@ -160,7 +160,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
 
 - (void)loadWithCompletion:(IMPModelDownloaderCompletion)completion
 {
-    IMPLog("Loading models at: %@", self.remoteArchiveURL);
+    IMPLog("Loading model at: %@", self.remoteArchiveURL);
     NSURLSession *session = [NSURLSession sharedSession];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.remoteArchiveURL];
     [request setHTTPMethod:@"GET"];
@@ -249,15 +249,15 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
         }
         IMPLog("Success.");
 
-        NSArray *bundles = [self processUnarchivedModelFilesIn:unarchivePath
-                                                         error:&error];
-        if (!bundles) {
+        IMPModelBundle *bundle = [self processUnarchivedModelFilesIn:unarchivePath
+                                                               error:&error];
+        if (!bundle) {
             if (completion) { completion(nil, error); }
         }
         [[NSUserDefaults standardUserDefaults] setObject:[NSDate date]
                                                   forKey:self->_userDefaultsLastDownloadDateKey];
-        IMPLog("Model downloaded finished. Returning bundles: %@", bundles);
-        if (completion) { completion(bundles, nil); }
+        IMPLog("Model downloaded finished. Returning bundle: %@", bundle);
+        if (completion) { completion(bundle, nil); }
     }];
     [_downloadTask resume];
 }
@@ -292,10 +292,10 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
     return _downloadTask && _downloadTask.state != NSURLSessionTaskStateRunning;
 }
 
-- (NSArray<IMPModelBundle *> * _Nullable)processUnarchivedModelFilesIn:(NSString *)folder
-                                                                 error:(NSError **)error
+- (IMPModelBundle * _Nullable)processUnarchivedModelFilesIn:(NSString *)folder
+                                                      error:(NSError **)error
 {
-    IMPLog("Processing unarchived models in dir: %@", folder);
+    IMPLog("Processing unarchived model files in dir: %@", folder);
     NSURL *folderURL = [NSURL fileURLWithPath:folder];
 
     NSArray *files = [_fileManager contentsOfDirectoryAtURL:folderURL
@@ -341,15 +341,16 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
         [modelBundles addObject:bundleOrNil];
     }
 
-    IMPLog("Processing unarchived models finished. Bundles: %@", modelBundles);
-    return modelBundles;
+    IMPModelBundle *bundle = [modelBundles firstObject];
+    IMPLog("Processing unarchived model files finished. Returning bundle: %@", bundle);
+    return bundle;
 }
 
 - (IMPModelBundle *)processModelWithName:(NSString *)modelName
                                 withPath:(NSString *)mlmodelPath
                                 jsonPath:(NSString *)jsonPath
 {
-    IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.modelsDirURL modelName:modelName];
+    IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.modelDirURL modelName:modelName];
     IMPLog("Processing model: %@", modelName);
 
     // Compile model and put to the destination folder
