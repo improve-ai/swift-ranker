@@ -31,7 +31,7 @@
     NSString *modelURL = @"https://improve-v5-resources-prod-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/latest.tar.gz";
     [Improve addModelUrl:modelURL apiKey:apiKey];
     Improve *defaultInstance = [Improve instance];
-    defaultInstance.apiKey = apiKey;
+    defaultInstance.trackApiKey = apiKey;
     defaultInstance.maxModelsStaleAge = 10;
 }
 

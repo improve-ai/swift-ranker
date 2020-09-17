@@ -443,8 +443,8 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
     NSMutableDictionary *headers = [@{ @"Content-Type": @"application/json" } mutableCopy];
     
-    if (self.apiKey) {
-        [headers setObject:self.apiKey forKey:kApiKeyHeader];
+    if (self.trackApiKey) {
+        [headers setObject:self.trackApiKey forKey:kApiKeyHeader];
     }
 
     NSString *dateStr = [self timestampFromDate:[NSDate date]];

@@ -19,7 +19,7 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
  */
 @property (nonatomic, readonly) NSString *modelNamespace;
 
-@property (atomic, strong) NSString *apiKey;
+@property (atomic, strong) NSString *trackApiKey;
 
 @property (atomic, strong) NSString *trackUrl;
 
@@ -81,8 +81,7 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
 
 /**
  Sorts variants from largest to smallest expected future rewards.
- 
- @param namespaceStr A descriptor and namespace for the type of variant being chosen.  It can be simple such as "songs" or "prices" or more complicated such as "SubscriptionViewController.buttonText".  It should be unique within your project to avoid collisions.
+
  @param variants  A JSON encodeable list of variants to sort.  May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @return A sorted copy of the variants array from largest to smallest expected future rewards, which may be different between calls even with the same inputs.  If model is not ready, immediately returns a shallow unsorted copy of the variants.
 */
