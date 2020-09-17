@@ -11,16 +11,14 @@
 #import "IMPChooser.h"
 #import "NSArray+Random.h"
 #import "IMPLogging.h"
-#import "IMPModelDownloader.h"
+#import "IMPModelManager.h"
 #import "IMPCredential.h"
-
+#import "Constants.h"
+#import "IMPModelBundle.h"
 
 @import Security;
 
 typedef void(^ModelLoadCompletion)(BOOL isLoaded);
-
-/// How soon model downloading will be retried in case of error.
-const NSTimeInterval kRetryInterval = 30.0;
 
 const NSTimeInterval kDefaultMaxModelStaleAge = 604800.0;
 
@@ -49,12 +47,7 @@ NSString * const kPropensityType = @"propensity";
 NSString * const kChooseMethod = @"choose";
 NSString * const kSortMethod = @"sort";
 
-NSString * const kApiKeyHeader = @"x-api-key";
-
 NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
-
-
-NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModelNotification";
 
 @interface Improve ()
 // Private vars
@@ -67,8 +60,6 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 
 
 @implementation Improve
-
-@synthesize maxModelsStaleAge = _maxModelsStaleAge;
 
 + (Improve *) instance
 {
@@ -106,25 +97,17 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 
 + (void) addModelUrl:(NSString *)urlStr apiKey:(NSString *)apiKey
 {
-   // TODO
+    [[IMPModelManager sharedManager] addModelWithCredential:[IMPCredential credentialWithModelURL:[NSURL URLWithString:urlStr] apiKey:apiKey]];
 }
 
 + (NSArray<IMPModelBundle*> *)sharedModels
 {
-#warning TODO: shared models, models downloading queue, models manager.
-    return @[];
+    return [IMPModelManager sharedManager].models;
 }
 
 + (IMPModelBundle *)modelForNamespace:(NSString *)namespaceStr
 {
-    for (IMPModelBundle *modelBundle in [[self class] sharedModels])
-    {
-        if ([modelBundle.namespaces containsObject:namespaceStr])
-        {
-            return modelBundle;
-        }
-    }
-    return nil;
+    return [[IMPModelManager sharedManager] modelForNamespace:namespaceStr];
 }
 
 - (instancetype) initWithNamespace:(NSString *)namespaceStr {
@@ -141,7 +124,14 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
         _historyId = [self generateHistoryId];
         [[NSUserDefaults standardUserDefaults] setObject:_historyId forKey:kHistoryIdDefaultsKey];
     }
-    _maxModelsStaleAge = kDefaultMaxModelStaleAge;
+    self.maxModelsStaleAge = kDefaultMaxModelStaleAge;
+
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter addObserver:self
+                           selector:@selector(handleModelManagerDidLoadNotification:)
+                               name:IMPModelManagerDidLoadNotification
+                             object:nil];
+
     return self;
 }
 
@@ -159,16 +149,7 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 }
 
 - (void)setMaxModelsStaleAge:(NSTimeInterval)maxModelsStaleAge {
-    @synchronized (self) {
-#warning TODO Delegate to the model manager
-        _maxModelsStaleAge = maxModelsStaleAge;
-    }
-}
-
-- (NSTimeInterval)maxModelsStaleAge {
-    @synchronized(self) {
-        return _maxModelsStaleAge;
-    }
+    [IMPModelManager sharedManager].maxModelsStaleAge = maxModelsStaleAge;
 }
 
 - (BOOL)isReady {
@@ -549,70 +530,6 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
     return chooser;
 }
 
-//- (void)loadModels:(NSURL *) modelBundleUrl
-//{
-//    IMPLog("Initializing model loading...");
-//    if (self.downloader && self.downloader.isLoading) {
-//        IMPLog("Allready loading. Skipping.");
-//        return;
-//    }
-//
-//    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelBundleUrl];
-//    self.downloader = downloader;
-//    IMPLog("Checking for cached models...");
-//    if (downloader.cachedModelsAge < self.maxModelsStaleAge) {
-//        // Load models from cache
-//        IMPLog("Found cached models. Finished.");
-//        NSArray *cachedModels = downloader.cachedModelBundles;
-//        if (cachedModels.count > 0) {
-//            [self fillNamespaceToModelsMap:cachedModels];
-//            [self notifyDidLoadModels];
-//        }
-//        return;
-//    }
-//
-//    // Load remote models
-//    IMPLog("No cached models. Starting download...");
-//    downloader.headers = @{kApiKeyHeader: self.apiKey};
-//
-//    __weak Improve *weakSelf = self;
-//    [downloader loadWithCompletion:^(NSArray *bundles, NSError *error) {
-//        if (error) {
-//            IMPErrLog("Failed to load models: %@", error);
-//
-//            // Reload
-//            IMPLog("Will retry after %g sec", kRetryInterval);
-//            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kRetryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//                IMPLog("Retrying...");
-//                [weakSelf loadModels:modelBundleUrl];
-//            });
-//        } else if (bundles) {
-//            IMPLog("Models loaded.");
-//            [weakSelf fillNamespaceToModelsMap:bundles];
-//            [weakSelf notifyDidLoadModels];
-//        }
-//    }];
-//}
-
-///// Populates `modelBundlesByNamespace` and `defaultModel` properties.
-//- (void)fillNamespaceToModelsMap:(NSArray<IMPModelBundle *> *)models
-//{
-//    NSMutableDictionary *bundlesByNamespace = [NSMutableDictionary new];
-//
-//    for (IMPModelBundle *bundle in models) {
-//        NSArray *namespaces = bundle.metadata.namespaces;
-//        if (namespaces.count == 0) {
-//            // Only the default model should have zero namespaces.
-//            self.defaultModel = bundle;
-//            continue;
-//        }
-//        for (NSString *namespaceString in namespaces) {
-//            bundlesByNamespace[namespaceString] = bundle;
-//        }
-//    }
-//    self.modelBundlesByNamespace = bundlesByNamespace;
-//}
-
 - (BOOL)shouldTrackVariants {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -702,13 +619,24 @@ domain and context.
     });
 }
 
-- (void)notifyDidLoadModels {
+- (void)handleModelManagerDidLoadNotification:(NSNotification *)note
+{
+    IMPModelBundle *loadedBundle = note.userInfo[@"model_bundle"];
+    if ([loadedBundle.namespaces containsObject:self.modelNamespace]) {
+        [self notifyOnReadyBlocks];
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        [center removeObserver:self
+                          name:IMPModelManagerDidLoadNotification
+                        object:nil];
+    }
+}
+
+- (void)notifyOnReadyBlocks
+{
     for (void (^block)(void) in self.onReadyBlocks) {
         block();
     }
     [self.onReadyBlocks removeAllObjects];
-
-    [[NSNotificationCenter defaultCenter] postNotificationName:ImproveDidLoadModelNotification object:self];
 }
 
 /// Example: 2020-02-03T03:16:36.073Z

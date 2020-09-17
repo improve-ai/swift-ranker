@@ -7,8 +7,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSNotificationName const ImproveDidLoadModelNotification;
-
 typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
 
 @interface Improve : NSObject
@@ -40,7 +38,7 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
  Max stale age of the cached models. If the cached models has expired, the new ones will be requested soon.
  The default value is 604800 (1 week).
  */
-@property (atomic, assign) NSTimeInterval maxModelsStaleAge;
+@property (nonatomic, assign) NSTimeInterval maxModelsStaleAge;
 
 /**
  @return The dfeault singleton.

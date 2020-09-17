@@ -10,12 +10,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface IMPCredential : NSObject
+@interface IMPCredential : NSObject <NSCopying>
 
-+ (instancetype)credentialWithModelURL:(NSString *)modelURL
++ (instancetype)credentialWithModelURL:(NSURL *)modelURL
                                 apiKey:(NSString *)apiKey;
 
-@property(nonatomic, copy) NSString *modelURL;
+@property(nonatomic, copy) NSURL *modelURL;
 
 @property(nonatomic, copy) NSString *apiKey;
 
