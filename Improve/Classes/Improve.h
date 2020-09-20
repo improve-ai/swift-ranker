@@ -19,9 +19,11 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
  */
 @property (nonatomic, readonly) NSString *modelNamespace;
 
-@property (atomic, strong) NSString *trackApiKey;
+///
+@property (atomic, strong, nullable) NSString *trackApiKey;
 
-@property (atomic, strong) NSString *trackUrl;
+///
+@property (atomic, strong, nullable) NSString *trackUrl;
 
 @property (atomic, strong) NSString *chooseUrl;
 
@@ -51,6 +53,15 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
 + (Improve *) instanceWithNamespace:(NSString *)namespaceStr;
 
 + (void) addModelUrl:(NSString *)urlStr apiKey:(NSString *)apiKey;
+
+///
++ (void) setDefaultTrackUrl:(NSString *)urlStr trackApiKey:(NSString *)trackApiKey;
+
+///
++ (NSString *) defaultTrackUrl;
+
+///
++ (NSString *) defaultTrackApiKey;
 
 /**
  Adds block which is invoked when the model is loaded and ready to make choices. Block is executed synchronously

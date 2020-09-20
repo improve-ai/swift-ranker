@@ -25,7 +25,10 @@ Do this once in your AppDelegate.
 ```objc
 #import Improve.h
 
-Improve *improve = [Improve instanceWithApiKey:@"YOUR API KEY"];
+[Improve addModelUrl:@"YOUR MODEL BUNDLE URL" apiKey:@"YOUR MODEL API KEY"];
+
+
+Improve *improve = [Improve instanceWithNamespace:@"YOUR API KEY"];
 
 improve.modelBundleUrl = @"YOUR MODEL BUNDLE URL"; // fetches the bundle using the api key
 improve.trackUrl = @"YOUR MODEL GATEWAY TRACK ENDPOINT";

@@ -61,6 +61,14 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 @implementation Improve
 
+@synthesize trackUrl = _trackUrl;
+
+@synthesize trackApiKey = _trackApiKey;
+
+NSString *s_defaultTrackUrl;
+
+NSString *s_defaultTrackApiKey;
+
 + (Improve *) instance
 {
     return [self instanceWithNamespace:@""];
@@ -110,6 +118,20 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     return [[IMPModelManager sharedManager] modelForNamespace:namespaceStr];
 }
 
++ (void)setDefaultTrackUrl:(NSString *)urlStr trackApiKey:(NSString *)trackApiKey
+{
+    s_defaultTrackUrl = urlStr;
+    s_defaultTrackApiKey = trackApiKey;
+}
+
++ (NSString *)defaultTrackUrl {
+    return s_defaultTrackUrl;
+}
+
++ (NSString *)defaultTrackApiKey {
+    return s_defaultTrackApiKey;
+}
+
 - (instancetype) initWithNamespace:(NSString *)namespaceStr {
     self = [super init];
     if (!self) return nil;
@@ -154,6 +176,36 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 - (BOOL)isReady {
     return [[self class] modelForNamespace:self.modelNamespace] != nil;
+}
+
+- (void)setTrackUrl:(NSString *)trackUrl
+{
+    @synchronized (self) {
+        _trackUrl = trackUrl;
+    }
+}
+
+- (NSString *)trackUrl
+{
+    @synchronized (self) {
+        if (_trackUrl) return _trackUrl;
+        return s_defaultTrackUrl;
+    }
+}
+
+- (void)setTrackApiKey:(NSString *)trackApiKey
+{
+    @synchronized (self) {
+        _trackApiKey = trackApiKey;
+    }
+}
+
+- (NSString *)trackApiKey
+{
+    @synchronized (self) {
+        if (_trackApiKey) return _trackApiKey;
+        return s_defaultTrackApiKey;
+    }
 }
 
 - (void) onReady:(void (^)(void)) block
@@ -339,7 +391,8 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         [body setObject:context forKey:kContextKey];
     }
 
-    [self postImproveRequest:body url:[NSURL URLWithString:_trackUrl] block:^(NSObject *result, NSError *error) {
+    NSURL *trackUrl = [NSURL URLWithString:self.trackUrl];
+    [self postImproveRequest:body url:trackUrl block:^(NSObject *result, NSError *error) {
         if (error) {
             IMPErrLog("Improve.track error: %@", error);
             IMPLog("trackDecision failed! Namespace: %@, variant: %@, context: %@, rewardKey: %@", self.modelNamespace, variant, context, rewardKey);
@@ -418,7 +471,7 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 - (void) track:(NSDictionary *)body completion:(nullable IMPTrackCompletion)completionBlock
 {
     [self postImproveRequest:body
-                         url:[NSURL URLWithString:_trackUrl]
+                         url:[NSURL URLWithString:self.trackUrl]
                        block:^
      (NSObject *result, NSError *error) {
         if (error) {
