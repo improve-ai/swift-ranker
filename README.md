@@ -25,14 +25,11 @@ Do this once in your AppDelegate.
 ```objc
 #import Improve.h
 
+// fetches the bundle using the api key
 [Improve addModelUrl:@"YOUR MODEL BUNDLE URL" apiKey:@"YOUR MODEL API KEY"];
 
-
-Improve *improve = [Improve instanceWithNamespace:@"YOUR API KEY"];
-
-improve.modelBundleUrl = @"YOUR MODEL BUNDLE URL"; // fetches the bundle using the api key
-improve.trackUrl = @"YOUR MODEL GATEWAY TRACK ENDPOINT";
-
+[Improve setDefaultTrackUrl:@"YOUR MODEL GATEWAY TRACK ENDPOINT" 
+                trackApiKey:@"YOUR TRACK API KEY"];
 ```
 
 To obtain the model bundle URL and api key, first deploy a Improve Model Gateway (link).
@@ -42,16 +39,16 @@ To obtain the model bundle URL and api key, first deploy a Improve Model Gateway
 What is the best greeting?
 
 ```objc
-Improve *improve = [Improve instance];
+Improve *improve = [Improve instanceWithNamespace:@"greeting"];
 
 // get the decision
-button.text = [improve choose:@"greeting" variants:@[ @"Hello World!", @"Hi World!", @"Howdy World!" ]];
+button.text = [improve choose:@[@"Hello World!", @"Hi World!", @"Howdy World!"]];
 
 // train the model using the decision
-[improve trackDecision:@"greeting" variant:button.text];
+[improve trackDecision:button.text];
 
 // ... later when the button is tapped, give the decision a reward
-[improve trackReward:@"greeting" value:@1.0];
+[improve addReward:@1.0 forKey:@"greeting"];
 ```
 
 Improve quickly learns to choose the greeting with the highest chance of button tap.
@@ -63,22 +60,26 @@ Improve quickly learns to choose the greeting with the highest chance of button 
 How many bonus gems should we offer on our In App Purchase?
 
 ```objc
-NSNumber *bonusGems = [improve choose:@"bonusGems" variants:@[ @1000, @2000, @3000 ]];
+Improve *improve = [Improve instanceWithNamespace:@"bonusGems"];
+
+NSNumber *bonusGems = [improve choose:@[@1000, @2000, @3000]];
 
 // train the model using the decision
-[improve trackDecision:@"bonusGems" variant:bonusGems];
+[improve trackDecision:bonusGems];
 
 // ... later when the user makes a purchase, give the decision a reward
-[improve trackReward:@"bonusGems" value:revenue];
+[improve addReward:revenue forKey:@"bonusGems"];
 ```
 
 ### Complex Objects
 
 ```objc
+Improve *improve = [Improve instanceWithNamespace:@"theme"];
+
 NSArray *themeVariants = @[ @{ @"textColor": @"#000000", @"backgroundColor": @"#ffffff" },
                             @{ @"textColor": @"#F0F0F0", @"backgroundColor": @"#aaaaaa" } ];
                             
-NSDictionary *theme = [improve choose:@"theme" variants:themeVariants];
+NSDictionary *theme = [improve choose:themeVariants];
 ```
 
 Improve learns to use the attributes of each key and value in a dictionary variant to make the optimal decision.  
@@ -92,7 +93,7 @@ If language is "cowboy", which greeting is best?
 ```objc
 NSArray *greetings = @[ @"Hello World!", @"Hi World!", @"Howdy World!" ];
 
-button.text = [improve choose:@"greeting" variants:greetings context:@{ @"language": @"cowboy" }];
+button.text = [improve choose:greetings context:@{ @"language": @"cowboy" }];
 ```
 
 Improve can optimize decisions for a given context of arbitrary complexity. We might imagine that "Howdy World!" would produce the highest rewards for { language: cowboy }, while another greeting might be best for other contexts.
@@ -121,27 +122,25 @@ Instead of tracking rewards for every seperate decision namespace, we can assign
  NSString rewardKey = [@"Video Shared.id=" stringByAppendingString:[viralVideo objectForKey:@"videoId"]];
  
  // Track the chosen variant along with its custom rewardKey
- [improve trackDecision:"viralVideo" variant:viralVideo context:context rewardKey:rewardKey];
+ [improve trackDecision:viralVideo context:context rewardKey:rewardKey];
  
  // ...later when a video is shared
- [improve trackReward:rewardKey value:@1.0];
- 
- 
+ [improve addReward:@1 forKey:rewardKey];
  ```
  
  ### Sort Stuff
 
 ```objc
 // No human could ever make this decision, but math can.
-NSArray *sortedDogs = [improve sort:@"dogs" variants:@[ @"German Shepard", @"Border Collie", @"Labrador Retriever" context:context]];
+NSArray *sortedDogs = [improve sort:@[@"German Shepard", @"Border Collie", @"Labrador Retriever"] context:context];
 
 
 // With sort, training is done just as before, on one individual variant at a time.
-NSString *dog = [sortedDogs objectAtIndex:0];
-[improve trackDecision:@"dogs" variant:dog context:context rewardKey:dog];
+NSString *topDog = [sortedDogs objectAtIndex:0];
+[improve trackDecision:topDog context:context rewardKey:@"dog"];
 
 // ... 
-[improve trackReward:dog value:@1000];
+[improve addReward:@1000 forKey:@"dog"];
 ```
 
 Sort is handy for building personalized feeds or reducing huge lists of variants down to smaller lists for future contextual choose calls.  It is recommended to pass a context to sort that is similar to contexts the model was trained on.
