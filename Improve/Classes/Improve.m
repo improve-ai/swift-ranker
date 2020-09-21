@@ -65,7 +65,7 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 
 /**
  The model which handles requests without namespace or with any missing namespace. Initially is nil.
- Initially nil. Then is loaded from cache, if any, and then from the remote server.
+ Then is loaded from cache, if any, and then from the remote server.
  */
 @property (strong, nonatomic) IMPModelBundle *defaultModel;
 
@@ -183,12 +183,19 @@ static Improve *sharedInstance;
 }
 
 - (BOOL)isReady {
-    if (self.downloader) {
-        return (self.downloader.cachedModelsAge > self.maxModelsStaleAge
-                && self.modelBundlesByNamespace != nil
-                && self.modelBundlesByNamespace.count > 0);
-    } else {
+    if (self.downloader
+        && self.downloader.cachedModelsAge > self.maxModelsStaleAge)
+    {
         return false;
+    }
+    else if (self.defaultModel != nil)
+    {
+        return true;
+    }
+    else
+    {
+        return (self.modelBundlesByNamespace != nil
+                && self.modelBundlesByNamespace.count > 0);
     }
 }
 
