@@ -22,6 +22,8 @@ const NSTimeInterval kRetryInterval = 30.0;
 
 const NSTimeInterval kDefaultMaxModelStaleAge = 604800.0;
 
+const NSTimeInterval kCacheCheckInterval = 60.0;
+
 NSString * const kHistoryIdKey = @"history_id";
 NSString * const kTimestampKey = @"timestamp";
 NSString * const kMessageIdKey = @"message_id";
@@ -133,7 +135,7 @@ static Improve *sharedInstance;
     _maxModelsStaleAge = kDefaultMaxModelStaleAge;
 
     _cacheCheckTimer
-    = [NSTimer scheduledTimerWithTimeInterval:60.0
+    = [NSTimer scheduledTimerWithTimeInterval:kCacheCheckInterval
                                        target:self
                                      selector:@selector(handleCacheCheckTimer:)
                                      userInfo:nil
