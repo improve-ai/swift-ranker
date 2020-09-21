@@ -78,6 +78,8 @@ NSNotificationName const ImproveDidLoadModelNotification = @"ImproveDidLoadModel
 /// Becomes YES after you call `-initializeWithApiKey:modelBundleURL:`
 @property (readonly) BOOL isInitialized;
 
+@property (strong, nonatomic) NSTimer *cacheCheckTimer;
+
 @end
 
 
@@ -129,6 +131,14 @@ static Improve *sharedInstance;
         [[NSUserDefaults standardUserDefaults] setObject:_historyId forKey:kHistoryIdDefaultsKey];
     }
     _maxModelsStaleAge = kDefaultMaxModelStaleAge;
+
+    _cacheCheckTimer
+    = [NSTimer scheduledTimerWithTimeInterval:60.0
+                                       target:self
+                                     selector:@selector(handleCacheCheckTimer:)
+                                     userInfo:nil
+                                      repeats:YES];
+
     return self;
 }
 
@@ -183,12 +193,7 @@ static Improve *sharedInstance;
 }
 
 - (BOOL)isReady {
-    if (self.downloader
-        && self.downloader.cachedModelsAge > self.maxModelsStaleAge)
-    {
-        return false;
-    }
-    else if (self.defaultModel != nil)
+    if (self.defaultModel != nil)
     {
         return true;
     }
@@ -780,6 +785,16 @@ domain and context.
                                                  formatOptions:options];
 
     return dateStr;
+}
+
+- (void)handleCacheCheckTimer:(NSTimer *)timer
+{
+    if (self.downloader
+        && self.downloader.cachedModelsAge > self.maxModelsStaleAge
+        && self.modelBundleUrl != nil)
+    {
+        [self loadModels:[NSURL URLWithString:self.modelBundleUrl]];
+    }
 }
 
 @end
