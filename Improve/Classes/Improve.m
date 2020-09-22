@@ -61,10 +61,6 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 @implementation Improve
 
-@synthesize trackUrl = _trackUrl;
-
-@synthesize trackApiKey = _trackApiKey;
-
 NSString *s_defaultTrackUrl;
 
 NSString *s_defaultTrackApiKey;
@@ -178,34 +174,16 @@ NSString *s_defaultTrackApiKey;
     return [[self class] modelForNamespace:self.modelNamespace] != nil;
 }
 
-- (void)setTrackUrl:(NSString *)trackUrl
+- (NSString *)resolvedTrackUrl
 {
-    @synchronized (self) {
-        _trackUrl = trackUrl;
-    }
+    if (self.trackUrl) return self.trackUrl;
+    return s_defaultTrackUrl;
 }
 
-- (NSString *)trackUrl
+- (NSString *)resolvedTrackApiKey
 {
-    @synchronized (self) {
-        if (_trackUrl) return _trackUrl;
-        return s_defaultTrackUrl;
-    }
-}
-
-- (void)setTrackApiKey:(NSString *)trackApiKey
-{
-    @synchronized (self) {
-        _trackApiKey = trackApiKey;
-    }
-}
-
-- (NSString *)trackApiKey
-{
-    @synchronized (self) {
-        if (_trackApiKey) return _trackApiKey;
-        return s_defaultTrackApiKey;
-    }
+    if (self.trackApiKey) return self.trackApiKey;
+    return s_defaultTrackApiKey;
 }
 
 - (void) onReady:(void (^)(void)) block
@@ -391,7 +369,7 @@ NSString *s_defaultTrackApiKey;
         [body setObject:context forKey:kContextKey];
     }
 
-    NSURL *trackUrl = [NSURL URLWithString:self.trackUrl];
+    NSURL *trackUrl = [NSURL URLWithString:self.resolvedTrackUrl];
     [self postImproveRequest:body url:trackUrl block:^(NSObject *result, NSError *error) {
         if (error) {
             IMPErrLog("Improve.track error: %@", error);
@@ -471,7 +449,7 @@ NSString *s_defaultTrackApiKey;
 - (void) track:(NSDictionary *)body completion:(nullable IMPTrackCompletion)completionBlock
 {
     [self postImproveRequest:body
-                         url:[NSURL URLWithString:self.trackUrl]
+                         url:[NSURL URLWithString:self.resolvedTrackUrl]
                        block:^
      (NSObject *result, NSError *error) {
         if (error) {
@@ -496,8 +474,8 @@ NSString *s_defaultTrackApiKey;
 
     NSMutableDictionary *headers = [@{ @"Content-Type": @"application/json" } mutableCopy];
     
-    if (self.trackApiKey) {
-        [headers setObject:self.trackApiKey forKey:kApiKeyHeader];
+    if (self.resolvedTrackApiKey) {
+        [headers setObject:self.resolvedTrackApiKey forKey:kApiKeyHeader];
     }
 
     NSString *dateStr = [self timestampFromDate:[NSDate date]];

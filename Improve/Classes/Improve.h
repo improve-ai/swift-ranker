@@ -19,10 +19,16 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
  */
 @property (nonatomic, readonly) NSString *modelNamespace;
 
-///
+/**
+ Custom API key for tracking. Methods like `-trackDecision:` and `-addReward:forKey:` are authorised with this key.
+ By default this property is `nil`, and `defaultTrackApiKey` is used instead.
+ */
 @property (atomic, strong, nullable) NSString *trackApiKey;
 
-///
+/**
+ Custom API gateway for tracking. Data from `-trackDecision:` and  `-addReward:forKey:` will be posted to that URL.
+ By default this property is `nil`, and `defaultTrackUrl` is used instead.
+ */
 @property (atomic, strong, nullable) NSString *trackUrl;
 
 @property (atomic, strong) NSString *chooseUrl;
@@ -54,13 +60,21 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
 
 + (void) addModelUrl:(NSString *)urlStr apiKey:(NSString *)apiKey;
 
-///
+/**
+ Set the default URL and API key for tracking. Used in methods like `-trackDecision:` and `-addReward:forKey:` to send model training data to the server.
+
+ Typically you should call this method during the initialization process, alongside with model URL configuration. Mostly confgiuring the default track URL and API key is enough. You can perform per-namespace configuration using instance properties: `trackApiKey` and `trackUrl`.
+ */
 + (void) setDefaultTrackUrl:(NSString *)urlStr trackApiKey:(NSString *)trackApiKey;
 
-///
+/**
+ The default API gateway for tracking. Data from `-trackDecision:` and  `-addReward:forKey:` will be posted to that URL.
+ */
 + (NSString *) defaultTrackUrl;
 
-///
+/**
+ The default API key for tracking. Methods like `-trackDecision:` and `-addReward:forKey:` are authorised with this key.
+ */
 + (NSString *) defaultTrackApiKey;
 
 /**
