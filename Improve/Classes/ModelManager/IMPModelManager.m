@@ -128,6 +128,13 @@ const NSTimeInterval kRetryInterval = 30.0;
         {
             return modelBundle;
         }
+        if ((modelBundle.namespaces == nil
+            || modelBundle.namespaces.count == 0)
+            && namespaceStr.length == 0)
+        {
+            // Return the default model (without namespaces) for empty namespace ""
+            return modelBundle;
+        }
     }
     return nil;
 }

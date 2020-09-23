@@ -65,17 +65,18 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
 
  Typically you should call this method during the initialization process, alongside with model URL configuration. Mostly confgiuring the default track URL and API key is enough. You can perform per-namespace configuration using instance properties: `trackApiKey` and `trackUrl`.
  */
-+ (void) setDefaultTrackUrl:(NSString *)urlStr trackApiKey:(NSString *)trackApiKey;
++ (void) setDefaultTrackUrl:(nullable NSString *)urlStr
+                trackApiKey:(nullable NSString *)trackApiKey;
 
 /**
  The default API gateway for tracking. Data from `-trackDecision:` and  `-addReward:` will be posted to that URL.
  */
-+ (NSString *) defaultTrackUrl;
++ (nullable NSString *) defaultTrackUrl;
 
 /**
  The default API key for tracking. Methods like `-trackDecision:` and `-addReward:` are authorised with this key.
  */
-+ (NSString *) defaultTrackApiKey;
++ (nullable NSString *) defaultTrackApiKey;
 
 /**
  Adds block which is invoked when the model is loaded and ready to make choices. Block is executed synchronously
