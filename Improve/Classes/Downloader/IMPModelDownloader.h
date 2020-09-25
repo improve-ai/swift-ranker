@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^IMPModelDownloaderCompletion) (NSURL *_Nullable modelURL, NSError *_Nullable error);
+typedef void (^IMPModelDownloaderCompletion) (NSURL *_Nullable compiledModelURL, NSError *_Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithURL:(NSURL *)remoteArchiveURL;
 - (instancetype)initWithURL:(NSURL *)remoteArchiveURL maxAge:(NSInteger) maxAge NS_DESIGNATED_INITIALIZER;
 
-- (void)loadWithCompletion:(nullable IMPModelDownloaderCompletion)completion;
+- (void)downloadWithCompletion:(nullable IMPModelDownloaderCompletion)completion;
 
 - (void)cancel;
 

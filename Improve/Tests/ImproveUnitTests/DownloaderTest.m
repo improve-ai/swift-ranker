@@ -60,7 +60,7 @@
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
 
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader loadWithCompletion:^(IMPModelBundle *modelBundle, NSError *error) {
+    [downloader downloadWithCompletion:^(IMPModelBundle *modelBundle, NSError *error) {
         if (error != nil) {
             XCTFail(@"Downloading error: %@", error);
         }
@@ -93,7 +93,7 @@
 
     XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
     NSTimeInterval cacheAgeSeconds = 10.0;
-    [downloader loadWithCompletion:^(IMPModelBundle *modelBundle, NSError *error) {
+    [downloader downloadWithCompletion:^(IMPModelBundle *modelBundle, NSError *error) {
         XCTAssertNotNil(downloader.cachedModelBundle);
 
         NSTimeInterval age = downloader.cachedModelAge;

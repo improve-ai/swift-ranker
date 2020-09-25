@@ -24,6 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, strong, nullable) NSString *trackApiKey;
 
+/**
+ The maximum number of seconds a downloaded model can be cached
+ */
+@property (atomic, assign) NSInteger cacheMaxAge;
 
 @property (atomic, assign) BOOL autoTrackDecisions;
 

@@ -14,6 +14,7 @@
 #import "IMPLogging.h"
 #import "IMPJSONUtils.h"
 #import "IMPModelMetadata.h"
+#import "IMPModelDownloader.h"
 
 @interface IMPModel ()
 // Private vars
@@ -29,9 +30,22 @@
 
 + (void)modelWithContentsOfURL:(NSURL *)url
             configuration:(IMPModelConfiguration *)configuration
-        completionHandler:(void (^)(IMPModel *model, NSError *error))handler
+        completionHandler:(void (^)(IMPModel * _Nullable model, NSError * _Nullable error))handler
 {
-    
+    [[[IMPModelDownloader alloc] initWithURL:url maxAge:configuration.cacheMaxAge] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
+        if (downloadError) {
+            handler(nil, downloadError);
+            return;
+        }
+       
+        NSError *modelError;
+        MLModel *model = [MLModel modelWithContentsOfURL:compiledModelURL error:&modelError];
+        if (modelError) {
+            handler(nil, modelError);
+            return;
+        }
+        handler([[IMPModel alloc] initWithModel:model configuration:configuration], nil);
+    }];
 }
 
 - (instancetype) initWithModel:(MLModel *) model configuration:(IMPModelConfiguration *)configuration;
@@ -49,46 +63,54 @@
 
 - (MLModel *) model
 {
-    return _model;
+    @synchronized (self) {
+        return _model;
+    }
 }
 
 - (void) setModel:(MLModel *)model
 {
-    _model = model;
-    
-    NSString *jsonMetadata = model.modelDescription.metadata[@"json"];
+    @synchronized (self) {
+        _model = model;
+        
+        NSString *jsonMetadata = model.modelDescription.metadata[@"json"];
 
-    NSError *error;
-    
-    NSDictionary *json = [IMPJSONUtils objectFromString:jsonMetadata];
-    if (!json) {
-        IMPErrLog("Json parse error: %@", error);
-        return;
-    }
-    
-    IMPModelMetadata *metadata = [[IMPModelMetadata alloc] initWithDict:json];
-    if (!metadata) {
-        return;
-    }
-    
-    _modelName = metadata.model;
+        NSError *error;
+        
+        NSDictionary *json = [IMPJSONUtils objectFromString:jsonMetadata];
+        if (!json) {
+            IMPErrLog("Json parse error: %@", error);
+            return;
+        }
+        
+        IMPModelMetadata *metadata = [[IMPModelMetadata alloc] initWithDict:json];
+        if (!metadata) {
+            return;
+        }
+        
+        _modelName = metadata.model;
 
-    _chooser = [[IMPChooser alloc] initWithModel:model metadata:metadata];
-    if (!_chooser) {
-        IMPErrLog("Failed to initialize Chooser: %@", error);
+        _chooser = [[IMPChooser alloc] initWithModel:model metadata:metadata];
+        if (!_chooser) {
+            IMPErrLog("Failed to initialize Chooser: %@", error);
+        }
     }
 }
 
 - (IMPModelConfiguration *) configuration
 {
-    return _configuration;
+    @synchronized (self) {
+        return _configuration;
+    }
 }
 
 - (void) setConfiguration:(IMPModelConfiguration *)configuration
 {
-    _configuration = configuration;
-    if (configuration) {
-        _tracker = [[IMPTracker alloc] initWithConfiguration:configuration];
+    @synchronized (self) {
+        _configuration = configuration;
+        if (configuration && configuration.trackUrl) {
+            _tracker = [[IMPTracker alloc] initWithConfiguration:configuration];
+        }
     }
 }
 
@@ -100,33 +122,35 @@
 - (id) choose:(NSArray *) variants
       context:(nullable NSDictionary *) context
 {
-    if (!variants || [variants count] == 0) {
-        IMPErrLog("Non-nil, non-empty array required for choose variants. returning nil.");
-        return nil;
-    }
-    
-//    if (self.shouldTrackVariants) {
-//        [self track:@{
-//            kTypeKey: kVariantsType,
-//            kMethodKey: kChooseMethod,
-//            kVariantsKey: variants
-//        }];
-//    }
+    @synchronized (self) {
+        if (!variants || [variants count] == 0) {
+            IMPErrLog("Non-nil, non-empty array required for choose variants. returning nil.");
+            return nil;
+        }
+        
+    //    if (self.shouldTrackVariants) {
+    //        [self track:@{
+    //            kTypeKey: kVariantsType,
+    //            kMethodKey: kChooseMethod,
+    //            kVariantsKey: variants
+    //        }];
+    //    }
 
-    id chosen;
+        id chosen;
 
-    if (self.chooser) {
-        chosen = [self.chooser choose:variants context:context];
-    } else {
-        IMPErrLog("Model not loaded.");
-    }
-    
-    if (!chosen) {
-        IMPErrLog("Choosing first variant.");
-        return [variants objectAtIndex:0];
-    }
+        if (self.chooser) {
+            chosen = [self.chooser choose:variants context:context];
+        } else {
+            IMPErrLog("Model not loaded.");
+        }
+        
+        if (!chosen) {
+            IMPErrLog("Choosing first variant.");
+            return [variants objectAtIndex:0];
+        }
 
-    return chosen;
+        return chosen;
+    }
 }
 
 
@@ -138,34 +162,36 @@
 - (NSArray *) sort:(NSArray *) variants
            context:(nullable NSDictionary *) context
 {
-    if (!variants || [variants count] == 0) {
-        IMPErrLog("Non-nil, non-empty array required for sort variants. returning empty array");
-        return @[];
-    }
-    
-//    if (self.shouldTrackVariants) {
-//        [self track:@{
-//            kTypeKey: kVariantsType,
-//            kMethodKey: kSortMethod,
-//            kVariantsKey: variants
-//        }];
-//    }
-    
-    NSArray *sorted;
+    @synchronized (self) {
+        if (!variants || [variants count] == 0) {
+            IMPErrLog("Non-nil, non-empty array required for sort variants. returning empty array");
+            return @[];
+        }
+        
+    //    if (self.shouldTrackVariants) {
+    //        [self track:@{
+    //            kTypeKey: kVariantsType,
+    //            kMethodKey: kSortMethod,
+    //            kVariantsKey: variants
+    //        }];
+    //    }
+        
+        NSArray *sorted;
 
-    IMPChooser *chooser = [self chooser];
-    if (chooser) {
-        sorted = [chooser sort:variants context:context];
-    } else {
-        IMPErrLog("Model not loaded.");
-    }
-    
-    if (!sorted) {
-        IMPErrLog("Returning unsorted shallow copy of variants.");
-        return [[NSArray alloc] initWithArray:variants];
-    }
+        IMPChooser *chooser = [self chooser];
+        if (chooser) {
+            sorted = [chooser sort:variants context:context];
+        } else {
+            IMPErrLog("Model not loaded.");
+        }
+        
+        if (!sorted) {
+            IMPErrLog("Returning unsorted shallow copy of variants.");
+            return [[NSArray alloc] initWithArray:variants];
+        }
 
-    return sorted;
+        return sorted;
+    }
 }
 
 - (void) trackDecision:(id) variant
@@ -183,14 +209,16 @@
                context:(NSDictionary *) context
              rewardKey:(NSString *) rewardKey
 {
-    if (self.tracker) {
-        [self.tracker trackDecision:variant
-                            context:context
-                          rewardKey:rewardKey
-                          modelName:self.modelName
-                         completion:nil];
-    } else {
-        IMPErrLog("Attempted to call trackDecision with nil tracker");
+    @synchronized (self) {
+        if (self.tracker) {
+            [self.tracker trackDecision:variant
+                                context:context
+                              rewardKey:rewardKey
+                              modelName:self.modelName
+                             completion:nil];
+        } else {
+            IMPErrLog("Attempted to call trackDecision with nil tracker");
+        }
     }
 }
 
@@ -201,19 +229,23 @@
 
 - (void) addReward:(NSNumber *) reward forKey:(NSString *) rewardKey
 {
-    if (self.tracker) {
-        [self.tracker addReward:reward forKey:rewardKey completion:nil];
-    } else {
-        IMPErrLog("Attempted to call addReward with nil tracker");
+    @synchronized (self) {
+        if (self.tracker) {
+            [self.tracker addReward:reward forKey:rewardKey completion:nil];
+        } else {
+            IMPErrLog("Attempted to call addReward with nil tracker");
+        }
     }
 }
 
 - (void) addRewards:(NSDictionary *)rewards
 {
-    if (self.tracker) {
-        [self.tracker addRewards:rewards completion:nil];
-    } else {
-        IMPErrLog("Attempted to call addRewards with nil tracker");
+    @synchronized (self) {
+        if (self.tracker) {
+            [self.tracker addRewards:rewards completion:nil];
+        } else {
+            IMPErrLog("Attempted to call addRewards with nil tracker");
+        }
     }
 }
 

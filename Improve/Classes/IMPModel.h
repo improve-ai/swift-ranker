@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)modelWithContentsOfURL:(NSURL *)url
             configuration:(IMPModelConfiguration *)configuration
-        completionHandler:(void (^)(IMPModel *model, NSError *error))handler;
+        completionHandler:(void (^)(IMPModel * _Nullable model, NSError * _Nullable error))handler;
 
 - (instancetype) initWithModel:(MLModel *) mlModel configuration:(IMPModelConfiguration *)configuration;
 
