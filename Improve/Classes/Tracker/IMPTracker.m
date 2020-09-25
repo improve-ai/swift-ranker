@@ -50,6 +50,10 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     if (!self) return nil;
     
     _configuration = configuration;
+    
+    if (!configuration || !configuration.trackUrl) {
+        IMPErrLog("configuration or trackUrl is nil, tracking disabled");
+    }
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     _historyId = [defaults stringForKey:kHistoryIdDefaultsKey];
@@ -81,6 +85,10 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
              modelName:(NSString *) modelName
             completion:(nullable IMPTrackCompletion) completionHandler
 {
+    if (!self.configuration || !self.configuration.trackUrl) {
+        return;
+    }
+
     if (!variant) {
         IMPErrLog("Skipping trackDecision for nil variant. To track null values use [NSNull null]");
         if (completionHandler) completionHandler(nil);
@@ -153,6 +161,10 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 - (void) track:(NSDictionary *)body completion:(nullable IMPTrackCompletion)completionBlock
 {
+    if (!self.configuration || !self.configuration.trackUrl) {
+        return;
+    }
+
     [self postImproveRequest:body
                          url:[NSURL URLWithString:self.configuration.trackUrl]
                        block:^

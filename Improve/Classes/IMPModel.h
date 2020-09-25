@@ -20,10 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) IMPModelConfiguration *configuration;
 
 + (void)modelWithContentsOfURL:(NSURL *)url
-            configuration:(IMPModelConfiguration *)configuration
+            configuration:(nullable IMPModelConfiguration *)configuration
         completionHandler:(void (^)(IMPModel * _Nullable model, NSError * _Nullable error))handler;
 
-- (instancetype) initWithModel:(MLModel *) mlModel configuration:(IMPModelConfiguration *)configuration;
+- (instancetype) initWithModel:(MLModel *) mlModel configuration:(nullable IMPModelConfiguration *)configuration;
 
 /**
  Chooses a variant that is expected to maximize future rewards. Call `-trackDecision:` and

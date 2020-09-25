@@ -17,7 +17,7 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
 
 @property(nonatomic, strong) IMPModelConfiguration *configuration;
 
-- (instancetype) initWithConfiguration:(IMPModelConfiguration *)configuration;
+- (instancetype) initWithConfiguration:(nullable IMPModelConfiguration *)configuration;
 
 /**
  Track that a variant was chosen in order to train the system to learn what rewards it receives.

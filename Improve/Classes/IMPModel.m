@@ -108,9 +108,7 @@
 {
     @synchronized (self) {
         _configuration = configuration;
-        if (configuration && configuration.trackUrl) {
-            _tracker = [[IMPTracker alloc] initWithConfiguration:configuration];
-        }
+        _tracker = [[IMPTracker alloc] initWithConfiguration:configuration];
     }
 }
 
@@ -128,14 +126,6 @@
             return nil;
         }
         
-    //    if (self.shouldTrackVariants) {
-    //        [self track:@{
-    //            kTypeKey: kVariantsType,
-    //            kMethodKey: kChooseMethod,
-    //            kVariantsKey: variants
-    //        }];
-    //    }
-
         id chosen;
 
         if (self.chooser) {
@@ -167,15 +157,7 @@
             IMPErrLog("Non-nil, non-empty array required for sort variants. returning empty array");
             return @[];
         }
-        
-    //    if (self.shouldTrackVariants) {
-    //        [self track:@{
-    //            kTypeKey: kVariantsType,
-    //            kMethodKey: kSortMethod,
-    //            kVariantsKey: variants
-    //        }];
-    //    }
-        
+                
         NSArray *sorted;
 
         IMPChooser *chooser = [self chooser];
@@ -210,15 +192,11 @@
              rewardKey:(NSString *) rewardKey
 {
     @synchronized (self) {
-        if (self.tracker) {
-            [self.tracker trackDecision:variant
-                                context:context
-                              rewardKey:rewardKey
-                              modelName:self.modelName
-                             completion:nil];
-        } else {
-            IMPErrLog("Attempted to call trackDecision with nil tracker");
-        }
+        [self.tracker trackDecision:variant
+                            context:context
+                          rewardKey:rewardKey
+                          modelName:self.modelName
+                         completion:nil];
     }
 }
 
@@ -230,22 +208,14 @@
 - (void) addReward:(NSNumber *) reward forKey:(NSString *) rewardKey
 {
     @synchronized (self) {
-        if (self.tracker) {
-            [self.tracker addReward:reward forKey:rewardKey completion:nil];
-        } else {
-            IMPErrLog("Attempted to call addReward with nil tracker");
-        }
+        [self.tracker addReward:reward forKey:rewardKey completion:nil];
     }
 }
 
 - (void) addRewards:(NSDictionary *)rewards
 {
     @synchronized (self) {
-        if (self.tracker) {
-            [self.tracker addRewards:rewards completion:nil];
-        } else {
-            IMPErrLog("Attempted to call addRewards with nil tracker");
-        }
+        [self.tracker addRewards:rewards completion:nil];
     }
 }
 
