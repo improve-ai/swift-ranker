@@ -14,16 +14,16 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The name of the Improve model from the MLModel metadata - used for tracking and training
  */
-@property (nonatomic, readonly) NSString *modelName;
+@property (atomic, readonly) NSString *modelName;
 
-@property (atomic, strong) IMPModelConfiguration *configuration;
-@property (strong, nonatomic) NSString *ref;
+@property (nonatomic, strong) MLModel *model;
+@property (nonatomic, strong) IMPModelConfiguration *configuration;
 
 + (void)modelWithContentsOfURL:(NSURL *)url
             configuration:(IMPModelConfiguration *)configuration
         completionHandler:(void (^)(IMPModel *model, NSError *error))handler;
 
-- (instancetype) initWithMLModel:(MLModel *) mlModel configuration:(IMPModelConfiguration *)configuration;
+- (instancetype) initWithModel:(MLModel *) mlModel configuration:(IMPModelConfiguration *)configuration;
 
 /**
  Chooses a variant that is expected to maximize future rewards. Call `-trackDecision:` and

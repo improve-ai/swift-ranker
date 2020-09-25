@@ -75,6 +75,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
     NSURL *cachesDir = [fileManager URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
     if (!cachesDir) {
         IMPErrLog("Failed to get system caches directory: %@", error);
+        return nil;
     }
     NSURL *url = [cachesDir URLByAppendingPathComponent:kModelsRootFolderName];
     url = [cachesDir URLByAppendingPathComponent:_folderName];
@@ -99,8 +100,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.remoteArchiveURL];
     [request setHTTPMethod:@"GET"];
     [request setAllHTTPHeaderFields:self.headers];
-    // Disable the built-in cache, because we rely on the custom one.
-    request.cachePolicy = NSURLRequestReloadIgnoringCacheData;
+    // TODO set cache size so that one file isn't bigger than 5%
     _downloadTask = [session dataTaskWithRequest:request
                            completionHandler:
                      ^(NSData * _Nullable data,
@@ -135,7 +135,7 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
 
         IMPLog("Loaded %ld bytes.", data.length);
 
-        // Save downloaded archive
+        // Save model definition file
         NSString *tempDir = NSTemporaryDirectory();
         NSString *archiveDir = [tempDir stringByAppendingPathComponent:@"ai.improve.tmp/"];
         IMPLog("Creating directory for the downloaded achive: %@ ...", archiveDir);
@@ -170,18 +170,6 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
         }
         IMPLog("Success.");
 
-        // Unarchiving
-        NSString *unarchivePath = [tempDir stringByAppendingPathComponent:@"ai.improve.tmp/Unarchived Models"];
-        IMPLog("Untarin the archive to path: %@ ...", unarchivePath);
-        if (![[NVHTarGzip sharedInstance] unTarGzipFileAtPath:archivePath
-                                                       toPath:unarchivePath
-                                                        error:&error])
-        {
-            IMPLog("Untar failed: %@", error);
-            if (completion) { completion(nil, error); }
-            return;
-        }
-        IMPLog("Success.");
 
         IMPModelBundle *bundle = [self processUnarchivedModelFilesIn:unarchivePath
                                                                error:&error];

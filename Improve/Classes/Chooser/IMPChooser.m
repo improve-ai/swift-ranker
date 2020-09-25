@@ -10,13 +10,8 @@
 #import "IMPEncodedFeatureProvider.h"
 #import "NSArray+Random.h"
 #import "IMPCommon.h"
-#import "IMPModelBundle.h"
 #import "IMPModelMetadata.h"
 #import "IMPLogging.h"
-
-
-const NSUInteger kInitialTrialsCount = 100;
-
 
 @implementation IMPChooser
 

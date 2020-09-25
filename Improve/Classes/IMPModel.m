@@ -20,13 +20,12 @@
 
 @property (strong, atomic) IMPChooser *chooser;
 @property (strong, atomic) IMPTracker *tracker;
-@property (strong, nonatomic) MLModel *mlModel;
 
 @end
 
-
 @implementation IMPModel
-
+@synthesize model = _model;
+@synthesize configuration = _configuration;
 
 + (void)modelWithContentsOfURL:(NSURL *)url
             configuration:(IMPModelConfiguration *)configuration
@@ -35,29 +34,29 @@
     
 }
 
-- (instancetype) initWithMLModel:(MLModel *) mlModel configuration:(IMPModelConfiguration *)configuration;
+- (instancetype) initWithModel:(MLModel *) model configuration:(IMPModelConfiguration *)configuration;
 {
     self = [super init];
     if (!self) return nil;
 
-    self.mlModel = mlModel; // call self to get metadata and chooser
+    self.model = model; // call setter to set up metadata and chooser
     if (configuration) {
-        self.configuration = configuration;
+        self.configuration = configuration; // call setter to set up tracker
     }
     
     return self;
 }
 
-- (MLModel *)mlModel
+- (MLModel *) model
 {
-    return _mlModel;
+    return _model;
 }
 
-- (void) setMlModel:(MLModel *)mlModel
+- (void) setModel:(MLModel *)model
 {
-    _mlModel = mlModel;
+    _model = model;
     
-    NSString *jsonMetadata = mlModel.modelDescription.metadata[@"json"];
+    NSString *jsonMetadata = model.modelDescription.metadata[@"json"];
 
     NSError *error;
     
@@ -74,11 +73,15 @@
     
     _modelName = metadata.model;
 
-    _chooser = [[IMPChooser alloc] initWithModel:mlModel metadata:metadata];
+    _chooser = [[IMPChooser alloc] initWithModel:model metadata:metadata];
     if (!_chooser) {
         IMPErrLog("Failed to initialize Chooser: %@", error);
     }
+}
 
+- (IMPModelConfiguration *) configuration
+{
+    return _configuration;
 }
 
 - (void) setConfiguration:(IMPModelConfiguration *)configuration
