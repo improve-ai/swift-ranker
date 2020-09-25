@@ -145,15 +145,13 @@
 			path = Data;
 			sourceTree = "<group>";
 		};
-		549EE77D23EF3D040040D880 /* Network */ = {
+		549EE77D23EF3D040040D880 /* Downloader */ = {
 			isa = PBXGroup;
 			children = (
 				549EE77E23EF3DD60040D880 /* IMPModelDownloader.h */,
 				549EE77F23EF3DD60040D880 /* IMPModelDownloader.m */,
-				E7FC760A251D9765001A8431 /* IMPTracker.h */,
-				E7FC760B251D9765001A8431 /* IMPTracker.m */,
 			);
-			path = Network;
+			path = Downloader;
 			sourceTree = "<group>";
 		};
 		54CA20F123FDB63300723655 /* Frameworks */ = {
@@ -267,7 +265,8 @@
 				54CB9B5023DA2D190005BB94 /* Chooser */,
 				544D3B3223DEF35400CF95DB /* FeatureProviders */,
 				548DA93923EB4E6E00825370 /* Data */,
-				549EE77D23EF3D040040D880 /* Network */,
+				549EE77D23EF3D040040D880 /* Downloader */,
+				E7991754251E57BE00218BAB /* Tracker */,
 				54CB9B3C23D988F10005BB94 /* IMPModel.h */,
 				54CB9B3B23D988F10005BB94 /* IMPModel.m */,
 				E7FC7602251D7A0C001A8431 /* IMPModelConfiguration.h */,
@@ -306,6 +305,15 @@
 				54CB9B5223DA2D310005BB94 /* IMPChooser.m */,
 			);
 			path = Chooser;
+			sourceTree = "<group>";
+		};
+		E7991754251E57BE00218BAB /* Tracker */ = {
+			isa = PBXGroup;
+			children = (
+				E7FC760A251D9765001A8431 /* IMPTracker.h */,
+				E7FC760B251D9765001A8431 /* IMPTracker.m */,
+			);
+			path = Tracker;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

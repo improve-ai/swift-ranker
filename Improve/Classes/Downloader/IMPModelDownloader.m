@@ -15,17 +15,22 @@
     NSURLSessionDataTask *_downloadTask;
 }
 
-- (instancetype)initWithURL:(NSURL *)remoteArchiveURL maxAge:(NSInteger) maxAge
+- (instancetype)initWithURL:(NSURL *)remoteModelURL maxAge:(NSInteger) maxAge
 {
     self = [super init];
     if (self) {
-        _remoteArchiveURL = [remoteArchiveURL copy];
+        _remoteModelURL = [remoteModelURL copy];
         _maxAge = maxAge;
         if (_maxAge < 0) {
             _maxAge = 604800;
         }
     }
     return self;
+}
+
+- (instancetype)initWithURL:(NSURL *)remoteModelURL
+{
+    return [self initWithURL:remoteModelURL maxAge:-1];
 }
 
 - (NSURL *) cachedModelURL
@@ -35,7 +40,7 @@
     if (!cachesDir) {
         return nil;
     }
-    NSString *fileName = [NSString stringWithFormat:@"ai.improve.cachedmodel.%@.mlmodelc",[self.remoteArchiveURL.absoluteString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]]];
+    NSString *fileName = [NSString stringWithFormat:@"ai.improve.cachedmodel.%@.mlmodelc",[self.remoteModelURL.absoluteString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]]];
     return [cachesDir URLByAppendingPathComponent:fileName];
     
 }
@@ -71,7 +76,7 @@
 
 - (NSString *) lastDownloadDateDefaultsKey
 {
-    return [NSString stringWithFormat:@"ai.improve.lastDownloadDate.%@", self.remoteArchiveURL.absoluteString];
+    return [NSString stringWithFormat:@"ai.improve.lastDownloadDate.%@", self.remoteModelURL.absoluteString];
 }
 
 - (void)loadWithCompletion:(IMPModelDownloaderCompletion)completion
@@ -84,10 +89,10 @@
         return;
     }
     
-    IMPLog("Loading model at: %@", self.remoteArchiveURL);
+    IMPLog("Loading model at: %@", self.remoteModelURL);
 
     NSURLSession *session = [NSURLSession sharedSession];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.remoteArchiveURL];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.remoteModelURL];
     [request setHTTPMethod:@"GET"];
     [request setAllHTTPHeaderFields:self.headers];
     // Disable the built-in cache, because we rely on the custom one.
@@ -132,7 +137,7 @@
 
         IMPLog("Writing to path: %@ ...", tempPath);
         if (![data writeToFile:tempPath atomically:YES]) {
-            NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Src URL: %@, Dest path: %@ Size: %ld", self.remoteArchiveURL, tempPath, data.length];
+            NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Src URL: %@, Dest path: %@ Size: %ld", self.remoteModelURL, tempPath, data.length];
             error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                         code:-100
                                     userInfo:@{NSLocalizedDescriptionKey: errMsg}];
@@ -166,7 +171,7 @@
                     error:(NSError **)error
 {
     if (![[NSFileManager defaultManager] fileExistsAtPath:modelDefinitionURL.path]) {
-        NSString *msg = [NSString stringWithFormat:@"Model definition not found at local path: %@. Remove URL: %@", modelDefinitionURL.path, self.remoteArchiveURL];
+        NSString *msg = [NSString stringWithFormat:@"Model definition not found at local path: %@. Remove URL: %@", modelDefinitionURL.path, self.remoteModelURL];
         *error = [NSError errorWithDomain:@"ai.improve.compile_model"
                                      code:1
                                  userInfo:@{NSLocalizedDescriptionKey: msg}];
