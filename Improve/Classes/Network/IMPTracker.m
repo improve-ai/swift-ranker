@@ -28,6 +28,8 @@ NSString * const kRewardsType = @"rewards";
 NSString * const kChooseMethod = @"choose";
 NSString * const kSortMethod = @"sort";
 
+NSString * const kApiKeyHeader = @"x-api-key";
+
 @import Security;
 
 NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
@@ -42,9 +44,13 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 @implementation IMPTracker
 
-- (instancetype) init
+- (instancetype) initWithConfiguration:(IMPModelConfiguration *)configuration;
 {
+    self = [super init];
+    if (!self) return nil;
     
+    _configuration = configuration;
+
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     _historyId = [defaults stringForKey:kHistoryIdDefaultsKey];
     if (!_historyId) {
@@ -52,6 +58,7 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         [defaults setObject:_historyId forKey:kHistoryIdDefaultsKey];
     }
 
+    return self;
 }
 
 - (NSString *) generateHistoryId {
@@ -172,8 +179,8 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
     NSMutableDictionary *headers = [@{ @"Content-Type": @"application/json" } mutableCopy];
     
-    if (self.resolvedTrackApiKey) {
-        [headers setObject:self.resolvedTrackApiKey forKey:kApiKeyHeader];
+    if (self.configuration.trackApiKey) {
+        [headers setObject:self.configuration.trackApiKey forKey:kApiKeyHeader];
     }
 
     NSString *dateStr = [self timestampFromDate:[NSDate date]];

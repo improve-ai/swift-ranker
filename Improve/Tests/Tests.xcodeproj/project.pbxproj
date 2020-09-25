@@ -38,7 +38,6 @@
 		54CB9B5923DB02D20005BB94 /* NSArray+Multidimensional.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B5823DB02D10005BB94 /* NSArray+Multidimensional.m */; };
 		54CB9B6523DD9E0E0005BB94 /* ChooserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */; };
 		54E66A012401BEDD0032BC52 /* trials.json in Resources */ = {isa = PBXBuildFile; fileRef = 54E66A002401BEDC0032BC52 /* trials.json */; };
-		54F904BF2512104000EB0723 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 54F904BE2512104000EB0723 /* Constants.m */; };
 		54FCD00724C7401B00D30031 /* ImproveTrainingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */; };
 		54FCD00924C8464600D30031 /* MultitypeSortTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */; };
 		54FCD00B24C87D7C00D30031 /* MultitypeContextTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00A24C87D7C00D30031 /* MultitypeContextTestTrainingData.json */; };
@@ -104,8 +103,6 @@
 		54CB9B5823DB02D10005BB94 /* NSArray+Multidimensional.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Multidimensional.m"; sourceTree = "<group>"; };
 		54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChooserTest.m; sourceTree = "<group>"; };
 		54E66A002401BEDC0032BC52 /* trials.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = trials.json; path = Python/trials.json; sourceTree = "<group>"; };
-		54F904BD2512104000EB0723 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
-		54F904BE2512104000EB0723 /* Constants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
 		54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImproveTrainingTest.m; sourceTree = "<group>"; };
 		54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = MultitypeSortTestTrainingData.json; path = Python/MultitypeSortTestTrainingData.json; sourceTree = "<group>"; };
 		54FCD00A24C87D7C00D30031 /* MultitypeContextTestTrainingData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = MultitypeContextTestTrainingData.json; path = Python/MultitypeContextTestTrainingData.json; sourceTree = "<group>"; };
@@ -275,8 +272,6 @@
 				54CB9B3B23D988F10005BB94 /* IMPModel.m */,
 				E7FC7602251D7A0C001A8431 /* IMPModelConfiguration.h */,
 				E7FC7603251D7A0C001A8431 /* IMPModelConfiguration.m */,
-				54F904BD2512104000EB0723 /* Constants.h */,
-				54F904BE2512104000EB0723 /* Constants.m */,
 			);
 			name = Classes;
 			path = ../Classes;
@@ -402,7 +397,6 @@
 				E7FC7604251D7A0C001A8431 /* IMPModelConfiguration.m in Sources */,
 				54FCD00724C7401B00D30031 /* ImproveTrainingTest.m in Sources */,
 				54CB9B3E23D988F10005BB94 /* MurmurHash3.cpp in Sources */,
-				54F904BF2512104000EB0723 /* Constants.m in Sources */,
 				54CB9B4B23D989140005BB94 /* FeatureHasherUnitTests.m in Sources */,
 				54CB9B5323DA2D310005BB94 /* IMPChooser.m in Sources */,
 				54CB9B4223D988F10005BB94 /* IMPJSONUtils.m in Sources */,
