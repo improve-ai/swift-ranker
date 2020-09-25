@@ -20,31 +20,12 @@ const NSUInteger kInitialTrialsCount = 100;
 
 @implementation IMPChooser
 
-+ (instancetype)chooserWithModelBundle:(IMPModelBundle *)bundle
-                             namespace:(NSString *)namespace
-                                 error:(NSError *__autoreleasing  _Nullable *)error
-{
-    if (!namespace) {
-        return nil;
-    }
-    MLModel *model = [MLModel modelWithContentsOfURL:bundle.compiledModelURL error:error];
-    if (!model) {
-        return nil;
-    }
-    IMPModelMetadata *metadata = [IMPModelMetadata metadataWithURL:bundle.metadataURL];
-    if (!metadata) {
-        return nil;
-    }
-    return [[self alloc] initWithModel:model metadata:metadata namespace:namespace];
-}
-
-- (instancetype)initWithModel:(MLModel *)model metadata:(IMPModelMetadata *)metadata namespace:(NSString *)namespace
+- (instancetype)initWithModel:(MLModel *)model metadata:(IMPModelMetadata *)metadata
 {
     self = [super init];
     if (self) {
         _model = model;
         _metadata = metadata;
-        _namespace = namespace;
         _featureNamePrefix = @"f";
     }
     return self;
@@ -146,15 +127,12 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     }
     IMPLog("Context: %@", context);
     IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
-    IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{
-        @"context": @{self.namespace: context}
-    }];
+    IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{ @"context": context }];
     IMPLog("Encoded context: %@", encodedContext);
     IMPLog("Encoding variants... Count: %ld", variants.count);
     NSMutableArray *encodedFeatures = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSDictionary *variant in variants) {
-        NSDictionary *namespaced = @{@"variant": @{self.namespace: variant}};
-        [encodedFeatures addObject:[hasher encodeFeatures:namespaced
+        [encodedFeatures addObject:[hasher encodeFeatures:@{@"variant": variant}
                                                 startWith:encodedContext]];
     }
     return encodedFeatures;

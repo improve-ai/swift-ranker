@@ -11,11 +11,6 @@
 #import "NSFileManager+SafeCopy.h"
 #import "IMPLogging.h"
 
-// https://github.com/nvh/NVHTarGzip
-// We can add pod dependency if the author will fix bug with `gzFile` pointers.
-// See issue: https://github.com/nvh/NVHTarGzip/pull/24
-#import "NVHTarGzip.h"
-
 /**
  The folder in Library/Caches directory. Contains subfolders where individual downloaders store
  the cached files. Each subfolder is associated with the corresponding remoteArchiveURL.
@@ -95,67 +90,6 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
     }
 
     return url;
-}
-
-- (NSArray *)cachedModelFileURLs {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError *error;
-    NSArray *fileURLs = [fileManager contentsOfDirectoryAtURL:self.modelDirURL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles error:&error];
-    if (!fileURLs) {
-        IMPErrLog("Directory enumeration error: %@", error);
-    }
-    return fileURLs;
-}
-
-- (nullable IMPModelBundle *)cachedModelBundle
-{
-    IMPLog("Retrieving cached model...");
-    NSArray *fileURLs = [self cachedModelFileURLs];
-    if (!fileURLs) {
-        IMPLog("Failed to get cached files urls.");
-        return nil;
-    }
-    IMPLog("File urls: %@", fileURLs);
-
-    for (NSURL *url in fileURLs)
-    {
-        NSString *extension = url.pathExtension;
-        NSString *name = url.lastPathComponent.stringByDeletingPathExtension;
-
-        if (![extension isEqualToString:@"json"]) {
-            continue;
-        }
-
-        IMPModelBundle *bundle = [[IMPModelBundle alloc] initWithDirectoryURL:self.modelDirURL modelName:name];
-
-        // Check if all files for the givent model name exists
-        if (bundle.isReachable) {
-            IMPLog("Retrieved cached bunle: %@", bundle);
-            return bundle;
-        } else {
-            IMPLog("Bundle is unreachable: %@", bundle);
-        }
-    }
-
-    return nil;
-}
-
-- (NSTimeInterval)cachedModelAge {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSArray *fileURLs = [self cachedModelFileURLs];
-    if (!fileURLs || fileURLs.count == 0) {
-        // No files - no cached models yet or cache was purged
-        [defaults removeObjectForKey:_userDefaultsLastDownloadDateKey];
-        return DBL_MAX;
-    }
-
-    NSDate *lastDownloadDate = [defaults objectForKey:_userDefaultsLastDownloadDateKey];
-    if (!lastDownloadDate) {
-        return DBL_MAX;
-    }
-
-    NSTimeInterval age = -[lastDownloadDate timeIntervalSinceNow];
-    return age;
 }
 
 - (void)loadWithCompletion:(IMPModelDownloaderCompletion)completion
@@ -290,60 +224,6 @@ NSString *const kModelsRootFolderName = @"ai.improve.models";
 
 - (BOOL)isLoading {
     return _downloadTask && _downloadTask.state != NSURLSessionTaskStateRunning;
-}
-
-- (IMPModelBundle * _Nullable)processUnarchivedModelFilesIn:(NSString *)folder
-                                                      error:(NSError **)error
-{
-    IMPLog("Processing unarchived model files in dir: %@", folder);
-    NSURL *folderURL = [NSURL fileURLWithPath:folder];
-
-    NSArray *files = [_fileManager contentsOfDirectoryAtURL:folderURL
-                                 includingPropertiesForKeys:nil
-                                                    options:NSDirectoryEnumerationSkipsHiddenFiles
-                                                      error:error];
-    if (!files) {
-        IMPLog("Failed to get files in the directory: %@", *error);
-        return nil;
-    }
-    IMPLog("Contents: %@", files);
-
-    // Filter files
-    NSMutableSet *mlmodelNames = [NSMutableSet setWithCapacity:files.count];
-    NSMutableSet *jsonNames = [NSMutableSet setWithCapacity:files.count];
-    for (NSURL *file in files)
-    {
-        NSString *extension = file.pathExtension;
-        NSString *modelName = file.lastPathComponent.stringByDeletingPathExtension;
-
-        if ([extension isEqualToString:@"mlmodel"]) {
-            [mlmodelNames addObject:modelName];
-        } else if ([extension isEqualToString:@"json"]) {
-            [jsonNames addObject:modelName];
-        }
-    }
-    [mlmodelNames intersectSet:jsonNames];
-    IMPLog("Found model names: %@", mlmodelNames);
-
-    // Process models
-    NSMutableArray *modelBundles = [NSMutableArray arrayWithCapacity:mlmodelNames.count];
-    for (NSString *modelName in mlmodelNames)
-    {
-        NSString *mlmodelFileName = [NSString stringWithFormat:@"%@.mlmodel", modelName];
-        NSString *mlmodelPath = [folder stringByAppendingPathComponent:mlmodelFileName];
-
-        NSString *jsonFileName = [NSString stringWithFormat:@"%@.json", modelName];
-        NSString *jsonPath = [folder stringByAppendingPathComponent:jsonFileName];
-
-        IMPModelBundle *bundleOrNil = [self processModelWithName:modelName
-                                                        withPath:mlmodelPath
-                                                        jsonPath:jsonPath];
-        [modelBundles addObject:bundleOrNil];
-    }
-
-    IMPModelBundle *bundle = [modelBundles firstObject];
-    IMPLog("Processing unarchived model files finished. Returning bundle: %@", bundle);
-    return bundle;
 }
 
 - (IMPModelBundle *)processModelWithName:(NSString *)modelName

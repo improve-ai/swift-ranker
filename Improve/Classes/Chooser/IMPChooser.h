@@ -22,22 +22,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPChooser : NSObject
 
-@property(readonly, nonatomic) MLModel *model;
-
 /// Used to convert column indexes to model feature names. Default: "f".
 @property(copy, nonatomic) NSString *featureNamePrefix;
 
-@property(copy, nonatomic) NSString *namespace;
-
+@property(readonly, nonatomic) MLModel *model;
 @property(readonly, nonatomic) IMPModelMetadata *metadata;
 
-+ (instancetype)chooserWithModelBundle:(IMPModelBundle *)bundle
-                             namespace:(NSString *)namespace
-                                 error:(NSError **)error;
-
 - (instancetype)initWithModel:(MLModel *)model
-                     metadata:(IMPModelMetadata *)metadata
-                    namespace:(NSString *)namespace;
+                     metadata:(IMPModelMetadata *)metadata;
 
 /**
  Choses a trial from the given variants. The trial is chosen according to the model predictions.

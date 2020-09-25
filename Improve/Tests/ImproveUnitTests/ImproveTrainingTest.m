@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "Improve.h"
+#import "IMPModel.h"
 #import "IMPModelBundle.h"
 #import "TestUtils.h"
 #import "NSArray+Random.h"
@@ -52,7 +52,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
  */
 @property(readonly, strong) NSDictionary *happySundayTestData;
 
-- (void)configureTrainingInstance:(Improve *)instance;
+- (void)configureTrainingInstance:(IMPModel *)instance;
 
 - (void)printJSON:(id)jsonObject;
 
@@ -76,7 +76,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     XCTAssertNotNil(self.helper.sortTestTrainingData);
     XCTAssertNotNil(self.helper.contextTestTrainingData);
 
-    Improve *trainingInstance = [Improve instanceWithNamespace:kTrainingInstance];
+    IMPModel *trainingInstance = [IMPModel instanceWithNamespace:kTrainingInstance];
     [self.helper configureTrainingInstance:trainingInstance];
 }
 
@@ -99,7 +99,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
     expectation.expectedFulfillmentCount = iterationsCount;
 
-    Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
+    IMPModel *impr = [IMPModel instanceWithNamespace:kTrainingInstance];
     // Comment-out onReady block to run initial trainig when there is no model
     [impr onReady:^{
         // Train
@@ -142,7 +142,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
         NSDictionary *context = @{test[@"bestVariantKey"]: bestVariant};
 
         // Train
-        Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
+        IMPModel *impr = [IMPModel instanceWithNamespace:kTrainingInstance];
         XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
         expectation.expectedFulfillmentCount = iterationsCount;
         [expectations addObject:expectation];
@@ -179,7 +179,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     NSString *namespace = self.helper.happySundayTestData[@"namespace"];
     NSArray *variants = self.helper.happySundayTestData[@"variants"];
 
-    Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
+    IMPModel *impr = [IMPModel instanceWithNamespace:kTrainingInstance];
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for all track HTTP requests to complete"];
     expectation.expectedFulfillmentCount = trainIterations;
     [impr onReady:^{
@@ -223,7 +223,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     XCTAssertNotNil(self.helper.sortTestTrainingData);
     XCTAssertNotNil(self.helper.contextTestTrainingData);
 
-    Improve *trainingInstance = [Improve instanceWithNamespace:kTrainingInstance];
+    IMPModel *trainingInstance = [IMPModel instanceWithNamespace:kTrainingInstance];
     [self.helper configureTrainingInstance:trainingInstance];
 }
 
@@ -241,7 +241,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     NSArray *variants = json[@"trials"];
     NSDictionary *context = json[@"context"];
 
-    Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
+    IMPModel *impr = [IMPModel instanceWithNamespace:kTrainingInstance];
     [impr onReady:^{
         int successCount = 0;
         for (int iteration = 0; iteration < iterations; iteration++) {
@@ -265,7 +265,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     const float desiredSuccess = 0.95;
 
     NSArray *json = self.helper.contextTestTrainingData;
-    Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
+    IMPModel *impr = [IMPModel instanceWithNamespace:kTrainingInstance];
 
     [impr onReady:^{
         int accumulatedSuccessCount = 0;
@@ -317,7 +317,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     }
     NSLog(@"random cumulative reward: %g (of %g)", randomCumulativeReward, targetCummulativeReward);
 
-    Improve *impr = [Improve instanceWithNamespace:kTrainingInstance];
+    IMPModel *impr = [IMPModel instanceWithNamespace:kTrainingInstance];
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model to load"];
     [impr onReady:^{
         double cummulativeReward = 0;
@@ -391,7 +391,7 @@ NSString *const kHappySundayObjectContextKey = @"object";
     NSLog(@"%@", string);
 }
 
-- (void)configureTrainingInstance:(Improve *)trainingInstance
+- (void)configureTrainingInstance:(IMPModel *)trainingInstance
 {
 //    [trainingInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL:@"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz"];
     trainingInstance.trackUrl = @"https://u0cxvugtmi.execute-api.us-west-2.amazonaws.com/test/track";
