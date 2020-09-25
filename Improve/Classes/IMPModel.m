@@ -12,7 +12,6 @@
 #import "IMPTracker.h"
 #import "NSArray+Random.h"
 #import "IMPLogging.h"
-#import "Constants.h"
 #import "IMPJSONUtils.h"
 #import "IMPModelMetadata.h"
 
@@ -21,6 +20,7 @@
 
 @property (strong, atomic) IMPChooser *chooser;
 @property (strong, atomic) IMPTracker *tracker;
+@property (strong, nonatomic) MLModel *mlModel;
 
 @end
 
@@ -48,10 +48,14 @@
     return self;
 }
 
+- (MLModel *)mlModel
+{
+    return _mlModel;
+}
+
 - (void) setMlModel:(MLModel *)mlModel
 {
     _mlModel = mlModel;
-    
     
     NSString *jsonMetadata = mlModel.modelDescription.metadata[@"json"];
 
@@ -77,11 +81,6 @@
 
 }
 
-- (MLModel *)mlModel
-{
-    return _mlModel;
-}
-
 - (void) setConfiguration:(IMPModelConfiguration *)configuration
 {
     _configuration = configuration;
@@ -103,24 +102,18 @@
         return nil;
     }
     
-    if (self.shouldTrackVariants) {
-        [self track:@{
-            kTypeKey: kVariantsType,
-            kMethodKey: kChooseMethod,
-            kVariantsKey: variants
-        }];
-    }
+//    if (self.shouldTrackVariants) {
+//        [self track:@{
+//            kTypeKey: kVariantsType,
+//            kMethodKey: kChooseMethod,
+//            kVariantsKey: variants
+//        }];
+//    }
 
     id chosen;
 
-    IMPChooser *chooser = [self chooser];
-    if (chooser) {
-        chosen = [chooser choose:variants context:context];
-        [self calculateAndTrackPropensityOfChosen:chosen
-                                    amongVariants:variants
-                                        inContext:context
-                                      withChooser:chooser
-                                       chooseDate:[NSDate date]];
+    if (self.chooser) {
+        chosen = [self.chooser choose:variants context:context];
     } else {
         IMPErrLog("Model not loaded.");
     }
@@ -147,13 +140,13 @@
         return @[];
     }
     
-    if (self.shouldTrackVariants) {
-        [self track:@{
-            kTypeKey: kVariantsType,
-            kMethodKey: kSortMethod,
-            kVariantsKey: variants
-        }];
-    }
+//    if (self.shouldTrackVariants) {
+//        [self track:@{
+//            kTypeKey: kVariantsType,
+//            kMethodKey: kSortMethod,
+//            kVariantsKey: variants
+//        }];
+//    }
     
     NSArray *sorted;
 
@@ -189,11 +182,12 @@
 {
     if (self.tracker) {
         [self.tracker trackDecision:variant
-                    context:context
-                  rewardKey:rewardKey
-                 completion:nil];
+                            context:context
+                          rewardKey:rewardKey
+                          modelName:self.modelName
+                         completion:nil];
     } else {
-        IMPErrLog("Attempted to call trackDecision with null tracker");
+        IMPErrLog("Attempted to call trackDecision with nil tracker");
     }
 }
 
@@ -207,7 +201,7 @@
     if (self.tracker) {
         [self.tracker addReward:reward forKey:rewardKey completion:nil];
     } else {
-        IMPErrLog("Attempted to call addReward with null tracker");
+        IMPErrLog("Attempted to call addReward with nil tracker");
     }
 }
 
@@ -216,7 +210,7 @@
     if (self.tracker) {
         [self.tracker addRewards:rewards completion:nil];
     } else {
-        IMPErrLog("Attempted to call addRewards with null tracker");
+        IMPErrLog("Attempted to call addRewards with nil tracker");
     }
 }
 

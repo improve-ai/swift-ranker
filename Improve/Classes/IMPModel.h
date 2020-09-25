@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSString *modelName;
 
 @property (atomic, strong) IMPModelConfiguration *configuration;
-@property (nonatomic, strong) MLModel *mlModel;
+@property (strong, nonatomic) NSString *ref;
 
 + (void)modelWithContentsOfURL:(NSURL *)url
             configuration:(IMPModelConfiguration *)configuration

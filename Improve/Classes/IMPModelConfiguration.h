@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPModelConfiguration : NSObject
 
++ (IMPModelConfiguration *) configuration;
+
 /**
  Custom API gateway for tracking. Data from `-trackDecision:` and  `-addReward:` will be posted to that URL.
  */

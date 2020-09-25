@@ -9,6 +9,12 @@
 #import "IMPModelConfiguration.h"
 
 @implementation IMPModelConfiguration
+
++ (IMPModelConfiguration *) configuration
+{
+    return [[IMPModelConfiguration alloc] init];
+}
+
 - (instancetype) init
 {
     self = [super init];
