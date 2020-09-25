@@ -8,7 +8,6 @@
 
 #import <XCTest/XCTest.h>
 #import "IMPModel.h"
-#import "IMPModelBundle.h"
 #import "TestUtils.h"
 #import "IMPScoredObject.h"
 #import "NSArray+Random.h"

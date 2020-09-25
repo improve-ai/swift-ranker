@@ -29,6 +29,7 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
 - (void) trackDecision:(id) variant
                context:(nullable NSDictionary *) context
              rewardKey:(nullable NSString *) rewardKey
+             modelName:(NSString *) modelName
             completion:(nullable IMPTrackCompletion) completionHandler;
 
 /**

@@ -16,33 +16,9 @@
 #import "IMPJSONUtils.h"
 #import "IMPModelMetadata.h"
 
-@import Security;
-
-NSString * const kModelKey = @"model";
-NSString * const kHistoryIdKey = @"history_id";
-NSString * const kTimestampKey = @"timestamp";
-NSString * const kMessageIdKey = @"message_id";
-NSString * const kTypeKey = @"type";
-NSString * const kVariantKey = @"variant";
-NSString * const kContextKey = @"context";
-NSString * const kRewardsKey = @"rewards";
-NSString * const kVariantsCountKey = @"variants_count";
-NSString * const kSampleVariantKey = @"sample_variant";
-NSString * const kRewardKeyKey = @"reward_key";
-NSString * const kMethodKey = @"method";
-
-NSString * const kDecisionType = @"decision";
-NSString * const kRewardsType = @"rewards";
-
-NSString * const kChooseMethod = @"choose";
-NSString * const kSortMethod = @"sort";
-
-NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
-
 @interface IMPModel ()
 // Private vars
 
-@property (strong, atomic) NSString *historyId;
 @property (strong, atomic) IMPChooser *chooser;
 @property (strong, atomic) IMPTracker *tracker;
 
@@ -51,17 +27,18 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 @implementation IMPModel
 
+
++ (void)modelWithContentsOfURL:(NSURL *)url
+            configuration:(IMPModelConfiguration *)configuration
+        completionHandler:(void (^)(IMPModel *model, NSError *error))handler
+{
+    
+}
+
 - (instancetype) initWithMLModel:(MLModel *) mlModel configuration:(IMPModelConfiguration *)configuration;
 {
     self = [super init];
     if (!self) return nil;
-
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    _historyId = [defaults stringForKey:kHistoryIdDefaultsKey];
-    if (!_historyId) {
-        _historyId = [self generateHistoryId];
-        [defaults setObject:_historyId forKey:kHistoryIdDefaultsKey];
-    }
 
     self.mlModel = mlModel; // call self to get metadata and chooser
     if (configuration) {
@@ -111,19 +88,6 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     if (configuration) {
         _tracker = [[IMPTracker alloc] initWithConfiguration:configuration];
     }
-}
-
-- (NSString *) generateHistoryId {
-    int historyIdSize = 32; // 256 bits
-    SInt8 bytes[historyIdSize];
-    int status = SecRandomCopyBytes(kSecRandomDefault, historyIdSize, bytes);
-    if (status != errSecSuccess) {
-        IMPErrLog("SecRandomCopyBytes failed, status: %d", status);
-        return nil;
-    }
-    NSData *data = [[NSData alloc] initWithBytes:bytes length:historyIdSize];
-    NSString *historyId = [data base64EncodedStringWithOptions:0];
-    return historyId;
 }
 
 - (id) choose:(NSArray *) variants
@@ -231,6 +195,11 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     } else {
         IMPErrLog("Attempted to call trackDecision with null tracker");
     }
+}
+
+- (void) addReward:(NSNumber *) reward
+{
+    [self addReward:reward forKey:self.modelName];
 }
 
 - (void) addReward:(NSNumber *) reward forKey:(NSString *) rewardKey

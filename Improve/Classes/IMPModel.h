@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSString *modelName;
 
 @property (atomic, strong) IMPModelConfiguration *configuration;
-@property (atomic, strong) MLModel *mlModel;
+@property (nonatomic, strong) MLModel *mlModel;
 
 + (void)modelWithContentsOfURL:(NSURL *)url
             configuration:(IMPModelConfiguration *)configuration
@@ -87,6 +87,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) trackDecision:(id) variant
                context:(nullable NSDictionary *) context
              rewardKey:(nullable NSString *) rewardKey;
+
+/**
+ Tracks a reward value for one or more chosen variants. Rewards are additive by default. Multiple chosen variants can be listening for the same reward key.  Uses the model name as the reward key
+ @param reward a JSON encodeable reward vaue to add to recent chosen variants for rewardKey.  May be a negative number.  Must not be NaN or infinity.
+ */
+- (void) addReward:(NSNumber *) reward;
 
 /**
  Tracks a reward value for one or more chosen variants. Rewards are additive by default. Multiple chosen variants can be listening for the same reward key

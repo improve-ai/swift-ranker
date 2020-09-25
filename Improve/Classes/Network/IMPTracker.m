@@ -7,13 +7,71 @@
 //
 
 #import "IMPTracker.h"
+#import "IMPLogging.h"
+
+NSString * const kModelKey = @"model";
+NSString * const kHistoryIdKey = @"history_id";
+NSString * const kTimestampKey = @"timestamp";
+NSString * const kMessageIdKey = @"message_id";
+NSString * const kTypeKey = @"type";
+NSString * const kVariantKey = @"variant";
+NSString * const kContextKey = @"context";
+NSString * const kRewardsKey = @"rewards";
+NSString * const kVariantsCountKey = @"variants_count";
+NSString * const kSampleVariantKey = @"sample_variant";
+NSString * const kRewardKeyKey = @"reward_key";
+NSString * const kMethodKey = @"method";
+
+NSString * const kDecisionType = @"decision";
+NSString * const kRewardsType = @"rewards";
+
+NSString * const kChooseMethod = @"choose";
+NSString * const kSortMethod = @"sort";
+
+@import Security;
+
+NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
+
+@interface IMPTracker ()
+// Private vars
+
+@property (strong, atomic) NSString *historyId;
+
+@end
+
 
 @implementation IMPTracker
+
+- (instancetype) init
+{
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    _historyId = [defaults stringForKey:kHistoryIdDefaultsKey];
+    if (!_historyId) {
+        _historyId = [self generateHistoryId];
+        [defaults setObject:_historyId forKey:kHistoryIdDefaultsKey];
+    }
+
+}
+
+- (NSString *) generateHistoryId {
+    int historyIdSize = 32; // 256 bits
+    SInt8 bytes[historyIdSize];
+    int status = SecRandomCopyBytes(kSecRandomDefault, historyIdSize, bytes);
+    if (status != errSecSuccess) {
+        IMPErrLog("SecRandomCopyBytes failed, status: %d", status);
+        return nil;
+    }
+    NSData *data = [[NSData alloc] initWithBytes:bytes length:historyIdSize];
+    NSString *historyId = [data base64EncodedStringWithOptions:0];
+    return historyId;
+}
 
 
 - (void) trackDecision:(id) variant
                context:(NSDictionary *) context
              rewardKey:(NSString *) rewardKey
+             modelName:(NSString *) modelName
             completion:(nullable IMPTrackCompletion) completionHandler
 {
     if (!variant) {
@@ -24,27 +82,27 @@
 
     // the rewardKey is never nil
     if (!rewardKey) {
-        IMPLog("Using namespace as rewardKey: %@", self.modelName);
+        IMPLog("Using model name as rewardKey: %@", modelName);
         if (completionHandler) completionHandler(nil);
-        rewardKey = self.modelName;
+        rewardKey = modelName;
     }
 
     NSMutableDictionary *body = [@{ kTypeKey: kDecisionType,
                                     kVariantKey: variant,
-                                    kModelKey: self.modelName,
+                                    kModelKey: modelName,
                                     kRewardKeyKey: rewardKey } mutableCopy];
 
     if (context) {
         [body setObject:context forKey:kContextKey];
     }
 
-    NSURL *trackUrl = [NSURL URLWithString:self.resolvedTrackUrl];
+    NSURL *trackUrl = [NSURL URLWithString:self.configuration.trackUrl];
     [self postImproveRequest:body url:trackUrl block:^(NSObject *result, NSError *error) {
         if (error) {
             IMPErrLog("Improve.track error: %@", error);
-            IMPLog("trackDecision failed! Namespace: %@, variant: %@, context: %@, rewardKey: %@", self.modelName, variant, context, rewardKey);
+            IMPLog("trackDecision failed! model: %@, variant: %@, context: %@, rewardKey: %@", modelName, variant, context, rewardKey);
         } else {
-            IMPLog("trackDecision succeed with namespace: %@, variant: %@, context: %@, rewardKey: %@", self.modelName, variant, context, rewardKey);
+            IMPLog("trackDecision succeed with model: %@, variant: %@, context: %@, rewardKey: %@", modelName, variant, context, rewardKey);
         }
         if (completionHandler) completionHandler(error);
     }];
@@ -89,7 +147,7 @@
 - (void) track:(NSDictionary *)body completion:(nullable IMPTrackCompletion)completionBlock
 {
     [self postImproveRequest:body
-                         url:[NSURL URLWithString:self.resolvedTrackUrl]
+                         url:[NSURL URLWithString:self.configuration.trackUrl]
                        block:^
      (NSObject *result, NSError *error) {
         if (error) {
