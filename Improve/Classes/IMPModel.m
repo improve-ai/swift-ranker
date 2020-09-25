@@ -130,6 +130,8 @@
 
         if (self.chooser) {
             chosen = [self.chooser choose:variants context:context];
+            
+            // TODO auto track decisions
         } else {
             IMPErrLog("Model not loaded.");
         }

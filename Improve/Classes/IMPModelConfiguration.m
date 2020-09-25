@@ -20,7 +20,7 @@
     self = [super init];
     if (!self) return nil;
     
-    _autoTrackDecisions = TRUE;
+    _autoTrackChooseDecisions = TRUE;
     
     return self;
 }

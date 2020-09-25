@@ -29,7 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, assign) NSInteger cacheMaxAge;
 
-@property (atomic, assign) BOOL autoTrackDecisions;
+/**
+ Whether or not to automatically track decisions in choose.  Note: decisions are never automatically tracked in sort.
+ */
+@property (atomic, assign) BOOL autoTrackChooseDecisions;
 
 @end
 
