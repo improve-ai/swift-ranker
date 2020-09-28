@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "IMPModel.h"
 #import "IMPChooser.h"
-#import "IMPTracker.h"
 #import "NSArray+Random.h"
 #import "IMPLogging.h"
 #import "IMPJSONUtils.h"
@@ -20,19 +19,17 @@
 // Private vars
 
 @property (strong, atomic) IMPChooser *chooser;
-@property (strong, atomic) IMPTracker *tracker;
 
 @end
 
 @implementation IMPModel
 @synthesize model = _model;
-@synthesize configuration = _configuration;
 
 + (void)modelWithContentsOfURL:(NSURL *)url
-            configuration:(IMPModelConfiguration *)configuration
-        completionHandler:(void (^)(IMPModel * _Nullable model, NSError * _Nullable error))handler
+                   cacheMaxAge:(NSInteger) cacheMaxAge
+             completionHandler:(void (^)(IMPModel * _Nullable model, NSError * _Nullable error))handler
 {
-    [[[IMPModelDownloader alloc] initWithURL:url maxAge:configuration.cacheMaxAge] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
+    [[[IMPModelDownloader alloc] initWithURL:url maxAge:cacheMaxAge] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
         if (downloadError) {
             handler(nil, downloadError);
             return;
@@ -44,19 +41,16 @@
             handler(nil, modelError);
             return;
         }
-        handler([[IMPModel alloc] initWithModel:model configuration:configuration], nil);
+        handler([[IMPModel alloc] initWithModel:model], nil);
     }];
 }
 
-- (instancetype) initWithModel:(MLModel *) model configuration:(IMPModelConfiguration *)configuration;
+- (instancetype) initWithModel:(MLModel *) model
 {
     self = [super init];
     if (!self) return nil;
 
     self.model = model; // call setter to set up metadata and chooser
-    if (configuration) {
-        self.configuration = configuration; // call setter to set up tracker
-    }
     
     return self;
 }
@@ -97,21 +91,6 @@
     }
 }
 
-- (IMPModelConfiguration *) configuration
-{
-    @synchronized (self) {
-        return _configuration;
-    }
-}
-
-- (void) setConfiguration:(IMPModelConfiguration *)configuration
-{
-    @synchronized (self) {
-        _configuration = configuration;
-        _tracker = [[IMPTracker alloc] initWithConfiguration:configuration];
-    }
-}
-
 - (id) choose:(NSArray *) variants
 {
     return [self choose:variants context:nil];
@@ -130,8 +109,6 @@
 
         if (self.chooser) {
             chosen = [self.chooser choose:variants context:context];
-            
-            // TODO auto track decisions
         } else {
             IMPErrLog("Model not loaded.");
         }
@@ -144,7 +121,6 @@
         return chosen;
     }
 }
-
 
 - (NSArray *) sort:(NSArray *) variants
 {
@@ -178,47 +154,5 @@
     }
 }
 
-- (void) trackDecision:(id) variant
-{
-    [self trackDecision:variant context:nil rewardKey:nil];
-}
-
-- (void) trackDecision:(id) variant
-               context:(NSDictionary *) context
-{
-    [self trackDecision:variant context:context rewardKey:nil];
-}
-
-- (void) trackDecision:(id) variant
-               context:(NSDictionary *) context
-             rewardKey:(NSString *) rewardKey
-{
-    @synchronized (self) {
-        [self.tracker trackDecision:variant
-                            context:context
-                          rewardKey:rewardKey
-                          modelName:self.modelName
-                         completion:nil];
-    }
-}
-
-- (void) addReward:(NSNumber *) reward
-{
-    [self addReward:reward forKey:self.modelName];
-}
-
-- (void) addReward:(NSNumber *) reward forKey:(NSString *) rewardKey
-{
-    @synchronized (self) {
-        [self.tracker addReward:reward forKey:rewardKey completion:nil];
-    }
-}
-
-- (void) addRewards:(NSDictionary *)rewards
-{
-    @synchronized (self) {
-        [self.tracker addRewards:rewards completion:nil];
-    }
-}
 
 @end

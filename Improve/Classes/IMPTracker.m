@@ -18,15 +18,11 @@ NSString * const kVariantKey = @"variant";
 NSString * const kContextKey = @"context";
 NSString * const kRewardsKey = @"rewards";
 NSString * const kVariantsCountKey = @"variants_count";
-NSString * const kSampleVariantKey = @"sample_variant";
+NSString * const kVariantsSampleKey = @"variants_sample";
 NSString * const kRewardKeyKey = @"reward_key";
-NSString * const kMethodKey = @"method";
 
 NSString * const kDecisionType = @"decision";
 NSString * const kRewardsType = @"rewards";
-
-NSString * const kChooseMethod = @"choose";
-NSString * const kSortMethod = @"sort";
 
 NSString * const kApiKeyHeader = @"x-api-key";
 
@@ -44,15 +40,21 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 @implementation IMPTracker
 
-- (instancetype) initWithConfiguration:(IMPModelConfiguration *)configuration;
+- (instancetype) initWithTrackURL:(NSURL *) trackURL
+{
+    return [self initWithTrackURL:trackURL apiKey:nil];
+}
+
+- (instancetype) initWithTrackURL:(NSURL *) trackURL apiKey:(nullable NSString *) apiKey
 {
     self = [super init];
     if (!self) return nil;
     
-    _configuration = configuration;
+    _trackURL = trackURL;
+    _apiKey = apiKey;
     
-    if (!configuration || !configuration.trackUrl) {
-        IMPErrLog("configuration or trackUrl is nil, tracking disabled");
+    if (!trackURL) {
+        IMPErrLog("trackUrl is nil, tracking disabled");
     }
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -79,16 +81,67 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 }
 
 
+/**
+ Track that a variant was chosen in order to train the system to learn what rewards it receives.
+ @param variant The JSON encodeable chosen variant to track
+ */
 - (void) trackDecision:(id) variant
-               context:(NSDictionary *) context
-             rewardKey:(NSString *) rewardKey
+          fromVariants:(NSArray *) variants
              modelName:(NSString *) modelName
-            completion:(nullable IMPTrackCompletion) completionHandler
 {
-    if (!self.configuration || !self.configuration.trackUrl) {
+    [self trackDecision:variant fromVariants:variants modelName:modelName context:nil rewardKey:nil completion:nil];
+}
+
+/**
+ Track that a variant was chosen in order to train the system to learn what rewards it receives.
+
+ @param variant The JSON encodeable chosen variant to track
+ @param context The JSON encodeable context that the chosen variant is being used in and should be rewarded against.  It is okay for this to be different from the context that was used during choose or sort.
+*/
+- (void) trackDecision:(id) variant
+          fromVariants:(NSArray *) variants
+             modelName:(NSString *) modelName
+               context:(nullable NSDictionary *) context
+{
+    [self trackDecision:variant fromVariants:variants modelName:modelName context:context rewardKey:nil completion:nil];
+}
+
+/**
+ Track that a variant was chosen in order to train the system to learn what rewards it receives.
+ @param variant The JSON encodeable chosen variant to track
+ @param context The JSON encodeable context that the chosen variant is being used in and should be rewarded against.  It is okay for this to be different from the context that was used during choose or sort.
+ @param rewardKey The rewardKey used to assign rewards to the chosen variant. If nil, rewardKey is set to the namespace.  trackRewards must also use this key to assign rewards to this chosen variant.
+*/
+- (void) trackDecision:(id) variant
+          fromVariants:(NSArray *) variants
+             modelName:(NSString *) modelName
+               context:(nullable NSDictionary *) context
+             rewardKey:(nullable NSString *) rewardKey
+{
+    [self trackDecision:variant fromVariants:variants modelName:modelName context:context rewardKey:rewardKey completion:nil];
+}
+
+/**
+ Track that a variant was chosen in order to train the system to learn what rewards it receives.
+ @param variant The JSON encodeable chosen variant to track
+ @param context The JSON encodeable context that the chosen variant is being used in and should be rewarded against.  It is okay for this to be different from the context that was used during choose or sort.
+ @param rewardKey The rewardKey used to assign rewards to the chosen variant. If nil, rewardKey is set to the namespace.  trackRewards must also use this key to assign rewards to this chosen variant.
+ @param completionHandler Called after sending the decision to the server.
+ */
+- (void) trackDecision:(id) variant
+          fromVariants:(NSArray *) variants
+             modelName:(NSString *) modelName
+               context:(nullable NSDictionary *) context
+             rewardKey:(nullable NSString *) rewardKey
+            completion:(nullable IMPTrackCompletion) completionHandler;
+{
+    NSURL *trackURL = self.trackURL; // copy since atomic
+    if (!trackURL) {
         return;
     }
 
+    // TODO implement variants sampling
+    
     if (!variant) {
         IMPErrLog("Skipping trackDecision for nil variant. To track null values use [NSNull null]");
         if (completionHandler) completionHandler(nil);
@@ -111,8 +164,7 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         [body setObject:context forKey:kContextKey];
     }
 
-    NSURL *trackUrl = [NSURL URLWithString:self.configuration.trackUrl];
-    [self postImproveRequest:body url:trackUrl block:^(NSObject *result, NSError *error) {
+    [self postImproveRequest:body url:trackURL block:^(NSObject *result, NSError *error) {
         if (error) {
             IMPErrLog("Improve.track error: %@", error);
             IMPLog("trackDecision failed! model: %@, variant: %@, context: %@, rewardKey: %@", modelName, variant, context, rewardKey);
@@ -123,19 +175,15 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     }];
 }
 
-
-- (void) addReward:(NSNumber *) reward
-            forKey:(NSString *) rewardKey
-        completion:(nullable IMPTrackCompletion) completionHandler
+- (void) addReward:(NSNumber *) reward forKey:(NSString *) rewardKey
 {
-    if (rewardKey && reward) {
-        [self addRewards:@{ rewardKey: reward } completion:completionHandler];
-    } else {
-        IMPErrLog("Skipping trackReward for nil rewardKey or reward");
-        if (completionHandler) completionHandler(nil);
-    }
+    [self addRewards:@{ rewardKey: reward } completion:nil];
 }
 
+- (void) addRewards:(NSDictionary *)rewards
+{
+    [self addRewards:rewards completion:nil];
+}
 
 - (void) addRewards:(NSDictionary<NSString *, NSNumber *> *) rewards
          completion:(nullable IMPTrackCompletion) completionHandler
@@ -161,12 +209,13 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 - (void) track:(NSDictionary *)body completion:(nullable IMPTrackCompletion)completionBlock
 {
-    if (!self.configuration || !self.configuration.trackUrl) {
+    NSURL *trackURL = self.trackURL; // copy since atomic
+    if (!trackURL) {
         return;
     }
 
     [self postImproveRequest:body
-                         url:[NSURL URLWithString:self.configuration.trackUrl]
+                         url:trackURL
                        block:^
      (NSObject *result, NSError *error) {
         if (error) {
@@ -191,8 +240,9 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
     NSMutableDictionary *headers = [@{ @"Content-Type": @"application/json" } mutableCopy];
     
-    if (self.configuration.trackApiKey) {
-        [headers setObject:self.configuration.trackApiKey forKey:kApiKeyHeader];
+    NSString *trackApiKey = self.apiKey; // copy since atomic
+    if (trackApiKey) {
+        [headers setObject:trackApiKey forKey:kApiKeyHeader];
     }
 
     NSString *dateStr = [self timestampFromDate:[NSDate date]];
