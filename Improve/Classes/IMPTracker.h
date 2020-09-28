@@ -34,7 +34,7 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
  @param variant The JSON encodeable chosen variant to track
  */
 - (void) trackDecision:(id) variant
-          fromVariants:(NSArray *) variants
+          fromVariants:(nullable NSArray *) variants
              modelName:(NSString *) modelName;
 
 /**
@@ -44,7 +44,7 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
  @param context The JSON encodeable context that the chosen variant is being used in and should be rewarded against.  It is okay for this to be different from the context that was used during choose or sort.
 */
 - (void) trackDecision:(id) variant
-          fromVariants:(NSArray *) variants
+          fromVariants:(nullable NSArray *) variants
              modelName:(NSString *) modelName
                context:(nullable NSDictionary *) context;
 
@@ -55,7 +55,7 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
  @param rewardKey The rewardKey used to assign rewards to the chosen variant. If nil, rewardKey is set to the namespace.  trackRewards must also use this key to assign rewards to this chosen variant.
 */
 - (void) trackDecision:(id) variant
-          fromVariants:(NSArray *) variants
+          fromVariants:(nullable NSArray *) variants
              modelName:(NSString *) modelName
                context:(nullable NSDictionary *) context
              rewardKey:(nullable NSString *) rewardKey;
@@ -68,7 +68,7 @@ typedef void (^IMPTrackCompletion) (NSError *_Nullable error);
  @param completionHandler Called after sending the decision to the server.
  */
 - (void) trackDecision:(id) variant
-          fromVariants:(NSArray *) variants
+          fromVariants:(nullable NSArray *) variants
              modelName:(NSString *) modelName
                context:(nullable NSDictionary *) context
              rewardKey:(nullable NSString *) rewardKey
