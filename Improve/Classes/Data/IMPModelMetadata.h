@@ -12,21 +12,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPModelMetadata : NSObject
 
+@property (readonly, nonatomic) NSString *model;
 @property (assign, nonatomic) NSUInteger numberOfFeatures;
 
 /// Feature encoding lookup table. May be several MB big.
-@property (strong, nonatomic) NSArray *lookupTable;
+@property (readonly, nonatomic) NSArray *lookupTable;
 
 @property (assign, nonatomic) uint32_t seed;
 
-/// Namespaces advertised by the model
-@property(readonly, nonatomic) NSArray<NSString *> *namespaces;
-
-// coming later: hashing tables
-
-+ (nullable instancetype)metadataWithURL:(NSURL *)url;
-
-- (nullable instancetype)initWithURL:(NSURL *)url;
+- (nullable instancetype)initWithDict:(NSDictionary *)json;
 
 @end
 

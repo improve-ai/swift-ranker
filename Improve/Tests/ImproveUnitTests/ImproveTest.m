@@ -7,14 +7,13 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "Improve.h"
-#import "IMPModelBundle.h"
+#import "IMPModel.h"
 #import "TestUtils.h"
 #import "IMPScoredObject.h"
 #import "NSArray+Random.h"
 
 // Disclose private interface for test
-@interface Improve ()
+@interface IMPModel ()
 @property (strong, atomic) NSString *historyId;
 - (NSString *) generateHistoryId;
 @end
@@ -27,8 +26,11 @@
 }
 
 - (void)setUp {
-    Improve *defaultInstance = [Improve instance];
-    [defaultInstance initializeWithApiKey:@"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI" modelBundleURL: @"https://improve-v5-resources-prod-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/latest.tar.gz"];
+    NSString *apiKey = @"xScYgcHJ3Y2hwx7oh5x02NcCTwqBonnumTeRHThI";
+    NSString *modelURL = @"https://improve-v5-resources-prod-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/latest.tar.gz";
+    [IMPModel addModelUrl:modelURL apiKey:apiKey];
+    [IMPModel setDefaultTrackUrl:nil trackApiKey:apiKey];
+    IMPModel *defaultInstance = [IMPModel instance];
     defaultInstance.maxModelsStaleAge = 10;
 }
 
@@ -54,21 +56,20 @@
     // Generation
     for (int i = 0; i < 10; i++)
     {
-        NSString *historyId = [[Improve instance] generateHistoryId];
+        NSString *historyId = [[IMPModel instance] generateHistoryId];
         NSLog(@"%@", historyId);
         XCTAssertNotNil(historyId);
         XCTAssert(historyId.length > 32 / 3 * 4);
     }
     // Initialization
-    XCTAssertNotNil([Improve instance].historyId);
+    XCTAssertNotNil([IMPModel instance].historyId);
 }
 
 - (void)testRankWithModelName:(NSString *)modelName
 {
     NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};
-    NSArray *rankedVariants = [[Improve instance] sort:@"test"
-                                              variants:variants
+    NSArray *rankedVariants = [[IMPModel instance] sort:variants
                                                context:context];
     XCTAssertNotNil(rankedVariants);
 
@@ -92,7 +93,7 @@
 }
 
 - (void)testModelLoadingAndDecisions {
-    Improve *improve = [Improve instance];
+    IMPModel *improve = [IMPModel instance];
     NSLog(@"Waiting for models to load...");
     XCTestExpectation *onReadyExpectation = [[XCTestExpectation alloc] initWithDescription:@"Expects onReady block to be called"];
     [improve onReady:^{

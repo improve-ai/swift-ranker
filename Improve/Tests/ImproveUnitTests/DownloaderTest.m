@@ -16,7 +16,7 @@
 
 @interface IMPModelDownloader ()
 
-- (NSURL *)modelsDirURL;
+- (NSURL *)modelDirURL;
 
 - (BOOL)compileModelAtURL:(NSURL *)modelDefinitionURL
                     toURL:(NSURL *)destURL
@@ -60,12 +60,12 @@
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
 
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader loadWithCompletion:^(NSArray *modelBundles, NSError *error) {
+    [downloader downloadWithCompletion:^(IMPModelBundle *modelBundle, NSError *error) {
         if (error != nil) {
             XCTFail(@"Downloading error: %@", error);
         }
-        XCTAssert(modelBundles.count > 0);
-        NSLog(@"Model bundle: %@", modelBundles);
+        XCTAssert(modelBundle != nil);
+        NSLog(@"Model bundle: %@", modelBundle);
 
         // Cleenup
 //        NSURL *folderURL = bundle.modelURL.URLByDeletingLastPathComponent;
@@ -84,25 +84,24 @@
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL: url];
 
     // Clean before tests
-    [[NSFileManager defaultManager] removeItemAtURL:[downloader modelsDirURL] error:nil];
+    [[NSFileManager defaultManager] removeItemAtURL:[downloader modelDirURL] error:nil];
 
-    XCTAssert(downloader.cachedModelBundles.count == 0);
+    XCTAssert(downloader.cachedModelBundle == nil);
 
-    NSTimeInterval age = [downloader cachedModelsAge];
+    NSTimeInterval age = [downloader cachedModelAge];
     XCTAssert(age == DBL_MAX);
 
     XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
     NSTimeInterval cacheAgeSeconds = 10.0;
-    [downloader loadWithCompletion:^(NSArray *modelBundles, NSError *error) {
-        XCTAssertNotNil(downloader.cachedModelBundles);
-        XCTAssert(downloader.cachedModelBundles.count == modelBundles.count);
+    [downloader downloadWithCompletion:^(IMPModelBundle *modelBundle, NSError *error) {
+        XCTAssertNotNil(downloader.cachedModelBundle);
 
-        NSTimeInterval age = downloader.cachedModelsAge;
+        NSTimeInterval age = downloader.cachedModelAge;
         NSLog(@"After download cachedModelsAge: %f", age);
         XCTAssert(isEqualRough(age, 0.0, 0.1));
 
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(cacheAgeSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            NSTimeInterval age = [downloader cachedModelsAge];
+            NSTimeInterval age = [downloader cachedModelAge];
             NSLog(@"After %fs cachedModelsAge: %f", cacheAgeSeconds, age);
             XCTAssert(isEqualRough(age, cacheAgeSeconds, 0.1));
             [expectation fulfill];
