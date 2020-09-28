@@ -41,7 +41,6 @@
 		54FCD00724C7401B00D30031 /* ImproveTrainingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */; };
 		54FCD00924C8464600D30031 /* MultitypeSortTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */; };
 		54FCD00B24C87D7C00D30031 /* MultitypeContextTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00A24C87D7C00D30031 /* MultitypeContextTestTrainingData.json */; };
-		E7FC7604251D7A0C001A8431 /* IMPModelConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = E7FC7603251D7A0C001A8431 /* IMPModelConfiguration.m */; };
 		E7FC760C251D9765001A8431 /* IMPTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = E7FC760B251D9765001A8431 /* IMPTracker.m */; };
 /* End PBXBuildFile section */
 
@@ -106,8 +105,6 @@
 		54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImproveTrainingTest.m; sourceTree = "<group>"; };
 		54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = MultitypeSortTestTrainingData.json; path = Python/MultitypeSortTestTrainingData.json; sourceTree = "<group>"; };
 		54FCD00A24C87D7C00D30031 /* MultitypeContextTestTrainingData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = MultitypeContextTestTrainingData.json; path = Python/MultitypeContextTestTrainingData.json; sourceTree = "<group>"; };
-		E7FC7602251D7A0C001A8431 /* IMPModelConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPModelConfiguration.h; sourceTree = "<group>"; };
-		E7FC7603251D7A0C001A8431 /* IMPModelConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPModelConfiguration.m; sourceTree = "<group>"; };
 		E7FC760A251D9765001A8431 /* IMPTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPTracker.h; sourceTree = "<group>"; };
 		E7FC760B251D9765001A8431 /* IMPTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPTracker.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -266,11 +263,10 @@
 				544D3B3223DEF35400CF95DB /* FeatureProviders */,
 				548DA93923EB4E6E00825370 /* Data */,
 				549EE77D23EF3D040040D880 /* Downloader */,
-				E7991754251E57BE00218BAB /* Tracker */,
 				54CB9B3C23D988F10005BB94 /* IMPModel.h */,
 				54CB9B3B23D988F10005BB94 /* IMPModel.m */,
-				E7FC7602251D7A0C001A8431 /* IMPModelConfiguration.h */,
-				E7FC7603251D7A0C001A8431 /* IMPModelConfiguration.m */,
+				E7FC760A251D9765001A8431 /* IMPTracker.h */,
+				E7FC760B251D9765001A8431 /* IMPTracker.m */,
 			);
 			name = Classes;
 			path = ../Classes;
@@ -305,15 +301,6 @@
 				54CB9B5223DA2D310005BB94 /* IMPChooser.m */,
 			);
 			path = Chooser;
-			sourceTree = "<group>";
-		};
-		E7991754251E57BE00218BAB /* Tracker */ = {
-			isa = PBXGroup;
-			children = (
-				E7FC760A251D9765001A8431 /* IMPTracker.h */,
-				E7FC760B251D9765001A8431 /* IMPTracker.m */,
-			);
-			path = Tracker;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -402,7 +389,6 @@
 				54442CA323FFE37B00F278E8 /* ImproveTest.m in Sources */,
 				549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */,
 				548BEE20241241F500EFD26A /* TestModel.mlmodel in Sources */,
-				E7FC7604251D7A0C001A8431 /* IMPModelConfiguration.m in Sources */,
 				54FCD00724C7401B00D30031 /* ImproveTrainingTest.m in Sources */,
 				54CB9B3E23D988F10005BB94 /* MurmurHash3.cpp in Sources */,
 				54CB9B4B23D989140005BB94 /* FeatureHasherUnitTests.m in Sources */,
