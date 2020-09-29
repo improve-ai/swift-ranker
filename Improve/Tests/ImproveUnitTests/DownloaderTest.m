@@ -16,11 +16,13 @@
 
 @interface IMPModelDownloader ()
 
-- (NSURL *)modelDirURL;
-
 - (BOOL)compileModelAtURL:(NSURL *)modelDefinitionURL
                     toURL:(NSURL *)destURL
                     error:(NSError **)error;
+
+- (NSURL *)cachedModelURL;
+
+- (NSTimeInterval)cachedModelAge;
 
 @end
 
@@ -60,16 +62,16 @@
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
 
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader downloadWithCompletion:^(IMPModelBundle *modelBundle, NSError *error) {
+    [downloader downloadWithCompletion:^(NSURL *compiledModelURL, NSError *error) {
         if (error != nil) {
             XCTFail(@"Downloading error: %@", error);
         }
-        XCTAssert(modelBundle != nil);
-        NSLog(@"Model bundle: %@", modelBundle);
+        XCTAssert(compiledModelURL != nil);
+        NSLog(@"Compiled model URL: %@", compiledModelURL);
 
         // Cleenup
 //        NSURL *folderURL = bundle.modelURL.URLByDeletingLastPathComponent;
-//        if ([[NSFileManager defaultManager] removeItemAtURL:folderURL error:nil]) {
+//        if ([[NSFileManager defaultManager] removeItemAtURL:compiledModelURL error:nil]) {
 //            NSLog(@"Deleted.");
 //        }
 
@@ -84,17 +86,19 @@
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL: url];
 
     // Clean before tests
-    [[NSFileManager defaultManager] removeItemAtURL:[downloader modelDirURL] error:nil];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtURL:[downloader cachedModelURL] error:nil];
 
-    XCTAssert(downloader.cachedModelBundle == nil);
+    XCTAssertFalse([fileManager fileExistsAtPath:[downloader cachedModelURL].path]);
 
     NSTimeInterval age = [downloader cachedModelAge];
     XCTAssert(age == DBL_MAX);
 
     XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
     NSTimeInterval cacheAgeSeconds = 10.0;
-    [downloader downloadWithCompletion:^(IMPModelBundle *modelBundle, NSError *error) {
-        XCTAssertNotNil(downloader.cachedModelBundle);
+    [downloader downloadWithCompletion:^(NSURL *modelURL, NSError *error) {
+        XCTAssertNotNil(downloader.cachedModelURL);
+        XCTAssert([fileManager fileExistsAtPath:downloader.cachedModelURL.path]);
 
         NSTimeInterval age = downloader.cachedModelAge;
         NSLog(@"After download cachedModelsAge: %f", age);
