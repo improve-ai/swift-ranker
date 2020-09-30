@@ -68,7 +68,11 @@
         _model = model;
         
         NSString *jsonMetadata = model.modelDescription.metadata[@"json"];
-
+        if (!jsonMetadata) {
+            IMPErrLog("Invalid Improve model. 'json' attribute not found");
+            return;
+        }
+        
         NSError *error;
         
         NSDictionary *json = [IMPJSONUtils objectFromString:jsonMetadata];
