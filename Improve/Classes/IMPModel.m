@@ -66,8 +66,19 @@
 {
     @synchronized (self) {
         _model = model;
+                
+        if (!model || !model.modelDescription || !model.modelDescription.metadata) {
+            IMPErrLog("Invalid Improve model. model metadata not found");
+            return;
+
+        }
+        NSDictionary * creatorDefined = model.modelDescription.metadata[MLModelCreatorDefinedKey];
+        NSString *jsonMetadata;
         
-        NSString *jsonMetadata = model.modelDescription.metadata[@"json"];
+        if (creatorDefined) {
+            jsonMetadata = creatorDefined[@"json"];
+        }
+
         if (!jsonMetadata) {
             IMPErrLog("Invalid Improve model. 'json' attribute not found");
             return;
