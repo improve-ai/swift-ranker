@@ -79,7 +79,7 @@
     return [NSString stringWithFormat:@"ai.improve.lastDownloadDate.%@", self.remoteModelURL.absoluteString];
 }
 
-- (void)loadWithCompletion:(IMPModelDownloaderCompletion)completion
+- (void)downloadWithCompletion:(IMPModelDownloaderCompletion)completion
 {
     // check to see if there is a cached .mlmodelc
     NSURL *cachedModelURL = self.cachedModelURL;
