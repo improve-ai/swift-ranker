@@ -75,19 +75,16 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 - (id) choose:(NSArray *)variants
       context:(NSDictionary *)context
 {
-    IMPLog("Starting choose...");
     NSArray *encodedFeatures = [self encodeVariants:variants withContext:context];
 
-    IMPLog("Calculating scores...");
     NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) {
-        IMPLog("Choosig failed because batch prediction failed. Returning nil.");
+        IMPErrLog("Choose failed because batch prediction failed. Returning nil.");
         return nil;
     }
 
 #ifdef IMP_DEBUG
     // Print out variant, encoded variant and score, sorted by score
-    IMPLog("Sorted variants...");
     NSMutableArray *debugVariants = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSInteger i = 0; i < variants.count; i++)
     {
@@ -103,13 +100,15 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     ]];
     for (NSInteger i = 0; i < debugVariants.count; i++)
     {
-        NSDictionary *debugVariant = debugVariants[i];
-        IMPLog("Sorted variant #%ld\nVariant: %@\nEncoded variant: %@\nScore: %@", i, debugVariant[@"variant"], debugVariant[@"encodedVariant"], debugVariant[@"score"]);
+        NSDictionary *variant = debugVariants[i];
+        NSError * err;
+        NSString *variantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"variant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
+        NSString *encodedVariantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"encodedVariant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
+        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
     }
 #endif
 
     id best = [self bestSampleFrom:variants forScores:scores];
-    IMPLog("Choose finished.");
     return best;
 }
 
@@ -124,7 +123,6 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
     IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{ @"context": context }];
     IMPLog("Encoded context: %@", encodedContext);
-    IMPLog("Encoding variants... Count: %ld", variants.count);
     NSMutableArray *encodedFeatures = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSDictionary *variant in variants) {
         [encodedFeatures addObject:[hasher encodeFeatures:@{@"variant": variant}
@@ -167,11 +165,8 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 - (NSArray *) sort:(NSArray *)variants
            context:(NSDictionary *)context
 {
-    IMPLog("Starting sort...");
-    IMPLog("Shuffeling variants...");
     NSArray *shuffledVariants = [variants shuffledArray];
     NSArray *encodedFeatures = [self encodeVariants:shuffledVariants withContext:context];
-    IMPLog("Calculating scores...");
     NSArray *scores = [self batchPrediction:encodedFeatures];
     if (!scores) { return nil; }
 
@@ -189,17 +184,18 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
         [scoredVariants addObject:scoredVariant];
     }
 
-    IMPLog("Sorting...");
     [scoredVariants sortUsingDescriptors:@[
         [NSSortDescriptor sortDescriptorWithKey:@"score" ascending:NO]
     ]];
 
 #ifdef IMP_DEBUG
-    IMPLog("Sorted variants...");
     for (NSInteger i = 0; i < scoredVariants.count; i++)
     {
         NSDictionary *variant = scoredVariants[i];
-        IMPLog("Sorted variant #%ld\nVariant: %@\nEncoded variant: %@\nScore: %@", i, variant[@"variant"], variant[@"encodedVariant"], variant[@"score"]);
+        NSError * err;
+        NSString *variantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"variant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
+        NSString *encodedVariantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"encodedVariant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
+        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
     }
 #endif
 
@@ -210,7 +206,6 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
         [outputVariants addObject:scoredVariant[@"variant"]];
     }
 
-    IMPLog("Sort finished.");
     return outputVariants;
 }
 
