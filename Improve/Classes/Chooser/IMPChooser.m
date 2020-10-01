@@ -103,8 +103,10 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
         NSDictionary *variant = debugVariants[i];
         NSError * err;
         NSString *variantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"variant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
-        NSString *encodedVariantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"encodedVariant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
-        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
+// FIX can't JSON encode NSNumber keys
+//        NSString *encodedVariantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"encodedVariant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
+//        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
+        IMPLog("variant #%ld score: %@\nVariant: %@", i, variant[@"score"], variantJson);
     }
 #endif
 
@@ -194,8 +196,10 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
         NSDictionary *variant = scoredVariants[i];
         NSError * err;
         NSString *variantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"variant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
-        NSString *encodedVariantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"encodedVariant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
-        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
+        // FIX can't JSON encode NSNumber keys
+//        NSString *encodedVariantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"encodedVariant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
+//        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
+        IMPLog("variant #%ld score: %@\nVariant: %@", i, variant[@"score"], variantJson);
     }
 #endif
 
