@@ -106,7 +106,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 // FIX can't JSON encode NSNumber keys
 //        NSString *encodedVariantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"encodedVariant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
 //        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
-        IMPLog("variant #%ld score: %@\nVariant: %@", i, variant[@"score"], variantJson);
+        IMPLog("variant #%ld\n%@ - %@", i, variant[@"score"], variantJson);
     }
 #endif
 
@@ -199,7 +199,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
         // FIX can't JSON encode NSNumber keys
 //        NSString *encodedVariantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"encodedVariant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
 //        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
-        IMPLog("variant #%ld score: %@\nVariant: %@", i, variant[@"score"], variantJson);
+        IMPLog("variant #%ld\n%@ - %@", i, variant[@"score"], variantJson);
     }
 #endif
 
