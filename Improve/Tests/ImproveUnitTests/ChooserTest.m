@@ -12,7 +12,6 @@
 #import "MLMultiArray+NSArray.h"
 #import "NSArray+Padding.h"
 #import "IMPScoredObject.h"
-#import "IMPModelBundle.h"
 #import "IMPJSONUtils.h"
 #import "TestUtils.h"
 
