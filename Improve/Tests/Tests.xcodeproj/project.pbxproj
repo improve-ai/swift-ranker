@@ -37,6 +37,7 @@
 		54CB9B5923DB02D20005BB94 /* NSArray+Multidimensional.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B5823DB02D10005BB94 /* NSArray+Multidimensional.m */; };
 		54D1A7152524D4D800F8BF38 /* IMPTrackerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D1A7142524D4D800F8BF38 /* IMPTrackerTest.m */; };
 		54D1A7162524D95200F8BF38 /* IMPModelTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D1A7122524D47700F8BF38 /* IMPModelTest.m */; };
+		54D1A7182525C68E00F8BF38 /* ChooserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */; };
 		54E66A012401BEDD0032BC52 /* trials.json in Resources */ = {isa = PBXBuildFile; fileRef = 54E66A002401BEDC0032BC52 /* trials.json */; };
 		54FCD00924C8464600D30031 /* MultitypeSortTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */; };
 		54FCD00B24C87D7C00D30031 /* MultitypeContextTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00A24C87D7C00D30031 /* MultitypeContextTestTrainingData.json */; };
@@ -377,6 +378,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				548BEE232412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m in Sources */,
+				54D1A7182525C68E00F8BF38 /* ChooserTest.m in Sources */,
 				54CB9B4123D988F10005BB94 /* IMPJSONFlattener.m in Sources */,
 				54D1A7162524D95200F8BF38 /* IMPModelTest.m in Sources */,
 				548BEE2624127C8300EFD26A /* IMPEncodedFeatureProvider.m in Sources */,

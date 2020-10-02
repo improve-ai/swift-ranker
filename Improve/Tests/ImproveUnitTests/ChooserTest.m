@@ -8,6 +8,7 @@
 #import <XCTest/XCTest.h>
 #import "TestUtils.h"
 #import "IMPChooser.h"
+#import "IMPModelMetadata.h"
 #import "IMPFeatureHasher.h"
 #import "MLMultiArray+NSArray.h"
 #import "NSArray+Padding.h"
@@ -15,7 +16,10 @@
 #import "IMPJSONUtils.h"
 #import "TestUtils.h"
 
-const NSUInteger featuresCount = 10000;
+// File names without extensions
+NSString *const kModelFileName = @"TestModel";
+NSString *const kMetadataFileName = @"TestModel";
+
 
 @interface IMPChooser ()
 - (NSArray *)batchPrediction:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatures;
@@ -30,22 +34,44 @@ const NSUInteger featuresCount = 10000;
 
 @implementation ChooserTest
 
-- (instancetype)initWithInvocation:(NSInvocation *)invocation {
-    self = [super initWithInvocation:invocation];
-    if (self) {
-        NSURL *modelURL = [[TestUtils bundle] URLForResource:@"TestModel"
-                                               withExtension:@"mlmodelc"];
-        XCTAssertNotNil(modelURL);
-        NSURL *metadataURL = [[TestUtils bundle] URLForResource:@"TestModel"
-                                                  withExtension:@"json"];
-        IMPModelBundle *modelBundle = [[IMPModelBundle alloc] initWithModelURL:modelURL
-                                                                   metadataURL:metadataURL];
-        chooser = [IMPChooser chooserWithModelBundle:modelBundle
-                                           namespace:[TestUtils defaultNamespace]
-                                               error:nil];
-        XCTAssertNotNil(chooser);
+- (void)setUp {
+    chooser = [[IMPChooser alloc] initWithModel:[self loadModel]
+                                       metadata:[self loadMetadata]];
+    XCTAssertNotNil(chooser);
+}
+
+- (MLModel *)loadModel {
+    NSURL *modelURL = [[TestUtils bundle] URLForResource:kModelFileName
+                                           withExtension:@"mlmodelc"];
+    XCTAssertNotNil(modelURL);
+    NSError *err;
+    MLModel *model = [MLModel modelWithContentsOfURL:modelURL
+                                               error:&err];
+    if (!model) {
+        XCTFail("Failed to parse model: %@", err);
     }
-    return self;
+    return model;
+}
+
+- (IMPModelMetadata *)loadMetadata {
+    NSError *err;
+
+    NSURL *metadataURL = [[TestUtils bundle] URLForResource:kMetadataFileName
+                                              withExtension:@"json"];
+    NSData *jsonData = [NSData dataWithContentsOfURL:metadataURL
+                                             options:0
+                                               error:&err];
+    if (!jsonData) {
+        XCTFail(@"Failed to load metadata: %@", err);
+    }
+    NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                             options:0
+                                                               error:&err];
+    if (!jsonDict) {
+        XCTFail(@"Failed to parse metadata JSON: %@", err);
+    }
+    IMPModelMetadata *metadata = [[IMPModelMetadata alloc] initWithDict:jsonDict];
+    return metadata;
 }
 
 // TODO: Isolated test for batch prediction

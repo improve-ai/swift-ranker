@@ -7,7 +7,6 @@
 
 #import <CoreML/CoreML.h>
 
-@class IMPModelBundle;
 @class IMPModelMetadata;
 
 /**
