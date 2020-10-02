@@ -11,7 +11,6 @@
 #import "IMPChooser.h"
 #import "NSArray+Random.h"
 #import "IMPLogging.h"
-#import "IMPJSONUtils.h"
 #import "IMPModelMetadata.h"
 #import "IMPModelDownloader.h"
 
@@ -84,15 +83,7 @@
             return;
         }
         
-        NSError *error;
-        
-        NSDictionary *json = [IMPJSONUtils objectFromString:jsonMetadata];
-        if (!json) {
-            IMPErrLog("Json parse error: %@", error);
-            return;
-        }
-        
-        IMPModelMetadata *metadata = [[IMPModelMetadata alloc] initWithDict:json];
+        IMPModelMetadata *metadata = [[IMPModelMetadata alloc] initWithString:jsonMetadata];
         if (!metadata) {
             return;
         }
@@ -101,7 +92,7 @@
 
         _chooser = [[IMPChooser alloc] initWithModel:model metadata:metadata];
         if (!_chooser) {
-            IMPErrLog("Failed to initialize Chooser: %@", error);
+            IMPErrLog("Failed to initialize Chooser!");
         }
     }
 }

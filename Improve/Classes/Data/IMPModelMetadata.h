@@ -20,7 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (assign, nonatomic) uint32_t seed;
 
-- (nullable instancetype)initWithDict:(NSDictionary *)json;
+- (instancetype)initWithDict:(NSDictionary *)json;
+
+- (nullable instancetype)initWithString:(NSString *)jsonString;
 
 @end
 

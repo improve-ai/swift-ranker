@@ -21,5 +21,17 @@
     return [NSJSONSerialization JSONObjectWithData:data options:0 error:error];
 }
 
++ (NSString *)jsonStringOrDerscriptionOf:(NSObject *)object
+{
+    NSString *string = [NSString stringWithFormat:@"#json encoding error# %@", object];
+    if (![NSJSONSerialization isValidJSONObject:object]) return string;
+
+    NSData *data = [NSJSONSerialization dataWithJSONObject:object options:NSJSONWritingPrettyPrinted error:nil];
+    if (!data) return string;
+
+    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    if (!jsonString) return string;
+    return jsonString;
+}
 
 @end

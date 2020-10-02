@@ -16,6 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable id)objectFromString:(NSString *)jsonString error:(NSError **)error;
 
+/// Tries to pretty pring JSON of the object, otherwise returns the description + error message. For debug purposes.
++ (NSString *)jsonStringOrDerscriptionOf:(NSObject *)object;
+
 @end
 
 NS_ASSUME_NONNULL_END

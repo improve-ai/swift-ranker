@@ -12,6 +12,7 @@
 #import "IMPCommon.h"
 #import "IMPModelMetadata.h"
 #import "IMPLogging.h"
+#import "IMPJSONUtils.h"
 
 @implementation IMPChooser
 
@@ -100,12 +101,10 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     ]];
     for (NSInteger i = 0; i < debugVariants.count; i++)
     {
-        NSDictionary *variant = debugVariants[i];
-        NSError * err;
-        NSString *variantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"variant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
-// FIX can't JSON encode NSNumber keys
-//        NSString *encodedVariantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"encodedVariant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
-        IMPLog("#%ld score %@ variant %@ encoded ", i, variant[@"score"], variantJson);
+        NSDictionary *debugVariant = debugVariants[i];
+        NSString *variantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:debugVariant[@"variant"]];
+        NSString *encodedVariantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:debugVariant[@"encodedVariant"]];
+        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, debugVariant[@"score"], variantJson, encodedVariantJson);
     }
 #endif
 
@@ -193,12 +192,9 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     for (NSInteger i = 0; i < scoredVariants.count; i++)
     {
         NSDictionary *variant = scoredVariants[i];
-        NSError * err;
-        NSString *variantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"variant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
-        // FIX can't JSON encode NSNumber keys
-//        NSString *encodedVariantJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:variant[@"encodedVariant"] options:0 error:&err] encoding:NSUTF8StringEncoding];
-//        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
-        IMPLog("#%ld score %@ variant %@ encoded ", i, variant[@"score"], variantJson);
+        NSString *variantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"variant"]];
+        NSString *encodedVariantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"encodedVariant"]];
+        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
     }
 #endif
 

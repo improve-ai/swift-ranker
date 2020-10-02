@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		540FF471245A2C4A00690EDA /* NSFileManager+SafeCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = 540FF470245A2C4A00690EDA /* NSFileManager+SafeCopy.m */; };
 		54160CD223E02C9B00030A6A /* singleEncodedTrial.json in Resources */ = {isa = PBXBuildFile; fileRef = 54160CD123E02C9B00030A6A /* singleEncodedTrial.json */; };
-		54442CA323FFE37B00F278E8 /* ImproveTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54442CA223FFE37B00F278E8 /* ImproveTest.m */; };
 		544A0E8024BB7B5E007BB69D /* LoggingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 544A0E7F24BB7B5E007BB69D /* LoggingTest.m */; };
 		548BEE1F241241F500EFD26A /* TestModel.json in Resources */ = {isa = PBXBuildFile; fileRef = 548BEE1D241241F500EFD26A /* TestModel.json */; };
 		548BEE20241241F500EFD26A /* TestModel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE1E241241F500EFD26A /* TestModel.mlmodel */; };
@@ -36,9 +35,10 @@
 		54CB9B5323DA2D310005BB94 /* IMPChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B5223DA2D310005BB94 /* IMPChooser.m */; };
 		54CB9B5623DAE8170005BB94 /* MLMultiArray+NSArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B5523DAE8170005BB94 /* MLMultiArray+NSArray.m */; };
 		54CB9B5923DB02D20005BB94 /* NSArray+Multidimensional.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B5823DB02D10005BB94 /* NSArray+Multidimensional.m */; };
-		54CB9B6523DD9E0E0005BB94 /* ChooserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */; };
+		54D1A7152524D4D800F8BF38 /* IMPTrackerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D1A7142524D4D800F8BF38 /* IMPTrackerTest.m */; };
+		54D1A7162524D95200F8BF38 /* IMPModelTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D1A7122524D47700F8BF38 /* IMPModelTest.m */; };
+		54D1A7182525C68E00F8BF38 /* ChooserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */; };
 		54E66A012401BEDD0032BC52 /* trials.json in Resources */ = {isa = PBXBuildFile; fileRef = 54E66A002401BEDC0032BC52 /* trials.json */; };
-		54FCD00724C7401B00D30031 /* ImproveTrainingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */; };
 		54FCD00924C8464600D30031 /* MultitypeSortTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */; };
 		54FCD00B24C87D7C00D30031 /* MultitypeContextTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00A24C87D7C00D30031 /* MultitypeContextTestTrainingData.json */; };
 		E7FC760C251D9765001A8431 /* IMPTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = E7FC760B251D9765001A8431 /* IMPTracker.m */; };
@@ -49,7 +49,6 @@
 		540FF46F245A2C4A00690EDA /* NSFileManager+SafeCopy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+SafeCopy.h"; sourceTree = "<group>"; };
 		540FF470245A2C4A00690EDA /* NSFileManager+SafeCopy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+SafeCopy.m"; sourceTree = "<group>"; };
 		54160CD123E02C9B00030A6A /* singleEncodedTrial.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = singleEncodedTrial.json; sourceTree = "<group>"; };
-		54442CA223FFE37B00F278E8 /* ImproveTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImproveTest.m; sourceTree = "<group>"; };
 		544A0E7E24B6FF8B007BB69D /* IMPLogging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPLogging.h; sourceTree = "<group>"; };
 		544A0E7F24BB7B5E007BB69D /* LoggingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoggingTest.m; sourceTree = "<group>"; };
 		548BEE1D241241F500EFD26A /* TestModel.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TestModel.json; sourceTree = "<group>"; };
@@ -101,6 +100,8 @@
 		54CB9B5723DB02D10005BB94 /* NSArray+Multidimensional.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSArray+Multidimensional.h"; sourceTree = "<group>"; };
 		54CB9B5823DB02D10005BB94 /* NSArray+Multidimensional.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Multidimensional.m"; sourceTree = "<group>"; };
 		54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChooserTest.m; sourceTree = "<group>"; };
+		54D1A7122524D47700F8BF38 /* IMPModelTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPModelTest.m; sourceTree = "<group>"; };
+		54D1A7142524D4D800F8BF38 /* IMPTrackerTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPTrackerTest.m; sourceTree = "<group>"; };
 		54E66A002401BEDC0032BC52 /* trials.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = trials.json; path = Python/trials.json; sourceTree = "<group>"; };
 		54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImproveTrainingTest.m; sourceTree = "<group>"; };
 		54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = MultitypeSortTestTrainingData.json; path = Python/MultitypeSortTestTrainingData.json; sourceTree = "<group>"; };
@@ -188,7 +189,8 @@
 				54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */,
 				548DA93D23EB570400825370 /* DataTests.m */,
 				549EE78123F1C4AC0040D880 /* DownloaderTest.m */,
-				54442CA223FFE37B00F278E8 /* ImproveTest.m */,
+				54D1A7122524D47700F8BF38 /* IMPModelTest.m */,
+				54D1A7142524D4D800F8BF38 /* IMPTrackerTest.m */,
 				54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */,
 				544A0E7F24BB7B5E007BB69D /* LoggingTest.m */,
 				54BEA57D24BDCFBB00F8A52C /* IMPScoredObject.h */,
@@ -376,7 +378,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				548BEE232412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m in Sources */,
+				54D1A7182525C68E00F8BF38 /* ChooserTest.m in Sources */,
 				54CB9B4123D988F10005BB94 /* IMPJSONFlattener.m in Sources */,
+				54D1A7162524D95200F8BF38 /* IMPModelTest.m in Sources */,
 				548BEE2624127C8300EFD26A /* IMPEncodedFeatureProvider.m in Sources */,
 				54CB9B5923DB02D20005BB94 /* NSArray+Multidimensional.m in Sources */,
 				54CB9B4D23D989140005BB94 /* JSONFlattenerTest.m in Sources */,
@@ -386,15 +390,12 @@
 				5496CE5723EC04EE004E96C5 /* IMPMatrixBatchProvider.m in Sources */,
 				54CB9B3D23D988F10005BB94 /* IMPMurmurHash.mm in Sources */,
 				549EE78023EF3DD60040D880 /* IMPModelDownloader.m in Sources */,
-				54442CA323FFE37B00F278E8 /* ImproveTest.m in Sources */,
 				549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */,
 				548BEE20241241F500EFD26A /* TestModel.mlmodel in Sources */,
-				54FCD00724C7401B00D30031 /* ImproveTrainingTest.m in Sources */,
 				54CB9B3E23D988F10005BB94 /* MurmurHash3.cpp in Sources */,
 				54CB9B4B23D989140005BB94 /* FeatureHasherUnitTests.m in Sources */,
 				54CB9B5323DA2D310005BB94 /* IMPChooser.m in Sources */,
 				54CB9B4223D988F10005BB94 /* IMPJSONUtils.m in Sources */,
-				54CB9B6523DD9E0E0005BB94 /* ChooserTest.m in Sources */,
 				540FF471245A2C4A00690EDA /* NSFileManager+SafeCopy.m in Sources */,
 				54BEA57E24BDCFBB00F8A52C /* IMPScoredObject.m in Sources */,
 				54CB9B4023D988F10005BB94 /* IMPFeatureHasher.mm in Sources */,
@@ -403,6 +404,7 @@
 				54CB9B3F23D988F10005BB94 /* NSArray+Padding.m in Sources */,
 				54CB9B4323D988F10005BB94 /* IMPModel.m in Sources */,
 				54AC4DDD24537B80007CB073 /* TestUtils.m in Sources */,
+				54D1A7152524D4D800F8BF38 /* IMPTrackerTest.m in Sources */,
 				54CB9B5623DAE8170005BB94 /* MLMultiArray+NSArray.m in Sources */,
 				5496CE5A23EC7CE7004E96C5 /* NSArray+Random.m in Sources */,
 			);

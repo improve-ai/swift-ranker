@@ -8,10 +8,12 @@
 
 #import "IMPModelMetadata.h"
 #import "IMPLogging.h"
+#import "IMPJSONUtils.h"
+
 
 @implementation IMPModelMetadata
 
-- (nullable instancetype)initWithDict:(NSDictionary *)json
+- (instancetype)initWithDict:(NSDictionary *)json
 {
     self = [super init];
     if (!self) return nil;
@@ -21,6 +23,19 @@
     _seed = [json[@"model_seed"] unsignedIntValue];
     _model = json[@"model"];
 
+    return self;
+}
+
+- (nullable instancetype)initWithString:(NSString *)jsonString
+{
+    NSError *error;
+    NSDictionary *jsonDict = [IMPJSONUtils objectFromString:jsonString];
+    if (!jsonDict) {
+        IMPErrLog("Json parse error: %@", error);
+        return nil;
+    }
+
+    self = [self initWithDict:jsonDict];
     return self;
 }
 
