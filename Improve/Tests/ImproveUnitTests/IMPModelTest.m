@@ -19,9 +19,9 @@
 @implementation IMPModelTest
 
 - (void)setUp {
-    NSString *modelURL = @"https://improve-v5-resources-prod-models-117097735164.s3-us-west-2.amazonaws.com/models/mindful/mlmodel/latest.tar.gz";
+    NSURL *modelURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/test models/Mindful new Oct 2/improve-messages-2.0-3.mlmodel"];
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
-    [IMPModel modelWithContentsOfURL:[NSURL URLWithString:modelURL]
+    [IMPModel modelWithContentsOfURL:modelURL
                          cacheMaxAge:10
                    completionHandler:^(IMPModel * _Nullable model, NSError * _Nullable error) {
         if (error) {
@@ -37,8 +37,7 @@
 - (void)testRank {
     NSArray *variants = [TestUtils defaultTrials];
     NSDictionary *context = @{};
-    NSArray *rankedVariants = [self.model sort:variants
-                                       context:context];
+    NSArray *rankedVariants = [self.model sort:variants context:context];
     XCTAssertNotNil(rankedVariants);
 
     NSArray *scores = [TestUtils defaultPredictions];
