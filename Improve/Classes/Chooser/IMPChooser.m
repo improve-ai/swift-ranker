@@ -104,7 +104,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
         NSDictionary *debugVariant = debugVariants[i];
         NSString *variantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:debugVariant[@"variant"]];
         NSString *encodedVariantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:debugVariant[@"encodedVariant"]];
-        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, debugVariant[@"score"], variantJson, encodedVariantJson);
+        IMPLog("#%ld score: %@ variant: %@ encoded: %@", i, debugVariant[@"score"], variantJson, encodedVariantJson);
     }
 #endif
 
@@ -194,7 +194,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
         NSDictionary *variant = scoredVariants[i];
         NSString *variantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"variant"]];
         NSString *encodedVariantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"encodedVariant"]];
-        IMPLog("variant #%ld score: %@\nVariant: %@\nEncoded variant: %@", i, variant[@"score"], variantJson, encodedVariantJson);
+        IMPLog("#%ld score: %@ variant: %@ encoded: %@", i, variant[@"score"], variantJson, encodedVariantJson);
     }
 #endif
 
