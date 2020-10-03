@@ -18,7 +18,6 @@
 
 // File names without extensions
 NSString *const kModelFileName = @"TestModel";
-NSString *const kMetadataFileName = @"TestModel";
 
 
 @interface IMPChooser ()
@@ -29,15 +28,29 @@ NSString *const kMetadataFileName = @"TestModel";
 
 @interface ChooserTest : XCTestCase {
     IMPChooser *chooser;
+    NSDictionary *meditationTrials;
 }
 @end
 
 @implementation ChooserTest
 
 - (void)setUp {
-    chooser = [[IMPChooser alloc] initWithModel:[self loadModel]
-                                       metadata:[self loadMetadata]];
+    MLModel *model = [self loadModel];
+    XCTAssertNotNil(model);
+
+    NSString *metadataStr = model.modelDescription.metadata[MLModelCreatorDefinedKey][@"json"];
+    IMPModelMetadata *metadata = [[IMPModelMetadata alloc] initWithString:metadataStr];
+    XCTAssertNotNil(metadata);
+
+    chooser = [[IMPChooser alloc] initWithModel:model metadata:metadata];
     XCTAssertNotNil(chooser);
+
+    NSURL *url = [[NSBundle bundleForClass:self.class] URLForResource:@"MeditationTrials" withExtension:@"json"];
+    NSData *meditationData = [NSData dataWithContentsOfURL:url];
+    meditationTrials = [NSJSONSerialization JSONObjectWithData:meditationData options:0 error:nil];
+    XCTAssertNotNil(meditationTrials);
+    XCTAssertNotNil(meditationTrials[@"variants"]);
+    XCTAssertNotNil(meditationTrials[@"context"]);
 }
 
 - (MLModel *)loadModel {
@@ -53,25 +66,14 @@ NSString *const kMetadataFileName = @"TestModel";
     return model;
 }
 
-- (IMPModelMetadata *)loadMetadata {
-    NSError *err;
-
-    NSURL *metadataURL = [[TestUtils bundle] URLForResource:kMetadataFileName
-                                              withExtension:@"json"];
-    NSData *jsonData = [NSData dataWithContentsOfURL:metadataURL
-                                             options:0
-                                               error:&err];
-    if (!jsonData) {
-        XCTFail(@"Failed to load metadata: %@", err);
-    }
-    NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                             options:0
-                                                               error:&err];
-    if (!jsonDict) {
-        XCTFail(@"Failed to parse metadata JSON: %@", err);
-    }
-    IMPModelMetadata *metadata = [[IMPModelMetadata alloc] initWithDict:jsonDict];
-    return metadata;
+// TODO: add python predicitons and test ranking
+- (void)testMeditationChoosing
+{
+    NSArray *variants = meditationTrials[@"variants"];
+    NSDictionary *context = meditationTrials[@"context"];
+    NSDictionary *chosen = [chooser choose:variants context:context];
+    XCTAssertNotNil(chosen);
+    NSLog(@"Chosen: %@", chosen);
 }
 
 // TODO: Isolated test for batch prediction

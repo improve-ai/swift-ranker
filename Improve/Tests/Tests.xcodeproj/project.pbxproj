@@ -10,7 +10,7 @@
 		540FF471245A2C4A00690EDA /* NSFileManager+SafeCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = 540FF470245A2C4A00690EDA /* NSFileManager+SafeCopy.m */; };
 		54160CD223E02C9B00030A6A /* singleEncodedTrial.json in Resources */ = {isa = PBXBuildFile; fileRef = 54160CD123E02C9B00030A6A /* singleEncodedTrial.json */; };
 		544A0E8024BB7B5E007BB69D /* LoggingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 544A0E7F24BB7B5E007BB69D /* LoggingTest.m */; };
-		548BEE1F241241F500EFD26A /* TestModel.json in Resources */ = {isa = PBXBuildFile; fileRef = 548BEE1D241241F500EFD26A /* TestModel.json */; };
+		5463D5772528D70400722CD7 /* MeditationTrials.json in Resources */ = {isa = PBXBuildFile; fileRef = 5463D5762528D70400722CD7 /* MeditationTrials.json */; };
 		548BEE20241241F500EFD26A /* TestModel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE1E241241F500EFD26A /* TestModel.mlmodel */; };
 		548BEE232412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE222412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m */; };
 		548BEE2624127C8300EFD26A /* IMPEncodedFeatureProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE2524127C8300EFD26A /* IMPEncodedFeatureProvider.m */; };
@@ -51,7 +51,7 @@
 		54160CD123E02C9B00030A6A /* singleEncodedTrial.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = singleEncodedTrial.json; sourceTree = "<group>"; };
 		544A0E7E24B6FF8B007BB69D /* IMPLogging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPLogging.h; sourceTree = "<group>"; };
 		544A0E7F24BB7B5E007BB69D /* LoggingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoggingTest.m; sourceTree = "<group>"; };
-		548BEE1D241241F500EFD26A /* TestModel.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TestModel.json; sourceTree = "<group>"; };
+		5463D5762528D70400722CD7 /* MeditationTrials.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MeditationTrials.json; sourceTree = "<group>"; };
 		548BEE1E241241F500EFD26A /* TestModel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = TestModel.mlmodel; sourceTree = "<group>"; };
 		548BEE212412442300EFD26A /* MLDictionaryFeatureProvider+Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MLDictionaryFeatureProvider+Utils.h"; sourceTree = "<group>"; };
 		548BEE222412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MLDictionaryFeatureProvider+Utils.m"; sourceTree = "<group>"; };
@@ -197,8 +197,8 @@
 				54BEA57C24BDCFBB00F8A52C /* IMPScoredObject.m */,
 				54160CD123E02C9B00030A6A /* singleEncodedTrial.json */,
 				54E66A002401BEDC0032BC52 /* trials.json */,
-				548BEE1D241241F500EFD26A /* TestModel.json */,
 				548BEE1E241241F500EFD26A /* TestModel.mlmodel */,
+				5463D5762528D70400722CD7 /* MeditationTrials.json */,
 				54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */,
 				54FCD00A24C87D7C00D30031 /* MultitypeContextTestTrainingData.json */,
 				54CB9B2423D987800005BB94 /* Info.plist */,
@@ -365,8 +365,8 @@
 				54160CD223E02C9B00030A6A /* singleEncodedTrial.json in Resources */,
 				54FCD00924C8464600D30031 /* MultitypeSortTestTrainingData.json in Resources */,
 				54FCD00B24C87D7C00D30031 /* MultitypeContextTestTrainingData.json in Resources */,
-				548BEE1F241241F500EFD26A /* TestModel.json in Resources */,
 				54E66A012401BEDD0032BC52 /* trials.json in Resources */,
+				5463D5772528D70400722CD7 /* MeditationTrials.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
