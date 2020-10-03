@@ -167,9 +167,6 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     [self postImproveRequest:body url:trackURL block:^(NSObject *result, NSError *error) {
         if (error) {
             IMPErrLog("Improve.track error: %@", error);
-            IMPLog("trackDecision failed! model: %@, variant: %@, context: %@, rewardKey: %@", modelName, variant, context, rewardKey);
-        } else {
-            IMPLog("trackDecision succeed with model: %@, variant: %@, context: %@, rewardKey: %@", modelName, variant, context, rewardKey);
         }
         if (completionHandler) completionHandler(error);
     }];
@@ -261,6 +258,8 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         block(nil, err);
         return;
     }
+    
+    IMPLog("POSTing %@", [[NSString alloc] initWithData:postData encoding:NSUTF8StringEncoding]);
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     
