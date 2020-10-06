@@ -8,6 +8,7 @@
 
 #import "IMPTracker.h"
 #import "IMPLogging.h"
+#import "NSArray+Random.h"
 
 NSString * const kModelKey = @"model";
 NSString * const kHistoryIdKey = @"history_id";
@@ -18,7 +19,8 @@ NSString * const kVariantKey = @"variant";
 NSString * const kContextKey = @"context";
 NSString * const kRewardsKey = @"rewards";
 NSString * const kVariantsCountKey = @"variants_count";
-NSString * const kVariantsSampleKey = @"variants_sample";
+NSString * const kVariantsKey = @"variants";
+NSString * const kSampleVariantKey = @"sample_variant";
 NSString * const kRewardKeyKey = @"reward_key";
 
 NSString * const kDecisionType = @"decision";
@@ -162,6 +164,21 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
     if (context) {
         [body setObject:context forKey:kContextKey];
+    }
+
+    if (variants && variants.count > 0)
+    {
+        body[kVariantsCountKey] = @(variants.count);
+
+        if (drand48() > 1.0 / (double)variants.count)
+        {
+            id randomSample = variants.randomObject;
+            body[kSampleVariantKey] = randomSample;
+        }
+        else
+        {
+            body[kVariantsKey] = variants;
+        }
     }
 
     [self postImproveRequest:body url:trackURL block:^(NSObject *result, NSError *error) {
