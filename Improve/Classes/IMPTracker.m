@@ -22,9 +22,12 @@ NSString * const kVariantsCountKey = @"variants_count";
 NSString * const kVariantsKey = @"variants";
 NSString * const kSampleVariantKey = @"sample_variant";
 NSString * const kRewardKeyKey = @"reward_key";
+NSString * const kEventKey = @"event";
+NSString * const kPropertiesKey = @"properties";
 
 NSString * const kDecisionType = @"decision";
 NSString * const kRewardsType = @"rewards";
+NSString * const kEventType = @"event";
 
 NSString * const kApiKeyHeader = @"x-api-key";
 
@@ -215,6 +218,27 @@ NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         IMPErrLog("Skipping trackRewards for nil rewards");
         if (completionHandler) completionHandler(nil);
     }
+}
+
+- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties {
+    [self trackAnalyticsEvent:event properties:properties context:nil];
+}
+
+- (void) trackAnalyticsEvent:(NSString *)event properties:(NSDictionary *)properties context:(NSDictionary *)context {
+
+    NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
+
+    if (event) {
+        [body setObject:event forKey:kEventKey];
+    }
+    if (properties) {
+        [body setObject:properties forKey:kPropertiesKey];
+    }
+    if (context) {
+        [body setObject:context forKey:kContextKey];
+    }
+
+    [self track:body];
 }
 
 - (void) track:(NSDictionary *) body {

@@ -95,6 +95,26 @@ Tracks rewards for one or more chosen variants. Rewards are additive by default.
 - (void) addRewards:(NSDictionary<NSString *, NSNumber *> *) rewards
          completion:(nullable IMPTrackCompletion) completionHandler;
 
+/**
+ Tracks a general analytics event that may be further processed by backend scripts.  You may use this for example to keep reward assignment logic on the backend.  In the case where all reward logic is handled on the backend you may wish to disable autoTrack on choose calls and not call trackRewards.
+ @param event the name of the event to track
+ @param properties JSON encodable event properties
+ */
+- (void) trackAnalyticsEvent:(NSString *) event
+                  properties:(NSDictionary *) properties;
+
+/**
+ Tracks a general analytics event that may be further processed by backend scripts.  You may use this for example to keep reward assignment logic on the backend.  In the case where all reward logic is handled on the backend you may wish to disable autoTrack on choose calls and not call trackRewards.
+ @param event the name of the event to track
+ @param properties JSON encodable event properties
+ @param context JSON encodeable context
+ */
+
+- (void) trackAnalyticsEvent:(NSString *) event
+                  properties:(NSDictionary *) properties
+                     context:(NSDictionary *) context;
+
+
 @end
 
 NS_ASSUME_NONNULL_END
