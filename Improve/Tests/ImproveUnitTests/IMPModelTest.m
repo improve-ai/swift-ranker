@@ -59,4 +59,22 @@
     XCTAssert([rankedVariants isEqualToArray:expectedRankedVariants]);
 }
 
+- (void)testScore
+{
+    NSArray *scores = [self.model score:[TestUtils defaultTrials]
+                                context:[TestUtils defaultContext]];
+    XCTAssertNotNil(scores);
+
+    NSArray *expectedScores = [TestUtils defaultPredictions];
+    XCTAssert(scores.count == expectedScores.count);
+
+    for (int i = 0; i < scores.count; i++)
+    {
+        double score = [scores[i] doubleValue];
+        double expectedScore = [expectedScores[i] doubleValue];
+        NSLog(@"score: %g expected: %g", score, expectedScore);
+        XCTAssert(isEqualRough(score, expectedScore));
+    }
+}
+
 @end

@@ -160,5 +160,28 @@
     }
 }
 
+- (NSArray *)score:(NSArray *)variants
+{
+    return [self score:variants context:nil];
+}
+
+- (NSArray *) score:(NSArray *)variants
+            context:(NSDictionary *)context
+{
+    @synchronized (self) {
+        if (!variants || [variants count] == 0) {
+            IMPErrLog("Non-nil, non-empty array required for sort variants. Returning empty array");
+            return @[];
+        }
+
+        IMPChooser *chooser = [self chooser];
+        if (chooser) {
+            return [chooser score:variants context:context];
+        } else {
+            IMPErrLog("Model not loaded. Returning empty array");
+            return @[];
+        }
+    }
+}
 
 @end

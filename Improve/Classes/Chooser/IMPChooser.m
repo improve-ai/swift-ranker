@@ -113,7 +113,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 }
 
 - (NSArray<IMPFeaturesDictT*> *)encodeVariants:(NSArray<NSDictionary*> *)variants
-                                   withContext:(NSDictionary *)context
+                                   withContext:(nullable NSDictionary *)context
 {
     if (!context) {
         // Safe nil context handling
@@ -206,6 +206,14 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     }
 
     return outputVariants;
+}
+
+- (NSArray *)score:(NSArray *)variants
+           context:(NSDictionary *)context
+{
+    NSArray *encodedFeatures = [self encodeVariants:variants withContext:context];
+    NSArray *scores = [self batchPrediction:encodedFeatures];
+    return scores;
 }
 
 @end

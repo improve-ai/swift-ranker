@@ -44,8 +44,8 @@
     return [self defaultTrialsAndPredictions][@"predictions"];
 }
 
-+ (NSString *)defaultNamespace {
-    return @"test";
++ (NSDictionary *)defaultContext {
+    return [self defaultTrialsAndPredictions][@"context"];
 }
 
 + (NSString *)randomStringWithLength:(NSInteger)length

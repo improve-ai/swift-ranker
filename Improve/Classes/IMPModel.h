@@ -61,6 +61,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *) sort:(NSArray *) variants
            context:(nullable NSDictionary *) context;
 
+/**
+ Takes an array of variants and returns an array of NSNumbers of the scores.
+ */
+- (NSArray *) score:(NSArray *)variants;
+
+/**
+ Takes an array of variants and context and returns an array of NSNumbers of the scores.
+ */
+- (NSArray *) score:(NSArray *)variants
+            context:(nullable NSDictionary *)context;
+
 
 @end
 
