@@ -53,7 +53,7 @@
     NSMutableArray *output = [NSMutableArray arrayWithCapacity:prediction.count];
     for (NSUInteger i = 0; i < prediction.count; i++) {
         double val = [[prediction featuresAtIndex:i] featureValueForName:@"target"].doubleValue;
-        [output addObject:@(sigmfix(val))];
+        [output addObject:@(val)];//sigmfix(val))];
     }
     return output;
 }
