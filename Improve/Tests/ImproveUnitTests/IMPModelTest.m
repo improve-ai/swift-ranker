@@ -27,6 +27,8 @@
     [IMPModel modelWithContentsOfURL:modelURL
                          cacheMaxAge:10
                    completionHandler:^(IMPModel * _Nullable model, NSError * _Nullable error) {
+        XCTAssert([NSThread isMainThread]);
+
         if (error) {
             NSLog(@"Error: %@", error);
         }

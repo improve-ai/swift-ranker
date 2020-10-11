@@ -29,18 +29,21 @@
              completionHandler:(void (^)(IMPModel * _Nullable model, NSError * _Nullable error))handler
 {
     [[[IMPModelDownloader alloc] initWithURL:url maxAge:cacheMaxAge] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
-        if (downloadError) {
-            handler(nil, downloadError);
-            return;
-        }
-       
-        NSError *modelError;
-        MLModel *model = [MLModel modelWithContentsOfURL:compiledModelURL error:&modelError];
-        if (modelError) {
-            handler(nil, modelError);
-            return;
-        }
-        handler([[IMPModel alloc] initWithModel:model], nil);
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (downloadError) {
+                if (handler) handler(nil, downloadError);
+                return;
+            }
+
+            NSError *modelError;
+            MLModel *model = [MLModel modelWithContentsOfURL:compiledModelURL error:&modelError];
+            if (modelError) {
+                handler(nil, modelError);
+                return;
+            }
+            handler([[IMPModel alloc] initWithModel:model], nil);
+        });
     }];
 }
 
