@@ -24,7 +24,7 @@
  Format: "-/+[<class> <method>] L<line> <formatted message>"
  */
 #if defined DEBUG && defined IMP_DEBUG
-#   define IMPLog(fmt, ...) os_log_debug(OS_LOG_DEFAULT, ("%s L%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#   define IMPLog(fmt, ...) os_log_debug(OS_LOG_DEFAULT, ("[improve.ai] %s L%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 #   define IMPLog(...) (void)0
 #endif
@@ -33,6 +33,6 @@
  IMPErrLog is for errors and critical debug messages. Saved to the data store both in testing and production.
  Format: "-/+[<class> <method>] L<line> <formatted message>"
  */
-#define IMPErrLog(fmt, ...) os_log_error(OS_LOG_DEFAULT, ("%s L%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define IMPErrLog(fmt, ...) os_log_error(OS_LOG_DEFAULT, ("[improve.ai] %s L%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 #endif /* IMPLogging_h */
