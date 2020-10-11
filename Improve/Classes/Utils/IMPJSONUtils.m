@@ -23,14 +23,25 @@
 
 + (NSString *)jsonStringOrDerscriptionOf:(NSObject *)object
 {
-    NSString *string = [NSString stringWithFormat:@"#json encoding error# %@", object];
-    if (![NSJSONSerialization isValidJSONObject:object]) return string;
+    return [self jsonStringOrDerscriptionOf:object condensed:YES];
+}
 
-    NSData *data = [NSJSONSerialization dataWithJSONObject:object options:NSJSONWritingPrettyPrinted error:nil];
-    if (!data) return string;
++ (NSString *)jsonStringOrDerscriptionOf:(NSObject *)object
+                               condensed:(BOOL)condensed
+{
+    NSString *description = [NSString stringWithFormat:@"%@", object];
+    if (condensed) {
+        description = [[description componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] componentsJoinedByString:@" "];
+    }
+
+    if (![NSJSONSerialization isValidJSONObject:object]) return description;
+
+    NSJSONWritingOptions options = condensed ? 0 : NSJSONWritingPrettyPrinted;
+    NSData *data = [NSJSONSerialization dataWithJSONObject:object options:options error:nil];
+    if (!data) return description;
 
     NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    if (!jsonString) return string;
+    if (!jsonString) return description;
     return jsonString;
 }
 
