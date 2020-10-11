@@ -172,9 +172,12 @@
 {
     if (![[NSFileManager defaultManager] fileExistsAtPath:modelDefinitionURL.path]) {
         NSString *msg = [NSString stringWithFormat:@"Model definition not found at local path: %@. Remove URL: %@", modelDefinitionURL.path, self.remoteModelURL];
-        *error = [NSError errorWithDomain:@"ai.improve.compile_model"
-                                     code:1
-                                 userInfo:@{NSLocalizedDescriptionKey: msg}];
+        if (error != NULL)
+        {
+            *error = [NSError errorWithDomain:@"ai.improve.compile_model"
+                                         code:1
+                                     userInfo:@{NSLocalizedDescriptionKey: msg}];
+        }
         return false;
     }
 

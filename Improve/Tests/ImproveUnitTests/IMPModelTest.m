@@ -19,6 +19,9 @@
 @implementation IMPModelTest
 
 - (void)setUp {
+//    NSURL *modelURL2 = [[TestUtils bundle] URLForResource:@"TestModel" withExtension:@"mlmodel"];
+//    NSLog(@"%@", modelURL2);
+//    NSLog(@"%@", [TestUtils bundle].bundlePath);
     NSURL *modelURL = [NSURL fileURLWithPath:@"/Users/vk/Dev/_PROJECTS_/ImproveAI-SKLearnObjC/test models/Mindful new Oct 2/improve-messages-2.0-3.mlmodel"];
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
     [IMPModel modelWithContentsOfURL:modelURL

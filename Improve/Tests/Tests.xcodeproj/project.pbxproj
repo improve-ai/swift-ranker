@@ -11,7 +11,6 @@
 		54160CD223E02C9B00030A6A /* singleEncodedTrial.json in Resources */ = {isa = PBXBuildFile; fileRef = 54160CD123E02C9B00030A6A /* singleEncodedTrial.json */; };
 		544A0E8024BB7B5E007BB69D /* LoggingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 544A0E7F24BB7B5E007BB69D /* LoggingTest.m */; };
 		5463D5772528D70400722CD7 /* MeditationTrials.json in Resources */ = {isa = PBXBuildFile; fileRef = 5463D5762528D70400722CD7 /* MeditationTrials.json */; };
-		547FD88F2532503400931675 /* TestModel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE1E241241F500EFD26A /* TestModel.mlmodel */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		548BEE232412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE222412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m */; };
 		548BEE2624127C8300EFD26A /* IMPEncodedFeatureProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE2524127C8300EFD26A /* IMPEncodedFeatureProvider.m */; };
 		548DA93C23EB4EF000825370 /* IMPMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 548DA93B23EB4EF000825370 /* IMPMatrix.m */; };
@@ -20,6 +19,7 @@
 		5496CE5A23EC7CE7004E96C5 /* NSArray+Random.m in Sources */ = {isa = PBXBuildFile; fileRef = 5496CE5923EC7CE7004E96C5 /* NSArray+Random.m */; };
 		549EE78023EF3DD60040D880 /* IMPModelDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 549EE77F23EF3DD60040D880 /* IMPModelDownloader.m */; };
 		549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 549EE78123F1C4AC0040D880 /* DownloaderTest.m */; };
+		54A39AC525338DB800F895FF /* TestModel.mlmodel in Resources */ = {isa = PBXBuildFile; fileRef = 548BEE1E241241F500EFD26A /* TestModel.mlmodel */; };
 		54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 54A4D3F52403D56400BC1FA8 /* IMPModelMetadata.m */; };
 		54AC4DDD24537B80007CB073 /* TestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 54AC4DDC24537B80007CB073 /* TestUtils.m */; };
 		54BEA57E24BDCFBB00F8A52C /* IMPScoredObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 54BEA57C24BDCFBB00F8A52C /* IMPScoredObject.m */; };
@@ -367,6 +367,7 @@
 				54FCD00B24C87D7C00D30031 /* MultitypeContextTestTrainingData.json in Resources */,
 				54E66A012401BEDD0032BC52 /* trials.json in Resources */,
 				5463D5772528D70400722CD7 /* MeditationTrials.json in Resources */,
+				54A39AC525338DB800F895FF /* TestModel.mlmodel in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -403,7 +404,6 @@
 				54CB9B3F23D988F10005BB94 /* NSArray+Padding.m in Sources */,
 				54CB9B4323D988F10005BB94 /* IMPModel.m in Sources */,
 				54AC4DDD24537B80007CB073 /* TestUtils.m in Sources */,
-				547FD88F2532503400931675 /* TestModel.mlmodel in Sources */,
 				54D1A7152524D4D800F8BF38 /* IMPTrackerTest.m in Sources */,
 				54CB9B5623DAE8170005BB94 /* MLMultiArray+NSArray.m in Sources */,
 				5496CE5A23EC7CE7004E96C5 /* NSArray+Random.m in Sources */,

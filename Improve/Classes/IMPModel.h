@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param variants  A JSON encodeable list of variants to choose from.  May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @return The chosen variant, which may be different between calls even with the same inputs. If model is not ready, immediately returns the first variant.
  */
-- (id) choose:(NSArray *) variants;
+- (nullable id) choose:(NSArray *) variants;
 
 /**
  Chooses a variant that is expected to maximize future rewards for the given context. Call `-trackDecision:` and
@@ -40,8 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
  @param context A JSON encodeable dictionary of key value pairs that describe the context that choose should be optimized for. May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @return The chosen variant, which may be different between calls even with the same inputs.  If model is not ready, immediately returns the first variant.
 */
-- (id) choose:(NSArray *) variants
-      context:(nullable NSDictionary *) context;
+- (nullable id) choose:(NSArray *) variants
+               context:(nullable NSDictionary *) context;
 
 /**
  Sorts variants from largest to smallest expected future rewards.

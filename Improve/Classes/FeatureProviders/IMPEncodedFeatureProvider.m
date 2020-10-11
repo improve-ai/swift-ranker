@@ -41,7 +41,7 @@
     NSUInteger prefixLength = self.featureNamePrefix.length;
     NSInteger featureIndex = [[featureName substringFromIndex:prefixLength] integerValue];
     NSNumber *val = self.dictionary[@(featureIndex)];
-    if (val) {
+    if (val != nil) {
         return [MLFeatureValue featureValueWithDouble:val.doubleValue];
     } else {
         return [MLFeatureValue featureValueWithDouble:NAN];

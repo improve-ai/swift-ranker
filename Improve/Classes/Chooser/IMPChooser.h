@@ -36,11 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
  @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
  @return A NSDictionary where keys are features similar to `varaiants`, and the values are the single choosen objects.
  */
-- (id) choose:(NSArray *) variants
-      context:(NSDictionary *) context;
+- (nullable id) choose:(NSArray *) variants
+               context:(nullable NSDictionary *) context;
 
 - (NSArray *)sort:(NSArray *)variants
-          context:(NSDictionary *)context;
+          context:(nullable NSDictionary *)context;
 
 /**
  Takes an array of variants and context and returns an array of NSNumbers of the scores.

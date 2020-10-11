@@ -132,7 +132,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
 }
 
 /// Performs reservoir sampling to break ties when variants have the same score.
-- (id)bestSampleFrom:(NSArray *)variants forScores:(NSArray *)scores
+- (nullable id)bestSampleFrom:(NSArray *)variants forScores:(NSArray *)scores
 {
     double bestScore = -DBL_MAX;
     id bestVariant = nil;
