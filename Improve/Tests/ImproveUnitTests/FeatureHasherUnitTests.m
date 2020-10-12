@@ -10,7 +10,9 @@
 #import "IMPFeatureHasher.h"
 #import "TestUtils.h"
 #import "IMPJSONUtils.h"
+#import "IMPModelMetadata.h"
 
+@import CoreML;
 
 @interface FeatureHasherUnitTests : XCTestCase
 
@@ -71,5 +73,24 @@
         }
     }
 }
+
+// TODO: finish task https://trello.com/c/hBhpU4Xn
+//- (void)testConsistency
+//{
+//    const int iterations = 10;
+//
+//    NSURL *modelURL = [[TestUtils bundle] URLForResource:@"TestModel"
+//                                           withExtension:@"mlmodel"];
+//    // Load model to obtain metadata
+//    NSError *err;
+//    MLModel *model = [MLModel modelWithContentsOfURL:modelURL error:&err];
+//    if (!model) {
+//        XCTFail(@"%@", err);
+//    }
+//
+//    IMPModelMetadata *metadata = [IMPModelMetadata ]
+//
+//    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
+//}
 
 @end
