@@ -19,6 +19,7 @@
 		549EE78023EF3DD60040D880 /* IMPModelDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 549EE77F23EF3DD60040D880 /* IMPModelDownloader.m */; };
 		549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 549EE78123F1C4AC0040D880 /* DownloaderTest.m */; };
 		54A39AC525338DB800F895FF /* TestModel.mlmodel in Resources */ = {isa = PBXBuildFile; fileRef = 548BEE1E241241F500EFD26A /* TestModel.mlmodel */; };
+		54A39ACB253498E700F895FF /* SHA1.m in Sources */ = {isa = PBXBuildFile; fileRef = 54A39ACA253498E700F895FF /* SHA1.m */; };
 		54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 54A4D3F52403D56400BC1FA8 /* IMPModelMetadata.m */; };
 		54AC4DDD24537B80007CB073 /* TestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 54AC4DDC24537B80007CB073 /* TestUtils.m */; };
 		54BEA57E24BDCFBB00F8A52C /* IMPScoredObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 54BEA57C24BDCFBB00F8A52C /* IMPScoredObject.m */; };
@@ -66,6 +67,8 @@
 		549EE77E23EF3DD60040D880 /* IMPModelDownloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPModelDownloader.h; sourceTree = "<group>"; };
 		549EE77F23EF3DD60040D880 /* IMPModelDownloader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPModelDownloader.m; sourceTree = "<group>"; };
 		549EE78123F1C4AC0040D880 /* DownloaderTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloaderTest.m; sourceTree = "<group>"; };
+		54A39AC9253498E700F895FF /* SHA1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHA1.h; sourceTree = "<group>"; };
+		54A39ACA253498E700F895FF /* SHA1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SHA1.m; sourceTree = "<group>"; };
 		54A4D3F42403D56400BC1FA8 /* IMPModelMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPModelMetadata.h; sourceTree = "<group>"; };
 		54A4D3F52403D56400BC1FA8 /* IMPModelMetadata.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPModelMetadata.m; sourceTree = "<group>"; };
 		54AC4DDC24537B80007CB073 /* TestUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestUtils.m; sourceTree = "<group>"; };
@@ -289,6 +292,8 @@
 				54CB9B3723D988F10005BB94 /* IMPJSONFlattener.m */,
 				54CB9B3823D988F10005BB94 /* IMPJSONUtils.h */,
 				54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */,
+				54A39AC9253498E700F895FF /* SHA1.h */,
+				54A39ACA253498E700F895FF /* SHA1.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -374,6 +379,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54A39ACB253498E700F895FF /* SHA1.m in Sources */,
 				548BEE232412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m in Sources */,
 				54D1A7182525C68E00F8BF38 /* ChooserTest.m in Sources */,
 				54CB9B4123D988F10005BB94 /* IMPJSONFlattener.m in Sources */,

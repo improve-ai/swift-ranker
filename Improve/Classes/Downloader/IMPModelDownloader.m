@@ -10,6 +10,8 @@
 #import <CoreML/CoreML.h>
 #import "NSFileManager+SafeCopy.h"
 #import "IMPLogging.h"
+#import "SHA1.h"
+
 
 @implementation IMPModelDownloader {
     NSURLSessionDataTask *_downloadTask;
@@ -40,9 +42,47 @@
     if (!cachesDir) {
         return nil;
     }
-    NSString *fileName = [NSString stringWithFormat:@"ai.improve.cachedmodel.%@.mlmodelc",[self.remoteModelURL.absoluteString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]]];
+    NSString *fileName = [self modelFileNameFromURL:self.remoteModelURL];
     return [cachesDir URLByAppendingPathComponent:fileName];
     
+}
+
+- (NSString *)modelFileNameFromURL:(NSURL *)remoteURL
+{
+    NSString *nameFormat = @"ai.improve.cachedmodel.%@.mlmodelc";
+    const NSUInteger formatLen = [NSString stringWithFormat:nameFormat, @""].length;
+
+    NSMutableCharacterSet *allowedChars = [NSMutableCharacterSet alphanumericCharacterSet];
+    [allowedChars addCharactersInString:@".-_ "];
+    NSString *remoteURLStr = [remoteURL.absoluteString stringByAddingPercentEncodingWithAllowedCharacters:allowedChars];
+    const NSUInteger urlLen = remoteURLStr.length;
+
+    NSString *fileName;
+    // NAME_MAX - max file name
+    if (formatLen + urlLen <= NAME_MAX) {
+        fileName = [NSString stringWithFormat:nameFormat, remoteURLStr];
+    } else {
+        const NSUInteger separLen = 2;
+        const NSUInteger remainLen = NAME_MAX - formatLen - kSHA1OutputStringLength - separLen;
+        const NSUInteger stripLen = urlLen - remainLen;
+
+        NSMutableString *condensedURLStr = [NSMutableString new];
+        [condensedURLStr appendString:[remoteURLStr substringToIndex:(remainLen / 2)]];
+        [condensedURLStr appendString:@"-"];
+
+        NSRange stripRange = NSMakeRange(remainLen / 2, stripLen);
+        NSString *strip = [remoteURLStr substringWithRange:stripRange];
+        NSString *encodedStrip = [SHA1 encode:strip];
+        [condensedURLStr appendString:encodedStrip];
+        [condensedURLStr appendString:@"-"];
+
+        NSString *lastPart = [remoteURLStr substringFromIndex:urlLen - (remainLen + 1) / 2];
+        [condensedURLStr appendString:lastPart];
+
+        fileName = [NSString stringWithFormat:nameFormat, condensedURLStr];
+    }
+
+    return fileName;
 }
 
 - (BOOL) isValidCachedModelURL:(NSURL *) url
