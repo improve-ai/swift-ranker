@@ -20,19 +20,13 @@ static NSString * const kMessageIdKey = @"message_id";
 static NSString * const kTypeKey = @"type";
 static NSString * const kVariantKey = @"variant";
 static NSString * const kContextKey = @"context";
-static NSString * const kRewardsKey = @"rewards";
-static NSString * const kVariantsCountKey = @"variants_count";
-static NSString * const kVariantsKey = @"variants";
 static NSString * const kSampleKey = @"sample";
-static NSString * const kRewardKeyKey = @"reward_key";
 static NSString * const kEventKey = @"event";
 static NSString * const kPropertiesKey = @"properties";
-static NSString * const kBestKey = @"best";
 static NSString * const kCountKey = @"count";
 static NSString * const kRunnersUpKey = @"runners_up";
 
 static NSString * const kDecisionType = @"decision";
-static NSString * const kRewardsType = @"rewards";
 static NSString * const kEventType = @"event";
 
 static NSString * const kApiKeyHeader = @"x-api-key";
