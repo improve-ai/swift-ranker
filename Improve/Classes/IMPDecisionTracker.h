@@ -34,6 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
         properties:(nullable NSDictionary *)properties
            context:(nullable NSDictionary *)context;
 
+/**
+ Track a passive observation of a variant.  This method does not provide necessary counterfactual information on non-chosen variants, so it is STRONGLY recommended to instead use -trackUsingBestFromDecision: whenever possible.  Passive observations are only intended to supplement training data in cases where it is difficult to track full Decisions.  Training a model based solely on passive observations is likely to lead to biased models.
+ */
+- (id)trackUsingVariant:(id)variant
+              modelName:(NSString *)modelName
+                context:(NSDictionary *)context;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -112,6 +112,24 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     return decision.best;
 }
 
+- (id)trackUsingVariant:(id)variant
+              modelName:(NSString *)modelName
+                context:(NSDictionary *)context
+{
+    if (context == nil) {
+        context = [IMPDecision simpleContext];
+    }
+
+    [self track:@{
+        kTypeKey: kDecisionType,
+        kModelKey: modelName,
+        kVariantKey: variant,
+        kContextKey: context
+    }];
+
+    return variant;
+}
+
 - (void)trackEvent:(NSString *)event
 {
     [self trackEvent:event properties:nil];
