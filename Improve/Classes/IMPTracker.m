@@ -10,30 +10,30 @@
 #import "IMPLogging.h"
 #import "NSArray+Random.h"
 
-NSString * const kModelKey = @"model";
-NSString * const kHistoryIdKey = @"history_id";
-NSString * const kTimestampKey = @"timestamp";
-NSString * const kMessageIdKey = @"message_id";
-NSString * const kTypeKey = @"type";
-NSString * const kVariantKey = @"variant";
-NSString * const kContextKey = @"context";
-NSString * const kRewardsKey = @"rewards";
-NSString * const kVariantsCountKey = @"variants_count";
-NSString * const kVariantsKey = @"variants";
-NSString * const kSampleVariantKey = @"sample_variant";
-NSString * const kRewardKeyKey = @"reward_key";
-NSString * const kEventKey = @"event";
-NSString * const kPropertiesKey = @"properties";
-
-NSString * const kDecisionType = @"decision";
-NSString * const kRewardsType = @"rewards";
-NSString * const kEventType = @"event";
-
-NSString * const kApiKeyHeader = @"x-api-key";
-
 @import Security;
 
-NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
+static NSString * const kModelKey = @"model";
+static NSString * const kHistoryIdKey = @"history_id";
+static NSString * const kTimestampKey = @"timestamp";
+static NSString * const kMessageIdKey = @"message_id";
+static NSString * const kTypeKey = @"type";
+static NSString * const kVariantKey = @"variant";
+static NSString * const kContextKey = @"context";
+static NSString * const kRewardsKey = @"rewards";
+static NSString * const kVariantsCountKey = @"variants_count";
+static NSString * const kVariantsKey = @"variants";
+static NSString * const kSampleVariantKey = @"sample_variant";
+static NSString * const kRewardKeyKey = @"reward_key";
+static NSString * const kEventKey = @"event";
+static NSString * const kPropertiesKey = @"properties";
+
+static NSString * const kDecisionType = @"decision";
+static NSString * const kRewardsType = @"rewards";
+static NSString * const kEventType = @"event";
+
+static NSString * const kApiKeyHeader = @"x-api-key";
+
+static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 @interface IMPTracker ()
 // Private vars
