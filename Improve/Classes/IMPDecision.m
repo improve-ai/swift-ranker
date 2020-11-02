@@ -44,11 +44,15 @@
     self = [super init];
     if (!self) return nil;
 
-    _variants = variants;
+    /*
+     Shallow-copy all collections to insure immutability. NSArray and
+     NSDictionary support copy-on-write, so this operation wouldn't be expensive.
+     */
+    _variants = [variants copy];
     _model = model;
     _modelName = model.name;
     _tracker = tracker;
-    _context = (context != nil) ? context : [self.class simpleContext];
+    _context = (context != nil) ? [context copy] : [self.class simpleContext];
     _maxRunnersUp = 50;
 
     return self;
@@ -72,10 +76,14 @@
     self = [super init];
     if (!self) return nil;
 
-    _variants = rankedVariants;
-    _modelName = modelName;
+    /*
+     Shallow-copy all collections to insure immutability. NSArray and
+     NSDictionary support copy-on-write, so this operation wouldn't be expensive.
+     */
+    _variants = [rankedVariants copy];
+    _modelName = [modelName copy];
     _tracker = tracker;
-    _context = (context != nil) ? context : [self.class simpleContext];
+    _context = (context != nil) ? [context copy] : [self.class simpleContext];
 
     NSMutableArray *randomScores = [NSMutableArray arrayWithCapacity:rankedVariants.count];
     for (NSUInteger i = 0; i < rankedVariants.count; i++)
@@ -83,8 +91,8 @@
         [randomScores addObject:@(drand48())];
     }
     [randomScores sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:NO]]];
-    _scores = randomScores;
-    _ranked = rankedVariants;
+    _scores = [randomScores copy];
+    _ranked = _variants;
 
     return self;
 }
@@ -125,6 +133,7 @@
         [scoredVariants addObject:[IMPScoredVariant withScore:[scores[i] doubleValue] variant:self.variants[i]]];
     }
 
+    // Copy
     _scored = [scoredVariants copy];
     return _scored;
 }
