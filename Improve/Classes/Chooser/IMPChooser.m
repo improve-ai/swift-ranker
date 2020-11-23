@@ -7,7 +7,7 @@
 
 #import "IMPChooser.h"
 #import "IMPFeatureHasher.h"
-#import "IMPEncodedFeatureProvider.h"
+#import "MLDictionaryFeatureProvider+Utils.h"
 #import "NSArray+Random.h"
 #import "IMPCommon.h"
 #import "IMPModelMetadata.h"
@@ -39,6 +39,10 @@
 - (NSArray *)batchPrediction:(NSArray<IMPFeaturesDictT*> *)batchFeatures
 {
     MLArrayBatchProvider *batchProvider = [self batchProviderForFeaturesArray:batchFeatures];
+    if (!batchProvider) {
+        IMPErrLog("No Batch Features Provider. Returning nil.");
+        return nil;
+    }
 
     NSError *error = nil;
     id<MLBatchProvider> prediction
@@ -53,20 +57,27 @@
     NSMutableArray *output = [NSMutableArray arrayWithCapacity:prediction.count];
     for (NSUInteger i = 0; i < prediction.count; i++) {
         double val = [[prediction featuresAtIndex:i] featureValueForName:@"target"].doubleValue;
-        [output addObject:@(val)];//sigmfix(val))];
+        [output addObject:@(val)];
     }
     return output;
 }
 
 
-- (MLArrayBatchProvider* )
+- (nullable MLArrayBatchProvider* )
 batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatures
 {
     NSMutableArray *featureProviders = [NSMutableArray arrayWithCapacity:batchFeatures.count];
+    NSError *error;
     for (NSDictionary<NSNumber*,id> *features in batchFeatures)
     {
-        id<MLFeatureProvider> provider = [[IMPEncodedFeatureProvider alloc] initWithDictionary:features prefix:self.featureNamePrefix count:self.metadata.numberOfFeatures];
-        [featureProviders addObject:provider];
+        id<MLFeatureProvider> provider = [[MLDictionaryFeatureProvider alloc] initWithEncodedFeatures:features prefix:self.featureNamePrefix count:self.metadata.numberOfFeatures error:&error];
+        if (provider) {
+            [featureProviders addObject:provider];
+        } else {
+            IMPErrLog("Critical error! Returning nil. Failed to create a Features Provider: %@", error);
+            return nil;
+        }
+
     }
     return [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:featureProviders];
 }

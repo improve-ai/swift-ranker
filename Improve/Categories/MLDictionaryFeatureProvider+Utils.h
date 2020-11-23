@@ -17,6 +17,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithArray:(NSArray *)array prefix:(NSString *)prefix error:(NSError **)error;
 
+/**
+ Initializes itself with the `encodedFeatures` dictionary. Dictionary keys are prefixed with the `prefix`. Features count is required in order to fill missing features (which are possible) with NAN. Note that `encodedFeatures.count` may be smaller than `featuresCount`.
+ */
+- (nullable instancetype)initWithEncodedFeatures:(NSDictionary<NSNumber*, NSNumber*> *)encodedFeatures
+                                          prefix:(NSString *)prefix
+                                           count:(NSUInteger)featuresCount
+                                           error:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

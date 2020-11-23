@@ -19,7 +19,6 @@
 		544A0E8024BB7B5E007BB69D /* LoggingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 544A0E7F24BB7B5E007BB69D /* LoggingTest.m */; };
 		5463D5772528D70400722CD7 /* MeditationTrials.json in Resources */ = {isa = PBXBuildFile; fileRef = 5463D5762528D70400722CD7 /* MeditationTrials.json */; };
 		548BEE232412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE222412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m */; };
-		548BEE2624127C8300EFD26A /* IMPEncodedFeatureProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 548BEE2524127C8300EFD26A /* IMPEncodedFeatureProvider.m */; };
 		548DA93C23EB4EF000825370 /* IMPMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 548DA93B23EB4EF000825370 /* IMPMatrix.m */; };
 		548DA93E23EB570400825370 /* DataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 548DA93D23EB570400825370 /* DataTests.m */; };
 		5496CE5723EC04EE004E96C5 /* IMPMatrixBatchProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5496CE5623EC04EE004E96C5 /* IMPMatrixBatchProvider.m */; };
@@ -71,8 +70,6 @@
 		548BEE1E241241F500EFD26A /* TestModel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = TestModel.mlmodel; sourceTree = "<group>"; };
 		548BEE212412442300EFD26A /* MLDictionaryFeatureProvider+Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MLDictionaryFeatureProvider+Utils.h"; sourceTree = "<group>"; };
 		548BEE222412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MLDictionaryFeatureProvider+Utils.m"; sourceTree = "<group>"; };
-		548BEE2424127C8300EFD26A /* IMPEncodedFeatureProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPEncodedFeatureProvider.h; sourceTree = "<group>"; };
-		548BEE2524127C8300EFD26A /* IMPEncodedFeatureProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPEncodedFeatureProvider.m; sourceTree = "<group>"; };
 		548DA93A23EB4EF000825370 /* IMPMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPMatrix.h; sourceTree = "<group>"; };
 		548DA93B23EB4EF000825370 /* IMPMatrix.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPMatrix.m; sourceTree = "<group>"; };
 		548DA93D23EB570400825370 /* DataTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DataTests.m; sourceTree = "<group>"; };
@@ -144,8 +141,6 @@
 			children = (
 				5496CE5523EC04EE004E96C5 /* IMPMatrixBatchProvider.h */,
 				5496CE5623EC04EE004E96C5 /* IMPMatrixBatchProvider.m */,
-				548BEE2424127C8300EFD26A /* IMPEncodedFeatureProvider.h */,
-				548BEE2524127C8300EFD26A /* IMPEncodedFeatureProvider.m */,
 			);
 			path = FeatureProviders;
 			sourceTree = "<group>";
@@ -414,7 +409,6 @@
 				54394F7125489960009D1CF1 /* IMPScoredVariant.m in Sources */,
 				54CB9B4123D988F10005BB94 /* IMPJSONFlattener.m in Sources */,
 				54D1A7162524D95200F8BF38 /* IMPModelTest.m in Sources */,
-				548BEE2624127C8300EFD26A /* IMPEncodedFeatureProvider.m in Sources */,
 				54CB9B5923DB02D20005BB94 /* NSArray+Multidimensional.m in Sources */,
 				54394F99254AA752009D1CF1 /* IMPDecisionTrackerTest.m in Sources */,
 				54394F21253DB815009D1CF1 /* IMPDecision.m in Sources */,
