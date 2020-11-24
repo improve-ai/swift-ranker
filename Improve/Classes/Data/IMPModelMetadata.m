@@ -18,7 +18,6 @@
     self = [super init];
     if (!self) return nil;
 
-    _numberOfFeatures = [json[@"hashed_feature_count"] integerValue];
     _lookupTable = json[@"table"];
     _seed = [json[@"model_seed"] unsignedIntValue];
     _model = json[@"model"];

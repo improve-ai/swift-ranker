@@ -27,10 +27,6 @@
     return self;
 }
 
-- (NSUInteger)numberOfFeatures {
-    return self.metadata.numberOfFeatures;
-}
-
 #pragma mark Predicting
 
 /**
