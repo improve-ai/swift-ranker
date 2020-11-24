@@ -41,6 +41,7 @@
     // Dictionary of MLFeatureValue instances.
     NSMutableDictionary *prefixedValues = [NSMutableDictionary dictionaryWithCapacity:featuresCount];
 
+    MLFeatureValue *nan = [MLFeatureValue featureValueWithDouble:NAN];
     for (NSUInteger i = 0; i < featuresCount; i++)
     {
         NSString *key = [NSString stringWithFormat:@"%@%ld", prefix, i];
@@ -50,7 +51,7 @@
         if (numbVal != nil) {
             val = [MLFeatureValue featureValueWithDouble:val.doubleValue];
         } else {
-            val = [MLFeatureValue featureValueWithDouble:NAN];
+            val = nan;
         }
 
         prefixedValues[key] = val;
