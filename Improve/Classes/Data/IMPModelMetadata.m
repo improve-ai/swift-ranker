@@ -19,6 +19,7 @@
     if (!self) return nil;
 
     _lookupTable = json[@"table"];
+    _numberOfFeatures = [_lookupTable[1] count];
     _seed = [json[@"model_seed"] unsignedIntValue];
     _model = json[@"model"];
 

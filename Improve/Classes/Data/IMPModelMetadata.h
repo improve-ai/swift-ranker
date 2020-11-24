@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface IMPModelMetadata : NSObject
 
 @property (readonly, nonatomic) NSString *model;
+@property (assign, nonatomic) NSUInteger numberOfFeatures;
 
 /// Feature encoding lookup table. May be several MB big.
 @property (readonly, nonatomic) NSArray *lookupTable;
