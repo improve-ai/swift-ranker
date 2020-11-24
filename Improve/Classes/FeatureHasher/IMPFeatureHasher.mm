@@ -63,7 +63,7 @@
 - (IMPFeaturesDictT *)encodeFeaturesFromFlattened:(NSDictionary *)flattenedProperties
                                         startWith:(IMPFeaturesDictT * _Nullable)initialFeatures
 {
-    NSMutableDictionary<NSNumber*, NSNumber*> *features = [NSMutableDictionary new];
+    NSMutableDictionary<NSString*, MLFeatureValue*> *features = [NSMutableDictionary new];
     if (initialFeatures) {
         [features addEntriesFromDictionary:initialFeatures];
     }
@@ -75,18 +75,21 @@
                                               withKey:featureName
                                                  seed:self.modelSeed
                                                     w:1];
+        
+        NSString *featureColumnName = [NSString stringWithFormat:@"f%lu", (unsigned long) column];
+
         id value = flattenedProperties[featureName];
         if ([value isKindOfClass:NSNumber.class]) {
             // Encode BOOL and int as double
-            features[@(column)] = @([value doubleValue]);
+            features[featureColumnName] = [MLFeatureValue featureValueWithDouble:[value doubleValue]];
         } else if ([value isKindOfClass:NSNull.class]) {
-            features[@(column)] = @-1;
+            features[featureColumnName] = [MLFeatureValue featureValueWithDouble:[@-1 doubleValue]];
         } else if ([value isKindOfClass:NSString.class]) {
             NSString *string = value;
-            features[@(column)] = @([self lookupValueForColumn:column
+            features[featureColumnName] = [MLFeatureValue featureValueWithDouble:[self lookupValueForColumn:column
                                                         string:string
                                                           seed:self.modelSeed
-                                                         noise:noise]);
+                                                         noise:noise]];
         } else {
             continue;
         }

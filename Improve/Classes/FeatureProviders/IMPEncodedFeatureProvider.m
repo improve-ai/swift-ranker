@@ -12,7 +12,7 @@
     NSSet<NSString*> *_featureNames;
 }
 
-- (instancetype)initWithDictionary:(NSDictionary<NSNumber *,id> *)dictionary
+- (instancetype)initWithDictionary:(NSDictionary<NSString *,MLFeatureValue *> *)dictionary
                             prefix:(NSString *)prefix
                              count:(NSUInteger)featuresCount
 {
@@ -21,6 +21,7 @@
         _dictionary = dictionary;
         _featureNamePrefix = prefix;
         _featuresCount = featuresCount;
+        _nanValue = [MLFeatureValue featureValueWithDouble:NAN]; // cache for speed
     }
     return self;
 }
@@ -38,13 +39,11 @@
 
 - (MLFeatureValue *)featureValueForName:(NSString *)featureName
 {
-    NSUInteger prefixLength = self.featureNamePrefix.length;
-    NSInteger featureIndex = [[featureName substringFromIndex:prefixLength] integerValue];
-    NSNumber *val = self.dictionary[@(featureIndex)];
+    MLFeatureValue *val = self.dictionary[featureName];
     if (val != nil) {
-        return [MLFeatureValue featureValueWithDouble:val.doubleValue];
+        return val;
     } else {
-        return [MLFeatureValue featureValueWithDouble:NAN];
+        return _nanValue;
     }
 }
 

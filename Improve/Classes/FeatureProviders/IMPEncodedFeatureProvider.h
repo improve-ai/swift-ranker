@@ -12,11 +12,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPEncodedFeatureProvider : NSObject<MLFeatureProvider>
 
-@property(nonatomic, strong) NSDictionary<NSNumber*, NSNumber*> *dictionary;
+@property(nonatomic, strong) NSDictionary<NSString *,MLFeatureValue *> *dictionary;
 
 @property(nonatomic, copy) NSString *featureNamePrefix;
 
 @property(nonatomic, assign) NSUInteger featuresCount;
+
+@property(nonatomic, strong) MLFeatureValue *nanValue;
 
 - (nullable instancetype)initWithDictionary:(NSDictionary<NSNumber*, id> *)dictionary
                                      prefix:(NSString *)prefix

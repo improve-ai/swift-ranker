@@ -11,7 +11,7 @@
 
 @class IMPModelMetadata;
 
-typedef NSDictionary<NSNumber*, NSNumber*> IMPFeaturesDictT;
+typedef NSDictionary<NSString*, MLFeatureValue*> IMPFeaturesDictT;
 
 NS_ASSUME_NONNULL_BEGIN
 
