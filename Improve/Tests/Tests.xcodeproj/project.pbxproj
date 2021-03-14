@@ -47,6 +47,15 @@
 		54E66A012401BEDD0032BC52 /* trials.json in Resources */ = {isa = PBXBuildFile; fileRef = 54E66A002401BEDC0032BC52 /* trials.json */; };
 		54FCD00924C8464600D30031 /* MultitypeSortTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */; };
 		54FCD00B24C87D7C00D30031 /* MultitypeContextTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00A24C87D7C00D30031 /* MultitypeContextTestTrainingData.json */; };
+		B3675EA525FE2E460040FDBB /* xxh_x86dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675E9E25FE2E450040FDBB /* xxh_x86dispatch.c */; };
+		B3675EA625FE2E460040FDBB /* xxhsum.1 in Resources */ = {isa = PBXBuildFile; fileRef = B3675E9F25FE2E450040FDBB /* xxhsum.1 */; };
+		B3675EA725FE2E460040FDBB /* xxhash.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EA325FE2E460040FDBB /* xxhash.c */; };
+		B3675EA825FE2E460040FDBB /* xxhsum.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EA425FE2E460040FDBB /* xxhsum.c */; };
+		B3675EB325FE2E510040FDBB /* xsum_output.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EAB25FE2E510040FDBB /* xsum_output.c */; };
+		B3675EB425FE2E510040FDBB /* xsum_sanity_check.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EAD25FE2E510040FDBB /* xsum_sanity_check.c */; };
+		B3675EB525FE2E510040FDBB /* xsum_os_specific.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EB225FE2E510040FDBB /* xsum_os_specific.c */; };
+		B3675EBA25FE2E900040FDBB /* FeatureEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EB825FE2E900040FDBB /* FeatureEncoder.m */; };
+		B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -121,6 +130,24 @@
 		54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImproveTrainingTest.m; sourceTree = "<group>"; };
 		54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = MultitypeSortTestTrainingData.json; path = Python/MultitypeSortTestTrainingData.json; sourceTree = "<group>"; };
 		54FCD00A24C87D7C00D30031 /* MultitypeContextTestTrainingData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = MultitypeContextTestTrainingData.json; path = Python/MultitypeContextTestTrainingData.json; sourceTree = "<group>"; };
+		B3675E9E25FE2E450040FDBB /* xxh_x86dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xxh_x86dispatch.c; sourceTree = "<group>"; };
+		B3675E9F25FE2E450040FDBB /* xxhsum.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; path = xxhsum.1; sourceTree = "<group>"; };
+		B3675EA025FE2E450040FDBB /* xxh_x86dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxh_x86dispatch.h; sourceTree = "<group>"; };
+		B3675EA125FE2E450040FDBB /* xxhash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxhash.h; sourceTree = "<group>"; };
+		B3675EA225FE2E460040FDBB /* xxh3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxh3.h; sourceTree = "<group>"; };
+		B3675EA325FE2E460040FDBB /* xxhash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xxhash.c; sourceTree = "<group>"; };
+		B3675EA425FE2E460040FDBB /* xxhsum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xxhsum.c; sourceTree = "<group>"; };
+		B3675EAB25FE2E510040FDBB /* xsum_output.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xsum_output.c; sourceTree = "<group>"; };
+		B3675EAC25FE2E510040FDBB /* xsum_arch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xsum_arch.h; sourceTree = "<group>"; };
+		B3675EAD25FE2E510040FDBB /* xsum_sanity_check.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xsum_sanity_check.c; sourceTree = "<group>"; };
+		B3675EAE25FE2E510040FDBB /* xsum_os_specific.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xsum_os_specific.h; sourceTree = "<group>"; };
+		B3675EAF25FE2E510040FDBB /* xsum_output.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xsum_output.h; sourceTree = "<group>"; };
+		B3675EB025FE2E510040FDBB /* xsum_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xsum_config.h; sourceTree = "<group>"; };
+		B3675EB125FE2E510040FDBB /* xsum_sanity_check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xsum_sanity_check.h; sourceTree = "<group>"; };
+		B3675EB225FE2E510040FDBB /* xsum_os_specific.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xsum_os_specific.c; sourceTree = "<group>"; };
+		B3675EB825FE2E900040FDBB /* FeatureEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeatureEncoder.m; sourceTree = "<group>"; };
+		B3675EB925FE2E900040FDBB /* FeatureEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeatureEncoder.h; sourceTree = "<group>"; };
+		B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeatureEncoderTest.m; sourceTree = "<group>"; };
 		E7FC760A251D9765001A8431 /* IMPTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPTracker.h; sourceTree = "<group>"; };
 		E7FC760B251D9765001A8431 /* IMPTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPTracker.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -213,6 +240,7 @@
 				544A0E7F24BB7B5E007BB69D /* LoggingTest.m */,
 				54BEA57D24BDCFBB00F8A52C /* IMPScoredObject.h */,
 				54BEA57C24BDCFBB00F8A52C /* IMPScoredObject.m */,
+				B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */,
 				54E66A002401BEDC0032BC52 /* trials.json */,
 				548BEE1E241241F500EFD26A /* TestModel.mlmodel */,
 				5463D5762528D70400722CD7 /* MeditationTrials.json */,
@@ -236,6 +264,7 @@
 		54CB9B2923D988F00005BB94 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				B3675E9D25FE2C970040FDBB /* XXHash */,
 				54CB9B2A23D988F00005BB94 /* MurmurHash */,
 			);
 			name = ThirdParty;
@@ -276,6 +305,7 @@
 		54CB9B3223D988F10005BB94 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B3675EB725FE2E690040FDBB /* FeatureEncoder */,
 				54CB9B3323D988F10005BB94 /* FeatureHasher */,
 				54CB9B3623D988F10005BB94 /* Utils */,
 				54CB9B5023DA2D190005BB94 /* Chooser */,
@@ -328,6 +358,45 @@
 				54CB9B5223DA2D310005BB94 /* IMPChooser.m */,
 			);
 			path = Chooser;
+			sourceTree = "<group>";
+		};
+		B3675E9D25FE2C970040FDBB /* XXHash */ = {
+			isa = PBXGroup;
+			children = (
+				B3675EAA25FE2E510040FDBB /* cli */,
+				B3675E9E25FE2E450040FDBB /* xxh_x86dispatch.c */,
+				B3675EA025FE2E450040FDBB /* xxh_x86dispatch.h */,
+				B3675EA225FE2E460040FDBB /* xxh3.h */,
+				B3675EA325FE2E460040FDBB /* xxhash.c */,
+				B3675EA125FE2E450040FDBB /* xxhash.h */,
+				B3675E9F25FE2E450040FDBB /* xxhsum.1 */,
+				B3675EA425FE2E460040FDBB /* xxhsum.c */,
+			);
+			path = XXHash;
+			sourceTree = "<group>";
+		};
+		B3675EAA25FE2E510040FDBB /* cli */ = {
+			isa = PBXGroup;
+			children = (
+				B3675EAB25FE2E510040FDBB /* xsum_output.c */,
+				B3675EAC25FE2E510040FDBB /* xsum_arch.h */,
+				B3675EAD25FE2E510040FDBB /* xsum_sanity_check.c */,
+				B3675EAE25FE2E510040FDBB /* xsum_os_specific.h */,
+				B3675EAF25FE2E510040FDBB /* xsum_output.h */,
+				B3675EB025FE2E510040FDBB /* xsum_config.h */,
+				B3675EB125FE2E510040FDBB /* xsum_sanity_check.h */,
+				B3675EB225FE2E510040FDBB /* xsum_os_specific.c */,
+			);
+			path = cli;
+			sourceTree = "<group>";
+		};
+		B3675EB725FE2E690040FDBB /* FeatureEncoder */ = {
+			isa = PBXGroup;
+			children = (
+				B3675EB925FE2E900040FDBB /* FeatureEncoder.h */,
+				B3675EB825FE2E900040FDBB /* FeatureEncoder.m */,
+			);
+			path = FeatureEncoder;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -387,6 +456,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3675EA625FE2E460040FDBB /* xxhsum.1 in Resources */,
 				54FCD00924C8464600D30031 /* MultitypeSortTestTrainingData.json in Resources */,
 				54FCD00B24C87D7C00D30031 /* MultitypeContextTestTrainingData.json in Resources */,
 				54E66A012401BEDD0032BC52 /* trials.json in Resources */,
@@ -406,6 +476,7 @@
 				548BEE232412442300EFD26A /* MLDictionaryFeatureProvider+Utils.m in Sources */,
 				54D1A7182525C68E00F8BF38 /* ChooserTest.m in Sources */,
 				54394F2925407690009D1CF1 /* IMPDecisionTracker.m in Sources */,
+				B3675EA825FE2E460040FDBB /* xxhsum.c in Sources */,
 				54394F7125489960009D1CF1 /* IMPScoredVariant.m in Sources */,
 				54CB9B4123D988F10005BB94 /* IMPJSONFlattener.m in Sources */,
 				54D1A7162524D95200F8BF38 /* IMPModelTest.m in Sources */,
@@ -417,19 +488,25 @@
 				548DA93C23EB4EF000825370 /* IMPMatrix.m in Sources */,
 				544A0E8024BB7B5E007BB69D /* LoggingTest.m in Sources */,
 				54394F9E254AA893009D1CF1 /* IMPDecisionModelTest.m in Sources */,
+				B3675EB325FE2E510040FDBB /* xsum_output.c in Sources */,
 				54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */,
 				5496CE5723EC04EE004E96C5 /* IMPMatrixBatchProvider.m in Sources */,
 				54CB9B3D23D988F10005BB94 /* IMPMurmurHash.mm in Sources */,
 				549EE78023EF3DD60040D880 /* IMPModelDownloader.m in Sources */,
+				B3675EB425FE2E510040FDBB /* xsum_sanity_check.c in Sources */,
 				549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */,
 				54CB9B3E23D988F10005BB94 /* MurmurHash3.cpp in Sources */,
 				54CB9B4B23D989140005BB94 /* FeatureHasherUnitTests.m in Sources */,
+				B3675EBA25FE2E900040FDBB /* FeatureEncoder.m in Sources */,
 				54394F252540767F009D1CF1 /* IMPDecisionModel.m in Sources */,
 				54CB9B5323DA2D310005BB94 /* IMPChooser.m in Sources */,
 				54CB9B4223D988F10005BB94 /* IMPJSONUtils.m in Sources */,
+				B3675EB525FE2E510040FDBB /* xsum_os_specific.c in Sources */,
 				540FF471245A2C4A00690EDA /* NSFileManager+SafeCopy.m in Sources */,
+				B3675EA725FE2E460040FDBB /* xxhash.c in Sources */,
 				54BEA57E24BDCFBB00F8A52C /* IMPScoredObject.m in Sources */,
 				54CB9B4023D988F10005BB94 /* IMPFeatureHasher.mm in Sources */,
+				B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */,
 				54394FA3254AAC8A009D1CF1 /* IMPTracker.m in Sources */,
 				548DA93E23EB570400825370 /* DataTests.m in Sources */,
 				54CB9B3F23D988F10005BB94 /* NSArray+Padding.m in Sources */,
@@ -437,6 +514,7 @@
 				54AC4DDD24537B80007CB073 /* TestUtils.m in Sources */,
 				54CB9B5623DAE8170005BB94 /* MLMultiArray+NSArray.m in Sources */,
 				5496CE5A23EC7CE7004E96C5 /* NSArray+Random.m in Sources */,
+				B3675EA525FE2E460040FDBB /* xxh_x86dispatch.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
