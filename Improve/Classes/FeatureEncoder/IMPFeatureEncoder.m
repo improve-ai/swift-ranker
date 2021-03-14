@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FeatureEncoder.h"
+#import "IMPFeatureEncoder.h"
 #import "xxhash.h"
 
 #define sprinkle(x, small_noise) ((x + small_noise) * (1 + small_noise))
@@ -16,13 +16,13 @@
 
 #define xxhash3(data, len, seed) XXH3_64bits_withSeed(data, len, seed)
 
-@interface FeatureEncoder()
+@interface IMPFeatureEncoder()
 
 @property (nonatomic) double model;
 
 @end
 
-@implementation FeatureEncoder{
+@implementation IMPFeatureEncoder{
     uint64_t _variant_seed;
     uint64_t _value_seed;
     uint64_t _context_seed;

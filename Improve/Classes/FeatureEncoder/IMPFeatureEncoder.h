@@ -5,10 +5,9 @@
 //  Created by PanHongxi on 3/10/21.
 //
 
-#ifndef FeatureEncoder_h
-#define FeatureEncoder_h
+NS_ASSUME_NONNULL_BEGIN
 
-@interface FeatureEncoder : NSObject
+@interface IMPFeatureEncoder : NSObject
 
 - (id)initWithModel:(double)model;
 
@@ -18,4 +17,4 @@
 
 @end
 
-#endif /* FeatureEncoder_h */
+NS_ASSUME_NONNULL_END

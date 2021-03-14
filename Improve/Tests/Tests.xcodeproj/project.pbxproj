@@ -54,7 +54,7 @@
 		B3675EB325FE2E510040FDBB /* xsum_output.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EAB25FE2E510040FDBB /* xsum_output.c */; };
 		B3675EB425FE2E510040FDBB /* xsum_sanity_check.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EAD25FE2E510040FDBB /* xsum_sanity_check.c */; };
 		B3675EB525FE2E510040FDBB /* xsum_os_specific.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EB225FE2E510040FDBB /* xsum_os_specific.c */; };
-		B3675EBA25FE2E900040FDBB /* FeatureEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EB825FE2E900040FDBB /* FeatureEncoder.m */; };
+		B3675EBA25FE2E900040FDBB /* IMPFeatureEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */; };
 		B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */; };
 /* End PBXBuildFile section */
 
@@ -145,8 +145,8 @@
 		B3675EB025FE2E510040FDBB /* xsum_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xsum_config.h; sourceTree = "<group>"; };
 		B3675EB125FE2E510040FDBB /* xsum_sanity_check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xsum_sanity_check.h; sourceTree = "<group>"; };
 		B3675EB225FE2E510040FDBB /* xsum_os_specific.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xsum_os_specific.c; sourceTree = "<group>"; };
-		B3675EB825FE2E900040FDBB /* FeatureEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeatureEncoder.m; sourceTree = "<group>"; };
-		B3675EB925FE2E900040FDBB /* FeatureEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeatureEncoder.h; sourceTree = "<group>"; };
+		B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMPFeatureEncoder.m; sourceTree = "<group>"; };
+		B3675EB925FE2E900040FDBB /* IMPFeatureEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMPFeatureEncoder.h; sourceTree = "<group>"; };
 		B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeatureEncoderTest.m; sourceTree = "<group>"; };
 		E7FC760A251D9765001A8431 /* IMPTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPTracker.h; sourceTree = "<group>"; };
 		E7FC760B251D9765001A8431 /* IMPTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPTracker.m; sourceTree = "<group>"; };
@@ -393,8 +393,8 @@
 		B3675EB725FE2E690040FDBB /* FeatureEncoder */ = {
 			isa = PBXGroup;
 			children = (
-				B3675EB925FE2E900040FDBB /* FeatureEncoder.h */,
-				B3675EB825FE2E900040FDBB /* FeatureEncoder.m */,
+				B3675EB925FE2E900040FDBB /* IMPFeatureEncoder.h */,
+				B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */,
 			);
 			path = FeatureEncoder;
 			sourceTree = "<group>";
@@ -497,7 +497,7 @@
 				549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */,
 				54CB9B3E23D988F10005BB94 /* MurmurHash3.cpp in Sources */,
 				54CB9B4B23D989140005BB94 /* FeatureHasherUnitTests.m in Sources */,
-				B3675EBA25FE2E900040FDBB /* FeatureEncoder.m in Sources */,
+				B3675EBA25FE2E900040FDBB /* IMPFeatureEncoder.m in Sources */,
 				54394F252540767F009D1CF1 /* IMPDecisionModel.m in Sources */,
 				54CB9B5323DA2D310005BB94 /* IMPChooser.m in Sources */,
 				54CB9B4223D988F10005BB94 /* IMPJSONUtils.m in Sources */,

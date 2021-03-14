@@ -6,22 +6,22 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "FeatureEncoder.h"
+#import "IMPFeatureEncoder.h"
 
 // double precision: 15 decimal digits after dot
 #define accuracy 0.000000000000001
 
 @interface FeatureEncoderTest : XCTestCase
 
-@property (strong, nonatomic) FeatureEncoder *encoder;
+@property (strong, nonatomic) IMPFeatureEncoder *encoder;
 
 @end
 
 @implementation FeatureEncoderTest
 
-- (FeatureEncoder *)encoder {
+- (IMPFeatureEncoder *)encoder {
     if(!_encoder) {
-        _encoder = [[FeatureEncoder alloc] initWithModel:3];
+        _encoder = [[IMPFeatureEncoder alloc] initWithModel:3];
     }
     return _encoder;
 }
