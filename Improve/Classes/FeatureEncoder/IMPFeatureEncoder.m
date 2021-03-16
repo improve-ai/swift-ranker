@@ -18,45 +18,43 @@
 
 @interface IMPFeatureEncoder()
 
-@property (nonatomic) double model;
+@property (nonatomic) double modelSeed;
 
 @end
 
 @implementation IMPFeatureEncoder{
-    uint64_t _variant_seed;
-    uint64_t _value_seed;
-    uint64_t _context_seed;
+    uint64_t _variantSeed;
+    uint64_t _valueSeed;
+    uint64_t _contextSeed;
 }
 
-- (id)initWithModel:(double)model{
+- (id)initWithModelSeed:(uint64_t)modelSeed{
     if(self = [super init]){
-        self.model = model;
-        _variant_seed = xxhash3("variant", strlen("variant"), self.model);
-        _value_seed = xxhash3("$value", strlen("$value"), _variant_seed);
-        _context_seed = xxhash3("context", strlen("context"), self.model);
+        self.modelSeed = modelSeed;
+        _variantSeed = xxhash3("variant", strlen("variant"), self.modelSeed);
+        _valueSeed = xxhash3("$value", strlen("$value"), _variantSeed);
+        _contextSeed = xxhash3("context", strlen("context"), self.modelSeed);
     }
     return self;
 }
 
-- (NSDictionary *)encode_context:(id)context withNoise:(double)noise{
+- (NSDictionary *)encodeContext:(id)context withNoise:(double)noise{
     NSMutableDictionary<NSString*, NSNumber*> *features = [[NSMutableDictionary alloc] init];
     double shrinkedNoise = shrink(noise);
-    return [self encode_internal:context withSeed:_context_seed andNoise:shrinkedNoise forFeature:features];
+    return [self encodeInternal:context withSeed:_contextSeed andNoise:shrinkedNoise forFeatures:features];
 }
 
-- (NSDictionary *)encode_variant:(id)variant withNoise:(double)noise{
-    NSMutableDictionary<NSString*, NSNumber*> *features = [[NSMutableDictionary alloc] init];
-    
+- (NSDictionary *)encodeVariant:(id)variant withNoise:(double)noise forFeatures:(nonnull NSMutableDictionary *)features{
     double small_noise = shrink(noise);
     
     if([variant isKindOfClass:[NSDictionary class]]){
-        return [self encode_internal:variant withSeed:_variant_seed andNoise:small_noise forFeature:features];
+        return [self encodeInternal:variant withSeed:_variantSeed andNoise:small_noise forFeatures:features];
     } else {
-        return [self encode_internal:variant withSeed:_value_seed andNoise:small_noise forFeature:features];
+        return [self encodeInternal:variant withSeed:_valueSeed andNoise:small_noise forFeatures:features];
     }
 }
 
-- (NSDictionary *)encode_internal:(id)context withSeed:(uint64_t)seed andNoise:(double)noise forFeature:(NSMutableDictionary *)features{
+- (NSDictionary *)encodeInternal:(id)context withSeed:(uint64_t)seed andNoise:(double)noise forFeatures:(NSMutableDictionary *)features{
     if([context isKindOfClass:[NSNumber class]]){
         NSString *feature_name = [self hash_to_feature_name:seed];
         NSNumber *curValue = [features objectForKey:feature_name];
@@ -78,14 +76,14 @@
         [context enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             const char* ckey = [key UTF8String];
             uint64_t newSeed = xxhash3(ckey, strlen(ckey), seed);
-            [self encode_internal:obj withSeed:newSeed andNoise:noise forFeature:features];
+            [self encodeInternal:obj withSeed:newSeed andNoise:noise forFeatures:features];
         }];
     } else if([context isKindOfClass:[NSArray class]]){
         [context enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             unsigned char bytes[8];
             [self to_bytes:idx withBuffer:bytes];
             uint64_t newSeed = xxhash3(bytes, 8, seed);
-            [self encode_internal:obj withSeed:newSeed andNoise:noise forFeature:features];
+            [self encodeInternal:obj withSeed:newSeed andNoise:noise forFeatures:features];
         }];
     }
     return features;

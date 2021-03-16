@@ -6,8 +6,8 @@
 //
 
 #import "IMPChooser.h"
-#import "IMPFeatureHasher.h"
-#import "MLDictionaryFeatureProvider+Utils.h"
+#import "IMPFeatureEncoder.h"
+#import "NSDictionary+MLFeatureProvider.h"
 #import "NSArray+Random.h"
 #import "IMPCommon.h"
 #import "IMPModelMetadata.h"
@@ -22,7 +22,7 @@
     if (self) {
         _model = model;
         _metadata = metadata;
-        _featureNamePrefix = @"f";
+        _featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:metadata.seed];
     }
     return self;
 }
@@ -36,13 +36,9 @@
 /**
 @returns Returns an array of NSNumber (double) objects.
 */
-- (NSArray *)batchPrediction:(NSArray<IMPFeaturesDictT*> *)batchFeatures
+- (NSArray *)batchPrediction:(NSArray<NSDictionary *> *)batchFeatures
 {
-    MLArrayBatchProvider *batchProvider = [self batchProviderForFeaturesArray:batchFeatures];
-    if (!batchProvider) {
-        IMPErrLog("No Batch Features Provider. Returning nil.");
-        return nil;
-    }
+    MLArrayBatchProvider *batchProvider = [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:batchFeatures];
 
     NSError *error = nil;
     id<MLBatchProvider> prediction
@@ -60,26 +56,6 @@
         [output addObject:@(val)];
     }
     return output;
-}
-
-
-- (nullable MLArrayBatchProvider* )
-batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatures
-{
-    NSMutableArray *featureProviders = [NSMutableArray arrayWithCapacity:batchFeatures.count];
-    NSError *error;
-    for (NSDictionary<NSNumber*,id> *features in batchFeatures)
-    {
-        id<MLFeatureProvider> provider = [[MLDictionaryFeatureProvider alloc] initWithEncodedFeatures:features prefix:self.featureNamePrefix count:self.metadata.numberOfFeatures error:&error];
-        if (provider) {
-            [featureProviders addObject:provider];
-        } else {
-            IMPErrLog("Critical error! Returning nil. Failed to create a Features Provider: %@", error);
-            return nil;
-        }
-
-    }
-    return [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:featureProviders];
 }
 
 #pragma mark Choosing
@@ -123,7 +99,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
     return best;
 }
 
-- (NSArray<IMPFeaturesDictT*> *)encodeVariants:(NSArray<NSDictionary*> *)variants
+- (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
                                    withContext:(nullable NSDictionary *)context
 {
     if (!context) {
@@ -131,15 +107,17 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSNumber*,id>*> *)batchFeatu
         context = @{};
     }
     IMPLog("Context: %@", context);
-    IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
-    IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{ @"context": context }];
-    IMPLog("Encoded context: %@", encodedContext);
-    NSMutableArray *encodedFeatures = [NSMutableArray arrayWithCapacity:variants.count];
+    double noise = ((double)arc4random() / UINT32_MAX); // between 0.0 and 1.0
+    NSDictionary *contextFeatures = [_featureEncoder encodeContext:context withNoise:noise];
+    IMPLog("Encoded context: %@", contextFeatures);
+    
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSDictionary *variant in variants) {
-        [encodedFeatures addObject:[hasher encodeFeatures:@{@"variant": variant}
-                                                startWith:encodedContext]];
+        NSMutableDictionary *variantFeatures = [contextFeatures mutableCopy];
+        // TODO set feature names NSSet on variantFeatures
+        [result addObject:[_featureEncoder encodeVariant:variant withNoise:noise forFeatures:variantFeatures]];
     }
-    return encodedFeatures;
+    return result;
 }
 
 /// Performs reservoir sampling to break ties when variants have the same score.

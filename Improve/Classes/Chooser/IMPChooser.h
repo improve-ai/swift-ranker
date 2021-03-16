@@ -6,26 +6,16 @@
 //
 
 #import <CoreML/CoreML.h>
-
-@class IMPModelMetadata;
-
-/**
-A combination of subtractiong a constant and sigmoid. Intended to fix incorrect output from MLModel in order to make it the same
-as output form XGBoost Booster.
-*/
-NS_INLINE double sigmfix(double x) {
-    return 1. / (1. + exp(0.5 - x));
-}
+#import "IMPFeatureEncoder.h"
+#import "IMPModelMetadata.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPChooser : NSObject
 
-/// Used to convert column indexes to model feature names. Default: "f".
-@property(copy, nonatomic) NSString *featureNamePrefix;
-
 @property(readonly, nonatomic) MLModel *model;
 @property(readonly, nonatomic) IMPModelMetadata *metadata;
+@property(readonly, nonatomic) IMPFeatureEncoder *featureEncoder;
 
 - (instancetype)initWithModel:(MLModel *)model
                      metadata:(IMPModelMetadata *)metadata;

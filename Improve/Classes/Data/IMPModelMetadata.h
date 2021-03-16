@@ -15,9 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, nonatomic) NSString *model;
 @property (assign, nonatomic) NSUInteger numberOfFeatures;
 
-/// Feature encoding lookup table. May be several MB big.
-@property (readonly, nonatomic) NSArray *lookupTable;
-
 @property (assign, nonatomic) uint32_t seed;
 
 - (instancetype)initWithDict:(NSDictionary *)json;

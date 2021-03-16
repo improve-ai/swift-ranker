@@ -21,7 +21,7 @@
 
 - (IMPFeatureEncoder *)encoder {
     if(!_encoder) {
-        _encoder = [[IMPFeatureEncoder alloc] initWithModel:3];
+        _encoder = [[IMPFeatureEncoder alloc] initWithModelSeed:3];
     }
     return _encoder;
 }
@@ -48,7 +48,7 @@
     
     double noise = 0.0;
     for(NSUInteger i = 0; i < tests.count; i++){
-        NSDictionary *encoded = [self.encoder encode_context:tests[i] withNoise:noise];
+        NSDictionary *encoded = [self.encoder encodeContext:tests[i] withNoise:noise];
         NSDictionary *check = checks[i];
         NSLog(@"Index: %ld\nActual:\n%@\nExpected:\n%@", i, encoded, check);
         [self assertDictionary:encoded equalTo:check];
@@ -64,7 +64,7 @@
     
     double noise = 0.5;
     for(NSUInteger i = 0; i < tests.count; i++){
-        NSDictionary *encoded = [self.encoder encode_context:tests[i] withNoise:noise];
+        NSDictionary *encoded = [self.encoder encodeContext:tests[i] withNoise:noise];
         NSDictionary *check = checks[i];
         NSLog(@"Index: %ld\nActual:\n%@\nExpected:\n%@", i, encoded, check);
         [self assertDictionary:encoded equalTo:check];
@@ -80,7 +80,7 @@
     
     double noise = 1.0;
     for(NSUInteger i = 0; i < tests.count; i++){
-        NSDictionary *encoded = [self.encoder encode_context:tests[i] withNoise:noise];
+        NSDictionary *encoded = [self.encoder encodeContext:tests[i] withNoise:noise];
         NSDictionary *check = checks[i];
         NSLog(@"Index: %ld\nActual:\n%@\nExpected:\n%@", i, encoded, check);
         [self assertDictionary:encoded equalTo:check];
@@ -96,7 +96,7 @@
     
     double noise = 0.0;
     for(NSUInteger i = 0; i < tests.count; i++){
-        NSDictionary *encoded = [self.encoder encode_variant:tests[i] withNoise:noise];
+        NSDictionary *encoded = [self.encoder encodeVariant:tests[i] withNoise:noise];
         NSDictionary *check = checks[i];
         NSLog(@"Index: %ld\nActual:\n%@\nExpected:\n%@", i, encoded, check);
         [self assertDictionary:encoded equalTo:check];
@@ -112,7 +112,7 @@
     
     double noise = 0.5;
     for(NSUInteger i = 0; i < tests.count; i++){
-        NSDictionary *encoded = [self.encoder encode_variant:tests[i] withNoise:noise];
+        NSDictionary *encoded = [self.encoder encodeVariant:tests[i] withNoise:noise];
         NSDictionary *check = checks[i];
         NSLog(@"Index: %ld\nActual:\n%@\nExpected:\n%@", i, encoded, check);
         [self assertDictionary:encoded equalTo:check];
@@ -128,7 +128,7 @@
     
     double noise = 1.0;
     for(NSUInteger i = 0; i < tests.count; i++){
-        NSDictionary *encoded = [self.encoder encode_variant:tests[i] withNoise:noise];
+        NSDictionary *encoded = [self.encoder encodeVariant:tests[i] withNoise:noise];
         NSDictionary *check = checks[i];
         NSLog(@"Index: %ld\nActual:\n%@\nExpected:\n%@", i, encoded, check);
         [self assertDictionary:encoded equalTo:check];
@@ -149,7 +149,7 @@
 }
 
 - (void)testEncodeContextNil{
-    NSDictionary *encoded = [self.encoder encode_context:nil withNoise:0.0];
+    NSDictionary *encoded = [self.encoder encodeContext:nil withNoise:0.0];
     NSDictionary *check = @{};
     [self assertDictionary:encoded equalTo:check];
 }
