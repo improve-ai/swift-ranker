@@ -24,8 +24,6 @@
 		54A39ACB253498E700F895FF /* SHA1.m in Sources */ = {isa = PBXBuildFile; fileRef = 54A39ACA253498E700F895FF /* SHA1.m */; };
 		54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 54A4D3F52403D56400BC1FA8 /* IMPModelMetadata.m */; };
 		54AC4DDD24537B80007CB073 /* TestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 54AC4DDC24537B80007CB073 /* TestUtils.m */; };
-		54CB9B3D23D988F10005BB94 /* IMPMurmurHash.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B2C23D988F00005BB94 /* IMPMurmurHash.mm */; };
-		54CB9B3E23D988F10005BB94 /* MurmurHash3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B2E23D988F00005BB94 /* MurmurHash3.cpp */; };
 		54CB9B4223D988F10005BB94 /* IMPJSONUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */; };
 		54CB9B4D23D989140005BB94 /* JSONFlattenerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B4823D989140005BB94 /* JSONFlattenerTest.m */; };
 		54CB9B5323DA2D310005BB94 /* IMPChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B5223DA2D310005BB94 /* IMPChooser.m */; };
@@ -78,10 +76,6 @@
 		54CA20F223FDB63300723655 /* libarchive.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libarchive.2.tbd; path = usr/lib/libarchive.2.tbd; sourceTree = SDKROOT; };
 		54CB9B1F23D987800005BB94 /* ImproveUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImproveUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		54CB9B2423D987800005BB94 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		54CB9B2B23D988F00005BB94 /* IMPMurmurHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMPMurmurHash.h; sourceTree = "<group>"; };
-		54CB9B2C23D988F00005BB94 /* IMPMurmurHash.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IMPMurmurHash.mm; sourceTree = "<group>"; };
-		54CB9B2D23D988F00005BB94 /* MurmurHash3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MurmurHash3.h; sourceTree = "<group>"; };
-		54CB9B2E23D988F00005BB94 /* MurmurHash3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MurmurHash3.cpp; sourceTree = "<group>"; };
 		54CB9B3823D988F10005BB94 /* IMPJSONUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMPJSONUtils.h; sourceTree = "<group>"; };
 		54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMPJSONUtils.m; sourceTree = "<group>"; };
 		54CB9B4823D989140005BB94 /* JSONFlattenerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONFlattenerTest.m; sourceTree = "<group>"; };
@@ -209,21 +203,9 @@
 			isa = PBXGroup;
 			children = (
 				B3675E9D25FE2C970040FDBB /* XXHash */,
-				54CB9B2A23D988F00005BB94 /* MurmurHash */,
 			);
 			name = ThirdParty;
 			path = ../ThirdParty;
-			sourceTree = "<group>";
-		};
-		54CB9B2A23D988F00005BB94 /* MurmurHash */ = {
-			isa = PBXGroup;
-			children = (
-				54CB9B2B23D988F00005BB94 /* IMPMurmurHash.h */,
-				54CB9B2C23D988F00005BB94 /* IMPMurmurHash.mm */,
-				54CB9B2D23D988F00005BB94 /* MurmurHash3.h */,
-				54CB9B2E23D988F00005BB94 /* MurmurHash3.cpp */,
-			);
-			path = MurmurHash;
 			sourceTree = "<group>";
 		};
 		54CB9B2F23D988F00005BB94 /* Categories */ = {
@@ -406,11 +388,9 @@
 				54394F9E254AA893009D1CF1 /* IMPDecisionModelTest.m in Sources */,
 				B3675EB325FE2E510040FDBB /* xsum_output.c in Sources */,
 				54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */,
-				54CB9B3D23D988F10005BB94 /* IMPMurmurHash.mm in Sources */,
 				549EE78023EF3DD60040D880 /* IMPModelDownloader.m in Sources */,
 				B3675EB425FE2E510040FDBB /* xsum_sanity_check.c in Sources */,
 				549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */,
-				54CB9B3E23D988F10005BB94 /* MurmurHash3.cpp in Sources */,
 				B3675EBA25FE2E900040FDBB /* IMPFeatureEncoder.m in Sources */,
 				54394F252540767F009D1CF1 /* IMPDecisionModel.m in Sources */,
 				54CB9B5323DA2D310005BB94 /* IMPChooser.m in Sources */,

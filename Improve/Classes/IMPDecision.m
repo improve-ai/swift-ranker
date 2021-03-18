@@ -10,6 +10,10 @@
 // "Package private" methods
 @interface IMPDecisionTracker ()
 
+- (id)track:(IMPDecision *)decision;
+
+- (id)track:(IMPDecision *)decision runnersUp:(NSArray *)runnersUp;
+
 - (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount;
 + (NSArray *)rankScoredVariants:(NSArray *)scored;
 /// Performs reservoir sampling to break ties when variants have the same score.

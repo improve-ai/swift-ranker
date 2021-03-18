@@ -81,8 +81,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     return drand48() < 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
-
-- (id)trackUsingBestFromDecision:(IMPDecision *)decision
+- (id)track:(IMPDecision *)decision runnersUp:(NSArray *)runnersUp
 {
     BOOL shouldTrackRunnersUp = decision.shouldTrackRunnersUp;
 
@@ -122,24 +121,6 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     [self track:body];
 
     return decision.best;
-}
-
-- (id)trackUsingVariant:(id)variant
-              modelName:(NSString *)modelName
-                context:(NSDictionary *)context
-{
-    if (context == nil) {
-        context = [IMPDecision simpleContext];
-    }
-
-    [self track:@{
-        kTypeKey: kDecisionType,
-        kModelKey: modelName,
-        kVariantKey: variant,
-        kContextKey: context
-    }];
-
-    return variant;
 }
 
 - (void)trackEvent:(NSString *)event

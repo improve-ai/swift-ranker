@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class IMPDecision;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPDecisionTracker : NSObject
@@ -26,8 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithTrackURL:(NSURL *)trackURL
                           apiKey:(nullable NSString *)apiKey;
 
-- (id)trackUsingBestFromDecision:(IMPDecision *)decision;
-
 - (void)trackEvent:(NSString *)event;
 
 - (void)trackEvent:(NSString *)event
@@ -36,13 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackEvent:(NSString *)event
         properties:(nullable NSDictionary *)properties
            context:(nullable NSDictionary *)context;
-
-/**
- Track a passive observation of a variant.  This method does not provide necessary counterfactual information on non-chosen variants, so it is STRONGLY recommended to instead use -trackUsingBestFromDecision: whenever possible.  Passive observations are only intended to supplement training data in cases where it is difficult to track full Decisions.  Training a model based solely on passive observations is likely to lead to biased models.
- */
-- (id)trackUsingVariant:(id)variant
-              modelName:(NSString *)modelName
-                context:(NSDictionary *)context;
 
 @end
 
