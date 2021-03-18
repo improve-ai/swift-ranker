@@ -38,6 +38,25 @@
     return self;
 }
 
+- (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
+                                      given:(nullable NSDictionary *)context
+{
+    [NSException raise:@"TODO filter valid feature names from model" format:@"TODO"];
+    
+    double noise = ((double)arc4random() / UINT32_MAX); // between 0.0 and 1.0
+
+    // if context, encode contextFeatures
+    NSDictionary *contextFeatures = context ? [self encodeContext:context withNoise:noise] : nil;
+    
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:variants.count];
+    for (NSDictionary *variant in variants) {
+        NSMutableDictionary *variantFeatures = contextFeatures ? [contextFeatures mutableCopy] : [[NSMutableDictionary alloc] init];
+        
+        [result addObject:[self encodeVariant:variant withNoise:noise forFeatures:variantFeatures]];
+    }
+    return result;
+}
+
 - (NSDictionary *)encodeContext:(id)context withNoise:(double)noise{
     NSMutableDictionary<NSString*, NSNumber*> *features = [[NSMutableDictionary alloc] init];
     double shrinkedNoise = shrink(noise);
@@ -101,5 +120,7 @@
         buf[i] = (n >> (7-i)*8) & 0xff;
     }
 }
+
+
 
 @end

@@ -11,9 +11,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithModelSeed:(uint64_t)modelSeed;
 
+- (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
+                                      given:(nullable NSDictionary *)context;
+
 - (NSDictionary *)encodeContext:(id)context withNoise:(double)noise;
 
-- (NSDictionary *) encodeVariant:(id)variant withNoise:(double)noise forFeatures:(NSMutableDictionary *)features;
+- (NSDictionary *)encodeVariant:(id)variant withNoise:(double)noise forFeatures:(NSMutableDictionary *)features;
 
 @end
 

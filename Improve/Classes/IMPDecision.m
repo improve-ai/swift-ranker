@@ -73,6 +73,7 @@
             rankedVariants = [IMPDecisionModel rank:_variants withScores:scores];
             _best = rankedVariants.firstObject;
         } else {
+            // faster and more common path, avoids array sort
             _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
         }
     }
@@ -81,6 +82,7 @@
     _chosen = TRUE;
     
     if (_model.tracker) {
+        // TODO chop to runners up
         [model.tracker track:self rankedVariants:rankedVariants];
     }
 

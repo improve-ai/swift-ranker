@@ -11,7 +11,7 @@
 
 @class IMPDecisionModel;
 
-typedef void (^IMPDecisionModelDownloadCompletion) (IMPDecisionModel *_Nullable compiledModelURL, NSError *_Nullable error);
+typedef void (^IMPDecisionModelLoadCompletion) (IMPDecisionModel *_Nullable compiledModelURL, NSError *_Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,11 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(atomic, strong) MLModel *model;
 
 @property(nonatomic, strong) NSString *modelName;
-
 @property(nonatomic, strong) IMPDecisionTracker *tracker;
 
-+ (void)loadAsync:(NSURL *)url completionHandler:(IMPDecisionModelDownloadCompletion)handler;
-+ (void)loadAsync:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge completionHandler:(IMPDecisionModelDownloadCompletion)handler;
++ (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
++ (void)loadAsync:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge completion:(IMPDecisionModelLoadCompletion)handler;
 
 - (instancetype)initWithModel:(MLModel *)mlModel;
 
@@ -36,8 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Takes an array of variants and context and returns an array of NSNumbers of the scores.
  */
-- (NSArray *)score:(NSArray *)variants
-             given:(nullable NSDictionary *)context;
+- (NSArray *) score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
 
 @end
 

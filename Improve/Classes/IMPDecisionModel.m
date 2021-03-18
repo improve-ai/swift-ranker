@@ -9,25 +9,38 @@
 #import "NSArray+Random.h"
 #import "IMPLogging.h"
 #import "IMPModelMetadata.h"
-#import "IMPChooser.h"
+#import "IMPFeatureEncoder.h"
 #import "IMPModelDownloader.h"
-
+#import "IMPDecision.h"
 
 @interface IMPDecisionModel ()
 // Private vars
 
-@property (strong, atomic) IMPChooser *chooser;
+@property (strong, atomic) IMPFeatureEncoder *featureEncoder;
 
 @end
 
- 
 @implementation IMPDecisionModel
 
 @synthesize model = _model;
 
-+ (void)modelWithContentsOfURL:(NSURL *)url
-                   cacheMaxAge:(NSInteger) cacheMaxAge
-             completionHandler:(IMPDecisionModelDownloadCompletion)handler
++ (instancetype)load:(NSURL *)url
+{
+    return [self load:url cacheMaxAge:0];
+}
+
++ (instancetype)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge
+{
+    [NSException raise:@"TODO" format:@"TODO"];
+    return nil;
+}
+
++ (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler
+{
+    [self loadAsync:url cacheMaxAge:0 completion:handler];
+}
+
++ (void)loadAsync:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge completion:(IMPDecisionModelLoadCompletion)handler
 {
     [[[IMPModelDownloader alloc] initWithURL:url maxAge:cacheMaxAge] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
 
@@ -60,6 +73,7 @@
 
 - (MLModel *) model
 {
+    // MLModel is not thread safe, synchronize
     @synchronized (self) {
         return _model;
     }
@@ -67,6 +81,7 @@
 
 - (void) setModel:(MLModel *)model
 {
+    // MLModel is not thread safe, synchronize
     @synchronized (self) {
         _model = model;
 
@@ -92,77 +107,103 @@
             return;
         }
 
-        _name = metadata.model;
+        _modelName = metadata.modelName;
 
-        _chooser = [[IMPChooser alloc] initWithModel:model metadata:metadata];
-        if (!_chooser) {
-            IMPErrLog("Failed to initialize Chooser!");
-        }
+        _featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:metadata.seed];
     }
 }
 
-- (NSArray *)score:(NSArray *)variants
+- (IMPDecision *)chooseFrom:(NSArray *)variants
 {
-    return [self score:variants context:nil];
+    return [[[IMPDecision alloc] initWithModel:self] chooseFrom:variants];
 }
 
-- (NSArray *) score:(NSArray *)variants
-              given:(NSDictionary *)context
+- (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens
 {
+    return [[[IMPDecision alloc] initWithModel:self] given:givens];
+}
+
+- (NSArray <NSNumber *>*)score:(NSArray *)variants
+{
+    return [self score:variants given:nil];
+}
+
+- (NSArray <NSNumber *>*) score:(NSArray *)variants
+              given:(nullable NSDictionary <NSString *, id>*)givens
+{
+    // MLModel is not thread safe, synchronize
     @synchronized (self) {
         if (!variants || [variants count] == 0) {
             IMPErrLog("Non-nil, non-empty array required for sort variants. Returning empty array");
             return @[];
         }
 
-        IMPChooser *chooser = [self chooser];
-        if (chooser) {
-            return [chooser score:variants context:context];
-        } else {
-            IMPErrLog("Model not loaded. Returning empty array");
-            return @[];
+        NSArray *encodedFeatures = [_featureEncoder encodeVariants:variants given:givens];
+        
+        MLArrayBatchProvider *batchProvider = [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:encodedFeatures];
+
+        NSError *error = nil;
+        id<MLBatchProvider> prediction = [self.model predictionsFromBatch:batchProvider
+                                                                  options:[MLPredictionOptions new]
+                                                                    error:&error];
+        if (!prediction) {
+            IMPErrLog("MLModel.predictionsFromBatch error: %@ returning variants scored in descending order", error);
+            // assign gaussian scores for the variants in descending order
+            return [IMPDecisionModel scoreRankedVariants:variants];
         }
+
+        NSMutableArray *scores = [NSMutableArray arrayWithCapacity:prediction.count];
+        for (NSUInteger i = 0; i < prediction.count; i++) {
+            double val = [[prediction featuresAtIndex:i] featureValueForName:@"target"].doubleValue;
+            [scores addObject:@(val)];
+        }
+        return scores;
+            
+        /*
+        #ifdef IMP_DEBUG
+            for (NSInteger i = 0; i < scoredVariants.count; i++)
+            {
+                NSDictionary *variant = scoredVariants[i];
+                NSString *variantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"variant"]];
+                NSString *encodedVariantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"encodedVariant"]];
+                IMPLog("#%ld score: %@ variant: %@ encoded: %@", i, variant[@"score"], variantJson, encodedVariantJson);
+            }
+        #endif
+         */
     }
 }
 
-
-+ (NSArray *)rankScoredVariants:(NSArray *)scored
-{
-    NSArray *shuffled = [scored shuffledArray];
-    NSArray *sorted = [shuffled sortedArrayUsingDescriptors:@[
-        [NSSortDescriptor sortDescriptorWithKey:@"score" ascending:NO]
-    ]];
-    NSArray *variants = [sorted valueForKeyPath: @"@unionOfObjects.variant"];
-    return variants;
-}
-
-/// Performs reservoir sampling to break ties when variants have the same score
-+ (nullable id)bestSampleFrom:(NSArray *)variants forScores:(NSArray *)scores
+// in case of tie, the lowest index wins. Ties should be very rare due to small random noise added to scores
+// in IMPChooser.score()
++ (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
 {
     double bestScore = -DBL_MAX;
     id bestVariant = nil;
-    NSInteger replacementCount = 0;
-    for (NSInteger i = 0; i < scores.count; i++)
-    {
+    for (NSInteger i = 0; i < scores.count; i++) {
         double score = [scores[i] doubleValue];
         if (score > bestScore)
         {
             bestScore = score;
             bestVariant = variants[i];
-            replacementCount = 0;
-        }
-        else if (score == bestScore)
-        {
-            double replacementProbability = 1.0 / (double)(2 + replacementCount);
-            replacementCount++;
-            if (drand48() <= replacementProbability) {
-                bestScore = score;
-                bestVariant = variants[i];
-            }
         }
     }
 
     return bestVariant;
+}
+
++ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
+{
+    [NSException raise:@"TODO" format:@"TODO"];
+    return nil;
+}
+
++ (NSArray *)scoreRankedVariants:(NSArray *)rankedVariants {
+/*Generate n = variants.count random (double) gaussian numbers
+Sort the numbers descending and return the sorted list
+The median value of the list is expected to have a score near zero
+ */
+    [NSException raise:@"TODO" format:@"TODO"];
+    return nil;
 }
 
 @end
