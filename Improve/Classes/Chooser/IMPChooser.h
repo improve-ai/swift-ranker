@@ -21,22 +21,12 @@ NS_ASSUME_NONNULL_BEGIN
                      metadata:(IMPModelMetadata *)metadata;
 
 /**
- Choses a trial from the given variants. The trial is chosen according to the model predictions.
  @param variants A JSON encodeable list of variants to choose from.  May contain values of type NSDictionary, NSArray, NSString, NSNumber, and NSNull.  NSDictionary keys must be of type NSString. NaN and infinity values are not allowed for NSNumber because they are not JSON encodable.
  @param context A NSDictioary of universal features, which may affect prediction but not inclued into the ouptput.
- @return A NSDictionary where keys are features similar to `varaiants`, and the values are the single choosen objects.
+ @return an array of scores
  */
-- (nullable id) choose:(NSArray *) variants
-               context:(nullable NSDictionary *) context;
-
-- (NSArray *)sort:(NSArray *)variants
-          context:(nullable NSDictionary *)context;
-
-/**
- Takes an array of variants and context and returns an array of NSNumbers of the scores.
- */
-- (NSArray *) score:(NSArray *)variants
-            context:(nullable NSDictionary *)context;
+- (NSArray <NSNumber *>*) score:(NSArray *)variants
+                          given:(nullable NSDictionary <NSString *, id>*)context;
 
 @end
 
