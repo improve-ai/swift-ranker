@@ -10,14 +10,9 @@
 // "Package private" methods
 @interface IMPDecisionTracker ()
 
-- (id)track:(IMPDecision *)decision;
-
-- (id)track:(IMPDecision *)decision runnersUp:(NSArray *)runnersUp;
-
 - (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount;
-+ (NSArray *)rankScoredVariants:(NSArray *)scored;
-/// Performs reservoir sampling to break ties when variants have the same score.
-+ (nullable id)bestSampleFrom:(NSArray *)variants forScores:(NSArray *)scores;
+
+- (void)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp;
 
 @end
 
@@ -55,7 +50,6 @@
     return self;
 }
 
-
 - (nullable id)get
 {
     
@@ -66,28 +60,28 @@
 
     NSArray *scores = [_model score:_variants given:_givens];
 
-    NSArray *rankedVariants = nil;
-
     if (_variants && _variants.count) {
-        if (_model.tracker && [_model.tracker shouldTrackRunnersUp:_variants.count]) {
-            rankedVariants = [IMPDecisionModel rank:_variants withScores:scores];
-            _best = rankedVariants.firstObject;
+        if (_model.tracker) {
+            if ([_model.tracker shouldTrackRunnersUp:_variants.count]) {
+                // the more variants there are, the less frequently this is called
+                NSArray *rankedVariants = [IMPDecisionModel rank:_variants withScores:scores];
+                _best = rankedVariants.firstObject;
+                [_model.tracker track:_best variants:rankedVariants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
+            } else {
+                // faster and more common path, avoids array sort
+                _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
+                [_model.tracker track:_best variants:_variants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
+            }
         } else {
-            // faster and more common path, avoids array sort
             _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
         }
     }
 
-    // make sure to set this before calling track() because tracker will call back to get()
     _chosen = TRUE;
-    
-    if (_model.tracker) {
-        // TODO chop to runners up
-        [model.tracker track:self rankedVariants:rankedVariants];
-    }
 
     return _best;
 }
+
 
 
 @end

@@ -81,7 +81,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     return drand48() < 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
-- (void)track:(id) variant variants:(NSArray *)variants given:(NSDictionary *) givens modelName:(NSString *)modelName runnersUp:(NSArray *)runnersUp
+- (void)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
 {
 
     if (!modelName) {
@@ -90,14 +90,12 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     }
     NSMutableDictionary *body = [@{
         kTypeKey: kDecisionType,
-        kModelKey: decision.modelName,
+        kModelKey: modelName,
         kCountKey: @(decision.variants.count),
         kContextKey: decision.givens
     } mutableCopy];
 
-    NSArray *runnersUp = nil;
-    if (shouldTrackRunnersUp) {
-        runnersUp = decision.topRunnersUp;
+    if (runnersUp) {
         body[kRunnersUpKey] = runnersUp;
     }
 
@@ -106,12 +104,12 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
     // If runnersUp is nil `runnersUp.count` will return 0.
     NSInteger trackedVariantsCount = 1 + runnersUp.count;
-    BOOL samplesCount = decision.variants.count - trackedVariantsCount;
+    BOOL samplesCount = variants.count - trackedVariantsCount;
     if (samplesCount > 0)
     {
         NSRange range = NSMakeRange(trackedVariantsCount,
                                     decision.ranked.count);
-        NSArray *samples = [decision.ranked subarrayWithRange:range];
+        NSArray *samples = [variants subarrayWithRange:range];
         id sampleVariant = samples.randomObject;
         body[kSampleKey] = sampleVariant;
     }
