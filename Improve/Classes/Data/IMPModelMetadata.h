@@ -13,7 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface IMPModelMetadata : NSObject
 
 @property (readonly, nonatomic) NSString *modelName;
-@property (assign, nonatomic) NSUInteger numberOfFeatures;
 
 @property (assign, nonatomic) uint32_t seed;
 
