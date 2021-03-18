@@ -14,9 +14,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPDecisionTracker : NSObject
 
-@property(nonatomic, strong) NSURL *trackURL;
+@property(atomic, strong) NSURL *trackURL;
 
-@property(nonatomic, strong, nullable) NSString *apiKey;
+@property(atomic, strong, nullable) NSString *apiKey;
+
+/// Hyperparameter that affects training speed and model performance. Values from 10-100 are probably reasonable.
+@property(atomic) NSUInteger maxRunnersUp;
 
 - (instancetype)initWithTrackURL:(NSURL *)trackURL;
 

@@ -41,14 +41,14 @@
     XCTAssert([decision1.ranked isEqualToArray:variants]);
     XCTAssert([decision1.best isEqual:variants.firstObject]);
     XCTAssert([decision1.modelName isEqualToString:modelName]);
-    XCTAssert([decision1.context isEqualToDictionary:context]);
+    XCTAssert([decision1.givens isEqualToDictionary:context]);
 
     // Immutability
     XCTAssertFalse([decision1.variants isKindOfClass:NSMutableArray.class]);
     XCTAssertFalse([decision1.scores isKindOfClass:NSMutableArray.class]);
     XCTAssertFalse([decision1.ranked isKindOfClass:NSMutableArray.class]);
     XCTAssertFalse([decision1.scored isKindOfClass:NSMutableArray.class]);
-    XCTAssertFalse([decision1.context isKindOfClass:NSMutableDictionary.class]);
+    XCTAssertFalse([decision1.givens isKindOfClass:NSMutableDictionary.class]);
 
     // TODO: the same tests with model
 }
@@ -68,7 +68,7 @@
     NSString *modelName = @"my_model";
 
     IMPDecision *decision = [[IMPDecision alloc] initWithRankedVariants:variants modelName:modelName tracker:tracker context:nil];
-    XCTAssert([decision.context isEqualToDictionary:[IMPDecision simpleContext]]);
+    XCTAssert([decision.givens isEqualToDictionary:[IMPDecision simpleContext]]);
 }
 
 @end

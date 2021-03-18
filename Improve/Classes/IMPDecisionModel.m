@@ -1,9 +1,8 @@
 //
 //  IMPDecisionModel.m
-//  ImproveUnitTests
 //
-//  Created by Vladimir on 10/21/20.
-//  Copyright © 2020 Mind Blown Apps, LLC. All rights reserved.
+//  Created by Justin Chapweske on 3/17/21.
+//  Copyright © 2021 Mind Blown Apps, LLC. All rights reserved.
 //
 
 #import "IMPDecisionModel.h"
@@ -47,45 +46,6 @@
             handler([[self alloc] initWithModel:model], nil);
         });
     }];
-}
-
-+ (NSArray *)rankScoredVariants:(NSArray *)scored
-{
-    NSArray *shuffled = [scored shuffledArray];
-    NSArray *sorted = [shuffled sortedArrayUsingDescriptors:@[
-        [NSSortDescriptor sortDescriptorWithKey:@"score" ascending:NO]
-    ]];
-    NSArray *variants = [sorted valueForKeyPath: @"@unionOfObjects.variant"];
-    return variants;
-}
-
-/// Performs reservoir sampling to break ties when variants have the same score
-+ (nullable id)bestSampleFrom:(NSArray *)variants forScores:(NSArray *)scores
-{
-    double bestScore = -DBL_MAX;
-    id bestVariant = nil;
-    NSInteger replacementCount = 0;
-    for (NSInteger i = 0; i < scores.count; i++)
-    {
-        double score = [scores[i] doubleValue];
-        if (score > bestScore)
-        {
-            bestScore = score;
-            bestVariant = variants[i];
-            replacementCount = 0;
-        }
-        else if (score == bestScore)
-        {
-            double replacementProbability = 1.0 / (double)(2 + replacementCount);
-            replacementCount++;
-            if (drand48() <= replacementProbability) {
-                bestScore = score;
-                bestVariant = variants[i];
-            }
-        }
-    }
-
-    return bestVariant;
 }
 
 - (instancetype) initWithModel:(MLModel *) model
@@ -147,7 +107,7 @@
 }
 
 - (NSArray *) score:(NSArray *)variants
-            context:(NSDictionary *)context
+              given:(NSDictionary *)context
 {
     @synchronized (self) {
         if (!variants || [variants count] == 0) {
@@ -163,6 +123,46 @@
             return @[];
         }
     }
+}
+
+
++ (NSArray *)rankScoredVariants:(NSArray *)scored
+{
+    NSArray *shuffled = [scored shuffledArray];
+    NSArray *sorted = [shuffled sortedArrayUsingDescriptors:@[
+        [NSSortDescriptor sortDescriptorWithKey:@"score" ascending:NO]
+    ]];
+    NSArray *variants = [sorted valueForKeyPath: @"@unionOfObjects.variant"];
+    return variants;
+}
+
+/// Performs reservoir sampling to break ties when variants have the same score
++ (nullable id)bestSampleFrom:(NSArray *)variants forScores:(NSArray *)scores
+{
+    double bestScore = -DBL_MAX;
+    id bestVariant = nil;
+    NSInteger replacementCount = 0;
+    for (NSInteger i = 0; i < scores.count; i++)
+    {
+        double score = [scores[i] doubleValue];
+        if (score > bestScore)
+        {
+            bestScore = score;
+            bestVariant = variants[i];
+            replacementCount = 0;
+        }
+        else if (score == bestScore)
+        {
+            double replacementProbability = 1.0 / (double)(2 + replacementCount);
+            replacementCount++;
+            if (drand48() <= replacementProbability) {
+                bestScore = score;
+                bestVariant = variants[i];
+            }
+        }
+    }
+
+    return bestVariant;
 }
 
 @end

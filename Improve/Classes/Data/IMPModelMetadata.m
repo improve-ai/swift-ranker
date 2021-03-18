@@ -20,7 +20,7 @@
 
     _numberOfFeatures = [_lookupTable[1] count];
     _seed = [json[@"model_seed"] unsignedIntValue];
-    _model = json[@"model"];
+    _modelName = json[@"model"];
 
     return self;
 }

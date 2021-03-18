@@ -70,6 +70,18 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     return self;
 }
 
+- (NSArray *)topRunnersUp:(NSArray *)ranked
+{
+    NSRange range = NSMakeRange(0, MIN(self.maxRunnersUp, ranked.count));
+    return [ranked subarrayWithRange:range];
+}
+
+- (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount
+{
+    return drand48() < 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
+}
+
+
 - (id)trackUsingBestFromDecision:(IMPDecision *)decision
 {
     BOOL shouldTrackRunnersUp = decision.shouldTrackRunnersUp;
@@ -78,7 +90,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         kTypeKey: kDecisionType,
         kModelKey: decision.modelName,
         kCountKey: @(decision.variants.count),
-        kContextKey: decision.context
+        kContextKey: decision.givens
     } mutableCopy];
 
     NSArray *runnersUp = nil;
