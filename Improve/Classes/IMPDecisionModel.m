@@ -155,6 +155,7 @@
         NSMutableArray *scores = [NSMutableArray arrayWithCapacity:prediction.count];
         for (NSUInteger i = 0; i < prediction.count; i++) {
             double val = [[prediction featuresAtIndex:i] featureValueForName:@"target"].doubleValue;
+            val += ((double)arc4random() / UINT32_MAX) * pow(2, -17); // add a very small random number to randomly break ties
             [scores addObject:@(val)];
         }
         return scores;

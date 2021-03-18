@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Takes an array of variants and context and returns an array of NSNumbers of the scores.
  */
-- (NSArray *) score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
+- (NSArray *)score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
 
 @end
 

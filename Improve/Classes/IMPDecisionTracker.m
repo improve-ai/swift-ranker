@@ -63,7 +63,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     _historyId = [defaults stringForKey:kHistoryIdDefaultsKey];
     if (!_historyId) {
-        _historyId = [self generateHistoryId];
+        _historyId = [[NSUUID UUID] UUIDString];
         [defaults setObject:_historyId forKey:kHistoryIdDefaultsKey];
     }
 
@@ -81,10 +81,13 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     return drand48() < 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
-- (id)track:(IMPDecision *)decision runnersUp:(NSArray *)runnersUp
+- (void)track:(id) variant variants:(NSArray *)variants given:(NSDictionary *) givens modelName:(NSString *)modelName runnersUp:(NSArray *)runnersUp
 {
-    BOOL shouldTrackRunnersUp = decision.shouldTrackRunnersUp;
 
+    if (!modelName) {
+        IMPErrLog("Improve.track error modelName is nil");
+        return;
+    }
     NSMutableDictionary *body = [@{
         kTypeKey: kDecisionType,
         kModelKey: decision.modelName,
@@ -94,11 +97,6 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
     NSArray *runnersUp = nil;
     if (shouldTrackRunnersUp) {
-        // Runners up should be calculated before `best` in order to prevent extra work
-        // `topRunnersUp` require calculation of `ranked`, the results
-        // may be used to calculate `best`.
-        // Calling just `best` without tracking will perform reservouir sampling,
-        // which is faster than ranking.
         runnersUp = decision.topRunnersUp;
         body[kRunnersUpKey] = runnersUp;
     }
@@ -254,19 +252,6 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         }
     }];
     [dataTask resume];
-}
-
-- (NSString *) generateHistoryId {
-    int historyIdSize = 32; // 256 bits
-    SInt8 bytes[historyIdSize];
-    int status = SecRandomCopyBytes(kSecRandomDefault, historyIdSize, bytes);
-    if (status != errSecSuccess) {
-        IMPErrLog("SecRandomCopyBytes failed, status: %d", status);
-        return nil;
-    }
-    NSData *data = [[NSData alloc] initWithBytes:bytes length:historyIdSize];
-    NSString *historyId = [data base64EncodedStringWithOptions:0];
-    return historyId;
 }
 
 /// Example: 2020-02-03T03:16:36.073Z
