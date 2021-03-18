@@ -88,35 +88,43 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         IMPErrLog("Improve.track error modelName is nil");
         return;
     }
+    
     NSMutableDictionary *body = [@{
         kTypeKey: kDecisionType,
         kModelKey: modelName,
-        kCountKey: @(decision.variants.count),
-        kContextKey: decision.givens
+        kCountKey: @(variants.count),
     } mutableCopy];
 
-    if (runnersUp) {
+    if (variant) {
+        body[kVariantKey] = variant;
+    } else {
+        body[kVariantKey] = [NSNull null]; // explictly mark that the variant is a null value
+    }
+
+    if (givens) {
+        body[kContextKey] = givens;
+    }
+    
+    NSArray *runnersUp;
+    if (variantsRankedAndTrackRunnersUp) {
+        runnersUp = [self topRunnersUp:variants];
         body[kRunnersUpKey] = runnersUp;
     }
 
-    // Calculate `best` after `trackRunnersUp`
-    body[kVariantKey] = decision.best;
+    [NSException raise:@"Split sampling into its own method for unit testing" format:@"TODO"];
 
     // If runnersUp is nil `runnersUp.count` will return 0.
     NSInteger trackedVariantsCount = 1 + runnersUp.count;
     BOOL samplesCount = variants.count - trackedVariantsCount;
     if (samplesCount > 0)
     {
-        NSRange range = NSMakeRange(trackedVariantsCount,
-                                    decision.ranked.count);
+        NSRange range = NSMakeRange(trackedVariantsCount, variants.count);
         NSArray *samples = [variants subarrayWithRange:range];
         id sampleVariant = samples.randomObject;
         body[kSampleKey] = sampleVariant;
     }
 
     [self track:body];
-
-    return decision.best;
 }
 
 - (void)trackEvent:(NSString *)event

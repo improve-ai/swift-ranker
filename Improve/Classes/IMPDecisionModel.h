@@ -41,7 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
-
 @end
 
 NS_ASSUME_NONNULL_END
