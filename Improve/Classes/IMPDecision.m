@@ -6,6 +6,7 @@
 //
 
 #import "IMPDecision.h"
+#import "IMPLogging.h"
 
 // "Package private" methods
 @interface IMPDecisionTracker ()
@@ -38,14 +39,22 @@
 
 - (instancetype)chooseFrom:(NSArray *)variants
 {
-    _variants = variants;
+    if (_chosen) {
+        IMPErrLog("variant already chosen, ignoring variants");
+    } else {
+        _variants = variants;
+    }
     
     return self;
 }
 
 - (instancetype)given:(NSDictionary <NSString *, id>*)givens
 {
-    _givens = givens;
+    if (_chosen) {
+        IMPErrLog("variant already chosen, ignoring givens");
+    } else {
+        _givens = givens;
+    }
     
     return self;
 }
