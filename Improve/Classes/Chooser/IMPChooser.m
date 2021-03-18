@@ -27,39 +27,48 @@
     return self;
 }
 
-- (NSUInteger)numberOfFeatures {
-    return self.metadata.numberOfFeatures;
-}
-
 #pragma mark Predicting
 
-/**
-@returns Returns an array of NSNumber (double) objects.
-*/
-- (NSArray *)batchPrediction:(NSArray<NSDictionary *> *)batchFeatures
+
+- (NSArray <NSNumber *>*) score:(NSArray *)variants
+                          given:(nullable NSDictionary <NSString *, id>*)context
 {
-    MLArrayBatchProvider *batchProvider = [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:batchFeatures];
+    NSArray *encodedFeatures = [self encodeVariants:variants withContext:context];
+    
+    MLArrayBatchProvider *batchProvider = [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:encodedFeatures];
 
     NSError *error = nil;
-    id<MLBatchProvider> prediction
-    = [self.model predictionsFromBatch:batchProvider
-                               options:[MLPredictionOptions new]
-                                 error:&error];
+    id<MLBatchProvider> prediction = [self.model predictionsFromBatch:batchProvider
+                                                              options:[MLPredictionOptions new]
+                                                                error:&error];
     if (!prediction) {
         IMPErrLog("predictionsFromBatch error: %@", error);
         return nil;
     }
 
-    NSMutableArray *output = [NSMutableArray arrayWithCapacity:prediction.count];
+    NSMutableArray *scores = [NSMutableArray arrayWithCapacity:prediction.count];
     for (NSUInteger i = 0; i < prediction.count; i++) {
         double val = [[prediction featuresAtIndex:i] featureValueForName:@"target"].doubleValue;
-        [output addObject:@(val)];
+        [scores addObject:@(val)];
     }
-    return output;
+    return scores;
+    
+/*
+#ifdef IMP_DEBUG
+    for (NSInteger i = 0; i < scoredVariants.count; i++)
+    {
+        NSDictionary *variant = scoredVariants[i];
+        NSString *variantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"variant"]];
+        NSString *encodedVariantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"encodedVariant"]];
+        IMPLog("#%ld score: %@ variant: %@ encoded: %@", i, variant[@"score"], variantJson, encodedVariantJson);
+    }
+#endif
+ */
 }
 
+
 - (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
-                                   withContext:(nullable NSDictionary *)context
+                                withContext:(nullable NSDictionary *)context
 {
     if (!context) {
         // Safe nil context handling
@@ -79,23 +88,5 @@
     return result;
 }
 
-- (NSArray <NSNumber *>*) score:(NSArray *)variants
-                          given:(nullable NSDictionary <NSString *, id>*)context
-{
-    NSArray *encodedFeatures = [self encodeVariants:variants withContext:context];
-    NSArray *scores = [self batchPrediction:encodedFeatures];
-    
-#ifdef IMP_DEBUG
-/*    for (NSInteger i = 0; i < scoredVariants.count; i++)
-    {
-        NSDictionary *variant = scoredVariants[i];
-        NSString *variantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"variant"]];
-        NSString *encodedVariantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"encodedVariant"]];
-        IMPLog("#%ld score: %@ variant: %@ encoded: %@", i, variant[@"score"], variantJson, encodedVariantJson);
-    }*/
-#endif
-
-    return scores;
-}
 
 @end
