@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSString *modelName;
 @property(nonatomic, strong) IMPDecisionTracker *tracker;
 
++ (instancetype)load:(NSURL *)url;
++ (instancetype)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge;
 + (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
 + (void)loadAsync:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge completion:(IMPDecisionModelLoadCompletion)handler;
 
