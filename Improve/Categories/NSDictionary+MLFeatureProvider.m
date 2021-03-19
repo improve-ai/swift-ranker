@@ -37,25 +37,12 @@ static void *sDictionaryKey = &sDictionaryKey;
 }
 
 - (void)initMLFeatures{
-    NSMutableDictionary *prefixedValues = [NSMutableDictionary dictionaryWithCapacity:self.count];
-
-    MLFeatureValue *nan = [MLFeatureValue featureValueWithDouble:NAN];
-    for (NSUInteger i = 0; i < 254; i++)
-    {
-        NSString *key = [NSString stringWithFormat:@"%@%ld", @"f", i];
-
-        NSNumber *numbVal = self[@(i)];
-        MLFeatureValue *val;
-        if (numbVal != nil) {
-            val = [MLFeatureValue featureValueWithDouble:val.doubleValue];
-        } else {
-            val = nan;
-        }
-        prefixedValues[key] = val;
+    NSMutableDictionary *features = [NSMutableDictionary dictionaryWithCapacity:self.count];
+    for(NSString *featureName in self){
+        MLFeatureValue *val = [MLFeatureValue featureValueWithDouble:[self[featureName] doubleValue]];
+        features[featureName] = val;
     }
-    self.MLFeatures = prefixedValues;
+    self.MLFeatures = features;
 }
-
-
 
 @end

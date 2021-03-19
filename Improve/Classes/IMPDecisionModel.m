@@ -141,8 +141,8 @@
 
         NSArray *encodedFeatures = [_featureEncoder encodeVariants:variants given:givens];
         
-//        MLArrayBatchProvider *batchProvider = [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:encodedFeatures];
-        MLArrayBatchProvider *batchProvider = [self batchProviderForFeaturesArray:encodedFeatures];
+        MLArrayBatchProvider *batchProvider = [self batchProviderForFeaturesArray:encodedFeatures
+                                                                         filtered:self.model.modelDescription.inputDescriptionsByName.allKeys];
 
         NSError *error = nil;
         id<MLBatchProvider> prediction = [self.model predictionsFromBatch:batchProvider
@@ -177,12 +177,25 @@
 }
 
 - (nullable MLArrayBatchProvider* )
-batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *>*> *)batchFeatures
+batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *>*> *)batchFeatures filtered:(NSArray<NSString*>*)modelFeatureNames
 {
     NSMutableArray *featureProviders = [NSMutableArray arrayWithCapacity:batchFeatures.count];
-    for (NSDictionary<NSNumber*,id> *features in batchFeatures)
+    for (NSDictionary<NSString*, id> *features in batchFeatures)
     {
-        [featureProviders addObject:features];
+        NSMutableDictionary<NSString*, NSNumber*> *filteredFeatures = [features mutableCopy];
+        for(NSString *featureName in features){
+            BOOL exist = NO;
+            for(int i = 0; i < modelFeatureNames.count; i++){
+                if([modelFeatureNames[i] isEqualToString:featureName]){
+                    exist = YES;
+                    break;
+                }
+            }
+            if(!exist){
+                [filteredFeatures removeObjectForKey:featureName];
+            }
+        }
+        [featureProviders addObject:filteredFeatures];
     }
     return [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:featureProviders];
 }
