@@ -5,28 +5,57 @@
 //  Created by Justin Chapweske on 3/15/21.
 //  Copyright © 2021 Mind Blown Apps, LLC. All rights reserved.
 //
-
+#import <objc/runtime.h>
 #import "NSDictionary+MLFeatureProvider.h"
+
+static void *sDictionaryKey = &sDictionaryKey;
 
 @implementation NSDictionary (MLFeatureProvider)
 
-- (id)initWithFeatureNames:(NSSet<NSString *> *)featureNames
-{
-    if(self = [super init]){
-        _featureNames = featureNames;
-        _nan = [MLFeatureValue featureValueWithDouble:NAN]; // memoize a single NaN MLFeatureValue object // TODO can this be moved to class scope so its shared across feature provider instances?
-    }
-    return self;
+- (void)setMLFeatures:(NSDictionary<NSString *,MLFeatureValue *> *)MLFeatures{
+    objc_setAssociatedObject(self, sDictionaryKey, MLFeatures, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (MLFeatureValue *)featureValueForName:(NSString *)featureName
-{
-    NSNumber *val = self[featureName];
-    if (val != nil) {
-        return [MLFeatureValue featureValueWithDouble:val.doubleValue];
-    }
-    
-    return _nan;
+- (NSDictionary<NSString *,MLFeatureValue *> *)MLFeatures{
+    return objc_getAssociatedObject(self, sDictionaryKey);
 }
+
+#pragma mark MLFeatureProvider
+
+- (NSSet<NSString *> *)featureNames{
+    if(self.MLFeatures == nil){
+        [self initMLFeatures];
+    }
+    return [[NSSet alloc] initWithArray:[self.MLFeatures allKeys]];
+}
+
+- (nullable MLFeatureValue *)featureValueForName:(NSString *)featureName{
+    if(self.MLFeatures == nil){
+        [self initMLFeatures];
+    }
+    return self.MLFeatures[featureName];
+}
+
+- (void)initMLFeatures{
+    NSMutableDictionary *prefixedValues = [NSMutableDictionary dictionaryWithCapacity:self.count];
+
+    MLFeatureValue *nan = [MLFeatureValue featureValueWithDouble:NAN];
+    for (NSUInteger i = 0; i < 254; i++)
+    {
+        NSString *key = [NSString stringWithFormat:@"%@%ld", @"f", i];
+
+        NSNumber *numbVal = self[@(i)];
+        MLFeatureValue *val;
+        if (numbVal != nil) {
+            val = [MLFeatureValue featureValueWithDouble:val.doubleValue];
+        } else {
+            val = nan;
+        }
+        prefixedValues[key] = val;
+    }
+    self.MLFeatures = prefixedValues;
+}
+
+
 
 @end

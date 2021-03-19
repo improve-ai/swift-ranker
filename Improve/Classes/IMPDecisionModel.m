@@ -12,6 +12,7 @@
 #import "IMPFeatureEncoder.h"
 #import "IMPModelDownloader.h"
 #import "IMPDecision.h"
+#import "NSDictionary+MLFeatureProvider.h"
 
 @interface IMPDecisionModel ()
 // Private vars
@@ -140,7 +141,8 @@
 
         NSArray *encodedFeatures = [_featureEncoder encodeVariants:variants given:givens];
         
-        MLArrayBatchProvider *batchProvider = [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:encodedFeatures];
+//        MLArrayBatchProvider *batchProvider = [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:encodedFeatures];
+        MLArrayBatchProvider *batchProvider = [self batchProviderForFeaturesArray:encodedFeatures];
 
         NSError *error = nil;
         id<MLBatchProvider> prediction = [self.model predictionsFromBatch:batchProvider
@@ -172,6 +174,17 @@
         #endif
          */
     }
+}
+
+- (nullable MLArrayBatchProvider* )
+batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *>*> *)batchFeatures
+{
+    NSMutableArray *featureProviders = [NSMutableArray arrayWithCapacity:batchFeatures.count];
+    for (NSDictionary<NSNumber*,id> *features in batchFeatures)
+    {
+        [featureProviders addObject:features];
+    }
+    return [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:featureProviders];
 }
 
 // in case of tie, the lowest index wins. Ties should be very rare due to small random noise added to scores

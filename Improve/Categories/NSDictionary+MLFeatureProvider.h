@@ -12,11 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSDictionary (MLFeatureProvider) <MLFeatureProvider>
 
-@property(readonly, nonatomic) NSSet<NSString *> *featureNames;
-
-- (id)initWithFeatureNames:(NSSet<NSString *> *)featureNames;
-
-- (MLFeatureValue *)featureValueForName:(NSString *)featureName;
+@property (readonly, nonatomic) NSDictionary<NSString *, MLFeatureValue *> *MLFeatures;
 
 @end
 
