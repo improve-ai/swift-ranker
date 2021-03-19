@@ -179,19 +179,14 @@
 - (nullable MLArrayBatchProvider* )
 batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *>*> *)batchFeatures filtered:(NSArray<NSString*>*)modelFeatureNames
 {
+    NSSet *featureNameSet = [[NSSet alloc] initWithArray:modelFeatureNames];
+    
     NSMutableArray *featureProviders = [NSMutableArray arrayWithCapacity:batchFeatures.count];
     for (NSDictionary<NSString*, id> *features in batchFeatures)
     {
         NSMutableDictionary<NSString*, NSNumber*> *filteredFeatures = [features mutableCopy];
         for(NSString *featureName in features){
-            BOOL exist = NO;
-            for(int i = 0; i < modelFeatureNames.count; i++){
-                if([modelFeatureNames[i] isEqualToString:featureName]){
-                    exist = YES;
-                    break;
-                }
-            }
-            if(!exist){
+            if(![featureNameSet containsObject:featureName]){
                 [filteredFeatures removeObjectForKey:featureName];
             }
         }
