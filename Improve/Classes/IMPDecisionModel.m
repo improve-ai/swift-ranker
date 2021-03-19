@@ -151,7 +151,7 @@
         if (!prediction) {
             IMPErrLog("MLModel.predictionsFromBatch error: %@ returning variants scored in descending order", error);
             // assign gaussian scores for the variants in descending order
-            return [IMPDecisionModel scoreRankedVariants:variants];
+            return [IMPDecisionModel generateDescendingGaussians:variants.count];
         }
 
         NSMutableArray *scores = [NSMutableArray arrayWithCapacity:prediction.count];
@@ -219,7 +219,7 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *>*> *)b
     return nil;
 }
 
-+ (NSArray *)scoreRankedVariants:(NSArray *)rankedVariants {
++ (NSArray *)generateDescendingGaussians:(NSUInteger) count {
 /*Generate n = variants.count random (double) gaussian numbers
 Sort the numbers descending and return the sorted list
 The median value of the list is expected to have a score near zero
