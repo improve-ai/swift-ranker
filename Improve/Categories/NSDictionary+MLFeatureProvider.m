@@ -10,11 +10,7 @@
 
 static void *sFeatureNameKey = &sFeatureNameKey;
 
-static void *sMLFeatureKey = &sMLFeatureKey;
-
 @interface NSDictionary (MLFeatureProvider)
-
-@property (readonly, nonatomic) NSDictionary<NSString *, MLFeatureValue *> *MLFeatures;
 
 @property (strong, nonatomic) NSSet<NSString *> *featureNames;
 
@@ -37,29 +33,14 @@ static void *sMLFeatureKey = &sMLFeatureKey;
     return objc_getAssociatedObject(self, sFeatureNameKey);
 }
 
-- (void)setMLFeatures:(NSDictionary<NSString *,MLFeatureValue *> *)MLFeatures{
-    objc_setAssociatedObject(self, sMLFeatureKey, MLFeatures, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSDictionary<NSString *,MLFeatureValue *> *)MLFeatures{
-    return objc_getAssociatedObject(self, sMLFeatureKey);
-}
-
 #pragma mark MLFeatureProvider Protocol
+// Returns the value of the feature, or nil if no value exists for that name.
 - (nullable MLFeatureValue *)featureValueForName:(NSString *)featureName{
-    if(self.MLFeatures == nil){
-        [self initMLFeatures];
+    if(self[featureName] == nil){
+        return nil;
+    } else {
+        return [MLFeatureValue featureValueWithDouble:[self[featureName] doubleValue]];
     }
-    return self.MLFeatures[featureName];
-}
-
-- (void)initMLFeatures{
-    NSMutableDictionary *features = [NSMutableDictionary dictionaryWithCapacity:self.count];
-    for(NSString *featureName in self){
-        MLFeatureValue *val = [MLFeatureValue featureValueWithDouble:[self[featureName] doubleValue]];
-        features[featureName] = val;
-    }
-    self.MLFeatures = features;
 }
 
 @end
