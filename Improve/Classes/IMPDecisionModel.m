@@ -109,8 +109,10 @@
         }
 
         _modelName = metadata.modelName;
+        
+        NSSet *featureNames = [[NSSet alloc] initWithArray:_model.modelDescription.inputDescriptionsByName.allKeys];
 
-        _featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:metadata.seed];
+        _featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:metadata.seed andFeatureNames:featureNames];
     }
 }
 
@@ -141,8 +143,7 @@
 
         NSArray *encodedFeatures = [_featureEncoder encodeVariants:variants given:givens];
         
-        MLArrayBatchProvider *batchProvider = [self batchProviderForFeaturesArray:encodedFeatures
-                                                                         filtered:self.model.modelDescription.inputDescriptionsByName.allKeys];
+        MLArrayBatchProvider *batchProvider = [self batchProviderForFeaturesArray:encodedFeatures];
 
         NSError *error = nil;
         id<MLBatchProvider> prediction = [self.model predictionsFromBatch:batchProvider
@@ -177,20 +178,12 @@
 }
 
 - (nullable MLArrayBatchProvider* )
-batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *>*> *)batchFeatures filtered:(NSArray<NSString*>*)modelFeatureNames
+batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *> *> *)batchFeatures
 {
-    NSSet *featureNameSet = [[NSSet alloc] initWithArray:modelFeatureNames];
-    
     NSMutableArray *featureProviders = [NSMutableArray arrayWithCapacity:batchFeatures.count];
-    for (NSDictionary<NSString*, id> *features in batchFeatures)
+    for (NSDictionary<NSString *, id> *features in batchFeatures)
     {
-        NSMutableDictionary<NSString*, NSNumber*> *filteredFeatures = [features mutableCopy];
-        for(NSString *featureName in features){
-            if(![featureNameSet containsObject:featureName]){
-                [filteredFeatures removeObjectForKey:featureName];
-            }
-        }
-        [featureProviders addObject:filteredFeatures];
+        [featureProviders addObject:features];
     }
     return [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:featureProviders];
 }

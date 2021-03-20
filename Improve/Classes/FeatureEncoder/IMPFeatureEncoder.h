@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPFeatureEncoder : NSObject
 
-- (id)initWithModelSeed:(uint64_t)modelSeed;
+- (id)initWithModelSeed:(uint64_t)modelSeed andFeatureNames:(NSSet<NSString *> *)featureNames;
 
 - (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
                                       given:(nullable NSDictionary *)context;

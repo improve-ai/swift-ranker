@@ -20,6 +20,8 @@
 
 @property (nonatomic) double modelSeed;
 
+@property (strong, nonatomic) NSSet<NSString *> *modelFeatureNames;
+
 @end
 
 @implementation IMPFeatureEncoder{
@@ -28,12 +30,14 @@
     uint64_t _contextSeed;
 }
 
-- (id)initWithModelSeed:(uint64_t)modelSeed{
+- (id)initWithModelSeed:(uint64_t)modelSeed andFeatureNames:(NSSet<NSString *> *)featureNames{
     if(self = [super init]){
         self.modelSeed = modelSeed;
+        _modelFeatureNames = featureNames;
         _variantSeed = xxhash3("variant", strlen("variant"), self.modelSeed);
         _valueSeed = xxhash3("$value", strlen("$value"), _variantSeed);
         _contextSeed = xxhash3("context", strlen("context"), self.modelSeed);
+        
     }
     return self;
 }
@@ -59,38 +63,44 @@
 
 - (NSDictionary *)encodeContext:(id)context withNoise:(double)noise{
     NSMutableDictionary<NSString*, NSNumber*> *features = [[NSMutableDictionary alloc] init];
-    double shrinkedNoise = shrink(noise);
-    return [self encodeInternal:context withSeed:_contextSeed andNoise:shrinkedNoise forFeatures:features];
+    double smallNoise = shrink(noise);
+    return [self encodeInternal:context withSeed:_contextSeed andNoise:smallNoise forFeatures:features];
 }
 
 - (NSDictionary *)encodeVariant:(id)variant withNoise:(double)noise forFeatures:(nonnull NSMutableDictionary *)features{
-    double small_noise = shrink(noise);
-    
+    double smallNoise = shrink(noise);
     if([variant isKindOfClass:[NSDictionary class]]){
-        return [self encodeInternal:variant withSeed:_variantSeed andNoise:small_noise forFeatures:features];
+        return [self encodeInternal:variant withSeed:_variantSeed andNoise:smallNoise forFeatures:features];
     } else {
-        return [self encodeInternal:variant withSeed:_valueSeed andNoise:small_noise forFeatures:features];
+        return [self encodeInternal:variant withSeed:_valueSeed andNoise:smallNoise forFeatures:features];
     }
 }
 
 - (NSDictionary *)encodeInternal:(id)context withSeed:(uint64_t)seed andNoise:(double)noise forFeatures:(NSMutableDictionary *)features{
     if([context isKindOfClass:[NSNumber class]]){
         NSString *feature_name = [self hash_to_feature_name:seed];
-        NSNumber *curValue = [features objectForKey:feature_name];
-        NSNumber *newValue = [NSNumber numberWithDouble:([curValue doubleValue] + sprinkle([context doubleValue], noise))];
-        [features setObject:newValue forKey:feature_name];
+        if([self.modelFeatureNames containsObject:feature_name]){
+            NSNumber *curValue = [features objectForKey:feature_name];
+            NSNumber *newValue = [NSNumber numberWithDouble:([curValue doubleValue] + sprinkle([context doubleValue], noise))];
+            [features setObject:newValue forKey:feature_name];
+        }
     } else if([context isKindOfClass:[NSString class]]){
         const char *value = [context UTF8String];
         uint64_t hashed = xxhash3(value, strlen(value), seed);
         
         NSString *feature_name = [self hash_to_feature_name:seed];
-        NSNumber *curValue = [features objectForKey:feature_name];
-        NSNumber *newValue = [NSNumber numberWithDouble:([curValue doubleValue] + sprinkle((double)((hashed & 0xffff0000) >> 16) - 0x8000, noise))];
-        [features setObject:newValue forKey:feature_name];
+        if([self.modelFeatureNames containsObject:feature_name]){
+            NSNumber *curValue = [features objectForKey:feature_name];
+            NSNumber *newValue = [NSNumber numberWithDouble:([curValue doubleValue] + sprinkle((double)((hashed & 0xffff0000) >> 16) - 0x8000, noise))];
+            [features setObject:newValue forKey:feature_name];
+        }
+        
         NSString *hashed_feature_name = [self hash_to_feature_name:hashed];
-        NSNumber *curHashedValue = [features objectForKey:hashed_feature_name];
-        NSNumber *newHashedValue = [NSNumber numberWithDouble:([curHashedValue doubleValue] + sprinkle((double)(hashed & 0xffff) - 0x8000, noise))]; // the double type cast here cannot be omitted. Guess why?
-        [features setObject:newHashedValue forKey:hashed_feature_name];
+        if([self.modelFeatureNames containsObject:hashed_feature_name]){
+            NSNumber *curHashedValue = [features objectForKey:hashed_feature_name];
+            NSNumber *newHashedValue = [NSNumber numberWithDouble:([curHashedValue doubleValue] + sprinkle((double)(hashed & 0xffff) - 0x8000, noise))]; // the double type cast here cannot be omitted. Guess why?
+            [features setObject:newHashedValue forKey:hashed_feature_name];
+        }
     } else if([context isKindOfClass:[NSDictionary class]]){
         [context enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             const char* ckey = [key UTF8String];
