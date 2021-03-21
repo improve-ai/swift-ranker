@@ -118,10 +118,31 @@
     return features;
 }
 
+//- (NSString *)hash_to_feature_name:(uint64_t)hash{
+//    char buffer[12];
+//    sprintf(buffer, "%x", (uint32_t)(hash>>32));
+//    return @(buffer);
+//}
+
 - (NSString *)hash_to_feature_name:(uint64_t)hash{
-    char buffer[12];
-    sprintf(buffer, "%x", (uint32_t)(hash>>32));
-    return @(buffer);
+    char buffer[9] = {0};
+    hash = (hash >> 32);
+    const char* ref = "0123456789abcdef";
+    buffer[0] = ref[((hash >> 28) & 0xf)];
+    buffer[1] = ref[((hash >> 24) & 0xf)];
+    buffer[2] = ref[((hash >> 20) & 0xf)];
+    buffer[3] = ref[((hash >> 16) & 0xf)];
+    buffer[4] = ref[((hash >> 12) & 0xf)];
+    buffer[5] = ref[((hash >> 8) & 0xf)];
+    buffer[6] = ref[((hash >> 4) & 0xf)];
+    buffer[7] = ref[((hash) & 0xf)];
+    // skip leading zero
+    for(int i = 0; i < 8; ++i){
+        if(buffer[i] != '0'){
+            return @(buffer+i);
+        }
+    }
+    return @"0";
 }
 
 // convert uint64_t to 8 bytes
@@ -130,7 +151,5 @@
         buf[i] = (n >> (7-i)*8) & 0xff;
     }
 }
-
-
 
 @end
