@@ -10,7 +10,11 @@
 
 static void *sFeatureNameKey = &sFeatureNameKey;
 
+static void *sMLFeatureKey = &sMLFeatureKey;
+
 @interface NSDictionary (MLFeatureProvider)
+
+@property (readonly, nonatomic) NSDictionary<NSString *, MLFeatureValue *> *MLFeatures;
 
 @property (strong, nonatomic) NSSet<NSString *> *featureNames;
 
@@ -25,6 +29,14 @@ static void *sFeatureNameKey = &sFeatureNameKey;
     return self;
 }
 
+- (void)setMLFeatures:(NSDictionary<NSString *,MLFeatureValue *> *)MLFeatures{
+    objc_setAssociatedObject(self, sMLFeatureKey, MLFeatures, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSDictionary<NSString *,MLFeatureValue *> *)MLFeatures{
+    return objc_getAssociatedObject(self, sMLFeatureKey);
+}
+
 - (void)setFeatureNames:(NSSet<NSString *> *)modelFeatureNames{
     objc_setAssociatedObject(self, sFeatureNameKey, modelFeatureNames, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
@@ -34,13 +46,31 @@ static void *sFeatureNameKey = &sFeatureNameKey;
 }
 
 #pragma mark MLFeatureProvider Protocol
-// Returns the value of the feature, or nil if no value exists for that name.
+
 - (nullable MLFeatureValue *)featureValueForName:(NSString *)featureName{
-    if(self[featureName] == nil){
-        return nil;
-    } else {
-        return [MLFeatureValue featureValueWithDouble:[self[featureName] doubleValue]];
+    if(self.MLFeatures == nil){
+        [self initMLFeatures];
     }
+    return self.MLFeatures[featureName];
+}
+
+- (void)initMLFeatures{
+    NSMutableDictionary *mlFeatures = [NSMutableDictionary dictionaryWithCapacity:self.featureNames.count];
+    
+    MLFeatureValue *nanFeatureValue = [MLFeatureValue featureValueWithDouble:NAN];
+    
+    for(NSString *featureName in self.featureNames){
+        NSNumber *numValue = self[featureName];
+        MLFeatureValue *val;
+        if(numValue != nil){
+            val = [MLFeatureValue featureValueWithDouble:numValue.doubleValue];
+        } else {
+            val = nanFeatureValue;
+        }
+        mlFeatures[featureName] = val;
+    }
+    
+    self.MLFeatures = mlFeatures;
 }
 
 @end
