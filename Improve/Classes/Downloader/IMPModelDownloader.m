@@ -10,7 +10,7 @@
 #import <CoreML/CoreML.h>
 #import "NSFileManager+SafeCopy.h"
 #import "IMPLogging.h"
-#import "SHA1.h"
+#import "XXHashUtils.h"
 
 
 @implementation IMPModelDownloader {
@@ -63,7 +63,7 @@
         fileName = [NSString stringWithFormat:nameFormat, remoteURLStr];
     } else {
         const NSUInteger separLen = 2;
-        const NSUInteger remainLen = NAME_MAX - formatLen - kSHA1OutputStringLength - separLen;
+        const NSUInteger remainLen = NAME_MAX - formatLen - kXXHashOutputStringLength - separLen;
         const NSUInteger stripLen = urlLen - remainLen;
 
         NSMutableString *condensedURLStr = [NSMutableString new];
@@ -72,7 +72,7 @@
 
         NSRange stripRange = NSMakeRange(remainLen / 2, stripLen);
         NSString *strip = [remoteURLStr substringWithRange:stripRange];
-        NSString *encodedStrip = [SHA1 encode:strip];
+        NSString *encodedStrip = [XXHashUtils encode:strip];
         [condensedURLStr appendString:encodedStrip];
         [condensedURLStr appendString:@"-"];
 

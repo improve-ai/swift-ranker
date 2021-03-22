@@ -10,6 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern const NSUInteger kXXHashOutputStringLength;
+
 @interface XXHashUtils : NSObject
 
 + (NSString *)encode:(NSString *)string;

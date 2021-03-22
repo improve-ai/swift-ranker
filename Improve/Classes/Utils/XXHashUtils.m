@@ -9,6 +9,8 @@
 #import "XXHashUtils.h"
 #import "xxhash.h"
 
+const NSUInteger kXXHashOutputStringLength = 40;
+
 @implementation XXHashUtils
 
 + (NSString *)encode:(NSString *)string{
