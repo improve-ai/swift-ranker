@@ -12,11 +12,8 @@
 		54394F252540767F009D1CF1 /* IMPDecisionModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 54394F242540767F009D1CF1 /* IMPDecisionModel.m */; };
 		54394F2925407690009D1CF1 /* IMPDecisionTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 54394F2825407690009D1CF1 /* IMPDecisionTracker.m */; };
 		54394F99254AA752009D1CF1 /* IMPDecisionTrackerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54394F94254AA633009D1CF1 /* IMPDecisionTrackerTest.m */; };
-		54394F9E254AA893009D1CF1 /* IMPDecisionModelTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54394F9D254AA893009D1CF1 /* IMPDecisionModelTest.m */; };
-		54394FA1254AAB8C009D1CF1 /* IMPDecisionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54394FA0254AAB8C009D1CF1 /* IMPDecisionTest.m */; };
 		544A0E8024BB7B5E007BB69D /* LoggingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 544A0E7F24BB7B5E007BB69D /* LoggingTest.m */; };
 		5463D5772528D70400722CD7 /* MeditationTrials.json in Resources */ = {isa = PBXBuildFile; fileRef = 5463D5762528D70400722CD7 /* MeditationTrials.json */; };
-		548DA93E23EB570400825370 /* DataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 548DA93D23EB570400825370 /* DataTests.m */; };
 		5496CE5A23EC7CE7004E96C5 /* NSArray+Random.m in Sources */ = {isa = PBXBuildFile; fileRef = 5496CE5923EC7CE7004E96C5 /* NSArray+Random.m */; };
 		549EE78023EF3DD60040D880 /* IMPModelDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 549EE77F23EF3DD60040D880 /* IMPModelDownloader.m */; };
 		549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 549EE78123F1C4AC0040D880 /* DownloaderTest.m */; };
@@ -25,8 +22,6 @@
 		54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 54A4D3F52403D56400BC1FA8 /* IMPModelMetadata.m */; };
 		54AC4DDD24537B80007CB073 /* TestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 54AC4DDC24537B80007CB073 /* TestUtils.m */; };
 		54CB9B4223D988F10005BB94 /* IMPJSONUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */; };
-		54CB9B4D23D989140005BB94 /* JSONFlattenerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B4823D989140005BB94 /* JSONFlattenerTest.m */; };
-		54D1A7182525C68E00F8BF38 /* ChooserTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */; };
 		54E66A012401BEDD0032BC52 /* trials.json in Resources */ = {isa = PBXBuildFile; fileRef = 54E66A002401BEDC0032BC52 /* trials.json */; };
 		54FCD00924C8464600D30031 /* MultitypeSortTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */; };
 		54FCD00B24C87D7C00D30031 /* MultitypeContextTestTrainingData.json in Resources */ = {isa = PBXBuildFile; fileRef = 54FCD00A24C87D7C00D30031 /* MultitypeContextTestTrainingData.json */; };
@@ -47,13 +42,10 @@
 		54394F2725407690009D1CF1 /* IMPDecisionTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPDecisionTracker.h; sourceTree = "<group>"; };
 		54394F2825407690009D1CF1 /* IMPDecisionTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPDecisionTracker.m; sourceTree = "<group>"; };
 		54394F94254AA633009D1CF1 /* IMPDecisionTrackerTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPDecisionTrackerTest.m; sourceTree = "<group>"; };
-		54394F9D254AA893009D1CF1 /* IMPDecisionModelTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPDecisionModelTest.m; sourceTree = "<group>"; };
-		54394FA0254AAB8C009D1CF1 /* IMPDecisionTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPDecisionTest.m; sourceTree = "<group>"; };
 		544A0E7E24B6FF8B007BB69D /* IMPLogging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPLogging.h; sourceTree = "<group>"; };
 		544A0E7F24BB7B5E007BB69D /* LoggingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoggingTest.m; sourceTree = "<group>"; };
 		5463D5762528D70400722CD7 /* MeditationTrials.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MeditationTrials.json; sourceTree = "<group>"; };
 		548BEE1E241241F500EFD26A /* TestModel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = TestModel.mlmodel; sourceTree = "<group>"; };
-		548DA93D23EB570400825370 /* DataTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DataTests.m; sourceTree = "<group>"; };
 		5496CE5823EC7CE7004E96C5 /* NSArray+Random.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSArray+Random.h"; sourceTree = "<group>"; };
 		5496CE5923EC7CE7004E96C5 /* NSArray+Random.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Random.m"; sourceTree = "<group>"; };
 		5496CE5C23ED5FFE004E96C5 /* IMPCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPCommon.h; sourceTree = "<group>"; };
@@ -71,8 +63,6 @@
 		54CB9B2423D987800005BB94 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		54CB9B3823D988F10005BB94 /* IMPJSONUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMPJSONUtils.h; sourceTree = "<group>"; };
 		54CB9B3A23D988F10005BB94 /* IMPJSONUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMPJSONUtils.m; sourceTree = "<group>"; };
-		54CB9B4823D989140005BB94 /* JSONFlattenerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONFlattenerTest.m; sourceTree = "<group>"; };
-		54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChooserTest.m; sourceTree = "<group>"; };
 		54E66A002401BEDC0032BC52 /* trials.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = trials.json; path = Python/trials.json; sourceTree = "<group>"; };
 		54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImproveTrainingTest.m; sourceTree = "<group>"; };
 		54FCD00824C8464600D30031 /* MultitypeSortTestTrainingData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = MultitypeSortTestTrainingData.json; path = Python/MultitypeSortTestTrainingData.json; sourceTree = "<group>"; };
@@ -147,13 +137,8 @@
 				54BEA57B24BD9E5600F8A52C /* Tests.pch */,
 				540B857E23E6CBF900D578A4 /* TestUtils.h */,
 				54AC4DDC24537B80007CB073 /* TestUtils.m */,
-				54CB9B4823D989140005BB94 /* JSONFlattenerTest.m */,
-				54CB9B6423DD9E0E0005BB94 /* ChooserTest.m */,
-				548DA93D23EB570400825370 /* DataTests.m */,
 				549EE78123F1C4AC0040D880 /* DownloaderTest.m */,
-				54394F9D254AA893009D1CF1 /* IMPDecisionModelTest.m */,
 				54394F94254AA633009D1CF1 /* IMPDecisionTrackerTest.m */,
-				54394FA0254AAB8C009D1CF1 /* IMPDecisionTest.m */,
 				54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */,
 				544A0E7F24BB7B5E007BB69D /* LoggingTest.m */,
 				B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */,
@@ -323,14 +308,10 @@
 			files = (
 				E761D2FF2600454700F6F238 /* NSDictionary+MLFeatureProvider.m in Sources */,
 				54A39ACB253498E700F895FF /* SHA1.m in Sources */,
-				54D1A7182525C68E00F8BF38 /* ChooserTest.m in Sources */,
 				54394F2925407690009D1CF1 /* IMPDecisionTracker.m in Sources */,
 				54394F99254AA752009D1CF1 /* IMPDecisionTrackerTest.m in Sources */,
 				54394F21253DB815009D1CF1 /* IMPDecision.m in Sources */,
-				54394FA1254AAB8C009D1CF1 /* IMPDecisionTest.m in Sources */,
-				54CB9B4D23D989140005BB94 /* JSONFlattenerTest.m in Sources */,
 				544A0E8024BB7B5E007BB69D /* LoggingTest.m in Sources */,
-				54394F9E254AA893009D1CF1 /* IMPDecisionModelTest.m in Sources */,
 				54A4D3F62403D56400BC1FA8 /* IMPModelMetadata.m in Sources */,
 				549EE78023EF3DD60040D880 /* IMPModelDownloader.m in Sources */,
 				549EE78223F1C4AC0040D880 /* DownloaderTest.m in Sources */,
@@ -340,7 +321,6 @@
 				540FF471245A2C4A00690EDA /* NSFileManager+SafeCopy.m in Sources */,
 				B3675EA725FE2E460040FDBB /* xxhash.c in Sources */,
 				B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */,
-				548DA93E23EB570400825370 /* DataTests.m in Sources */,
 				54AC4DDD24537B80007CB073 /* TestUtils.m in Sources */,
 				5496CE5A23EC7CE7004E96C5 /* NSArray+Random.m in Sources */,
 			);
