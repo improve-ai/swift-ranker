@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NSDictionary+MLFeatureProvider.h"
 
 #import "IMPFeatureEncoder.h"
 #import "xxhash.h"
@@ -54,7 +55,7 @@
     
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:variants.count];
     for (NSDictionary *variant in variants) {
-        NSMutableDictionary *variantFeatures = contextFeatures ? [contextFeatures mutableCopy] : [[NSMutableDictionary alloc] init];
+        NSMutableDictionary *variantFeatures = contextFeatures ? [contextFeatures mutableCopy] : [[NSMutableDictionary alloc] initWithFeatureNames:self.modelFeatureNames];
         
         [result addObject:[self encodeVariant:variant withNoise:noise forFeatures:variantFeatures]];
     }
@@ -62,7 +63,7 @@
 }
 
 - (NSDictionary *)encodeContext:(id)context withNoise:(double)noise{
-    NSMutableDictionary<NSString*, NSNumber*> *features = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *features = [[NSMutableDictionary alloc] initWithFeatureNames:self.modelFeatureNames];
     double smallNoise = shrink(noise);
     return [self encodeInternal:context withSeed:_contextSeed andNoise:smallNoise forFeatures:features];
 }
@@ -80,8 +81,8 @@
     if([context isKindOfClass:[NSNumber class]]){
         NSString *feature_name = [self hash_to_feature_name:seed];
         if([self.modelFeatureNames containsObject:feature_name]){
-            NSNumber *curValue = [features objectForKey:feature_name];
-            NSNumber *newValue = [NSNumber numberWithDouble:([curValue doubleValue] + sprinkle([context doubleValue], noise))];
+            MLFeatureValue *curValue = [features objectForKey:feature_name];
+            MLFeatureValue *newValue = [MLFeatureValue featureValueWithDouble:(curValue.doubleValue + sprinkle([context doubleValue], noise))];
             [features setObject:newValue forKey:feature_name];
         }
     } else if([context isKindOfClass:[NSString class]]){
@@ -90,15 +91,15 @@
         
         NSString *feature_name = [self hash_to_feature_name:seed];
         if([self.modelFeatureNames containsObject:feature_name]){
-            NSNumber *curValue = [features objectForKey:feature_name];
-            NSNumber *newValue = [NSNumber numberWithDouble:([curValue doubleValue] + sprinkle((double)((hashed & 0xffff0000) >> 16) - 0x8000, noise))];
+            MLFeatureValue *curValue = [features objectForKey:feature_name];
+            MLFeatureValue *newValue = [MLFeatureValue featureValueWithDouble:(curValue.doubleValue + sprinkle((double)((hashed & 0xffff0000) >> 16) - 0x8000, noise))];
             [features setObject:newValue forKey:feature_name];
         }
         
         NSString *hashed_feature_name = [self hash_to_feature_name:hashed];
         if([self.modelFeatureNames containsObject:hashed_feature_name]){
-            NSNumber *curHashedValue = [features objectForKey:hashed_feature_name];
-            NSNumber *newHashedValue = [NSNumber numberWithDouble:([curHashedValue doubleValue] + sprinkle((double)(hashed & 0xffff) - 0x8000, noise))]; // the double type cast here cannot be omitted. Guess why?
+            MLFeatureValue *curHashedValue = [features objectForKey:hashed_feature_name];
+            MLFeatureValue *newHashedValue = [MLFeatureValue featureValueWithDouble:(curHashedValue.doubleValue + + sprinkle((double)(hashed & 0xffff) - 0x8000, noise))];
             [features setObject:newHashedValue forKey:hashed_feature_name];
         }
     } else if([context isKindOfClass:[NSDictionary class]]){
@@ -118,12 +119,7 @@
     return features;
 }
 
-//- (NSString *)hash_to_feature_name:(uint64_t)hash{
-//    char buffer[12];
-//    sprintf(buffer, "%x", (uint32_t)(hash>>32));
-//    return @(buffer);
-//}
-
+// int to hex string; skip leading zero
 - (NSString *)hash_to_feature_name:(uint64_t)hash{
     char buffer[9] = {0};
     hash = (hash >> 32);

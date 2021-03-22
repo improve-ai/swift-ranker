@@ -60,11 +60,8 @@ static void *sMLFeatureKey = &sMLFeatureKey;
     MLFeatureValue *nanFeatureValue = [MLFeatureValue featureValueWithDouble:NAN];
     
     for(NSString *featureName in self.featureNames){
-        NSNumber *numValue = self[featureName];
-        MLFeatureValue *val;
-        if(numValue != nil){
-            val = [MLFeatureValue featureValueWithDouble:numValue.doubleValue];
-        } else {
+        MLFeatureValue *val = self[featureName];
+        if(val == nil){
             val = nanFeatureValue;
         }
         mlFeatures[featureName] = val;
