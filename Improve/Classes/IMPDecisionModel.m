@@ -25,15 +25,30 @@
 
 @synthesize model = _model;
 
-+ (instancetype)load:(NSURL *)url
++ (id)load:(NSURL *)url
 {
     return [self load:url cacheMaxAge:0];
 }
 
-+ (instancetype)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge
++ (id)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge
 {
-    [NSException raise:@"TODO" format:@"TODO"];
-    return nil;
+    // tried using dispatch_semaphore_create here, but it caused a deadlock,
+    // as the completion handler is called in main thread which is already
+    // blocked by dispatch_semaphore_wait.
+    __block MLModel *model = nil;
+    __block BOOL finished = NO;
+    [self loadAsync:url cacheMaxAge:cacheMaxAge completion:^(MLModel * _Nullable compiledModel, NSError * _Nullable error) {
+        model = compiledModel;
+        finished = YES;
+    }];
+    
+    while (!finished) {
+        NSLog(@"%@, Runloop waiting......", [NSDate date]);
+        BOOL result = [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+        NSLog(@"%@, Runloop waiting......, %d", [NSDate date], result);
+    }
+    
+    return model;
 }
 
 + (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler

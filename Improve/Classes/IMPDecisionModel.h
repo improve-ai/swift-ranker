@@ -11,7 +11,7 @@
 
 @class IMPDecisionModel;
 
-typedef void (^IMPDecisionModelLoadCompletion) (IMPDecisionModel *_Nullable compiledModelURL, NSError *_Nullable error);
+typedef void (^IMPDecisionModelLoadCompletion) (MLModel *_Nullable compiledModel, NSError *_Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,8 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSString *modelName;
 @property(nonatomic, strong) IMPDecisionTracker *tracker;
 
-+ (instancetype)load:(NSURL *)url;
-+ (instancetype)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge;
++ (id)load:(NSURL *)url;
++ (id)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge;
 + (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
 + (void)loadAsync:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge completion:(IMPDecisionModelLoadCompletion)handler;
 
