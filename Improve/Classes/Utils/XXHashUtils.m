@@ -9,7 +9,7 @@
 #import "XXHashUtils.h"
 #import "xxhash.h"
 
-const NSUInteger kXXHashOutputStringLength = 40;
+const NSUInteger kXXHashOutputStringLength = 16;
 
 @implementation XXHashUtils
 

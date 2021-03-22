@@ -143,4 +143,11 @@
     }
 }
 
+- (void)test256{
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:[NSURL URLWithString:@"www.dummyurl.com"]];
+    NSString *remoteUrl = @"https://github.com/improveai/ios-sdk/blob/master/Improve/Tests/ImproveUnitTests/model/this-is-a-200-char-long-model-url-for-test/1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijk/model.mlmodel";
+    NSString *modelName = [downloader modelFileNameFromURL:[NSURL URLWithString:remoteUrl]];
+    NSLog(@"length = %lu, Model Name = %@", modelName.length, modelName);
+}
+
 @end
