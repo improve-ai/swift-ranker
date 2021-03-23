@@ -26,20 +26,20 @@
 
 @synthesize model = _model;
 
-+ (id)load:(NSURL *)url
++ (instancetype)load:(NSURL *)url
 {
     return [self load:url cacheMaxAge:0];
 }
 
-+ (id)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge
++ (instancetype)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge
 {
     // tried using dispatch_semaphore_create here, but it caused a deadlock,
     // as the completion handler is called in main thread which is already
     // blocked by dispatch_semaphore_wait.
-    __block MLModel *model = nil;
+    __block IMPDecisionModel *decisionModel = nil;
     __block BOOL finished = NO;
-    [self loadAsync:url cacheMaxAge:cacheMaxAge completion:^(MLModel * _Nullable compiledModel, NSError * _Nullable error) {
-        model = compiledModel;
+    [self loadAsync:url cacheMaxAge:cacheMaxAge completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+        decisionModel = compiledModel;
         finished = YES;
     }];
     
@@ -49,7 +49,7 @@
         NSLog(@"%@, Runloop waiting......, %d", [NSDate date], result);
     }
     
-    return model;
+    return decisionModel;
 }
 
 + (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler

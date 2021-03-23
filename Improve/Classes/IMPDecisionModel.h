@@ -9,9 +9,10 @@
 #import <CoreML/CoreML.h>
 #import "IMPDecisionTracker.h"
 
+@class IMPDecision;
 @class IMPDecisionModel;
 
-typedef void (^IMPDecisionModelLoadCompletion) (MLModel *_Nullable compiledModel, NSError *_Nullable error);
+typedef void (^IMPDecisionModelLoadCompletion) (IMPDecisionModel *_Nullable compiledModel, NSError *_Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,12 +23,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSString *modelName;
 @property(nonatomic, strong) IMPDecisionTracker *tracker;
 
-+ (id)load:(NSURL *)url;
-+ (id)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge;
++ (instancetype)load:(NSURL *)url;
++ (instancetype)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge;
 + (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
 + (void)loadAsync:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge completion:(IMPDecisionModelLoadCompletion)handler;
 
 - (instancetype)initWithModel:(MLModel *)mlModel;
+
+- (IMPDecision *)chooseFrom:(NSArray *)variants;
 
 /**
  Takes an array of variants and returns an array of NSNumbers of the scores.

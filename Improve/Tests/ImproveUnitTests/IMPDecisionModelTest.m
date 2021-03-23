@@ -10,13 +10,13 @@
 #import "IMPDecisionModel.h"
 #import "IMPUtils.h"
 
-@interface DecisionModelTest : XCTestCase
+@interface IMPDecisionModelTest : XCTestCase
 
 @property (strong, nonatomic) NSArray *urlList;
 
 @end
 
-@implementation DecisionModelTest
+@implementation IMPDecisionModelTest
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -39,7 +39,7 @@
     for(NSString *urlstr in self.urlList){
         NSURL *url = [urlstr hasPrefix:@"http"] ? [NSURL URLWithString:urlstr] : [NSURL fileURLWithPath:urlstr];
         XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
-        [IMPDecisionModel loadAsync:url completion:^(MLModel * _Nullable compiledModel, NSError * _Nullable error) {
+        [IMPDecisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
             if(error){
                 NSLog(@"loadAsync error: %@", error);
             }
@@ -54,8 +54,8 @@
 - (void)testLoadSync{
     for(NSString *urlstr in self.urlList){
         NSURL *url = [urlstr hasPrefix:@"http"] ? [NSURL URLWithString:urlstr] : [NSURL fileURLWithPath:urlstr];
-        MLModel *compiledModel = [IMPDecisionModel load:url];
-        XCTAssertNotNil(compiledModel);
+        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+        XCTAssertNotNil(decisionModel);
     }
 }
 
@@ -65,8 +65,8 @@
         XCTAssert(![NSThread isMainThread]);
         for(NSString *urlstr in self.urlList){
             NSURL *url = [urlstr hasPrefix:@"http"] ? [NSURL URLWithString:urlstr] : [NSURL fileURLWithPath:urlstr];
-            MLModel *compiledModel = [IMPDecisionModel load:url];
-            XCTAssertNotNil(compiledModel);
+            IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+            XCTAssertNotNil(decisionModel);
         }
         [ex fulfill];
     });
@@ -87,6 +87,15 @@
     NSLog(@"median = %f, average = %f", [[array objectAtIndex:n/2] doubleValue], total / n);
     double diff = ABS([[array objectAtIndex:n/2] doubleValue] * 100);
     XCTAssert(diff < 10); // might fail here
+}
+
+- (void)testChooseFrom{
+    NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/TestModel.mlmodel"];
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+    XCTAssertNotNil(decisionModel);
+    
+    IMPDecision *decision = [decisionModel chooseFrom:@[@"hello", @"world"]];
+    XCTAssertNotNil(decision);
 }
 
 @end
