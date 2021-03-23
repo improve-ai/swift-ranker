@@ -13,6 +13,7 @@
 #import "IMPModelDownloader.h"
 #import "IMPDecision.h"
 #import "NSDictionary+MLFeatureProvider.h"
+#import "IMPUtils.h"
 
 @interface IMPDecisionModel ()
 // Private vars
@@ -79,11 +80,9 @@
 
 - (instancetype) initWithModel:(MLModel *) model
 {
-    self = [super init];
-    if (!self) return nil;
-
-    self.model = model; // call setter to set up metadata and chooser
-
+    if(self = [super init]){
+        self.model = model;
+    }
     return self;
 }
 
@@ -167,7 +166,7 @@
         if (!prediction) {
             IMPErrLog("MLModel.predictionsFromBatch error: %@ returning variants scored in descending order", error);
             // assign gaussian scores for the variants in descending order
-            return [IMPDecisionModel generateDescendingGaussians:variants.count];
+            return [IMPUtils generateDescendingGaussians:variants.count];
         }
 
         NSMutableArray *scores = [NSMutableArray arrayWithCapacity:prediction.count];
@@ -223,15 +222,6 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *> *> *)
 
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
 {
-    [NSException raise:@"TODO" format:@"TODO"];
-    return nil;
-}
-
-+ (NSArray *)generateDescendingGaussians:(NSUInteger) count {
-/*Generate n = variants.count random (double) gaussian numbers
-Sort the numbers descending and return the sorted list
-The median value of the list is expected to have a score near zero
- */
     [NSException raise:@"TODO" format:@"TODO"];
     return nil;
 }

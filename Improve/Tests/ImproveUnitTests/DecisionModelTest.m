@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "IMPDecisionModel.h"
+#import "IMPUtils.h"
 
 @interface DecisionModelTest : XCTestCase
 
@@ -70,6 +71,22 @@
         [ex fulfill];
     });
     [self waitForExpectations:@[ex] timeout:300];
+}
+
+- (void)testDescendingGaussians{
+    int n = 4000;
+    double total = 0.0;
+    
+    NSArray *array = [IMPUtils generateDescendingGaussians:n];
+    
+    for(int i = 0; i < n; ++i){
+        NSLog(@"%f", [[array objectAtIndex:i] doubleValue]);
+        total += [[array objectAtIndex:i] doubleValue];
+    }
+    
+    NSLog(@"median = %f, average = %f", [[array objectAtIndex:n/2] doubleValue], total / n);
+    double diff = ABS([[array objectAtIndex:n/2] doubleValue] * 100);
+    XCTAssert(diff < 10); // might fail here
 }
 
 @end

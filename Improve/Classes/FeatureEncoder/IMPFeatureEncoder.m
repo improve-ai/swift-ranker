@@ -46,8 +46,6 @@
 - (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
                                       given:(nullable NSDictionary *)context
 {
-    [NSException raise:@"TODO filter valid feature names from model" format:@"TODO"];
-    
     double noise = ((double)arc4random() / UINT32_MAX); // between 0.0 and 1.0
 
     // if context, encode contextFeatures
