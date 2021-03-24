@@ -109,7 +109,7 @@
     }
     
     // shuffle
-    srand(time(0));
+    srand((unsigned int)time(0));
     for(NSUInteger i = 0; i < variants.count*10; ++i){
         NSUInteger m = rand() % variants.count;
         NSUInteger n = rand() % variants.count;

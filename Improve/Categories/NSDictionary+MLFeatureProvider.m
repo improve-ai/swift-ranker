@@ -10,11 +10,9 @@
 
 static void *sFeatureNameKey = &sFeatureNameKey;
 
-static void *sMLFeatureKey = &sMLFeatureKey;
+MLFeatureValue * NaNValue = nil;
 
 @interface NSDictionary (MLFeatureProvider)
-
-@property (readonly, nonatomic) NSDictionary<NSString *, MLFeatureValue *> *MLFeatures;
 
 @property (strong, nonatomic) NSSet<NSString *> *featureNames;
 
@@ -25,16 +23,11 @@ static void *sMLFeatureKey = &sMLFeatureKey;
 - (instancetype)initWithFeatureNames:(NSSet<NSString *> *)featureNames{
     if(self = [self init]){
         self.featureNames = featureNames;
+        if(NaNValue ==  nil){
+            NaNValue =  [MLFeatureValue featureValueWithDouble:NAN];
+        }
     }
     return self;
-}
-
-- (void)setMLFeatures:(NSDictionary<NSString *,MLFeatureValue *> *)MLFeatures{
-    objc_setAssociatedObject(self, sMLFeatureKey, MLFeatures, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSDictionary<NSString *,MLFeatureValue *> *)MLFeatures{
-    return objc_getAssociatedObject(self, sMLFeatureKey);
 }
 
 - (void)setFeatureNames:(NSSet<NSString *> *)modelFeatureNames{
@@ -48,26 +41,11 @@ static void *sMLFeatureKey = &sMLFeatureKey;
 #pragma mark MLFeatureProvider Protocol
 
 - (nullable MLFeatureValue *)featureValueForName:(NSString *)featureName{
-    if(self.MLFeatures == nil){
-        [self initMLFeatures];
+    MLFeatureValue *val = self[featureName];
+    if(val == nil){
+        val = NaNValue;
     }
-    return self.MLFeatures[featureName];
-}
-
-- (void)initMLFeatures{
-    NSMutableDictionary *mlFeatures = [NSMutableDictionary dictionaryWithCapacity:self.featureNames.count];
-    
-    MLFeatureValue *nanFeatureValue = [MLFeatureValue featureValueWithDouble:NAN];
-    
-    for(NSString *featureName in self.featureNames){
-        MLFeatureValue *val = self[featureName];
-        if(val == nil){
-            val = nanFeatureValue;
-        }
-        mlFeatures[featureName] = val;
-    }
-    
-    self.MLFeatures = mlFeatures;
+    return val;
 }
 
 @end
