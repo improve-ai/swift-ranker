@@ -98,4 +98,38 @@
     XCTAssertNotNil(decision);
 }
 
+- (void)testRank{
+    NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
+    NSMutableArray *scores = [[NSMutableArray alloc] init];
+    int size = 10;
+    
+    for(NSUInteger i = 0; i < size; ++i){
+        variants[i] = [NSNumber numberWithInteger:i];
+        scores[i] = [NSNumber numberWithDouble:i/100000.0];
+    }
+    
+    // shuffle
+    srand(time(0));
+    for(NSUInteger i = 0; i < variants.count*10; ++i){
+        NSUInteger m = rand() % variants.count;
+        NSUInteger n = rand() % variants.count;
+        [variants exchangeObjectAtIndex:m withObjectAtIndex:n];
+        [scores exchangeObjectAtIndex:m withObjectAtIndex:n];
+    }
+    for(int i = 0; i < variants.count; ++i){
+        NSLog(@"variant before sorting: %d", variants[i].intValue);
+    }
+    
+    NSLog(@"\n");
+    NSArray<NSNumber *> *result = [IMPDecisionModel rank:variants withScores:scores];
+    
+    for(NSUInteger i = 0; i+1 < variants.count; ++i){
+        XCTAssert(result[i].unsignedIntValue < result[i+1].unsignedIntValue);
+    }
+    
+    for(int i = 0; i < variants.count; ++i){
+        NSLog(@"variant after sorting: %d", result[i].intValue);
+    }
+}
+
 @end

@@ -220,10 +220,25 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *> *> *)
     return bestVariant;
 }
 
+// Case 3 #2 refsort approach: https://stackoverflow.com/a/27309301
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
 {
-    [NSException raise:@"TODO" format:@"TODO"];
-    return nil;
+    NSMutableArray<NSNumber *> *indices = [[NSMutableArray alloc] initWithCapacity:variants.count];
+    for(NSUInteger i = 0; i < variants.count; ++i){
+        indices[i] = [NSNumber numberWithInteger:i];
+    }
+    
+    // sort ascending
+    [indices sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+        return scores[[obj1 unsignedIntValue]].doubleValue > scores[[obj2 unsignedIntValue]].doubleValue;
+    }];
+    
+    NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:variants.count];
+    for(NSUInteger i = 0; i < indices.count; ++i){
+        result[i] = variants[indices[i].intValue];
+    }
+    
+    return result;
 }
 
 @end
