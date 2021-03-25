@@ -228,9 +228,9 @@ batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *> *> *)
         indices[i] = [NSNumber numberWithInteger:i];
     }
     
-    // sort ascending
+    // sort descending
     [indices sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-        return scores[[obj1 unsignedIntValue]].doubleValue > scores[[obj2 unsignedIntValue]].doubleValue;
+        return scores[[obj1 unsignedIntValue]].doubleValue < scores[[obj2 unsignedIntValue]].doubleValue;
     }];
     
     NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:variants.count];

@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "IMPDecisionModel.h"
+#import "IMPDecision.h"
 #import "IMPUtils.h"
 
 @interface IMPDecisionModelTest : XCTestCase
@@ -91,11 +92,12 @@
 
 - (void)testChooseFrom{
     NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/TestModel.mlmodel"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
-    XCTAssertNotNil(decisionModel);
     
-    IMPDecision *decision = [decisionModel chooseFrom:@[@"hello", @"world"]];
-    XCTAssertNotNil(decision);
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSDictionary *context = @{@"language": @"cowboy"};
+    
+    NSString *greeting = [[[[IMPDecisionModel load:url] chooseFrom:variants] given:context] get];
+    NSLog(@"greeting: %@", greeting);
 }
 
 - (void)testRank{
@@ -124,7 +126,7 @@
     NSArray<NSNumber *> *result = [IMPDecisionModel rank:variants withScores:scores];
     
     for(NSUInteger i = 0; i+1 < variants.count; ++i){
-        XCTAssert(result[i].unsignedIntValue < result[i+1].unsignedIntValue);
+        XCTAssert(result[i].unsignedIntValue > result[i+1].unsignedIntValue);
     }
     
     for(int i = 0; i < variants.count; ++i){
