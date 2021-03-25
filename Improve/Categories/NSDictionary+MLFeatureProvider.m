@@ -42,10 +42,7 @@ MLFeatureValue * NaNValue = nil;
 
 - (nullable MLFeatureValue *)featureValueForName:(NSString *)featureName{
     MLFeatureValue *val = self[featureName];
-    if(val == nil){
-        val = NaNValue;
-    }
-    return val;
+    return val ? val : NaNValue;
 }
 
 @end
