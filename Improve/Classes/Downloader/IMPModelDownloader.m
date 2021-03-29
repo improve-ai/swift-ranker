@@ -5,6 +5,7 @@
 //  Created by Vladimir on 2/8/20.
 //  Copyright © 2020 Mind Blown Apps, LLC. All rights reserved.
 //
+#import <zlib.h>
 
 #import "IMPModelDownloader.h"
 #import <CoreML/CoreML.h>
@@ -15,6 +16,10 @@
 
 @implementation IMPModelDownloader {
     NSURLSessionDataTask *_downloadTask;
+    z_stream _stream;
+    NSMutableData *_zipInputBuffer;
+    NSMutableData *_zipOutputBuffer;
+    IMPModelDownloaderCompletion _completion;
 }
 
 - (instancetype)initWithURL:(NSURL *)remoteModelURL maxAge:(NSInteger) maxAge
@@ -119,6 +124,84 @@
     return [NSString stringWithFormat:@"ai.improve.lastDownloadDate.%@", self.remoteModelURL.absoluteString];
 }
 
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)data {
+    NSHTTPURLResponse *response = (NSHTTPURLResponse *)dataTask.response;
+
+    // only do it in the first didReceiveData callback
+    if(_zipInputBuffer == nil && dataTask.response != nil){
+        // retrieve gzip file size from headers
+        NSUInteger contentLength = [[response.allHeaderFields objectForKey:@"Content-Length"] unsignedIntValue];
+        _zipInputBuffer = [NSMutableData dataWithCapacity:contentLength];
+        _zipOutputBuffer = [NSMutableData dataWithCapacity:contentLength*2];
+        _stream.next_in = (Bytef *)_zipInputBuffer.bytes;
+        
+        if(inflateInit2(&_stream, 47)){ // why 47?
+            NSError *error = [[NSError alloc] initWithDomain:@"improve.ai" code:200 userInfo:@{ NSLocalizedFailureReasonErrorKey:@"LocalizedFailureReason"}];
+            _completion(nil, error);
+            return ;
+        }
+    }
+    [_zipInputBuffer appendData:data];
+    _stream.avail_in += data.length;
+    
+    if(_stream.total_out >= _zipOutputBuffer.length){
+        _zipOutputBuffer.length += _zipInputBuffer.length / 2;
+    }
+    _stream.next_out = (uint8_t *)_zipOutputBuffer.bytes + _stream.total_out;
+    _stream.avail_out = (uInt)(_zipOutputBuffer.length - _stream.total_out);
+    int status = inflate(&_stream, Z_SYNC_FLUSH);
+    if(status != Z_OK){
+        if(inflateEnd(&_stream) == Z_OK){
+            if(status == Z_STREAM_END){
+                _zipOutputBuffer.length = _stream.total_out;
+                [self saveAndCompile:_zipOutputBuffer];
+            }
+        }
+    }
+}
+
+- (void)downloadStreamWithCompletion:(IMPModelDownloaderCompletion)completion{
+    _completion = completion;
+    
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:[NSOperationQueue currentQueue]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.remoteModelURL];
+    [[session dataTaskWithRequest:request] resume];
+}
+
+- (void)saveAndCompile:(NSData *)data{
+    NSError *error;
+    
+    NSURL *cachedModelURL = self.cachedModelURL;
+    
+    NSString *tempDir = NSTemporaryDirectory();
+    NSString *tempPath = [tempDir stringByAppendingPathComponent:[NSString stringWithFormat:@"ai.improve.tmp.%@.mlmodel", [[NSUUID UUID] UUIDString]]];
+
+    IMPLog("Writing to path: %@ ...", tempPath);
+    if (![data writeToFile:tempPath atomically:YES]) {
+        NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Src URL: %@, Dest path: %@ Size: %ld", self.remoteModelURL, tempPath, data.length];
+        error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
+                                    code:-100
+                                userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+        IMPLog("Write failed: %@", errMsg);
+        if (_completion) { _completion(nil, error); }
+        return;
+    }
+
+    IMPLog("Compiling model from %@ to %@", tempPath, cachedModelURL);
+    if (![self compileModelAtURL:[NSURL fileURLWithPath:tempPath] toURL:cachedModelURL error:&error]) {
+        IMPLog("Compile failed");
+        if (_completion) { _completion(nil, error); }
+        return;
+    }
+
+    [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:self.lastDownloadDateDefaultsKey];
+    
+    IMPLog("Model downloaded finished.");
+    if (_completion) { _completion(cachedModelURL, nil); }
+}
+
 - (void)downloadWithCompletion:(IMPModelDownloaderCompletion)completion
 {
     // check to see if there is a cached .mlmodelc
@@ -129,6 +212,11 @@
         return;
     }
     
+    if([self.remoteModelURL.absoluteString hasSuffix:@".gz"]){
+        NSLog(@"has suffix .gz");
+        [self downloadStreamWithCompletion:completion];
+        return ;
+    }
     IMPLog("Loading model at: %@", self.remoteModelURL);
 
     NSURLSession *session = [NSURLSession sharedSession];

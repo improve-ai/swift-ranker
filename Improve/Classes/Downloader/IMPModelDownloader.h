@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Downloads models, compiles them to obtain .mlmodelc file and stores model files in cache.
  */
-@interface IMPModelDownloader : NSObject
+@interface IMPModelDownloader : NSObject<NSURLSessionDataDelegate>
 
 @property(strong, nonatomic) NSURL *remoteModelURL;
 
