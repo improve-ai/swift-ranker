@@ -150,4 +150,77 @@
     NSLog(@"length = %lu, Model Name = %@", modelName.length, modelName);
 }
 
+- (void)testDownloadLocal{
+    NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/workspace/improve-ai/Improve/Tests/ImproveUnitTests/TestModel.mlmodel"];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
+    
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
+    [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+        if (error != nil) {
+            XCTFail(@"Downloading error: %@", error);
+        }
+        XCTAssert(compiledModelURL != nil);
+        NSLog(@"Compiled model URL: %@", compiledModelURL);
+
+        [expectation fulfill];
+
+    }];
+    [self waitForExpectations:@[expectation] timeout:60.0];
+}
+
+- (void)testDownloadLocalGzip{
+    NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/workspace/improve-ai/Improve/Tests/ImproveUnitTests/TestModel.mlmodel.gz"];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
+    
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
+    [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+        if (error != nil) {
+            XCTFail(@"Downloading error: %@", error);
+        }
+        XCTAssert(compiledModelURL != nil);
+        NSLog(@"Compiled model URL: %@", compiledModelURL);
+
+        [expectation fulfill];
+
+    }];
+    [self waitForExpectations:@[expectation] timeout:60.0];
+
+}
+
+- (void)testDownloadRemote{
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel"];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
+    
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
+    [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+        if (error != nil) {
+            XCTFail(@"Downloading error: %@", error);
+        }
+        XCTAssert(compiledModelURL != nil);
+        NSLog(@"Compiled model URL: %@", compiledModelURL);
+
+        [expectation fulfill];
+
+    }];
+    [self waitForExpectations:@[expectation] timeout:60.0];
+}
+
+- (void)testDownloadRemoteGzip{
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel3.gz"];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
+    
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
+    [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+        if (error != nil) {
+            XCTFail(@"Downloading error: %@", error);
+        }
+        XCTAssert(compiledModelURL != nil);
+        NSLog(@"Compiled model URL: %@", compiledModelURL);
+
+        [expectation fulfill];
+
+    }];
+    [self waitForExpectations:@[expectation] timeout:600.0];
+}
+
 @end

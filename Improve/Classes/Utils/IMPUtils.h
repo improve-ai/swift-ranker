@@ -16,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSArray *)generateDescendingGaussians:(NSUInteger) count;
 
++ (NSString *)modelFileNameFromURL:(NSURL *)remoteURL;
+
 @end
 
 NS_ASSUME_NONNULL_END

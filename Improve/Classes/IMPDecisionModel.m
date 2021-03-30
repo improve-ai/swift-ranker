@@ -26,19 +26,13 @@
 
 @synthesize model = _model;
 
-+ (instancetype)load:(NSURL *)url
-{
-    return [self load:url cacheMaxAge:0];
-}
-
-+ (instancetype)load:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge
-{
++ (instancetype)load:(NSURL *)url {
     // tried using dispatch_semaphore_create here, but it caused a deadlock,
     // as the completion handler is called in main thread which is already
     // blocked by dispatch_semaphore_wait.
     __block IMPDecisionModel *decisionModel = nil;
     __block BOOL finished = NO;
-    [self loadAsync:url cacheMaxAge:cacheMaxAge completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+    [self loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
         decisionModel = compiledModel;
         finished = YES;
     }];
@@ -52,15 +46,8 @@
     return decisionModel;
 }
 
-+ (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler
-{
-    [self loadAsync:url cacheMaxAge:0 completion:handler];
-}
-
-+ (void)loadAsync:(NSURL *)url cacheMaxAge:(NSInteger) cacheMaxAge completion:(IMPDecisionModelLoadCompletion)handler
-{
-    [[[IMPModelDownloader alloc] initWithURL:url maxAge:cacheMaxAge] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
-
++ (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler {
+    [[[IMPModelDownloader alloc] initWithURL:url] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (downloadError) {
                 if (handler) handler(nil, downloadError);

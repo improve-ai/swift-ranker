@@ -17,17 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface IMPModelDownloader : NSObject<NSURLSessionDataDelegate>
 
-@property(strong, nonatomic) NSURL *remoteModelURL;
-
-@property(strong, nonatomic) NSDictionary *headers;
-@property(assign, nonatomic) NSInteger maxAge;
-
-@property(readonly, nonatomic) BOOL isLoading;
-
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithURL:(NSURL *)remoteArchiveURL;
-- (instancetype)initWithURL:(NSURL *)remoteArchiveURL maxAge:(NSInteger) maxAge NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithURL:(NSURL *)remoteArchiveURL NS_DESIGNATED_INITIALIZER;
 
 - (void)downloadWithCompletion:(nullable IMPModelDownloaderCompletion)completion;
 
