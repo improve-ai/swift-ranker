@@ -4,8 +4,6 @@
 //  Created by Vladimir on 2/8/20.
 //  Copyright © 2020 Mind Blown Apps, LLC. All rights reserved.
 //
-#import <zlib.h>
-
 #import "IMPModelDownloader.h"
 #import <CoreML/CoreML.h>
 #import "NSFileManager+SafeCopy.h"
@@ -30,11 +28,6 @@
 
 @implementation IMPModelDownloader {
     NSURLSessionDataTask *_downloadTask;
-    z_stream _stream;
-    NSMutableData *_zipInputBuffer;
-    NSMutableData *_zipOutputBuffer;
-    IMPModelDownloaderCompletion _completion;
-    int _bytesReceived;
 }
 
 - (instancetype)initWithURL:(NSURL *)remoteModelURL {
@@ -187,7 +180,6 @@
     }
 }
 
-
 - (NSURL *)unzipLocalZipModel:(NSURL *)url{
     NSData *data = [NSData dataWithContentsOfURL:url];
     NSData *unzippedData = [data gunzippedData];
@@ -196,7 +188,6 @@
     if(![unzippedData writeToFile:tempPath atomically:YES]){
         return nil;
     }
-    
     return [NSURL fileURLWithPath:tempPath];
 }
 
