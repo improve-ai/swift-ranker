@@ -25,8 +25,6 @@
 
 - (NSTimeInterval)cachedModelAge;
 
-- (NSString *)modelFileNameFromURL:(NSURL *)remoteURL;
-
 @end
 
 @implementation DownloaderTest
@@ -116,38 +114,6 @@
     }];
 
     [self waitForExpectations:@[expectation] timeout:cacheAgeSeconds + 30.0];
-}
-
-- (void)testModelFileNames
-{
-    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:[NSURL URLWithString:@"www.dummyurl.com"]];
-
-    NSArray *strings = @[
-        @"https://my-model-url/model.mlmodel",
-        @"https://improve-v5-resources-test-models-117097735164.s3-us-west-2.amazonaws.com/models/test/mlmodel/latest.tar.gz",
-        @"https%3A%2F%2Fthis-is-a-181-char-long-string-already-percent-encoded-for-test-1234567890abcdefghijklmnopq.amazon.s3-us-west-2.amazonaws.com%2Fmodels%2Ftest%2Fmlmodel%2Flatest.tar.gz",
-        @"https://github.com/improveai/ios-sdk/blob/master/Improve/Tests/ImproveUnitTests/model/this-is-a-200-char-long-model-url-for-test/1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijk/model.mlmodel",
-        @"https://this-is-a-500-char-long-string-for-test--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------amazon.s3-us-east-1.amazonaws.com/models/test/mlmodel/latest.tar.gz"
-    ];
-    for (NSString *str in strings)
-    {
-        // Check output length
-        NSURL *url = [NSURL URLWithString:str];
-        NSString *modelName = [downloader modelFileNameFromURL:url];
-        NSLog(@"%@", modelName);
-        XCTAssert(modelName.length <= NAME_MAX);
-
-        // Check hash consistency
-        NSString *modelName2 = [downloader modelFileNameFromURL:url];
-        XCTAssert([modelName isEqualToString:modelName2]);
-    }
-}
-
-- (void)test256{
-    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:[NSURL URLWithString:@"www.dummyurl.com"]];
-    NSString *remoteUrl = @"https://github.com/improveai/ios-sdk/blob/master/Improve/Tests/ImproveUnitTests/model/this-is-a-200-char-long-model-url-for-test/1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijk/model.mlmodel";
-    NSString *modelName = [downloader modelFileNameFromURL:[NSURL URLWithString:remoteUrl]];
-    NSLog(@"length = %lu, Model Name = %@", modelName.length, modelName);
 }
 
 - (void)testDownloadLocal{

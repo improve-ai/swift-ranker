@@ -6,9 +6,7 @@
 //
 #import "IMPModelDownloader.h"
 #import <CoreML/CoreML.h>
-#import "NSFileManager+SafeCopy.h"
 #import "IMPLogging.h"
-#import "XXHashUtils.h"
 #import "IMPUtils.h"
 #import "NSData+GZIP.h"
 #import "IMPStreamDownloadHandler.h"
@@ -63,14 +61,13 @@
 #pragma mark NSURLSessionDataDelegate
 - (void)onFinishStreamDownload:(NSData *)data withCompletion:(IMPModelDownloaderCompletion)completion{
     [self saveAndCompile:data withCompletion:completion];
-    if(_streamDownloadHandler != nil){
+    if(_streamDownloadHandler){
         _streamDownloadHandler.delegate = nil;
     }
 }
 
 - (void)saveAndCompile:(NSData *)data withCompletion:(IMPModelDownloaderCompletion)completion{
-    NSError *error;
-    NSURL *cachedModelURL = self.cachedModelURL;
+    NSError *error = nil;
     NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"ai.improve.tmp.%@.mlmodel", [[NSUUID UUID] UUIDString]]];
     
     IMPLog("Writing to path: %@ ...", tempPath);
@@ -86,18 +83,10 @@
         return;
     }
 
-    IMPLog("Compiling model from %@ to %@", tempPath, cachedModelURL);
-    if (![self compileModelAtURL:[NSURL fileURLWithPath:tempPath] toURL:cachedModelURL error:&error]) {
-        IMPLog("Compile failed");
-        if (completion) {
-            completion(nil, error);
-        }
-        return;
-    }
-
-    IMPLog("Model downloaded finished.");
-    if (completion) {
-        completion(cachedModelURL, nil);
+    IMPLog("Compiling model %@", tempPath);
+    NSURL *compiledUrl = [self compileModelAtURL:[NSURL fileURLWithPath:tempPath] error:&error];
+    if(completion){
+        completion(compiledUrl, error);
     }
 }
 
@@ -149,34 +138,27 @@
 }
 
 - (void)loadLocal:(NSURL *)url WithCompletion:(IMPModelDownloaderCompletion)completion{
-    NSError *error;
-    NSURL *cachedModelURL = self.cachedModelURL;
+    NSError *error = nil;
     NSURL *localModelURL = url;
     
+    // unzip
     if([self.modelUrl.path hasSuffix:@".gz"]){
-        // unzip
         localModelURL = [self unzipLocalZipModel:self.modelUrl];
         if(localModelURL == nil) {
             NSError *error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                                  code:-100
                                              userInfo:@{NSLocalizedDescriptionKey: @"unzip error"}];
             IMPLog("unzip failed %@", url);
-            completion(nil, error);
+            if(completion){
+                completion(nil, error);
+            }
             return ;
         }
     }
     
-    if (![self compileModelAtURL:localModelURL toURL:cachedModelURL error:&error]) {
-        IMPLog("Compile failed");
-        if (completion) {
-            completion(nil, error);
-        }
-        return;
-    }
-
-    IMPLog("Model downloaded finished.");
-    if (completion) {
-        completion(cachedModelURL, nil);
+    NSURL *compiledUrl = [self compileModelAtURL:localModelURL error:&error];
+    if(completion){
+        completion(compiledUrl, error);
     }
 }
 
@@ -191,24 +173,11 @@
     return [NSURL fileURLWithPath:tempPath];
 }
 
-- (BOOL)compileModelAtURL:(NSURL *)modelDefinitionURL toURL:(NSURL *)destURL error:(NSError **)error {
+- (NSURL *)compileModelAtURL:(NSURL *)modelDefinitionURL error:(NSError **)error{
     CFAbsoluteTime startTime = CFAbsoluteTimeGetCurrent();
     NSURL *compiledURL = [MLModel compileModelAtURL:modelDefinitionURL error:error];
-    if (!compiledURL) {
-        return false;
-    }
     IMPLog("compileTime: %f ms", (CFAbsoluteTimeGetCurrent() - startTime) * 1000.0);
-
-    if (![[NSFileManager defaultManager] safeCopyItemAtURL:compiledURL toURL:destURL error:error]) {
-        return false;
-    }
-    return true;
-}
-
-- (NSURL *) cachedModelURL {
-    NSString *fileName = [IMPUtils modelFileNameFromURL:self.modelUrl];
-    NSString *compiledModelPath = [NSTemporaryDirectory() stringByAppendingPathComponent:fileName];
-    return [NSURL fileURLWithPath:compiledModelPath];
+    return compiledURL;
 }
 
 - (void)cancel {
