@@ -71,29 +71,33 @@
     _stream.avail_in += data.length;
     _bytesReceived += data.length;
     
-//    IMPLog(@"didReceiveData, %ld, avail_in=%u, bytesReceived=%d, %p", data.length, _stream.avail_in, _bytesReceived, _zipInputData.bytes);
+    NSLog(@"didReceiveData, %ld, avail_in=%u, bytesReceived=%d, %p", data.length, _stream.avail_in, _bytesReceived, _zipInputData.bytes);
     
-    if(_stream.total_out >= _zipOutputData.length){
-        _zipOutputData.length += 500*1024;
-    }
-    _stream.next_out = (uint8_t *)_zipOutputData.mutableBytes + _stream.total_out;
-    _stream.avail_out = (uInt)(_zipOutputData.length - _stream.total_out);
-    int status = inflate(&_stream, Z_SYNC_FLUSH);
+    int status = Z_OK;
+    do {
+        if(_stream.total_out >= _zipOutputData.length){
+            _zipOutputData.length += 500 * 1024;
+        }
+        _stream.next_out = (uint8_t *)_zipOutputData.mutableBytes + _stream.total_out;
+        _stream.avail_out = (uInt)(_zipOutputData.length - _stream.total_out);
+        status = inflate(&_stream, Z_SYNC_FLUSH);
+    } while(status == Z_OK && _stream.total_out >= _zipOutputData.length);
+    
+    NSLog(@"didReceiveData, inflate status=%d, outputLength=%ld", status, _zipOutputData.length);
     if(status != Z_OK){
         if(inflateEnd(&_stream) == Z_OK){
             if(status == Z_STREAM_END){
-                IMPLog("stream decompression sucessfully");
+                IMPLog("streaming decompression sucessfully");
                 _zipOutputData.length = _stream.total_out;
                 [self.delegate onFinishStreamDownload:_zipOutputData withCompletion:_completion];
             } else {
-                [self onDownloadError:@"" withErrCode:-100];
+                [self onDownloadError:@"inflateEnd err" withErrCode:-100];
             }
         } else {
             [self onDownloadError:@"inflateEnd err" withErrCode:-200];
         }
     } else {
         // gzip expecting more data, do nothing here
-        // IMPLog("gzip decompression, expecting more data....");
     }
 }
 
