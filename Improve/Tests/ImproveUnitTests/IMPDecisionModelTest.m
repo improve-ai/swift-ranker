@@ -10,6 +10,7 @@
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
 #import "IMPUtils.h"
+#import "TestUtils.h"
 
 @interface IMPDecisionModelTest : XCTestCase
 
@@ -30,15 +31,16 @@
 - (NSArray *)urlList{
     if(_urlList == nil){
         _urlList = @[
-            @"/Users/phx/Documents/improve-ai/TestModel.mlmodel",
-            @"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel"];
+            [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/TestModel.mlmodel"],
+            [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel"],
+            [[TestUtils bundle] URLForResource:@"TestModel"
+                                 withExtension:@"mlmodelc"]];
     }
     return _urlList;
 }
 
 - (void)testLoadAsync{
-    for(NSString *urlstr in self.urlList){
-        NSURL *url = [urlstr hasPrefix:@"http"] ? [NSURL URLWithString:urlstr] : [NSURL fileURLWithPath:urlstr];
+    for(NSURL *url in self.urlList){
         XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
         [IMPDecisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
             if(error){
@@ -53,8 +55,7 @@
 }
 
 - (void)testLoadSync{
-    for(NSString *urlstr in self.urlList){
-        NSURL *url = [urlstr hasPrefix:@"http"] ? [NSURL URLWithString:urlstr] : [NSURL fileURLWithPath:urlstr];
+    for(NSURL *url in self.urlList){
         IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
         XCTAssertNotNil(decisionModel);
     }
@@ -91,13 +92,19 @@
 }
 
 - (void)testChooseFrom{
-//    NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/workspace/improve-ai/Improve/Tests/ImproveUnitTests/TestModel.mlmodel.gz"];
-    
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel3.gz"];
-//    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel"];
-    
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
+    for(NSURL *url in self.urlList){
+        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+        XCTAssertNotNil(decisionModel);
+        NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
+        IMPLog("url=%@, greeting=%@", url, greeting);
+        XCTAssertNotNil(greeting);
+    }
+    
+//    NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/workspace/improve-ai/Improve/Tests/ImproveUnitTests/TestModel.mlmodel.gz"];
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel3.gz"];
+//    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel"];
     
     NSString *greeting = [[[[IMPDecisionModel load:url] chooseFrom:variants] given:context] get];
     NSLog(@"greeting: %@", greeting);

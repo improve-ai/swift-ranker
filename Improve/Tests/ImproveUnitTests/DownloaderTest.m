@@ -189,4 +189,23 @@
     [self waitForExpectations:@[expectation] timeout:600.0];
 }
 
+- (void)testDownloadCompiled{
+    NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
+                                           withExtension:@"mlmodelc"];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
+    
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
+    [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+        if (error != nil) {
+            XCTFail(@"Downloading error: %@", error);
+        }
+        XCTAssert(compiledModelURL != nil);
+        NSLog(@"Compiled model URL: %@", compiledModelURL);
+
+        [expectation fulfill];
+
+    }];
+    [self waitForExpectations:@[expectation] timeout:3.0];
+}
+
 @end

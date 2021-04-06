@@ -45,6 +45,11 @@
 }
 
 - (void)downloadWithCompletion:(IMPModelDownloaderCompletion)completion {
+    if([self.modelUrl hasDirectoryPath]){
+        completion(self.modelUrl, nil);
+        return ;
+    }
+    
     if([self.modelUrl.absoluteString hasPrefix:@"http"]){
         if([self.modelUrl.path hasSuffix:@".gz"]) {
             [self.streamDownloadHandler downloadWithCompletion:completion];
