@@ -36,7 +36,7 @@
 
         // Check id shape
         NSString *historyId = tracker.historyId;
-        NSLog(@"%@", historyId);
+        NSLog(@"historyId: %@", historyId);
         XCTAssertNotNil(historyId);
         XCTAssert(historyId.length > 32 / 3 * 4);
     }

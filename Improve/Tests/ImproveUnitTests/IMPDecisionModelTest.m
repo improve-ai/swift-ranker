@@ -65,8 +65,7 @@
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         XCTAssert(![NSThread isMainThread]);
-        for(NSString *urlstr in self.urlList){
-            NSURL *url = [urlstr hasPrefix:@"http"] ? [NSURL URLWithString:urlstr] : [NSURL fileURLWithPath:urlstr];
+        for(NSURL *url in self.urlList){
             IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
             XCTAssertNotNil(decisionModel);
         }
@@ -142,6 +141,48 @@
     for(int i = 0; i < variants.count; ++i){
         NSLog(@"variant after sorting: %d", result[i].intValue);
     }
+}
+
+- (void)testTopScoringVariant{
+    NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
+    NSMutableArray *scores = [[NSMutableArray alloc] init];
+    int size = 10;
+    
+    for(NSUInteger i = 0; i < size; ++i){
+        variants[i] = [NSNumber numberWithInteger:i];
+        scores[i] = [NSNumber numberWithDouble:i/100000.0];
+    }
+    
+    // shuffle
+    srand((unsigned int)time(0));
+    for(NSUInteger i = 0; i < variants.count; ++i){
+        NSUInteger m = rand() % variants.count;
+        NSUInteger n = rand() % variants.count;
+        [variants exchangeObjectAtIndex:m withObjectAtIndex:n];
+        [scores exchangeObjectAtIndex:m withObjectAtIndex:n];
+    }
+    
+    NSArray<NSNumber *> *rankedResult = [IMPDecisionModel rank:variants withScores:scores];
+    
+    for(int i = 0; i < variants.count; ++i){
+        NSLog(@"variants: %@", variants[i]);
+    }
+    id topScoringVariant = [IMPDecisionModel topScoringVariant:variants withScores:scores];
+    NSLog(@"topScoringVariant: %@", topScoringVariant);
+    XCTAssertEqual(rankedResult[0], topScoringVariant);
+    
+    // in case of tie, the lowest index wins
+    [variants addObject:@10.1];
+    [variants addObject:@10.2];
+    [variants addObject:@10.3];
+    
+    [scores addObject:@10];
+    [scores addObject:@10];
+    [scores addObject:@10];
+    
+    topScoringVariant = [IMPDecisionModel topScoringVariant:variants withScores:scores];
+    NSLog(@"topScoringVariant: %@", topScoringVariant);
+    XCTAssertEqual([topScoringVariant doubleValue], 10.1);
 }
 
 @end

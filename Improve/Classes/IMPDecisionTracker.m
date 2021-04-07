@@ -50,23 +50,22 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 - (instancetype)initWithTrackURL:(NSURL *)trackURL apiKey:(nullable NSString *)apiKey
 {
-    self = [super init];
-    if (!self) return nil;
+    if(self = [super init]){
+        _trackURL = trackURL;
+        _apiKey = apiKey;
+        _maxRunnersUp = 50;
 
-    _trackURL = trackURL;
-    _apiKey = apiKey;
+        if (!trackURL) {
+            IMPErrLog("trackUrl is nil, tracking disabled");
+        }
 
-    if (!trackURL) {
-        IMPErrLog("trackUrl is nil, tracking disabled");
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        _historyId = [defaults stringForKey:kHistoryIdDefaultsKey];
+        if (!_historyId) {
+            _historyId = [[NSUUID UUID] UUIDString];
+            [defaults setObject:_historyId forKey:kHistoryIdDefaultsKey];
+        }
     }
-
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    _historyId = [defaults stringForKey:kHistoryIdDefaultsKey];
-    if (!_historyId) {
-        _historyId = [[NSUUID UUID] UUIDString];
-        [defaults setObject:_historyId forKey:kHistoryIdDefaultsKey];
-    }
-
     return self;
 }
 
@@ -78,7 +77,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 - (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount
 {
-    return drand48() < 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
+    return ((double)arc4random() / UINT32_MAX) < 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
 - (void)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp

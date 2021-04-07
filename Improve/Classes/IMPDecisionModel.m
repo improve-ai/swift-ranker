@@ -69,6 +69,7 @@
 {
     if(self = [super init]){
         self.model = model;
+        self.tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:@"TODO"]];
     }
     return self;
 }
@@ -143,8 +144,7 @@
         }
 
         NSArray *encodedFeatures = [_featureEncoder encodeVariants:variants given:givens];
-        
-        MLArrayBatchProvider *batchProvider = [self batchProviderForFeaturesArray:encodedFeatures];
+        MLArrayBatchProvider *batchProvider = [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:encodedFeatures];
 
         NSError *error = nil;
         id<MLBatchProvider> prediction = [self.model predictionsFromBatch:batchProvider
@@ -176,17 +176,6 @@
         #endif
          */
     }
-}
-
-- (nullable MLArrayBatchProvider* )
-batchProviderForFeaturesArray:(NSArray<NSDictionary<NSString *,NSNumber *> *> *)batchFeatures
-{
-    NSMutableArray *featureProviders = [NSMutableArray arrayWithCapacity:batchFeatures.count];
-    for (NSDictionary<NSString *, id> *features in batchFeatures)
-    {
-        [featureProviders addObject:features];
-    }
-    return [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:featureProviders];
 }
 
 // in case of tie, the lowest index wins. Ties should be very rare due to small random noise added to scores
