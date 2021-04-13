@@ -38,15 +38,19 @@
         _variantSeed = xxhash3("variant", strlen("variant"), self.modelSeed);
         _valueSeed = xxhash3("$value", strlen("$value"), _variantSeed);
         _contextSeed = xxhash3("context", strlen("context"), self.modelSeed);
-        
+//        NSLog(@"seeds: %llu, %llu, %llu", _variantSeed, _contextSeed, _valueSeed);
     }
     return self;
 }
 
 - (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
-                                      given:(nullable NSDictionary *)context
-{
-    double noise = ((double)arc4random() / UINT32_MAX); // between 0.0 and 1.0
+                                      given:(nullable NSDictionary *)context {
+    double noise;
+    if(self.testMode){
+        noise = self.noise;
+    } else {
+        noise = ((double)arc4random() / UINT32_MAX);
+    }
 
     // if context, encode contextFeatures
     NSDictionary *contextFeatures = context ? [self encodeContext:context withNoise:noise] : nil;
@@ -76,34 +80,34 @@
 }
 
 - (NSDictionary *)encodeInternal:(id)context withSeed:(uint64_t)seed andNoise:(double)noise forFeatures:(NSMutableDictionary *)features{
-    if([context isKindOfClass:[NSNumber class]]){
+    if([context isKindOfClass:[NSNumber class]] && !isnan([context doubleValue])){
         NSString *feature_name = [self hash_to_feature_name:seed];
-        if([self.modelFeatureNames containsObject:feature_name]){
+        if(self.testMode || [self.modelFeatureNames containsObject:feature_name]){
             MLFeatureValue *curValue = [features objectForKey:feature_name];
             MLFeatureValue *newValue = [MLFeatureValue featureValueWithDouble:(curValue.doubleValue + sprinkle([context doubleValue], noise))];
             [features setObject:newValue forKey:feature_name];
         }
     } else if([context isKindOfClass:[NSString class]]){
-        const char *value = [context UTF8String];
-        uint64_t hashed = xxhash3(value, strlen(value), seed);
+        NSData *data = [context dataUsingEncoding:NSUTF8StringEncoding];
+        uint64_t hashed = xxhash3(data.bytes, data.length, seed);
         
         NSString *feature_name = [self hash_to_feature_name:seed];
-        if([self.modelFeatureNames containsObject:feature_name]){
+        if(self.testMode || [self.modelFeatureNames containsObject:feature_name]){
             MLFeatureValue *curValue = [features objectForKey:feature_name];
             MLFeatureValue *newValue = [MLFeatureValue featureValueWithDouble:(curValue.doubleValue + sprinkle((double)((hashed & 0xffff0000) >> 16) - 0x8000, noise))];
             [features setObject:newValue forKey:feature_name];
         }
         
         NSString *hashed_feature_name = [self hash_to_feature_name:hashed];
-        if([self.modelFeatureNames containsObject:hashed_feature_name]){
+        if(self.testMode || [self.modelFeatureNames containsObject:hashed_feature_name]){
             MLFeatureValue *curHashedValue = [features objectForKey:hashed_feature_name];
             MLFeatureValue *newHashedValue = [MLFeatureValue featureValueWithDouble:(curHashedValue.doubleValue + + sprinkle((double)(hashed & 0xffff) - 0x8000, noise))];
             [features setObject:newHashedValue forKey:hashed_feature_name];
         }
     } else if([context isKindOfClass:[NSDictionary class]]){
         [context enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            const char* ckey = [key UTF8String];
-            uint64_t newSeed = xxhash3(ckey, strlen(ckey), seed);
+            NSData *data = [key dataUsingEncoding:NSUTF8StringEncoding];
+            uint64_t newSeed = xxhash3(data.bytes, data.length, seed);
             [self encodeInternal:obj withSeed:newSeed andNoise:noise forFeatures:features];
         }];
     } else if([context isKindOfClass:[NSArray class]]){

@@ -30,6 +30,46 @@
 		B3675EA725FE2E460040FDBB /* xxhash.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EA325FE2E460040FDBB /* xxhash.c */; };
 		B3675EBA25FE2E900040FDBB /* IMPFeatureEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */; };
 		B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */; };
+		B3DADBB0262425AF004A82FA /* big_int_negative.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB88262425A9004A82FA /* big_int_negative.json */; };
+		B3DADBB1262425AF004A82FA /* empty_dict.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB89262425A9004A82FA /* empty_dict.json */; };
+		B3DADBB2262425AF004A82FA /* external_collisions_01.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB8A262425A9004A82FA /* external_collisions_01.json */; };
+		B3DADBB3262425AF004A82FA /* primitive_dict_bool_true.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB8B262425A9004A82FA /* primitive_dict_bool_true.json */; };
+		B3DADBB4262425AF004A82FA /* primitive_dict_string.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB8C262425A9004A82FA /* primitive_dict_string.json */; };
+		B3DADBB5262425AF004A82FA /* string.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB8D262425AA004A82FA /* string.json */; };
+		B3DADBB6262425AF004A82FA /* float_m1.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB8E262425AA004A82FA /* float_m1.json */; };
+		B3DADBB7262425AF004A82FA /* external_collisions_02.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB8F262425AA004A82FA /* external_collisions_02.json */; };
+		B3DADBB8262425AF004A82FA /* dict_foo_bar.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB90262425AA004A82FA /* dict_foo_bar.json */; };
+		B3DADBB9262425AF004A82FA /* primitive_dict_int_m1.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB91262425AA004A82FA /* primitive_dict_int_m1.json */; };
+		B3DADBBA262425AF004A82FA /* float_0.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB92262425AA004A82FA /* float_0.json */; };
+		B3DADBBB262425AF004A82FA /* bool_true.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB93262425AB004A82FA /* bool_true.json */; };
+		B3DADBBC262425AF004A82FA /* primitive_dict_int_0.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB94262425AB004A82FA /* primitive_dict_int_0.json */; };
+		B3DADBBD262425AF004A82FA /* primitive_dict_float_1.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB95262425AB004A82FA /* primitive_dict_float_1.json */; };
+		B3DADBBE262425AF004A82FA /* none.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB96262425AB004A82FA /* none.json */; };
+		B3DADBBF262425AF004A82FA /* primitive_dict_big_int_negative.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB97262425AB004A82FA /* primitive_dict_big_int_negative.json */; };
+		B3DADBC0262425AF004A82FA /* primitive_dict_big_int_positive.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB98262425AB004A82FA /* primitive_dict_big_int_positive.json */; };
+		B3DADBC1262425AF004A82FA /* big_int_positive.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB99262425AB004A82FA /* big_int_positive.json */; };
+		B3DADBC2262425AF004A82FA /* int_0.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB9A262425AC004A82FA /* int_0.json */; };
+		B3DADBC3262425AF004A82FA /* primitive_dict_foo_bar.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB9B262425AC004A82FA /* primitive_dict_foo_bar.json */; };
+		B3DADBC4262425AF004A82FA /* small_float.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB9C262425AC004A82FA /* small_float.json */; };
+		B3DADBC5262425AF004A82FA /* float_1.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB9D262425AC004A82FA /* float_1.json */; };
+		B3DADBC6262425AF004A82FA /* primitive_dict_int_1.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADB9E262425AC004A82FA /* primitive_dict_int_1.json */; };
+		B3DADBC8262425AF004A82FA /* nested_dict_string_keys.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBA0262425AC004A82FA /* nested_dict_string_keys.json */; };
+		B3DADBC9262425AF004A82FA /* primitive_dict_bool_false.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBA1262425AC004A82FA /* primitive_dict_bool_false.json */; };
+		B3DADBCA262425AF004A82FA /* big_float.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBA2262425AD004A82FA /* big_float.json */; };
+		B3DADBCB262425AF004A82FA /* nested_list.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBA3262425AD004A82FA /* nested_list.json */; };
+		B3DADBCC262425AF004A82FA /* primitive_dict_float_m1.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBA4262425AD004A82FA /* primitive_dict_float_m1.json */; };
+		B3DADBCD262425AF004A82FA /* int_1.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBA5262425AD004A82FA /* int_1.json */; };
+		B3DADBCE262425AF004A82FA /* int_m1.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBA6262425AD004A82FA /* int_m1.json */; };
+		B3DADBCF262425AF004A82FA /* primitive_dict_float_0.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBA7262425AD004A82FA /* primitive_dict_float_0.json */; };
+		B3DADBD0262425AF004A82FA /* internal_collisions_01.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBA8262425AE004A82FA /* internal_collisions_01.json */; };
+		B3DADBD1262425AF004A82FA /* internal_collisions_02.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBA9262425AE004A82FA /* internal_collisions_02.json */; };
+		B3DADBD2262425AF004A82FA /* internal_collisions_03.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBAA262425AE004A82FA /* internal_collisions_03.json */; };
+		B3DADBD3262425AF004A82FA /* foo_bar.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBAB262425AE004A82FA /* foo_bar.json */; };
+		B3DADBD4262425AF004A82FA /* bool_false.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBAC262425AE004A82FA /* bool_false.json */; };
+		B3DADBD5262425AF004A82FA /* empty_list.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBAD262425AF004A82FA /* empty_list.json */; };
+		B3DADBD6262425AF004A82FA /* primitive_dict_big_float.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBAE262425AF004A82FA /* primitive_dict_big_float.json */; };
+		B3DADBD7262425AF004A82FA /* primitive_dict_small_float.json in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBAF262425AF004A82FA /* primitive_dict_small_float.json */; };
+		B3DADBE126242902004A82FA /* feature_encoder_test_suite.txt in Resources */ = {isa = PBXBuildFile; fileRef = B3DADBE026242902004A82FA /* feature_encoder_test_suite.txt */; };
 		E761D2FF2600454700F6F238 /* NSDictionary+MLFeatureProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = E761D2FE2600454700F6F238 /* NSDictionary+MLFeatureProvider.m */; };
 /* End PBXBuildFile section */
 
@@ -77,6 +117,46 @@
 		B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMPFeatureEncoder.m; sourceTree = "<group>"; };
 		B3675EB925FE2E900040FDBB /* IMPFeatureEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMPFeatureEncoder.h; sourceTree = "<group>"; };
 		B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeatureEncoderTest.m; sourceTree = "<group>"; };
+		B3DADB88262425A9004A82FA /* big_int_negative.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = big_int_negative.json; sourceTree = "<group>"; };
+		B3DADB89262425A9004A82FA /* empty_dict.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = empty_dict.json; sourceTree = "<group>"; };
+		B3DADB8A262425A9004A82FA /* external_collisions_01.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = external_collisions_01.json; sourceTree = "<group>"; };
+		B3DADB8B262425A9004A82FA /* primitive_dict_bool_true.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_bool_true.json; sourceTree = "<group>"; };
+		B3DADB8C262425A9004A82FA /* primitive_dict_string.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_string.json; sourceTree = "<group>"; };
+		B3DADB8D262425AA004A82FA /* string.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = string.json; sourceTree = "<group>"; };
+		B3DADB8E262425AA004A82FA /* float_m1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = float_m1.json; sourceTree = "<group>"; };
+		B3DADB8F262425AA004A82FA /* external_collisions_02.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = external_collisions_02.json; sourceTree = "<group>"; };
+		B3DADB90262425AA004A82FA /* dict_foo_bar.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dict_foo_bar.json; sourceTree = "<group>"; };
+		B3DADB91262425AA004A82FA /* primitive_dict_int_m1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_int_m1.json; sourceTree = "<group>"; };
+		B3DADB92262425AA004A82FA /* float_0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = float_0.json; sourceTree = "<group>"; };
+		B3DADB93262425AB004A82FA /* bool_true.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = bool_true.json; sourceTree = "<group>"; };
+		B3DADB94262425AB004A82FA /* primitive_dict_int_0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_int_0.json; sourceTree = "<group>"; };
+		B3DADB95262425AB004A82FA /* primitive_dict_float_1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_float_1.json; sourceTree = "<group>"; };
+		B3DADB96262425AB004A82FA /* none.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = none.json; sourceTree = "<group>"; };
+		B3DADB97262425AB004A82FA /* primitive_dict_big_int_negative.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_big_int_negative.json; sourceTree = "<group>"; };
+		B3DADB98262425AB004A82FA /* primitive_dict_big_int_positive.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_big_int_positive.json; sourceTree = "<group>"; };
+		B3DADB99262425AB004A82FA /* big_int_positive.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = big_int_positive.json; sourceTree = "<group>"; };
+		B3DADB9A262425AC004A82FA /* int_0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = int_0.json; sourceTree = "<group>"; };
+		B3DADB9B262425AC004A82FA /* primitive_dict_foo_bar.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_foo_bar.json; sourceTree = "<group>"; };
+		B3DADB9C262425AC004A82FA /* small_float.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = small_float.json; sourceTree = "<group>"; };
+		B3DADB9D262425AC004A82FA /* float_1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = float_1.json; sourceTree = "<group>"; };
+		B3DADB9E262425AC004A82FA /* primitive_dict_int_1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_int_1.json; sourceTree = "<group>"; };
+		B3DADBA0262425AC004A82FA /* nested_dict_string_keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nested_dict_string_keys.json; sourceTree = "<group>"; };
+		B3DADBA1262425AC004A82FA /* primitive_dict_bool_false.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_bool_false.json; sourceTree = "<group>"; };
+		B3DADBA2262425AD004A82FA /* big_float.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = big_float.json; sourceTree = "<group>"; };
+		B3DADBA3262425AD004A82FA /* nested_list.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nested_list.json; sourceTree = "<group>"; };
+		B3DADBA4262425AD004A82FA /* primitive_dict_float_m1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_float_m1.json; sourceTree = "<group>"; };
+		B3DADBA5262425AD004A82FA /* int_1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = int_1.json; sourceTree = "<group>"; };
+		B3DADBA6262425AD004A82FA /* int_m1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = int_m1.json; sourceTree = "<group>"; };
+		B3DADBA7262425AD004A82FA /* primitive_dict_float_0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_float_0.json; sourceTree = "<group>"; };
+		B3DADBA8262425AE004A82FA /* internal_collisions_01.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = internal_collisions_01.json; sourceTree = "<group>"; };
+		B3DADBA9262425AE004A82FA /* internal_collisions_02.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = internal_collisions_02.json; sourceTree = "<group>"; };
+		B3DADBAA262425AE004A82FA /* internal_collisions_03.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = internal_collisions_03.json; sourceTree = "<group>"; };
+		B3DADBAB262425AE004A82FA /* foo_bar.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = foo_bar.json; sourceTree = "<group>"; };
+		B3DADBAC262425AE004A82FA /* bool_false.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = bool_false.json; sourceTree = "<group>"; };
+		B3DADBAD262425AF004A82FA /* empty_list.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = empty_list.json; sourceTree = "<group>"; };
+		B3DADBAE262425AF004A82FA /* primitive_dict_big_float.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_big_float.json; sourceTree = "<group>"; };
+		B3DADBAF262425AF004A82FA /* primitive_dict_small_float.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = primitive_dict_small_float.json; sourceTree = "<group>"; };
+		B3DADBE026242902004A82FA /* feature_encoder_test_suite.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = feature_encoder_test_suite.txt; sourceTree = "<group>"; };
 		E761D2FD2600454700F6F238 /* NSDictionary+MLFeatureProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MLFeatureProvider.h"; sourceTree = "<group>"; };
 		E761D2FE2600454700F6F238 /* NSDictionary+MLFeatureProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+MLFeatureProvider.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -141,6 +221,7 @@
 		54CB9B2123D987800005BB94 /* ImproveUnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				B3DADB8026241A7E004A82FA /* test */,
 				54BEA57B24BD9E5600F8A52C /* Tests.pch */,
 				540B857E23E6CBF900D578A4 /* TestUtils.h */,
 				54AC4DDC24537B80007CB073 /* TestUtils.m */,
@@ -250,6 +331,53 @@
 			path = FeatureEncoder;
 			sourceTree = "<group>";
 		};
+		B3DADB8026241A7E004A82FA /* test */ = {
+			isa = PBXGroup;
+			children = (
+				B3DADBE026242902004A82FA /* feature_encoder_test_suite.txt */,
+				B3DADBA2262425AD004A82FA /* big_float.json */,
+				B3DADB88262425A9004A82FA /* big_int_negative.json */,
+				B3DADB99262425AB004A82FA /* big_int_positive.json */,
+				B3DADBAC262425AE004A82FA /* bool_false.json */,
+				B3DADB93262425AB004A82FA /* bool_true.json */,
+				B3DADB90262425AA004A82FA /* dict_foo_bar.json */,
+				B3DADB89262425A9004A82FA /* empty_dict.json */,
+				B3DADBAD262425AF004A82FA /* empty_list.json */,
+				B3DADB8A262425A9004A82FA /* external_collisions_01.json */,
+				B3DADB8F262425AA004A82FA /* external_collisions_02.json */,
+				B3DADB92262425AA004A82FA /* float_0.json */,
+				B3DADB9D262425AC004A82FA /* float_1.json */,
+				B3DADB8E262425AA004A82FA /* float_m1.json */,
+				B3DADBAB262425AE004A82FA /* foo_bar.json */,
+				B3DADB9A262425AC004A82FA /* int_0.json */,
+				B3DADBA5262425AD004A82FA /* int_1.json */,
+				B3DADBA6262425AD004A82FA /* int_m1.json */,
+				B3DADBA8262425AE004A82FA /* internal_collisions_01.json */,
+				B3DADBA9262425AE004A82FA /* internal_collisions_02.json */,
+				B3DADBAA262425AE004A82FA /* internal_collisions_03.json */,
+				B3DADBA0262425AC004A82FA /* nested_dict_string_keys.json */,
+				B3DADBA3262425AD004A82FA /* nested_list.json */,
+				B3DADB96262425AB004A82FA /* none.json */,
+				B3DADBAE262425AF004A82FA /* primitive_dict_big_float.json */,
+				B3DADB97262425AB004A82FA /* primitive_dict_big_int_negative.json */,
+				B3DADB98262425AB004A82FA /* primitive_dict_big_int_positive.json */,
+				B3DADBA1262425AC004A82FA /* primitive_dict_bool_false.json */,
+				B3DADB8B262425A9004A82FA /* primitive_dict_bool_true.json */,
+				B3DADBA7262425AD004A82FA /* primitive_dict_float_0.json */,
+				B3DADB95262425AB004A82FA /* primitive_dict_float_1.json */,
+				B3DADBA4262425AD004A82FA /* primitive_dict_float_m1.json */,
+				B3DADB9B262425AC004A82FA /* primitive_dict_foo_bar.json */,
+				B3DADB94262425AB004A82FA /* primitive_dict_int_0.json */,
+				B3DADB9E262425AC004A82FA /* primitive_dict_int_1.json */,
+				B3DADB91262425AA004A82FA /* primitive_dict_int_m1.json */,
+				B3DADBAF262425AF004A82FA /* primitive_dict_small_float.json */,
+				B3DADB8C262425A9004A82FA /* primitive_dict_string.json */,
+				B3DADB9C262425AC004A82FA /* small_float.json */,
+				B3DADB8D262425AA004A82FA /* string.json */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -307,11 +435,51 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3DADBD5262425AF004A82FA /* empty_list.json in Resources */,
+				B3DADBB6262425AF004A82FA /* float_m1.json in Resources */,
+				B3DADBBF262425AF004A82FA /* primitive_dict_big_int_negative.json in Resources */,
+				B3DADBBE262425AF004A82FA /* none.json in Resources */,
+				B3DADBB1262425AF004A82FA /* empty_dict.json in Resources */,
+				B3DADBE126242902004A82FA /* feature_encoder_test_suite.txt in Resources */,
+				B3DADBBD262425AF004A82FA /* primitive_dict_float_1.json in Resources */,
+				B3DADBCF262425AF004A82FA /* primitive_dict_float_0.json in Resources */,
+				B3DADBC5262425AF004A82FA /* float_1.json in Resources */,
+				B3DADBB7262425AF004A82FA /* external_collisions_02.json in Resources */,
+				B3DADBD2262425AF004A82FA /* internal_collisions_03.json in Resources */,
 				54FCD00924C8464600D30031 /* MultitypeSortTestTrainingData.json in Resources */,
 				54FCD00B24C87D7C00D30031 /* MultitypeContextTestTrainingData.json in Resources */,
+				B3DADBCD262425AF004A82FA /* int_1.json in Resources */,
 				54E66A012401BEDD0032BC52 /* trials.json in Resources */,
+				B3DADBD0262425AF004A82FA /* internal_collisions_01.json in Resources */,
+				B3DADBC9262425AF004A82FA /* primitive_dict_bool_false.json in Resources */,
+				B3DADBD3262425AF004A82FA /* foo_bar.json in Resources */,
+				B3DADBC3262425AF004A82FA /* primitive_dict_foo_bar.json in Resources */,
+				B3DADBC6262425AF004A82FA /* primitive_dict_int_1.json in Resources */,
+				B3DADBBC262425AF004A82FA /* primitive_dict_int_0.json in Resources */,
+				B3DADBBB262425AF004A82FA /* bool_true.json in Resources */,
+				B3DADBB2262425AF004A82FA /* external_collisions_01.json in Resources */,
+				B3DADBCB262425AF004A82FA /* nested_list.json in Resources */,
 				5463D5772528D70400722CD7 /* MeditationTrials.json in Resources */,
+				B3DADBC4262425AF004A82FA /* small_float.json in Resources */,
 				54A39AC525338DB800F895FF /* TestModel.mlmodel in Resources */,
+				B3DADBBA262425AF004A82FA /* float_0.json in Resources */,
+				B3DADBCE262425AF004A82FA /* int_m1.json in Resources */,
+				B3DADBB0262425AF004A82FA /* big_int_negative.json in Resources */,
+				B3DADBB4262425AF004A82FA /* primitive_dict_string.json in Resources */,
+				B3DADBCC262425AF004A82FA /* primitive_dict_float_m1.json in Resources */,
+				B3DADBC0262425AF004A82FA /* primitive_dict_big_int_positive.json in Resources */,
+				B3DADBB9262425AF004A82FA /* primitive_dict_int_m1.json in Resources */,
+				B3DADBD7262425AF004A82FA /* primitive_dict_small_float.json in Resources */,
+				B3DADBD1262425AF004A82FA /* internal_collisions_02.json in Resources */,
+				B3DADBB3262425AF004A82FA /* primitive_dict_bool_true.json in Resources */,
+				B3DADBC2262425AF004A82FA /* int_0.json in Resources */,
+				B3DADBB8262425AF004A82FA /* dict_foo_bar.json in Resources */,
+				B3DADBC8262425AF004A82FA /* nested_dict_string_keys.json in Resources */,
+				B3DADBCA262425AF004A82FA /* big_float.json in Resources */,
+				B3DADBD4262425AF004A82FA /* bool_false.json in Resources */,
+				B3DADBB5262425AF004A82FA /* string.json in Resources */,
+				B3DADBC1262425AF004A82FA /* big_int_positive.json in Resources */,
+				B3DADBD6262425AF004A82FA /* primitive_dict_big_float.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
