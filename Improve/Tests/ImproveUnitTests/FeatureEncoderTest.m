@@ -90,8 +90,7 @@
         if([check[key] isKindOfClass:[NSString class]] && [check[key] isEqualToString:@"inf"]){
             XCTAssertEqualWithAccuracy([encoded[key] doubleValue], INFINITY, accuracy);
         } else {
-//            XCTAssertEqualWithAccuracy([encoded[key] doubleValue], [check[key] doubleValue], accuracy);
-            XCTAssertEqual([encoded[key] doubleValue], [check[key] doubleValue]);
+            XCTAssertEqualWithAccuracy([encoded[key] doubleValue], [check[key] doubleValue], accuracy);
         }
     }
 }
