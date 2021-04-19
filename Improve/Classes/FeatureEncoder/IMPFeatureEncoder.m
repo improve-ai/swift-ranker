@@ -88,8 +88,8 @@
             [features setObject:newValue forKey:feature_name];
         }
     } else if([context isKindOfClass:[NSString class]]){
-        NSData *data = [context dataUsingEncoding:NSUTF8StringEncoding];
-        uint64_t hashed = xxhash3(data.bytes, data.length, seed);
+        const char *value = [context UTF8String];
+        uint64_t hashed = xxhash3(value, [context lengthOfBytesUsingEncoding:NSUTF8StringEncoding], seed);
         
         NSString *feature_name = [self hash_to_feature_name:seed];
         if(self.testMode || [self.modelFeatureNames containsObject:feature_name]){
@@ -106,8 +106,8 @@
         }
     } else if([context isKindOfClass:[NSDictionary class]]){
         [context enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            NSData *data = [key dataUsingEncoding:NSUTF8StringEncoding];
-            uint64_t newSeed = xxhash3(data.bytes, data.length, seed);
+            const char *value = [key UTF8String];
+            uint64_t newSeed = xxhash3(value, [key lengthOfBytesUsingEncoding:NSUTF8StringEncoding], seed);
             [self encodeInternal:obj withSeed:newSeed andNoise:noise forFeatures:features];
         }];
     } else if([context isKindOfClass:[NSArray class]]){
