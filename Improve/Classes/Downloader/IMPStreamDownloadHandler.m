@@ -32,6 +32,7 @@
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:queue];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.modelUrl];
+    [request addValue:@"identity" forHTTPHeaderField:@"Accept-Encoding"];
     [[session dataTaskWithRequest:request] resume];
 }
 
