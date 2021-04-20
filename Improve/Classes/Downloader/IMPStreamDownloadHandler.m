@@ -26,7 +26,7 @@
                                  didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
-    if(res.statusCode == 200){
+    if(res.statusCode == 200) {
         // retrieve gzip file contnet length from http response header fields
         NSUInteger contentLength = [[res.allHeaderFields objectForKey:@"Content-Length"] unsignedIntValue];
         _zipInputData = [NSMutableData dataWithCapacity:contentLength];
@@ -34,7 +34,7 @@
         _stream.next_in = (Bytef *)_zipInputData.bytes;
         _stream.avail_in = 0;
         
-        if(inflateInit2(&_stream, 47)){ // why 47?
+        if(inflateInit2(&_stream, 47)) { // why 47?
             [self onDownloadError:@"inflateInit2 err" withErrCode:-400];
             return ;
         }
@@ -52,7 +52,7 @@
     
     int status = Z_OK;
     do {
-        if(_stream.total_out >= _zipOutputData.length){
+        if(_stream.total_out >= _zipOutputData.length) {
             _zipOutputData.length += 500 * 1024;
         }
         _stream.next_out = (uint8_t *)_zipOutputData.mutableBytes + _stream.total_out;
@@ -72,8 +72,8 @@
     }
     
     int status = inflateEnd(&_stream);
-    if(status == Z_OK){
-        if(_decompressOK){
+    if(status == Z_OK) {
+        if(_decompressOK) {
             IMPLog("streaming decompression sucessfully");
             _zipOutputData.length = _stream.total_out;
             [self saveAndCompile:_zipOutputData withCompletion:_completion];

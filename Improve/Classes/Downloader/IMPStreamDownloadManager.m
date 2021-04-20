@@ -29,14 +29,14 @@
 }
 
 - (NSMutableDictionary *)streamDownloadHandlerDict {
-    if(_streamDownloadHandlerDict == nil){
+    if(_streamDownloadHandlerDict == nil) {
         _streamDownloadHandlerDict = [[NSMutableDictionary alloc] init];
     }
     return _streamDownloadHandlerDict;
 }
 
 - (NSURLSession *)urlSession {
-    if(_urlSession == nil){
+    if(_urlSession == nil) {
         NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
         _urlSession = [NSURLSession sessionWithConfiguration:sessionConfig
                                                     delegate:self

@@ -10,7 +10,7 @@
 
 static void *sFeatureNameKey = &sFeatureNameKey;
 
-MLFeatureValue * NaNValue = nil;
+MLFeatureValue * NaNMLFeatureValue = nil;
 
 @interface NSDictionary (MLFeatureProvider)
 
@@ -20,17 +20,17 @@ MLFeatureValue * NaNValue = nil;
 
 @implementation NSDictionary (MLFeatureProvider)
 
-- (instancetype)initWithFeatureNames:(NSSet<NSString *> *)featureNames{
-    if(self = [self init]){
+- (instancetype)initWithFeatureNames:(NSSet<NSString *> *)featureNames {
+    if(self = [self init]) {
         self.featureNames = featureNames;
-        if(NaNValue ==  nil){
-            NaNValue =  [MLFeatureValue featureValueWithDouble:NAN];
+        if(NaNMLFeatureValue ==  nil){
+            NaNMLFeatureValue =  [MLFeatureValue featureValueWithDouble:NAN];
         }
     }
     return self;
 }
 
-- (void)setFeatureNames:(NSSet<NSString *> *)modelFeatureNames{
+- (void)setFeatureNames:(NSSet<NSString *> *)modelFeatureNames {
     objc_setAssociatedObject(self, sFeatureNameKey, modelFeatureNames, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
@@ -40,9 +40,9 @@ MLFeatureValue * NaNValue = nil;
 
 #pragma mark MLFeatureProvider Protocol
 
-- (nullable MLFeatureValue *)featureValueForName:(NSString *)featureName{
+- (nullable MLFeatureValue *)featureValueForName:(NSString *)featureName {
     MLFeatureValue *val = self[featureName];
-    return val ? val : NaNValue;
+    return val ? val : NaNMLFeatureValue;
 }
 
 @end
