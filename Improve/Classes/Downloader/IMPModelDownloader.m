@@ -9,17 +9,15 @@
 #import "IMPLogging.h"
 #import "IMPUtils.h"
 #import "NSData+GZIP.h"
-#import "IMPStreamDownloadHandler.h"
+#import "IMPStreamDownloadManager.h"
 
-@interface IMPModelDownloader()<IMPStreamDownloadHandlerDelegate>
+@interface IMPModelDownloader()
 
 @property (strong, nonatomic) NSURL *modelUrl;
 
 @property (strong, nonatomic) NSDictionary *headers;
 
 @property (readonly, nonatomic) BOOL isLoading;
-
-@property (strong, nonatomic) IMPStreamDownloadHandler *streamDownloadHandler;
 
 @end
 
@@ -35,15 +33,6 @@
     return self;
 }
 
-- (IMPStreamDownloadHandler *)streamDownloadHandler{
-    if(_streamDownloadHandler == nil){
-        _streamDownloadHandler = [[IMPStreamDownloadHandler alloc] init];
-        _streamDownloadHandler.modelUrl = self.modelUrl;
-        _streamDownloadHandler.delegate = self;
-    }
-    return _streamDownloadHandler;
-}
-
 - (void)downloadWithCompletion:(IMPModelDownloaderCompletion)completion {
     if([self.modelUrl hasDirectoryPath]){
         completion(self.modelUrl, nil);
@@ -52,7 +41,7 @@
     
     if([self.modelUrl.absoluteString hasPrefix:@"http"]){
         if([self.modelUrl.path hasSuffix:@".gz"]) {
-            [self.streamDownloadHandler downloadWithCompletion:completion];
+            [[IMPStreamDownloadManager sharedManager] download:self.modelUrl WithCompletion:completion];
         } else {
             [self downloadRemoteWithCompletion:completion];
         }
@@ -60,38 +49,6 @@
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             [self loadLocal:self.modelUrl WithCompletion:completion];
         });
-    }
-}
-
-#pragma mark NSURLSessionDataDelegate
-- (void)onFinishStreamDownload:(NSData *)data withCompletion:(IMPModelDownloaderCompletion)completion{
-    [self saveAndCompile:data withCompletion:completion];
-    if(_streamDownloadHandler){
-        _streamDownloadHandler.delegate = nil;
-    }
-}
-
-- (void)saveAndCompile:(NSData *)data withCompletion:(IMPModelDownloaderCompletion)completion{
-    NSError *error = nil;
-    NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"ai.improve.tmp.%@.mlmodel", [[NSUUID UUID] UUIDString]]];
-    
-    IMPLog("Writing to path: %@ ...", tempPath);
-    if (![data writeToFile:tempPath atomically:YES]) {
-        NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Src URL: %@, Dest path: %@ Size: %ld", self.modelUrl, tempPath, data.length];
-        error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
-                                    code:-100
-                                userInfo:@{NSLocalizedDescriptionKey: errMsg}];
-        IMPLog("Write failed: %@", errMsg);
-        if (completion) {
-            completion(nil, error);
-        }
-        return;
-    }
-
-    IMPLog("Compiling model %@", tempPath);
-    NSURL *compiledUrl = [self compileModelAtURL:[NSURL fileURLWithPath:tempPath] error:&error];
-    if(completion){
-        completion(compiledUrl, error);
     }
 }
 
@@ -148,7 +105,7 @@
     
     // unzip
     if([self.modelUrl.path hasSuffix:@".gz"]){
-        localModelURL = [self unzipLocalZipModel:self.modelUrl];
+        localModelURL = [self unzipLocalModel:self.modelUrl];
         if(localModelURL == nil) {
             NSError *error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                                  code:-100
@@ -167,7 +124,31 @@
     }
 }
 
-- (NSURL *)unzipLocalZipModel:(NSURL *)url{
+- (void)saveAndCompile:(NSData *)data withCompletion:(IMPModelDownloaderCompletion)completion{
+    NSError *error = nil;
+    NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"ai.improve.tmp.%@.mlmodel", [[NSUUID UUID] UUIDString]]];
+    
+    IMPLog("Writing to path: %@ ...", tempPath);
+    if (![data writeToFile:tempPath atomically:YES]) {
+        NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Src URL: %@, Dest path: %@ Size: %ld", self.modelUrl, tempPath, data.length];
+        error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
+                                    code:-100
+                                userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+        IMPLog("Write failed: %@", errMsg);
+        if (completion) {
+            completion(nil, error);
+        }
+        return;
+    }
+
+    IMPLog("Compiling model %@", tempPath);
+    NSURL *compiledUrl = [self compileModelAtURL:[NSURL fileURLWithPath:tempPath] error:&error];
+    if(completion){
+        completion(compiledUrl, error);
+    }
+}
+
+- (NSURL *)unzipLocalModel:(NSURL *)url{
     NSData *data = [NSData dataWithContentsOfURL:url];
     NSData *unzippedData = [data gunzippedData];
     

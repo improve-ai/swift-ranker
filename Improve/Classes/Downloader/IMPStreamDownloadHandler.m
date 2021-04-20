@@ -6,6 +6,7 @@
 //  Copyright © 2021 Mind Blown Apps, LLC. All rights reserved.
 //
 #import <zlib.h>
+#import <CoreML/CoreML.h>
 #import "IMPStreamDownloadHandler.h"
 #import "IMPLogging.h"
 
@@ -13,38 +14,17 @@
 
 @end
 
-@implementation IMPStreamDownloadHandler{
-    int _bytesReceived;
+@implementation IMPStreamDownloadHandler {
     IMPModelDownloaderCompletion _completion;
     z_stream _stream;
+    BOOL _decompressOK;
     NSMutableData *_zipInputData;
     NSMutableData *_zipOutputData;
 }
 
-- (void)downloadWithCompletion:(IMPModelDownloaderCompletion)completion{
-    _completion = completion;
-    _bytesReceived = 0;
-    
-    // callback in non-main thread
-    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-    queue.maxConcurrentOperationCount = 1;
-    
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:queue];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.modelUrl];
-    [request addValue:@"identity" forHTTPHeaderField:@"Accept-Encoding"];
-    [[session dataTaskWithRequest:request] resume];
-}
-
--(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    if(error && _completion) {
-        [self onDownloadError:@"didCompleteWithError" withErrCode:-500];
-    }
-}
-
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
                                  didReceiveResponse:(NSURLResponse *)response
- completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler{
+ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
     if(res.statusCode == 200){
         // retrieve gzip file contnet length from http response header fields
@@ -55,7 +35,7 @@
         _stream.avail_in = 0;
         
         if(inflateInit2(&_stream, 47)){ // why 47?
-            [self onDownloadError:@"" withErrCode:-400];
+            [self onDownloadError:@"inflateInit2 err" withErrCode:-400];
             return ;
         }
         completionHandler(NSURLSessionResponseAllow);
@@ -65,14 +45,10 @@
     }
 }
 
-
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
     [_zipInputData appendData:data];
     _stream.avail_in += data.length;
-    _bytesReceived += data.length;
-    
-    NSLog(@"didReceiveData, %ld, avail_in=%u, bytesReceived=%d, %p", data.length, _stream.avail_in, _bytesReceived, _zipInputData.bytes);
     
     int status = Z_OK;
     do {
@@ -84,33 +60,79 @@
         status = inflate(&_stream, Z_SYNC_FLUSH);
     } while(status == Z_OK && _stream.total_out >= _zipOutputData.length);
     
-    NSLog(@"didReceiveData, inflate status=%d, outputLength=%ld", status, _zipOutputData.length);
-    if(status != Z_OK){
-        if(inflateEnd(&_stream) == Z_OK){
-            if(status == Z_STREAM_END){
-                IMPLog("streaming decompression sucessfully");
-                _zipOutputData.length = _stream.total_out;
-                [self.delegate onFinishStreamDownload:_zipOutputData withCompletion:_completion];
-            } else {
-                [self onDownloadError:@"inflateEnd err" withErrCode:-100];
-            }
-        } else {
-            [self onDownloadError:@"inflateEnd err" withErrCode:-200];
-        }
-    } else {
-        // gzip expecting more data, do nothing here
+    if (status == Z_STREAM_END) {
+        _decompressOK = YES;
     }
 }
 
-- (void)onDownloadError:(NSString *)msg withErrCode:(int)code{
+-(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    if(error && _completion) {
+        [self onDownloadError:@"didCompleteWithError" withErrCode:-500];
+        return ;
+    }
+    
+    int status = inflateEnd(&_stream);
+    if(status == Z_OK){
+        if(_decompressOK){
+            IMPLog("streaming decompression sucessfully");
+            _zipOutputData.length = _stream.total_out;
+            [self saveAndCompile:_zipOutputData withCompletion:_completion];
+        } else {
+            [self onDownloadError:@"decompress err" withErrCode:-200];
+        }
+    } else {
+        [self onDownloadError:@"inflateEnd err" withErrCode:-201];
+    }
+}
+
+- (void)saveAndCompile:(NSData *)data withCompletion:(IMPModelDownloaderCompletion)completion {
+    NSError *error = nil;
+    NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"ai.improve.tmp.%@.mlmodel", [[NSUUID UUID] UUIDString]]];
+    
+    IMPLog("Writing to path: %@ ...", tempPath);
+    if (![data writeToFile:tempPath atomically:YES]) {
+        NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Src URL: %@, Dest path: %@ Size: %ld", self.modelUrl, tempPath, data.length];
+        error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
+                                    code:-100
+                                userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+        IMPLog("Write failed: %@", errMsg);
+        if (completion) {
+            completion(nil, error);
+        }
+        return;
+    }
+
+    CFAbsoluteTime startTime = CFAbsoluteTimeGetCurrent();
+    NSURL *compiledUrl = [MLModel compileModelAtURL:[NSURL fileURLWithPath:tempPath] error:&error];
+    if(error) {
+        NSString *errMsg = [NSString stringWithFormat:@"Failed to compile: %@", tempPath];
+        error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
+                                    code:-101
+                                userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+        if (completion) {
+            completion(nil, error);
+        }
+        return ;
+    }
+    IMPLog("Compile time: %f ms", (CFAbsoluteTimeGetCurrent() - startTime) * 1000.0);
+    
+    if(completion) {
+        completion(compiledUrl, error);
+    }
+}
+
+- (void)onDownloadError:(NSString *)msg withErrCode:(int)code {
     NSError *error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                          code:code
                                      userInfo:@{NSLocalizedDescriptionKey:msg}];
-    if(_completion != nil){
+    if(_completion) {
         _completion(nil, error);
         _completion = nil;
     }
-    _delegate = nil;
+}
+
+- (void)dealloc {
+    IMPLog("IMPStreamDownloadHandler dealloc called...");
 }
 
 @end
