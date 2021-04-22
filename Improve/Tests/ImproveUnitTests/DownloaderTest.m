@@ -209,6 +209,13 @@
 }
 
 - (void)testBatchStreamingDownload {
+//    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    
+    [[NSURLCache sharedURLCache] setDiskCapacity:300 * 1024 * 1024];
+    [[NSURLCache sharedURLCache] setMemoryCapacity:300 * 1024 * 1024];
+    NSLog(@"cache capacity: %lu, %lu", [[NSURLCache sharedURLCache] diskCapacity],
+          [[NSURLCache sharedURLCache] memoryCapacity]);
+    
     int loop = 100;
     __block int done = 0;
     double sleepInterval = 1.0f;
