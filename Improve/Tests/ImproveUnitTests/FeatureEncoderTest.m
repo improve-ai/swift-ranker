@@ -140,8 +140,6 @@
     NSDictionary *expected = [root objectForKey:@"test_output"];
     NSDictionary *test = features[0];
     
-    [NSNumber numberWithDouble:NAN];
-    
     [self assertDictionary:test equalTo:expected];
 }
 

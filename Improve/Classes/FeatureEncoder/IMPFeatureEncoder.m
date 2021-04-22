@@ -101,7 +101,7 @@
         NSString *hashed_feature_name = [self hash_to_feature_name:hashed];
         if(self.testMode || [self.modelFeatureNames containsObject:hashed_feature_name]) {
             MLFeatureValue *curHashedValue = [features objectForKey:hashed_feature_name];
-            MLFeatureValue *newHashedValue = [MLFeatureValue featureValueWithDouble:(curHashedValue.doubleValue + + sprinkle((double)(hashed & 0xffff) - 0x8000, noise))];
+            MLFeatureValue *newHashedValue = [MLFeatureValue featureValueWithDouble:(curHashedValue.doubleValue + sprinkle((double)(hashed & 0xffff) - 0x8000, noise))];
             [features setObject:newHashedValue forKey:hashed_feature_name];
         }
     } else if([node isKindOfClass:[NSDictionary class]]){
