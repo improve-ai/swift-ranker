@@ -15,7 +15,6 @@
 @end
 
 @implementation IMPStreamDownloadHandler {
-    IMPModelDownloaderCompletion _completion;
     z_stream _stream;
     BOOL _decompressOK;
     NSMutableData *_zipInputData;

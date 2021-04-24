@@ -110,20 +110,23 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         body[kRunnersUpKey] = runnersUp;
     }
 
-    [NSException raise:@"Split sampling into its own method for unit testing" format:@"TODO"];
-
-    // If runnersUp is nil `runnersUp.count` will return 0.
-    NSInteger trackedVariantsCount = 1 + runnersUp.count;
-    BOOL samplesCount = variants.count - trackedVariantsCount;
-    if (samplesCount > 0)
-    {
-        NSRange range = NSMakeRange(trackedVariantsCount, variants.count);
-        NSArray *samples = [variants subarrayWithRange:range];
-        id sampleVariant = samples.randomObject;
+    id sampleVariant = [self sampleVariantOf:variants ignoreTrackedCount:runnersUp.count];
+    if(sampleVariant) {
         body[kSampleKey] = sampleVariant;
     }
 
     [self track:body];
+}
+
+- (id)sampleVariantOf:(NSArray *)variants ignoreTrackedCount:(NSUInteger)trackedVariantsCount {
+    id sampleVariant = nil;
+    NSUInteger samplesCount = variants.count - trackedVariantsCount;
+    if (samplesCount > 0) {
+        NSRange range = NSMakeRange(trackedVariantsCount, samplesCount);
+        NSArray *samples = [variants subarrayWithRange:range];
+        sampleVariant = samples.randomObject;
+    }
+    return sampleVariant;
 }
 
 - (void)trackEvent:(NSString *)event
