@@ -67,7 +67,11 @@
 
 -(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     if(error && _completion) {
-        [self onDownloadError:@"didCompleteWithError" withErrCode:-500];
+        inflateEnd(&_stream);
+        if(_completion) {
+            _completion(nil, error);
+            _completion = nil;
+        }
         return ;
     }
     

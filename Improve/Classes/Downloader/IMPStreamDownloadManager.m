@@ -23,26 +23,20 @@
     static IMPStreamDownloadManager *manager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        manager = [[self alloc] init];
+        manager = [[self alloc] initPrivate];
     });
     return manager;
 }
 
-- (NSMutableDictionary *)streamDownloadHandlerDict {
-    if(_streamDownloadHandlerDict == nil) {
+- (instancetype)initPrivate {
+    if (self = [super init]) {
         _streamDownloadHandlerDict = [[NSMutableDictionary alloc] init];
-    }
-    return _streamDownloadHandlerDict;
-}
-
-- (NSURLSession *)urlSession {
-    if(_urlSession == nil) {
         NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
         _urlSession = [NSURLSession sessionWithConfiguration:sessionConfig
                                                     delegate:self
                                                delegateQueue:[[NSOperationQueue alloc] init]];
     }
-    return _urlSession;
+    return self;
 }
 
 - (void)download:(NSURL *)url WithCompletion:(IMPModelDownloaderCompletion)completion {
