@@ -80,6 +80,7 @@
                 // faster and more common path, avoids array sort
                 _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
                 [_model.tracker track:_best variants:_variants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
+                
             }
         } else {
             _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];

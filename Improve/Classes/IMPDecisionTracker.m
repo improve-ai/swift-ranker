@@ -50,7 +50,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 - (instancetype)initWithTrackURL:(NSURL *)trackURL apiKey:(nullable NSString *)apiKey
 {
-    if(self = [super init]){
+    if(self = [super init]) {
         _trackURL = trackURL;
         _apiKey = apiKey;
         _maxRunnersUp = 50;
@@ -71,18 +71,25 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 - (NSArray *)topRunnersUp:(NSArray *)ranked
 {
-    NSRange range = NSMakeRange(0, MIN(self.maxRunnersUp, ranked.count));
+    NSRange range = NSMakeRange(1, MIN(self.maxRunnersUp, ranked.count-1));
     return [ranked subarrayWithRange:range];
 }
 
+// By tracking with probability 1 / runnersUp.count we are
+// tracking, on average, one runner up per decision
+//
+// variants.count - 1 is equal to the count of the all of the items that
+// are worse than the best (all runners up)
 - (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount
 {
+    if (variantsCount <= 1 || self.maxRunnersUp == 0) {
+        return NO;
+    }
     return ((double)arc4random() / UINT32_MAX) < 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
-- (void)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
+- (void)track:(id)bestVariant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
 {
-
     if (!modelName) {
         IMPErrLog("Improve.track error modelName is nil");
         return;
@@ -94,8 +101,8 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         kCountKey: @(variants.count),
     } mutableCopy];
 
-    if (variant) {
-        body[kVariantKey] = variant;
+    if (bestVariant) {
+        body[kVariantKey] = bestVariant;
     } else {
         body[kVariantKey] = [NSNull null]; // explictly mark that the variant is a null value
     }
@@ -110,7 +117,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         body[kRunnersUpKey] = runnersUp;
     }
 
-    id sampleVariant = [self sampleVariantOf:variants ignoreTrackedCount:runnersUp.count];
+    id sampleVariant = [self sampleVariantOf:variants runnersUpCount:runnersUp.count];
     if(sampleVariant) {
         body[kSampleKey] = sampleVariant;
     }
@@ -118,11 +125,21 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     [self track:body];
 }
 
-- (id)sampleVariantOf:(NSArray *)variants ignoreTrackedCount:(NSUInteger)trackedVariantsCount {
+// If there are no runners up, then sample is a random sample from
+// variants with just best excluded.
+//
+// If there are runners up, then sample is a random sample from
+// variants with best and runners up excluded.
+//
+// If there is only one variant, which is the best, then there is no sample.
+//
+// If there are no remaining variants after best and runners up, then
+// there is no sample.
+- (id)sampleVariantOf:(NSArray *)variants runnersUpCount:(NSUInteger)runnersUpCount {
     id sampleVariant = nil;
-    NSUInteger samplesCount = variants.count - trackedVariantsCount;
+    NSUInteger samplesCount = variants.count - runnersUpCount - 1;
     if (samplesCount > 0) {
-        NSRange range = NSMakeRange(trackedVariantsCount, samplesCount);
+        NSRange range = NSMakeRange(runnersUpCount+1, samplesCount);
         NSArray *samples = [variants subarrayWithRange:range];
         sampleVariant = samples.randomObject;
     }

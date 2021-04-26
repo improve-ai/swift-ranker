@@ -24,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithTrackURL:(NSURL *)trackURL
                           apiKey:(nullable NSString *)apiKey;
 
+- (void)track:(id)bestVariant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp;
+
 - (void)trackEvent:(NSString *)event;
 
 - (void)trackEvent:(NSString *)event

@@ -90,8 +90,10 @@
     XCTAssert(diff < 10); // might fail here
 }
 
-- (void)testChooseFrom{
-    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+- (void)testChooseFrom {
+    NSArray *variants = @[];
+    
+//    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
     for(NSURL *url in self.urlList){
         IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
@@ -101,10 +103,7 @@
         XCTAssertNotNil(greeting);
     }
     
-//    NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/workspace/improve-ai/Improve/Tests/ImproveUnitTests/TestModel.mlmodel.gz"];
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel3.gz"];
-//    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel"];
-    
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
     NSString *greeting = [[[[IMPDecisionModel load:url] chooseFrom:variants] given:context] get];
     NSLog(@"greeting: %@", greeting);
 }
