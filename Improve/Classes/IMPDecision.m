@@ -61,33 +61,34 @@
 
 - (nullable id)get
 {
-    
-    if (_chosen) {
-        // if get() was previously called
-        return _best;
-    }
-
-    NSArray *scores = [_model score:_variants given:_givens];
-
-    if (_variants && _variants.count) {
-        if (_model.tracker) {
-            if ([_model.tracker shouldTrackRunnersUp:_variants.count]) {
-                // the more variants there are, the less frequently this is called
-                NSArray *rankedVariants = [IMPDecisionModel rank:_variants withScores:scores];
-                _best = rankedVariants.firstObject;
-                [_model.tracker track:_best variants:rankedVariants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
-            } else {
-                // faster and more common path, avoids array sort
-                _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
-                [_model.tracker track:_best variants:_variants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
-                
-            }
-        } else {
-            _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
+    @synchronized (self) {
+        if (_chosen) {
+            // if get() was previously called
+            return _best;
         }
-    }
 
-    _chosen = TRUE;
+        NSArray *scores = [_model score:_variants given:_givens];
+
+        if (_variants && _variants.count) {
+            if (_model.tracker) {
+                if ([_model.tracker shouldTrackRunnersUp:_variants.count]) {
+                    // the more variants there are, the less frequently this is called
+                    NSArray *rankedVariants = [IMPDecisionModel rank:_variants withScores:scores];
+                    _best = rankedVariants.firstObject;
+                    [_model.tracker track:_best variants:rankedVariants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
+                } else {
+                    // faster and more common path, avoids array sort
+                    _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
+                    [_model.tracker track:_best variants:_variants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
+                    
+                }
+            } else {
+                _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
+            }
+        }
+
+        _chosen = TRUE;
+    }
 
     return _best;
 }
