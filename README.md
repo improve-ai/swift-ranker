@@ -85,7 +85,7 @@ Sort is handy for building personalized feeds or reducing huge lists of variants
 ## Bootstrapping a New Model
 
 TODO
-
+```
 model = new DecisionModel("themes")
 model.tracker = foo
 
@@ -94,6 +94,9 @@ DecisionModel.loadAsync() {
  model.tracker = foo
  model = model
 }
+```
+By default, an empty model will simply return the first variant.  If you would like Improve to explore different variants during the initial bootstrap phase, you may simply shuffle the variants before passing them to the model and a random one will be chosen.
+
 
 ## Privacy
   
