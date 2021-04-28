@@ -81,15 +81,23 @@ NSString *topDog = [sortedDogs objectAtIndex:0];
 ```
 
 Sort is handy for building personalized feeds or reducing huge lists of variants down to smaller lists for future contextual choose calls.  It is recommended to pass a context to sort that is similar to contexts the model was trained on.
- 
 
- ## Security & Privacy
+## Bootstrapping a New Model
+
+TODO
+
+model = new DecisionModel("themes")
+model.tracker = foo
+
+DecisionModel.loadAsync() {
+ # overwrite the original model
+ model.tracker = foo
+ model = model
+}
+
+## Privacy
   
-It is strongly recommended to never include Personally Identifiable Information (PII) in a variant or given/context so that it is not tracked and persisted in your Improve Gym analytics records.
- 
- ## Additional Caveats
-  
- Absolute time series data is generally discouraged because decisions will always being made in a time interval ahead of the training data.  If time based context must be used then ensure that it is cyclical such as the day of the week or hour of the day without reference to an absolute time.
+It is strongly recommended to never include Personally Identifiable Information (PII) in a variant or givens so that it is not tracked and persisted in your Improve Gym analytics records.
 
 ## License
 
