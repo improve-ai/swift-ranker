@@ -14,11 +14,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) IMPDecisionModel *model;
 
 @property (nonatomic, strong) NSArray *variants;
+
 @property (nonatomic, strong, nullable) NSDictionary *givens;
 
 - (instancetype)initWithModel:(IMPDecisionModel *)model;
+
 - (instancetype)chooseFrom:(NSArray *)variants;
+
 - (instancetype)given:(NSDictionary <NSString *, id>*)givens;
+
 - (nullable id)get;
 
 @end

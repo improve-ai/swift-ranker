@@ -14,13 +14,13 @@
 - (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount;
 
 - (void)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp;
-
 @end
 
 // private vars
 @interface IMPDecision ()
 
 @property(nonatomic, readonly, nullable) id best;
+
 @property(nonatomic, readonly) BOOL chosen;
 
 @end
@@ -29,11 +29,9 @@
 
 - (instancetype)initWithModel:(IMPDecisionModel *)model
 {
-    self = [super init];
-    if (!self) return nil;
-
-    _model = model;
-
+    if(self = [super init]) {
+        _model = model;
+    }
     return self;
 }
 
@@ -80,7 +78,6 @@
                     // faster and more common path, avoids array sort
                     _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
                     [_model.tracker track:_best variants:_variants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
-                    
                 }
             } else {
                 _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
@@ -92,7 +89,5 @@
 
     return _best;
 }
-
-
 
 @end
