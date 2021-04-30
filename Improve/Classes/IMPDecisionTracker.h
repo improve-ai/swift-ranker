@@ -10,6 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_NAME(DecisionTracker)
 @interface IMPDecisionTracker : NSObject
 
 @property(atomic, strong) NSURL *trackURL;
