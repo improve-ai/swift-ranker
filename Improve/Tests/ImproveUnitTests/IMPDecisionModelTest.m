@@ -12,6 +12,14 @@
 #import "IMPUtils.h"
 #import "TestUtils.h"
 
+@interface IMPDecisionModel ()
+
++ (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+
++ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+
+@end
+
 @interface IMPDecisionModelTest : XCTestCase
 
 @property (strong, nonatomic) NSArray *urlList;
@@ -65,10 +73,13 @@
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         XCTAssert(![NSThread isMainThread]);
-        for(NSURL *url in self.urlList){
-            IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
-            XCTAssertNotNil(decisionModel);
-        }
+//        for(NSURL *url in self.urlList){
+//            IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+//            XCTAssertNotNil(decisionModel);
+//        }
+        NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
+        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+        [decisionModel chooseFrom:@[]];
         [ex fulfill];
     });
     [self waitForExpectations:@[ex] timeout:300];
@@ -91,9 +102,7 @@
 }
 
 - (void)testChooseFrom {
-    NSArray *variants = @[];
-    
-//    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
     for(NSURL *url in self.urlList){
         IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];

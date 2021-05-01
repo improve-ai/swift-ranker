@@ -38,6 +38,13 @@
     }];
     
     while (!finished) {
+        // TODO
+        // When [IMPDecisionModel load] is executed in non-main thread, method
+        // [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+        // would not wait, thus the while loop will keep looping like crazy, and I can observer high
+        // CPU usage(35+%) meanwhile, this does not feel quite good...
+        //
+        // Is there a better way to make a asynchronous method synchronous??
         NSLog(@"%@, Runloop waiting......", [NSDate date]);
         BOOL result = [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
         NSLog(@"%@, Runloop waiting......, %d", [NSDate date], result);

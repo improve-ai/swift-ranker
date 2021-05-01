@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 // when testMode is YES, this noise value is used instead of a randomly generated one.
 @property (nonatomic) double noise;
 
-- (id)initWithModelSeed:(uint64_t)modelSeed andFeatureNames:(NSSet<NSString *> *)featureNames;
+- (instancetype)initWithModelSeed:(uint64_t)modelSeed andFeatureNames:(NSSet<NSString *> *)featureNames;
 
 - (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
                                       given:(nullable NSDictionary *)context;

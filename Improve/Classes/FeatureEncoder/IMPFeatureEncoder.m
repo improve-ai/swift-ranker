@@ -31,7 +31,7 @@
     uint64_t _contextSeed;
 }
 
-- (id)initWithModelSeed:(uint64_t)modelSeed andFeatureNames:(NSSet<NSString *> *)featureNames{
+- (instancetype)initWithModelSeed:(uint64_t)modelSeed andFeatureNames:(NSSet<NSString *> *)featureNames{
     if(self = [super init]){
         self.modelSeed = modelSeed;
         _modelFeatureNames = featureNames;

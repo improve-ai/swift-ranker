@@ -41,10 +41,6 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (NSArray *)score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
 
-+ (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
-
-+ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
-
 @end
 
 NS_ASSUME_NONNULL_END

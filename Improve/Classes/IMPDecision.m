@@ -8,6 +8,15 @@
 #import "IMPDecision.h"
 #import "IMPLogging.h"
 
+// Package private methods
+@interface IMPDecisionModel ()
+
++ (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+
++ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+
+@end
+
 // "Package private" methods
 @interface IMPDecisionTracker ()
 
@@ -57,7 +66,7 @@
     return self;
 }
 
-- (nullable id)get
+- (id)get
 {
     @synchronized (self) {
         if (_chosen) {
