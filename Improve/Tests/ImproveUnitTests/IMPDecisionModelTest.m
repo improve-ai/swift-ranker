@@ -63,13 +63,21 @@
 }
 
 - (void)testLoadSync{
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    
     for(NSURL *url in self.urlList){
         IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
         XCTAssertNotNil(decisionModel);
     }
+    
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+    XCTAssertNotNil(decisionModel);
 }
 
 - (void)testLoadSyncFromNonMainThread{
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         XCTAssert(![NSThread isMainThread]);

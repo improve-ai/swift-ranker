@@ -27,29 +27,28 @@
 @synthesize model = _model;
 
 + (instancetype)load:(NSURL *)url {
-    // tried using dispatch_semaphore_create here, but it caused a deadlock,
-    // as the completion handler is called in main thread which is already
-    // blocked by dispatch_semaphore_wait.
     __block IMPDecisionModel *decisionModel = nil;
-    __block BOOL finished = NO;
-    [self loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
-        decisionModel = compiledModel;
-        finished = YES;
-    }];
-    
-    while (!finished) {
-        // TODO
-        // When [IMPDecisionModel load] is executed in non-main thread, method
-        // [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-        // would not wait, thus the while loop will keep looping like crazy, and I can observer high
-        // CPU usage(35+%) meanwhile, this does not feel quite good...
-        //
-        // Is there a better way to make a asynchronous method synchronous??
-        NSLog(@"%@, Runloop waiting......", [NSDate date]);
-        BOOL result = [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-        NSLog(@"%@, Runloop waiting......, %d", [NSDate date], result);
+    if ([NSThread isMainThread]) {
+        __block BOOL finished = NO;
+        [self loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+            decisionModel = compiledModel;
+            finished = YES;
+        }];
+
+        while (!finished) {
+//            NSLog(@"%@, Runloop waiting......", [NSDate date]);
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+//            NSLog(@"%@, Runloop waiting......, %d", [NSDate date], result);
+        }
+    } else {
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_group_enter(group);
+        [self loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+            decisionModel = compiledModel;
+            dispatch_group_leave(group);
+        }];
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     }
-    
     return decisionModel;
 }
 
