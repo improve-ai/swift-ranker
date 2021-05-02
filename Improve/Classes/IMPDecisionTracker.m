@@ -146,31 +146,22 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     return sampleVariant;
 }
 
-- (void)trackEvent:(NSString *)event
+- (void)trackEvent:(NSString *)eventName
 {
-    [self trackEvent:event properties:nil];
+    [self trackEvent:eventName properties:nil];
 }
 
-- (void)trackEvent:(NSString *)event
+- (void)trackEvent:(NSString *)eventName
         properties:(nullable NSDictionary *)properties
-{
-    [self trackEvent:event properties:properties context:nil];
-}
-
-- (void)trackEvent:(NSString *)event
-        properties:(nullable NSDictionary *)properties
-           context:(nullable NSDictionary *)context
 {
     NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
 
-    if (event) {
-        [body setObject:event forKey:kEventKey];
+    if (eventName) {
+        [body setObject:eventName forKey:kEventKey];
     }
+    
     if (properties) {
         [body setObject:properties forKey:kPropertiesKey];
-    }
-    if (context) {
-        [body setObject:context forKey:kContextKey];
     }
 
     [self track:body];

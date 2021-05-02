@@ -186,7 +186,7 @@
 
 // in case of tie, the lowest index wins. Ties should be very rare due to small random noise added to scores
 // in IMPChooser.score()
-+ (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
++ (id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
 {
     double bestScore = -DBL_MAX;
     id bestVariant = nil;

@@ -25,14 +25,10 @@ NS_SWIFT_NAME(DecisionTracker)
 - (instancetype)initWithTrackURL:(NSURL *)trackURL
                           apiKey:(nullable NSString *)apiKey;
 
-- (void)trackEvent:(NSString *)event;
+- (void)trackEvent:(NSString *)eventName;
 
-- (void)trackEvent:(NSString *)event
+- (void)trackEvent:(NSString *)eventName
         properties:(nullable NSDictionary *)properties;
-
-- (void)trackEvent:(NSString *)event
-        properties:(nullable NSDictionary *)properties
-           context:(nullable NSDictionary *)context;
 
 @end
 
