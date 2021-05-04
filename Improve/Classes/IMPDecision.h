@@ -18,11 +18,13 @@ NS_SWIFT_NAME(Decision)
 
 @property (nonatomic, strong, nullable) NSDictionary *givens;
 
-- (instancetype)initWithModel:(IMPDecisionModel *)model;
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
 
 - (instancetype)chooseFrom:(NSArray *)variants;
 
-- (instancetype)given:(NSDictionary <NSString *, id>*)givens;
+- (instancetype)given:(NSDictionary<NSString *, id> *)givens;
 
 - (nullable id)get;
 

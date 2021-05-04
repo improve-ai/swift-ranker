@@ -121,11 +121,15 @@
         IMPLog("url=%@, greeting=%@", url, greeting);
         XCTAssertNotNil(greeting);
     }
-    
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
-    NSString *greeting = [[[[IMPDecisionModel load:url] chooseFrom:variants] given:context] get];
-    NSLog(@"greeting: %@", greeting);
 }
+
+- (void)testLoadToFail {
+    // url that does not exists
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gzs"];
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+    XCTAssertNil(decisionModel);
+}
+
 
 - (void)testRank{
     NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];

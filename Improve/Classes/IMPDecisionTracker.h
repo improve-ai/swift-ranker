@@ -20,10 +20,12 @@ NS_SWIFT_NAME(DecisionTracker)
 /// Hyperparameter that affects training speed and model performance. Values from 10-100 are probably reasonable.
 @property(atomic) NSUInteger maxRunnersUp;
 
-- (instancetype)initWithTrackURL:(NSURL *)trackURL;
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithTrackURL:(NSURL *)trackURL NS_SWIFT_NAME(init(_:));
 
 - (instancetype)initWithTrackURL:(NSURL *)trackURL
-                          apiKey:(nullable NSString *)apiKey;
+                          apiKey:(nullable NSString *)apiKey NS_SWIFT_NAME(init(_:_:));
 
 - (void)trackEvent:(NSString *)eventName;
 
