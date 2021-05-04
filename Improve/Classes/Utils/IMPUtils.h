@@ -14,8 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (double)gaussianNumber;
 
-+ (NSArray *)generateDescendingGaussians:(NSUInteger) count;
-
 @end
 
 NS_ASSUME_NONNULL_END

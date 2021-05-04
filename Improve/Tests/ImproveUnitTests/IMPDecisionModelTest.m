@@ -18,6 +18,8 @@
 
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
++ (NSArray *)generateDescendingGaussians:(NSUInteger)count;
+
 @end
 
 @interface IMPDecisionModelTest : XCTestCase
@@ -97,7 +99,7 @@
     int n = 4000;
     double total = 0.0;
     
-    NSArray *array = [IMPUtils generateDescendingGaussians:n];
+    NSArray *array = [IMPDecisionModel generateDescendingGaussians:n];
     
     for(int i = 0; i < n; ++i){
         NSLog(@"%f", [[array objectAtIndex:i] doubleValue]);

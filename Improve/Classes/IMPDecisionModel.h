@@ -22,6 +22,7 @@ NS_SWIFT_NAME(DecisionModel)
 @property(atomic, strong) MLModel *model;
 
 @property(nonatomic, strong) NSString *modelName;
+
 @property(nonatomic, strong) IMPDecisionTracker *tracker;
 
 + (instancetype)load:(NSURL *)url;
@@ -40,6 +41,8 @@ NS_SWIFT_NAME(DecisionModel)
  Takes an array of variants and context and returns an array of NSNumbers of the scores.
  */
 - (NSArray *)score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
+
+- (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens;
 
 @end
 
