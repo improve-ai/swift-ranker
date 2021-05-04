@@ -26,11 +26,12 @@ NS_SWIFT_NAME(DecisionModel)
 @property(nonatomic, strong) IMPDecisionTracker *tracker;
 
 + (instancetype)load:(NSURL *)url;
+
 + (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
 
 - (instancetype)initWithModel:(MLModel *)mlModel;
 
-- (IMPDecision *)chooseFrom:(NSArray *)variants;
+- (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
 /**
  Takes an array of variants and returns an array of NSNumbers of the scores.
