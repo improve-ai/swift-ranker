@@ -50,27 +50,60 @@ theme = themeModel.chooseFrom(themeVariants).get()
 Improve learns to use the attributes of each key and value in a complex variant to make the optimal decision.
 Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries, arrays, strings, numbers, nulls, and booleans.
 
-## Training
+## Models
 
-TODO
+Each DecisionModel contains the AI optimized decision logic, which is analogous to a large number of *if/then* statements.  A seperate model is used for each type of decision.
 
-### Dummy Models
+### Synchronous Model Loading
 
-Sometimes you'll need to make immediate decisions without waiting for the model to load. In this case, use a dummy model.
+```swift
+
+product = try DecisionModel.load(modelUrl).chooseFrom(["clutch", "dress", "jacket"]).get()
+
+```
+
+Models can be loaded from the app bundle or from https URLs.
+
+### Asynchronous Model Loading
+
+Asynchronous model loading allows decisions to be made at any point, even before the model is loaded.  If the model isn't yet loaded or fails to load, it will simply return the first variant as the decision.
 
 ```swift
 tracker = new DecisionTracker(trackUrl)
-model = new DecisionModel("greetings") // create a dummy model with the same name configured in the gym
-model.tracker = tracker // set the tracker so all decisions are tracked
-
-DecisionModel.loadAsync() {
- loadedModel.tracker = tracker // make sure to set the tracker on the loaded model
- model = loadedModel // replace the dummy model
+model = new DecisionModel("greetings") 
+model.tracker = tracker
+model.loadAsync(modelUrl) { result, error in
+    if (error)
+        NSLog("Error loading model: %@", error)
+    } else {
+        // the model is ready to go
+    }
 }
+...
+// other threads can make decisions at any point, simply returning the first variant if the model isn't loaded
 ```
-By default, a dummy model will simply return the first variant.  It will act as a placeholder until the actual model is loaded and if it is used, the decisions will still be tracked and learning will continue.
 
- ## Ranking and Scoring
+## Tracking & Training Models
+
+The magic of Improve AI is it's learning process, where models continuously improve by training on past decisions. To accomplish this, decisions and events are tracked with the Improve AI Gym.
+
+### Tracking Decisions
+
+Both decisions and events are tracked by the DecisionTracker class.  A single DecisionTracker instance can be shared by multiple models.
+
+```swift
+tracker = new DecisionTracker(trackUrl)
+
+product = try DecisionModel.load(modelUrl).setTracker(tracker).chooseFrom(["clutch", "dress", "jacket"]).get()
+```
+
+The decision is lazily evaluated and automatically tracked upon calling *get()*.
+
+### Tracking Events
+
+Events are the mechanism by which decisions are rewarded or penalized.
+
+## Ranking and Scoring
 
 ```objc
 // No human could ever make this decision, but math can.
