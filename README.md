@@ -105,7 +105,7 @@ tracker = new DecisionTracker(trackUrl) // trackUrl is obtained from your Gym co
 fontSize = try DecisionModel.load(modelUrl).setTracker(tracker).chooseFrom([12, 16, 20]).get()
 ```
 
-The decision is lazily evaluated and then automatically tracked upon calling *get()*.
+The decision is lazily evaluated and then automatically tracked as being causal upon calling *get()*.
 
 ### Tracking Events
 
