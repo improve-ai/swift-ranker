@@ -121,7 +121,7 @@ Like most analytics packages, *track* takes an *event* name and an optional *pro
 
 By default, each decision is rewarded the total value of all events that occur within 48 hours of the decision.
 
-The reward assignment process is fully customizable in the Improve AI Gym for arbitrarily sophisticated reward assignment logic.
+Assuming a typical app where user retention and engagement are valuable, we recommend tracking all of your analytics events with the *DecisionTracker*.  You can customize the rewards assignment logic later in the Improve AI Gym.
 
 ## Ranking and Scoring
 
