@@ -56,7 +56,7 @@ TODO
 
 ### Dummy Models
 
-Sometimes you'll need to be able to make immediate decisions without waiting for the model to load. In this case, use a dummy model.
+Sometimes you'll need to make immediate decisions without waiting for the model to load. In this case, use a dummy model.
 
 ```swift
 tracker = new DecisionTracker(trackUrl)
