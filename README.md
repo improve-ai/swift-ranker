@@ -25,6 +25,8 @@ What is the best greeting?
 greeting = DecisionModel.load(modelUrl).given({“language”: “cowboy”}).chooseFrom([“Hello World”, “Howdy World”, “Hi World”]).get()
 ```
 
+*greeting* should be *"Howdy World"* assuming that performs best when ```language == "cowboy"```.
+
 ### Numbers Too
 
 What discount should we offer today?
