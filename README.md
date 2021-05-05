@@ -97,7 +97,7 @@ The magic of Improve AI is it's learning process, whereby models continuously im
 
 ### Tracking Decisions
 
-Both decisions and events are tracked by the DecisionTracker class.  A single DecisionTracker instance can be shared by multiple models.
+Set a *DecisionTracker* on the *DecisionModel* to automatically track decisions and enable learning.  A single *DecisionTracker* instance can be shared by multiple models.
 
 ```swift
 tracker = new DecisionTracker(trackUrl) // trackUrl is obtained from your Gym configuration
