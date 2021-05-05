@@ -47,8 +47,8 @@ theme = themeModel.chooseFrom(themeVariants).get()
 
 ```
 
-Improve learns to use the attributes of each key and value in a dictionary variant to make the optimal decision.
-Variants can be any JSON encodeable data structure of arbitrary complexity, including dictionaries, arrays, strings, numbers, null values, and booleans.
+Improve learns to use the attributes of each key and value in a complex variant to make the optimal decision.
+Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries, arrays, strings, numbers, null values, and booleans.
 
 ### Howdy World (Context for Cowboys)
 
