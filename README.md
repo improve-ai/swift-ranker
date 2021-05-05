@@ -90,11 +90,11 @@ TODO
 
 TODO
 ```
-model = new DecisionModel("themes")
+model = new DecisionModel("themes") # create an empty model
 model.tracker = foo
 
 DecisionModel.loadAsync() {
- # overwrite the original model
+ # replace the empty model
  model.tracker = foo
  model = model
 }
