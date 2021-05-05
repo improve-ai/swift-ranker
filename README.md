@@ -54,20 +54,22 @@ Variants can be any JSON encodeable data structure of arbitrary complexity, incl
 
 TODO
 
-## Immediate Decisions
+## Dummy Models
 
-TODO
+Sometimes you'll need to be able to make immediate decisions without waiting for the model to load. In this case, use a dummy model.
+
 ```
-model = new DecisionModel("themes") # create an empty model
-model.tracker = foo
+tracker = new DecisionTracker(trackUrl)
+model = new DecisionModel("themes") # create a dummy model with the correct model name so decisions can still be tracked
+model.tracker = tracker
 
 DecisionModel.loadAsync() {
  # replace the empty model
- model.tracker = foo
- model = model
+ model = loadedModel
+ model.tracker = tracker
 }
 ```
-By default, an empty model will simply return the first variant.  If you would like Improve to explore different variants during the initial bootstrap phase, you may simply shuffle the variants before passing them to the model and a random one will be chosen.
+By default, a dummy model will simply return the first variant.  It will act as a placeholder until the actual model is loaded and if it is used, the decisions will still be tracked and learning will continue.
 
  ## Ranking and Scoring
 
