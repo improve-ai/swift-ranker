@@ -40,8 +40,8 @@ discount = DecisionModel.load(modelUrl).chooseFrom([0.1, 0.2, 0.3]).get()
 ### Complex Objects
 
 ```swift
-NSArray *themeVariants = [ { "textColor": "#000000", "backgroundColor": "#ffffff" },
-                            { "textColor": "#F0F0F0", "backgroundColor": "#aaaaaa" } ];
+themeVariants = [ { "textColor": "#000000", "backgroundColor": "#ffffff" },
+                  { "textColor": "#F0F0F0", "backgroundColor": "#aaaaaa" } ]
                             
 theme = themeModel.chooseFrom(themeVariants).get()
 
