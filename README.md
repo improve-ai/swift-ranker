@@ -54,7 +54,7 @@ Variants can be any JSON encodeable data structure of arbitrary complexity, incl
 
 TODO
 
-## Bootstrapping a New Model
+## Making Immediate Decisions
 
 TODO
 ```
