@@ -25,7 +25,7 @@ What is the best greeting?
 greeting = greetingsModel.given({“language”: “cowboy”}).chooseFrom([“Hello World”, “Howdy World”, “Yo World”]).get()
 ```
 
-*greeting* should be *Howdy World* assuming that performs best when *language == cowboy*.
+*greeting* should be *Howdy World* assuming that performs best when *language* is *cowboy*.
 
 ### Numbers Too
 
