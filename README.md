@@ -43,7 +43,7 @@ discount = DecisionModel.load(modelUrl).chooseFrom([0.1, 0.2, 0.3]).get()
 NSArray *themeVariants = [ { "textColor": "#000000", "backgroundColor": "#ffffff" },
                             { "textColor": "#F0F0F0", "backgroundColor": "#aaaaaa" } ];
                             
-theme = decisionModel.chooseFrom(themeVariants).get()
+theme = themeModel.chooseFrom(themeVariants).get()
 
 ```
 
