@@ -37,6 +37,14 @@ discount = try DecisionModel.load(modelUrl).chooseFrom([0.1, 0.2, 0.3]).get()
 
 ```
 
+### Booleans
+
+Dynamically enable feature flags for best performance...
+
+```
+featureFlag = decisionModel.given(deviceAttributes).chooseFrom([true, false]).get()
+```
+
 ### Complex Objects
 
 ```swift
@@ -52,7 +60,7 @@ Variants can be any JSON encodeable data structure of arbitrary complexity, incl
 
 ## Models
 
-Each DecisionModel contains the AI optimized decision logic, which is analogous to a large number of *if/then* statements.  A seperate model is used for each type of decision.
+Each DecisionModel contains the AI optimized decision logic, which is analogous to a large number of *if/then* statements. Models are thread-safe and a single model can be used for multiple decisions of the same type.
 
 ### Synchronous Model Loading
 
@@ -85,7 +93,7 @@ model.loadAsync(modelUrl) { result, error in
 
 ## Tracking & Training Models
 
-The magic of Improve AI is it's learning process, where models continuously improve by training on past decisions. To accomplish this, decisions and events are tracked with the Improve AI Gym.
+The magic of Improve AI is it's learning process, whereby models continuously improve by training on past decisions. To accomplish this, decisions and events are tracked to your deployment of the Improve AI Gym.
 
 ### Tracking Decisions
 
@@ -94,14 +102,22 @@ Both decisions and events are tracked by the DecisionTracker class.  A single De
 ```swift
 tracker = new DecisionTracker(trackUrl) // trackUrl is obtained from your Gym configuration
 
-product = try DecisionModel.load(modelUrl).setTracker(tracker).chooseFrom(["clutch", "dress", "jacket"]).get()
+fontSize = try DecisionModel.load(modelUrl).setTracker(tracker).chooseFrom([12, 16, 20]).get()
 ```
 
-The decision is lazily evaluated and automatically tracked upon calling *get()*.
+The decision is lazily evaluated and then automatically tracked upon calling *get()*.
 
 ### Tracking Events
 
-Events are the mechanism by which decisions are rewarded or penalized.
+Events are the mechanism by which decisions are rewarded or penalized.  In most cases these will mirror the normal analytics events that your app tracks and can be integrated with any event tracking singletons in your app.
+
+```swift
+tracker.track(event: "Purchased", { properties: "product_id": 8, "value": 19.99 })
+```
+
+Like most analytics packages, *track* takes an *event* name and an optional *properties* dictionary.  The only property with special significance is *value*, which indicates a reward value for decisions that lead to that event.  If *value* is ommitted then the default reward value is *0.001*.
+
+By default, each decision is rewarded the total value of all events that occur within 48 hours of the decision. The reward assignment process is fully customizable in the Improve AI Gym for arbitrarily sophisticated reward assignment logic.
 
 ## Ranking and Scoring
 
