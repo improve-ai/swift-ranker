@@ -107,6 +107,8 @@ fontSize = try DecisionModel.load(modelUrl).setTracker(tracker).chooseFrom([12, 
 
 The decision is lazily evaluated and then automatically tracked as being causal upon calling *get()*.
 
+For this reason, wait to call *get()* until the decision will actually be used.
+
 ### Tracking Events
 
 Events are the mechanism by which decisions are rewarded or penalized.  In most cases these will mirror the normal analytics events that your app tracks and can be integrated with any event tracking singletons in your app.
