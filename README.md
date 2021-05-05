@@ -88,7 +88,7 @@ Sort is handy for building personalized feeds or reducing huge lists of variants
 
 ## Privacy
   
-It is strongly recommended to never include Personally Identifiable Information (PII) in a variant or givens so that it is not tracked and persisted in your Improve Gym analytics records.
+It is strongly recommended to never include Personally Identifiable Information (PII) in a variants givens so that it is not tracked and persisted in your Improve Gym analytics records.
 
 ## License
 
