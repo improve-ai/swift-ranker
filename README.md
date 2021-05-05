@@ -123,27 +123,54 @@ By default, each decision is rewarded the total value of all events that occur w
 
 Assuming a typical app where user retention and engagement are valuable, we recommend tracking all of your analytics events with the *DecisionTracker*.  You can customize the rewards assignment logic later in the Improve AI Gym.
 
-## Ranking, Scoring, and Deferred Decisions
+## Scoring, Ranking, and Deferred Decisions
 
-```objc
+Variant scoring and ranking is useful when dealing with very large numbers of variants, or when decisions need to be made immediately upon app start.
+
+By scoring variants in advance, quick decisions can be made using a subset of the variants or the scored variants can be used as-is without loading a model.
+
+```swift
+
+dogs = database.loadDogs() // German Shepherd, Poodle, etc.
+
 // No human could ever make this decision, but math can.
-NSArray *sortedDogs = [improve sort:@[@"German Shepard", @"Border Collie", @"Labrador Retriever"] context:context];
+dogScores = try DecisionModel.load(modelUrl).score(dogs, given: currentEnvironment) // use a given similar to the tracked decisions
 
+for i in 0..<dogs.count {
+    dog[i].score = dogScores[i] // update the score for each dog
+}
 
-// With sort, training is done just as before, on one individual variant at a time.
-NSString *topDog = [sortedDogs objectAtIndex:0];
-[improve trackDecision:topDog context:context rewardKey:@"dog"];
-
-// ... 
-[improve addReward:@1000 forKey:@"dog"];
+database.saveDogs(dogs)
 ```
 
-Sort is handy for building personalized feeds or reducing huge lists of variants down to smaller lists for future contextual choose calls.  It is recommended to pass a context to sort that is similar to contexts the model was trained on.
+With the scores persisted, in a later session those scores can be used to quickly make a decision, either with or without a loaded model.
+
+```swift
+rankedDogs = DecisionModel.rank(dogs, withScores: dogScores)
+
+chosenDog = new DecisionModel("dogs").setTracker(tracker).chooseFrom(rankedDogs)
+```
+
+A model wasn't loaded in this case, so the top scoring dog would be chosen.
+
+We still include other variants in the call to *chooseFrom* even though they won't be chosen in order to assist with the model training. The training process does best when it has up to 50 other variants to compare the chosen variant to.  (It's totally fine to call *chooseFrom* with thousands of variants, it will just take longer)
+
+Persisted scores can also be used in conjunction with a loaded model in order to quickly make a decision using the most recent givens/context using just a subset of the top scoring variants.  This blended approach of offline scoring with online decisions allows very fast decisions with nearly unlimited variants.
+
+```swift
+topRankedDogs = database.loadTopRankedDogs()
+
+chosenDog = loadedModel.given(currentEnvironment).chooseFrom(topRankedDogs)
+```
 
 ## Privacy
   
 It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is not tracked and persisted in your Improve Gym analytics records.
 
+## Gratitude
+
+Thank you so much for enjoying my work. Please only use it to create something good, true, and beautiful. - Mr. Givens
+
 ## License
 
-Improve.ai is copyright Mind Blown Apps, LLC. All rights reserved.  May not be used without a license.
+Improve AI is copyright Mind Blown Apps, LLC. All rights reserved.  May not be used without a license.
