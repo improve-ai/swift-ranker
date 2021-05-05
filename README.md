@@ -123,7 +123,7 @@ By default, each decision is rewarded the total value of all events that occur w
 
 Assuming a typical app where user retention and engagement are valuable, we recommend tracking all of your analytics events with the *DecisionTracker*.  You can customize the rewards assignment logic later in the Improve AI Gym.
 
-## Ranking and Scoring
+## Ranking, Scoring, and Deferred Decisions
 
 ```objc
 // No human could ever make this decision, but math can.
