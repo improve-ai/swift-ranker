@@ -54,7 +54,7 @@ Variants can be any JSON encodeable data structure of arbitrary complexity, incl
 
 TODO
 
-## Dummy Models
+### Dummy Models
 
 Sometimes you'll need to be able to make immediate decisions without waiting for the model to load. In this case, use a dummy model.
 
@@ -64,7 +64,7 @@ model = new DecisionModel("themes") # create a dummy model with the correct mode
 model.tracker = tracker
 
 DecisionModel.loadAsync() {
- # replace the empty model
+ # replace the dummy model
  model = loadedModel
  model.tracker = tracker
 }
