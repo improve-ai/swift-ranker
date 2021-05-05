@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/cocoapods/l/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![Platform](https://img.shields.io/cocoapods/p/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 
-It's like an AI if/then statement. Quickly make decisions that maximize user retention, performance, revenue, or any other metric.
+It's like an AI *if/then* statement. Quickly make decisions that maximize user retention, performance, revenue, or any other metric.
 
 Improve.ai performs fast AI decisions on any JSON encodable data structure including dictionaries, arrays, strings, numbers, and booleans.
 
