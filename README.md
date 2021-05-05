@@ -58,15 +58,14 @@ TODO
 
 Sometimes you'll need to be able to make immediate decisions without waiting for the model to load. In this case, use a dummy model.
 
-```
+```swift
 tracker = new DecisionTracker(trackUrl)
-model = new DecisionModel("discounts") # create a dummy model with the same name configured in the gym
-model.tracker = tracker # set the tracker so all decisions are tracked
+model = new DecisionModel("discounts") // create a dummy model with the same name configured in the gym
+model.tracker = tracker // set the tracker so all decisions are tracked
 
 DecisionModel.loadAsync() {
- # replace the dummy model
- model = loadedModel
- model.tracker = tracker # make sure to set the tracker on the loaded model
+ loadedModel.tracker = tracker // make sure to set the tracker on the loaded model
+ model = loadedModel // replace the dummy model
 }
 ```
 By default, a dummy model will simply return the first variant.  It will act as a placeholder until the actual model is loaded and if it is used, the decisions will still be tracked and learning will continue.
