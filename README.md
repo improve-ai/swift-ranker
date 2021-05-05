@@ -50,21 +50,6 @@ theme = themeModel.chooseFrom(themeVariants).get()
 Improve learns to use the attributes of each key and value in a complex variant to make the optimal decision.
 Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries, arrays, strings, numbers, null values, and booleans.
 
-### Howdy World (Context for Cowboys)
-
-If language is "cowboy", which greeting is best?
-
-```objc
-NSArray *greetings = @[ @"Hello World!", @"Hi World!", @"Howdy World!" ];
-
-button.text = [improve choose:greetings context:@{ @"language": @"cowboy" }];
-```
-
-Improve can optimize decisions for a given context of arbitrary complexity. We might imagine that "Howdy World!" would produce the highest rewards for { language: cowboy }, while another greeting might be best for other contexts.
-
-You can think of contexts like: If `<context>` then `<variant>`.
- 
-
 ## Training
 
 TODO
