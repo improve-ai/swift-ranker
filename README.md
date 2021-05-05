@@ -33,7 +33,7 @@ What discount should we offer?
 
 ```swift
 
-discount = DecisionModel.load(modelUrl).chooseFrom([0.1, 0.2, 0.3]).get()
+discount = try DecisionModel.load(modelUrl).chooseFrom([0.1, 0.2, 0.3]).get()
 
 ```
 
