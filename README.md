@@ -64,22 +64,6 @@ Improve can optimize decisions for a given context of arbitrary complexity. We m
 
 You can think of contexts like: If `<context>` then `<variant>`.
  
- ### Sort Stuff
-
-```objc
-// No human could ever make this decision, but math can.
-NSArray *sortedDogs = [improve sort:@[@"German Shepard", @"Border Collie", @"Labrador Retriever"] context:context];
-
-
-// With sort, training is done just as before, on one individual variant at a time.
-NSString *topDog = [sortedDogs objectAtIndex:0];
-[improve trackDecision:topDog context:context rewardKey:@"dog"];
-
-// ... 
-[improve addReward:@1000 forKey:@"dog"];
-```
-
-Sort is handy for building personalized feeds or reducing huge lists of variants down to smaller lists for future contextual choose calls.  It is recommended to pass a context to sort that is similar to contexts the model was trained on.
 
 ## Training
 
@@ -100,6 +84,22 @@ DecisionModel.loadAsync() {
 ```
 By default, an empty model will simply return the first variant.  If you would like Improve to explore different variants during the initial bootstrap phase, you may simply shuffle the variants before passing them to the model and a random one will be chosen.
 
+ ## Ranking and Scoring
+
+```objc
+// No human could ever make this decision, but math can.
+NSArray *sortedDogs = [improve sort:@[@"German Shepard", @"Border Collie", @"Labrador Retriever"] context:context];
+
+
+// With sort, training is done just as before, on one individual variant at a time.
+NSString *topDog = [sortedDogs objectAtIndex:0];
+[improve trackDecision:topDog context:context rewardKey:@"dog"];
+
+// ... 
+[improve addReward:@1000 forKey:@"dog"];
+```
+
+Sort is handy for building personalized feeds or reducing huge lists of variants down to smaller lists for future contextual choose calls.  It is recommended to pass a context to sort that is similar to contexts the model was trained on.
 
 ## Privacy
   
