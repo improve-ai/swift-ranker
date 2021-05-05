@@ -22,7 +22,7 @@ What is the best greeting?
 
 ```swift
 
-greeting = greetingsModel.given({“language”: “cowboy”}).chooseFrom([“Hello World”, “Howdy World”, “Hi World”]).get()
+greeting = greetingsModel.given({“language”: “cowboy”}).chooseFrom([“Hello World”, “Howdy World”, “Yo World”]).get()
 ```
 
 *greeting* should be *"Howdy World"* assuming that performs best when ```language == "cowboy"```.
