@@ -92,7 +92,7 @@ The magic of Improve AI is it's learning process, where models continuously impr
 Both decisions and events are tracked by the DecisionTracker class.  A single DecisionTracker instance can be shared by multiple models.
 
 ```swift
-tracker = new DecisionTracker(trackUrl)
+tracker = new DecisionTracker(trackUrl) // trackUrl is obtained from your Gym configuration
 
 product = try DecisionModel.load(modelUrl).setTracker(tracker).chooseFrom(["clutch", "dress", "jacket"]).get()
 ```
