@@ -60,7 +60,7 @@ Sometimes you'll need to be able to make immediate decisions without waiting for
 
 ```swift
 tracker = new DecisionTracker(trackUrl)
-model = new DecisionModel("discounts") // create a dummy model with the same name configured in the gym
+model = new DecisionModel("greetings") // create a dummy model with the same name configured in the gym
 model.tracker = tracker // set the tracker so all decisions are tracked
 
 DecisionModel.loadAsync() {
