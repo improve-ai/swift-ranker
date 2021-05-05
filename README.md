@@ -25,7 +25,7 @@ What is the best greeting?
 greeting = decisionModel.given({“language”: “cowboy”}).chooseFrom([“Hello World”, “Howdy World”, “Yo World”]).get()
 ```
 
-*greeting* should result in *Howdy World* assuming that performs best when *language* is *cowboy*.
+*greeting* should result in *Howdy World* assuming it performs best when *language* is *cowboy*.
 
 ### Numbers Too
 
