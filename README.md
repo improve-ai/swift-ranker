@@ -60,7 +60,7 @@ Sometimes you'll need to be able to make immediate decisions without waiting for
 
 ```
 tracker = new DecisionTracker(trackUrl)
-model = new DecisionModel("themes") # create a dummy model with the correct model name so decisions can still be tracked
+model = new DecisionModel("themes") # create a dummy model with the same name configured in the gym
 model.tracker = tracker
 
 DecisionModel.loadAsync() {
