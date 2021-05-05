@@ -1,4 +1,4 @@
-# Improve AI for iOS
+# Improve AI for iOS/MacOS
 
 ## Fast AI Decisions for Swift and Objective C
  
