@@ -18,13 +18,13 @@ Improve is available through [CocoaPods](http://cocoapods.org). To install, add 
 pod "Improve"
 ```
 
-### Hello World!
+### Hello World (for Cowboys)!
 
 What is the best greeting?
 
 ```swift
 
-greeting = DecisionModel.load(modelUrl).chooseFrom([“Hello World”, “Howdy World”, “Hi World”]).given({“language”: “cowboy”}).get()
+greeting = DecisionModel.load(modelUrl).given({“language”: “cowboy”}).chooseFrom([“Hello World”, “Howdy World”, “Hi World”]).get()
 ```
 
 ### Numbers Too
@@ -33,7 +33,7 @@ What discount should we offer today?
 
 ```swift
 
-discount = DecisionModel.load(modelUrl).chooseFrom([.1, .2, .3]).get()
+discount = DecisionModel.load(modelUrl).chooseFrom([0.1, 0.2, 0.3]).get()
 
 ```
 
