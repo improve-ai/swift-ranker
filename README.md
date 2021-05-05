@@ -119,7 +119,9 @@ tracker.track(event: "Purchased", { properties: "product_id": 8, "value": 19.99 
 
 Like most analytics packages, *track* takes an *event* name and an optional *properties* dictionary.  The only property with special significance is *value*, which indicates a reward value for decisions that lead to that event.  If *value* is ommitted then the default reward value is *0.001*.
 
-By default, each decision is rewarded the total value of all events that occur within 48 hours of the decision. The reward assignment process is fully customizable in the Improve AI Gym for arbitrarily sophisticated reward assignment logic.
+By default, each decision is rewarded the total value of all events that occur within 48 hours of the decision.
+
+The reward assignment process is fully customizable in the Improve AI Gym for arbitrarily sophisticated reward assignment logic.
 
 ## Ranking and Scoring
 
