@@ -1,6 +1,6 @@
 # Improve AI for iOS
 
-## Fast AI Decisions for iOS, Android, and the Cloud
+## Fast AI Decisions for Swift and Objective C
  
 [![Version](https://img.shields.io/cocoapods/v/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 [![License](https://img.shields.io/cocoapods/l/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
