@@ -82,6 +82,10 @@ NSString *topDog = [sortedDogs objectAtIndex:0];
 
 Sort is handy for building personalized feeds or reducing huge lists of variants down to smaller lists for future contextual choose calls.  It is recommended to pass a context to sort that is similar to contexts the model was trained on.
 
+## Training
+
+TODO
+
 ## Bootstrapping a New Model
 
 TODO
