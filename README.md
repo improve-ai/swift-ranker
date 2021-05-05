@@ -29,7 +29,7 @@ greeting = greetingsModel.given({“language”: “cowboy”}).chooseFrom([“H
 
 ### Numbers Too
 
-What discount should we offer today?
+What discount should we offer?
 
 ```swift
 
