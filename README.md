@@ -83,7 +83,8 @@ Asynchronous model loading allows decisions to be made at any point, even before
 tracker = new DecisionTracker(trackUrl)
 model = new DecisionModel("greetings") 
 model.tracker = tracker
-model.loadAsync(modelUrl) { result, error in
+model.loadAsync(modelUrl) { loadedModel, error in
+    // loadedModel is the same reference as model but is made available to allow async chaining
     if (error)
         NSLog("Error loading model: %@", error)
     } else {
