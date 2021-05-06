@@ -125,7 +125,7 @@ Assuming a typical app where user retention and engagement are valuable, we reco
 
 ## Scoring, Ranking, and Deferred Decisions
 
-Downloading a model can take some hundreds of milliseconds on a typical Internet connection, which can be too long if an immediate decision is needed upon app start.
+Downloading a model can take some hundreds of milliseconds, which can be too long if an immediate decision is needed upon app start.
 
 To solve this, use *DecisionModel.score* and and *DecisionModel.rank* to effectively defer a decision so it is instantly available in the next app session.
 
