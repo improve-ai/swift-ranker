@@ -61,7 +61,7 @@ Variants can be any JSON encodeable data structure of arbitrary complexity, incl
 
 ## Models
 
-A DecisionModel contains the AI decision logic, analogous to a large number of *if/then* statements. 
+A *DecisionModel* contains the AI decision logic, analogous to a large number of *if/then* statements.
 
 Models are thread-safe and a single model can be used for multiple decisions.
 
