@@ -42,11 +42,16 @@
     if(_urlList == nil){
         _urlList = @[
             [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/TestModel.mlmodel"],
-            [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel"],
+            [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"],
             [[TestUtils bundle] URLForResource:@"TestModel"
                                  withExtension:@"mlmodelc"]];
     }
     return _urlList;
+}
+
+- (void)testInit {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    XCTAssertEqual(decisionModel.modelName, @"hello");
 }
 
 - (void)testLoadAsync{
@@ -58,6 +63,7 @@
             }
             XCTAssert([NSThread isMainThread]);
             XCTAssertNotNil(compiledModel);
+            XCTAssertTrue([compiledModel.modelName length] > 0);
             [ex fulfill];
         }];
         [self waitForExpectations:@[ex] timeout:300];
@@ -70,6 +76,7 @@
     for(NSURL *url in self.urlList){
         IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
         XCTAssertNotNil(decisionModel);
+        XCTAssertTrue([decisionModel.modelName length] > 0);
     }
     
     NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
@@ -83,10 +90,11 @@
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         XCTAssert(![NSThread isMainThread]);
-//        for(NSURL *url in self.urlList){
-//            IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
-//            XCTAssertNotNil(decisionModel);
-//        }
+        for(NSURL *url in self.urlList){
+            IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+            XCTAssertNotNil(decisionModel);
+            XCTAssertTrue([decisionModel.modelName length] > 0);
+        }
         NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
         IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
         [decisionModel chooseFrom:@[]];

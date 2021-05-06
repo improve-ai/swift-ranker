@@ -67,15 +67,16 @@
                 return;
             }
             
-            handler([[self alloc] initWithModel:model], nil);
+            IMPDecisionModel *decisionModel = [[self alloc] initWithModelName:@""];
+            decisionModel.model = model;
+            handler(decisionModel, nil);
         });
     }];
 }
 
-- (instancetype) initWithModel:(MLModel *) model
-{
-    if(self = [super init]){
-        self.model = model;
+- (instancetype)initWithModelName:(NSString *)modelName {
+    if(self = [super init]) {
+        self.modelName = modelName;
     }
     return self;
 }

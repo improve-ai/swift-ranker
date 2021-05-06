@@ -90,8 +90,8 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 - (void)track:(id)bestVariant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
 {
-    if (!modelName) {
-        IMPErrLog("Improve.track error modelName is nil");
+    if ([modelName length] <= 0) {
+        IMPErrLog("Improve.track error modelName is empty or nil");
         return;
     }
     

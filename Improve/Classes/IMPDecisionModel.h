@@ -29,7 +29,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 + (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
 
-- (instancetype)initWithModel:(MLModel *)mlModel;
+- (instancetype)initWithModelName:(NSString *)modelName;
 
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
