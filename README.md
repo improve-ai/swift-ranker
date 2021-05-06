@@ -127,7 +127,7 @@ Assuming a typical app where user retention and engagement are valuable, we reco
 
 Downloading a model can take some hundreds of milliseconds on a typical Internet connection, which can be too long if an immediate decision is needed upon app start.
 
-To solve this, use *DecisionModel.score* and and *DecisionModel.rank* to effectively defer a decision so it is instantly available on the next session.
+To solve this, use *DecisionModel.score* and and *DecisionModel.rank* to effectively defer a decision so it is instantly available in the next app session.
 
 For this example, background music needs to play immediately upon app start so the model will load asynchronously, but we will **not** wait for the model to load to make the decision. Instead the decision will will use previously persisted scores to rank the songs.
 
