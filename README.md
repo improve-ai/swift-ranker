@@ -56,6 +56,7 @@ theme = themeModel.chooseFrom(themeVariants).get()
 ```
 
 Improve learns to use the attributes of each key and value in a complex variant to make the optimal decision.
+
 Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries, arrays, strings, numbers, nulls, and booleans.
 
 ## Models
