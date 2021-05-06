@@ -63,7 +63,7 @@ Variants can be any JSON encodeable data structure of arbitrary complexity, incl
 
 A DecisionModel contains the AI decision logic, analogous to a large number of *if/then* statements. 
 
-Models are thread-safe and a single model can be used for multiple decisions of the same type.
+Models are thread-safe and a single model can be used for multiple decisions.
 
 ### Synchronous Model Loading
 
