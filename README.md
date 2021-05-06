@@ -161,7 +161,7 @@ playSong(song)
 
 **Caveats:** 
 
-1. If the *score* is being associated directly with the song object, then the score attribute should be filtered out before passing the song as a variant to *score* or *chooseFrom*. Do not include a previously calculated score as an attribute in the variants. Doing so could create a noisy feedback loop in the training process as the model will attempt to use these past scores to predict a new score.  Model training is quite robust so it would likely still work but the overall learning process would likely be somewhat slower.
+1. If the *score* is being associated directly with the song object, then the score attribute should be filtered out before passing the song as a variant to *DecisionoModel.score()* or *chooseFrom()*. Do not include a previously calculated score as an attribute in the variants. Doing so could create a noisy feedback loop in the training process as the model will attempt to use these past scores to predict a new score.  Model training is quite robust so it would likely still work but the overall learning process would likely be somewhat slower.
 2. The givens passed to *DecisionModel.score()* should be fairly similar to the givens used when the decision is tracked.  No decision tracking or learning takes place in *DecisionModel.score()* so a gross mismatch between the *DecisionModel.score()* and *DecisionModel.chooseFrom* givens could reduce performance.
 3. Even though it would work to provide only *rankedSongs[0]* (the top ranking variant) to *chooseFrom*, still provide up to 50 other ranked variants. The model training performance is best when it has additional variants to compare the chosen variant against. 
 
