@@ -74,7 +74,7 @@ Models can be loaded from the app bundle or from https URLs.
 
 ### Asynchronous Model Loading
 
-Asynchronous model loading allows decisions to be made at any point, even before the model is loaded.  If the model isn't yet loaded or fails to load, it will simply return the first variant as the decision.
+Asynchronous model loading allows decisions to be made at any point, even before the model is loaded.  If the model isn't yet loaded or fails to load, the first variant will be returned as the decision.
 
 ```swift
 tracker = new DecisionTracker(trackUrl)
@@ -125,41 +125,45 @@ Assuming a typical app where user retention and engagement are valuable, we reco
 
 ## Scoring, Ranking, and Deferred Decisions
 
-Scoring, ranking, and deferred decisions are useful in cases where you need to make an immediate decision on app start without waiting for a model to download.  For example, background music would usually begin within the first few milliseconds of app start.
+Scoring and ranking are useful in cases where an immediate decision is needed. 
 
-By scoring variants in advance, quick decisions can be made using a subset of the variants or the scored variants can be used as-is without loading a model.
+For example, background music should begin within the first few milliseconds of app start and should not wait for a model to download.
 
 ```swift
+new DecisionModel("songs").loadAsync(songsModelUrl) { songsModel, error in
+    if (songsModel) {
+        // the songs model has loaded, score the songs
+        songScores = songsModel.score(songs, given: songPreferences)
 
-songs = database.loadSongs() 
-
-songScores = try DecisionModel.load(modelUrl).score(songs, given: currentEnvironment) // use a given similar to the tracked decisions
-
-for i in 0..<songs.count {
-    song[i].score = songScores[i] // update the score for each song
+        // persist the score for each song
+        database.update(songs, withScores: songScores)
+    }
 }
-
-database.saveSongs(songs)
 ```
+
+caveats: 
+
+1. Care should be taken to not include any previously persisted *score* attribute in the variant objects that are passed to *chooseFrom* or *score*. Doing this could slow down the learning process as the *score* attribute could create a noisy feedback loop between decisions and model training.  If the *score* is being associated directly with the song, then the score attribute should be filtered out before passing the song as a variant to *score* or *chooseFrom*.
+2. The provided givens should be fairly similar to the givens used when the decision is tracked.  No decision tracking or learning takes place in *score* so the model can not adapt to a mismatch between the givens.
 
 With the scores persisted, in a later session those scores can be used to quickly make a decision, either with or without a loaded model.
 
 ```swift
-rankedDogs = DecisionModel.rank(dogs, withScores: dogScores)
+rankedSongs = DecisionModel.rank(songs, withScores: songScores)
 
-chosenDog = new DecisionModel("dogs").setTracker(tracker).chooseFrom(rankedDogs)
+songToPlay = new DecisionModel("songs").setTracker(tracker).given(songPreferences).chooseFrom(rankedSongs).get()
 ```
 
-A model wasn't loaded in this case, so the top scoring dog would be chosen.
+A model wasn't loaded in this case, so the top scoring song would be chosen.
 
-We still include other variants in the call to *chooseFrom* even though they won't be chosen in order to assist with the model training. The training process does best when it has up to 50 other variants to compare the chosen variant to.  (It's totally fine to call *chooseFrom* with thousands of variants, it will just take longer)
+We still include other variants in the call to *chooseFrom* even though they won't be chosen in order to assist with the model training. The training process does best when it has up to 50 other variants to compare the chosen variant with.  (It's totally fine to call *chooseFrom* with thousands of variants, it will just take longer)
 
 Persisted scores can also be used in conjunction with a loaded model in order to quickly make a decision using the most recent givens/context using just a subset of the top scoring variants.  This blended approach of offline scoring with online decisions allows very fast decisions with nearly unlimited variants.
 
 ```swift
-topRankedDogs = database.loadTopRankedDogs()
+topRankedSongs = database.loadTopRankedSongs()
 
-chosenDog = loadedModel.given(currentEnvironment).chooseFrom(topRankedDogs)
+songToPlay = loadedSongModel.given(songPreferences).chooseFrom(topRankedSongs).get()
 ```
 
 ## Privacy
