@@ -125,22 +125,21 @@ Assuming a typical app where user retention and engagement are valuable, we reco
 
 ## Scoring, Ranking, and Deferred Decisions
 
-Variant scoring and ranking is useful when dealing with very large numbers of variants, or when decisions need to be made immediately upon app start.
+Scoring, ranking, and deferred decisions are useful in cases where you need to make an immediate decision on app start without waiting for a model to download.  For example, background music would usually begin within the first few milliseconds of app start.
 
 By scoring variants in advance, quick decisions can be made using a subset of the variants or the scored variants can be used as-is without loading a model.
 
 ```swift
 
-dogs = database.loadDogs() // German Shepherd, Poodle, etc.
+songs = database.loadSongs() 
 
-// No human could ever make this decision, but math can.
-dogScores = try DecisionModel.load(modelUrl).score(dogs, given: currentEnvironment) // use a given similar to the tracked decisions
+songScores = try DecisionModel.load(modelUrl).score(songs, given: currentEnvironment) // use a given similar to the tracked decisions
 
-for i in 0..<dogs.count {
-    dog[i].score = dogScores[i] // update the score for each dog
+for i in 0..<songs.count {
+    song[i].score = songScores[i] // update the score for each song
 }
 
-database.saveDogs(dogs)
+database.saveSongs(songs)
 ```
 
 With the scores persisted, in a later session those scores can be used to quickly make a decision, either with or without a loaded model.
