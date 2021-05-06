@@ -125,83 +125,51 @@ Assuming a typical app where user retention and engagement are valuable, we reco
 
 ## Scoring, Ranking, and Deferred Decisions
 
-Scoring and ranking are useful in cases where an immediate decision is needed. 
+Downloading a model can take some hundreds of milliseconds on a typical Internet connection, which can be too long if an immediate decision is needed upon app start.
 
-For example, background music should begin within the first few milliseconds of app start and should not wait for a model to download.
+To solve this, use *DecisionModel.score* and and *DecisionModel.rank* to effectively defer a decision so it is instantly available on the next session.
+
+For this example, background music needs to play immediately upon app start so the model will load asynchronously, but we will **not** wait for the model to load to make the decision. Instead the decision will will use previously persisted scores to rank the songs.
 
 ```swift
-new DecisionModel("songs").loadAsync(songsModelUrl) { songsModel, error in
+songsModel = new DecisionModel("songs")
+songsModel.tracker = new DecisionTracker(trackUrl)
+
+// load the model and update the scores for future song plays
+songsModel.loadAsync(songsModelUrl) { songsModel, error in
     if (songsModel) {
-        // the songs model has loaded, score the songs
-        songScores = songsModel.score(songs, given: songPreferences)
+        // the songs model has loaded, update the song scores
+        updatedScores = songsModel.score(rankedSongs, given: songPreferences)
 
         // persist the score for each song
-        database.update(songs, withScores: songScores)
+        database.update(songs, withScores: updatedScores)
     }
 }
-```
 
-caveats: 
-
-1. Care should be taken to not include any previously persisted *score* attribute in the variant objects that are passed to *chooseFrom* or *score*. Doing this could slow down the learning process as the *score* attribute could create a noisy feedback loop between decisions and model training.  If the *score* is being associated directly with the song, then the score attribute should be filtered out before passing the song as a variant to *score* or *chooseFrom*.
-2. The provided givens should be fairly similar to the givens used when the decision is tracked.  No decision tracking or learning takes place in *score* so the model can not adapt to a mismatch between the givens.
-
-With the scores persisted, in a later session those scores can be used to quickly make a decision, either with or without a loaded model.
-
-```swift
+songScores = database.loadScoresForSongs(songs)
 rankedSongs = DecisionModel.rank(songs, withScores: songScores)
 
-songToPlay = new DecisionModel("songs").setTracker(tracker).given(songPreferences).chooseFrom(rankedSongs).get()
+// if the model isn't yet loaded, the top ranked song will be instantly chosen and the decision will then be tracked on get()
+song = songsModel.given(songPreferences).chooseFrom(rankedSongs).get()
+
+playSong(song)
 ```
 
-A model wasn't loaded in this case, so the top scoring song would be chosen.
+**Caveats:** 
 
-We still include other variants in the call to *chooseFrom* even though they won't be chosen in order to assist with the model training. The training process does best when it has up to 50 other variants to compare the chosen variant with.  (It's totally fine to call *chooseFrom* with thousands of variants, it will just take longer)
-
-Bringing it all together looks like this:
-
-```swift
-func init() {
-    songsModel = new DecisionModel("songs")
-    songsModel.tracker = new DecisionTracker(trackUrl)
-
-    // load the model and update the scores for future song plays
-    songsModel.loadAsync(songsModelUrl) { songsModel, error in
-        if (songsModel) {
-            // the songs model has loaded, update the song scores
-            songScores = songsModel.score(rankedSongs, given: songPreferences)
-
-            // persist the score for each song
-            database.update(songs, withScores: songScores)
-        }
-    }
-}
-
-func playNextSong() {
-    songScores = database.loadScoresForSongs(songs)
-    rankedSongs = DecisionModel.rank(songs, withScores: songScores)
-    song = songsModel.given(songPreferences).chooseFrom(rankedSongs).get() // the chosen song is tracked on get()
-
-    playSong(song)
-}
-
-```
+1. Care should be taken to not include a previously calculated score as an attribute in the variant objects that are passed to *chooseFrom* or *score*. Doing this could create a noisy feedback loop in the training process as the model will attempt to use these past scores to learn the true score.  Model training is quite robust so it would likely still work but the overall learning process would likely be slower. If the *score* is being associated directly with the song object, then the score attribute should be filtered out before passing the song as a variant to *score* or *chooseFrom*.
+2. The provided givens passed to *DecisionModel.score()* should be fairly similar to the givens used when the decision is tracked.  No decision tracking or learning takes place in *DecisionModel.score()* so a gross mismatch between the *DecisionModel.score()* and *DecisionModel.chooseFrom* givens could reduce performance.
+3. Even though it would work to provide only *rankedSongs[0]* (the top ranking variant) to *chooseFrom*, still provide up to 50 other ranked variants. The model training performance is best when it has additional variants to compare the chosen variant against. 
 
 Persisted scores can also be used in conjunction with a loaded model in order to quickly make a decision using the most recent givens/context using just a subset of the top scoring variants.  This blended approach of offline scoring with online decisions allows very fast decisions with nearly unlimited variants.
-
-```swift
-topRankedSongs = database.loadTopRankedSongs()
-
-songToPlay = loadedSongModel.given(songPreferences).chooseFrom(topRankedSongs).get()
-```
 
 ## Privacy
   
 It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is not tracked and persisted in your Improve Gym analytics records.
 
-## Gratitude
+## An Ask
 
-Thank you so much for enjoying my work. Please only use it to create something good, true, and beautiful. - Mr. Givens
+Thank you so much for enjoying my labor of love. Please only use it to create something good, true, and beautiful. - Justin
 
 ## License
 
