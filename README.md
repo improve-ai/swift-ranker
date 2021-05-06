@@ -180,9 +180,9 @@ func init() {
 func playNextSong() {
     songScores = database.loadScoresForSongs(songs)
     rankedSongs = DecisionModel.rank(songs, withScores: songScores)
-    songToPlay = songsModel.given(songPreferences).chooseFrom(rankedSongs).get() // the chosen song is tracked on get()
+    song = songsModel.given(songPreferences).chooseFrom(rankedSongs).get() // the chosen song is tracked on get()
 
-    playSong(songToPlay)
+    playSong(song)
 }
 
 ```
