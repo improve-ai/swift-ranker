@@ -169,7 +169,7 @@ It is strongly recommended to never include Personally Identifiable Information 
 
 ## An Ask
 
-Thank you so much for enjoying my labor of love. Please only use it to create something good, true, and beautiful. - Justin
+Thank you so much for enjoying my labor of love. Please only use it to create things that are good, true, and beautiful. - Justin
 
 ## License
 
