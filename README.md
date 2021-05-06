@@ -158,6 +158,35 @@ A model wasn't loaded in this case, so the top scoring song would be chosen.
 
 We still include other variants in the call to *chooseFrom* even though they won't be chosen in order to assist with the model training. The training process does best when it has up to 50 other variants to compare the chosen variant with.  (It's totally fine to call *chooseFrom* with thousands of variants, it will just take longer)
 
+Bringing it all together looks like this:
+
+```swift
+func init() {
+    songsModel = new DecisionModel("songs")
+    songsModel.tracker = new DecisionTracker(trackUrl)
+
+    // load the model and update the scores for future song plays
+    songsModel.loadAsync(songsModelUrl) { songsModel, error in
+        if (songsModel) {
+            // the songs model has loaded, update the song scores
+            songScores = songsModel.score(rankedSongs, given: songPreferences)
+
+            // persist the score for each song
+            database.update(songs, withScores: songScores)
+        }
+    }
+}
+
+func playNextSong() {
+    songScores = database.loadScoresForSongs(songs)
+    rankedSongs = DecisionModel.rank(songs, withScores: songScores)
+    songToPlay = songsModel.given(songPreferences).chooseFrom(rankedSongs).get() // the chosen song is tracked on get()
+
+    playSong(songToPlay)
+}
+
+```
+
 Persisted scores can also be used in conjunction with a loaded model in order to quickly make a decision using the most recent givens/context using just a subset of the top scoring variants.  This blended approach of offline scoring with online decisions allows very fast decisions with nearly unlimited variants.
 
 ```swift
