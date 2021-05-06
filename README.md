@@ -137,7 +137,7 @@ songsModel.tracker = new DecisionTracker(trackUrl)
 
 // load the model and update the scores for future song plays
 songsModel.loadAsync(songsModelUrl) { songsModel, error in
-    if (songsModel) {
+    if (!error) {
         // the songs model has loaded, update the song scores
         updatedScores = songsModel.score(rankedSongs, given: songPreferences)
 
