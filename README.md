@@ -165,7 +165,7 @@ Persisted scores can also be used in conjunction with a loaded model in order to
 
 ## Privacy
   
-It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is not tracked and persisted in your Improve Gym analytics records.
+It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is not tracked or persisted in your Improve Gym analytics records.
 
 ## An Ask
 
