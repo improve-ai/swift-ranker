@@ -40,9 +40,13 @@
 
 - (NSArray *)urlList{
     if(_urlList == nil){
+//        _urlList = @[
+//            [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/TestModel.mlmodel"],
+//            [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"],
+//            [[TestUtils bundle] URLForResource:@"TestModel"
+//                                 withExtension:@"mlmodelc"]];
         _urlList = @[
             [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/TestModel.mlmodel"],
-            [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"],
             [[TestUtils bundle] URLForResource:@"TestModel"
                                  withExtension:@"mlmodelc"]];
     }
@@ -54,10 +58,24 @@
     XCTAssertEqual(decisionModel.modelName, @"hello");
 }
 
+- (void)testModelName {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
+                                      withExtension:@"mlmodelc"];
+    XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
+    [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+        XCTAssertTrue([decisionModel.modelName isEqualToString:@"messages-2.0"]);
+        [ex fulfill];
+    }];
+    [self waitForExpectations:@[ex] timeout:3];
+
+}
+
 - (void)testLoadAsync{
     for(NSURL *url in self.urlList){
         XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
-        [IMPDecisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@""];
+        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
             if(error){
                 NSLog(@"loadAsync error: %@", error);
             }

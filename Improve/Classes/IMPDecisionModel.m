@@ -27,23 +27,21 @@
 @synthesize model = _model;
 
 + (instancetype)load:(NSURL *)url {
-    __block IMPDecisionModel *decisionModel = nil;
+    __block IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@""];
     if ([NSThread isMainThread]) {
         __block BOOL finished = NO;
-        [self loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
             decisionModel = compiledModel;
             finished = YES;
         }];
 
         while (!finished) {
-//            NSLog(@"%@, Runloop waiting......", [NSDate date]);
-            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
-//            NSLog(@"%@, Runloop waiting......, %d", [NSDate date], result);
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
         }
     } else {
         dispatch_group_t group = dispatch_group_create();
         dispatch_group_enter(group);
-        [self loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
             decisionModel = compiledModel;
             dispatch_group_leave(group);
         }];
@@ -52,7 +50,7 @@
     return decisionModel;
 }
 
-+ (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler {
+- (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler {
     [[[IMPModelDownloader alloc] initWithURL:url] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (downloadError) {
@@ -67,9 +65,9 @@
                 return;
             }
             
-            IMPDecisionModel *decisionModel = [[self alloc] initWithModelName:@""];
-            decisionModel.model = model;
-            handler(decisionModel, nil);
+            self.model = model;
+            
+            handler(self, nil);
         });
     }];
 }
@@ -115,6 +113,13 @@
         IMPModelMetadata *metadata = [[IMPModelMetadata alloc] initWithString:jsonMetadata];
         if (!metadata) {
             return;
+        }
+        
+        // If self.modelName != loadedModelName then log warning that model names
+        // don’t match. Set self.modelName to loaded model name.
+        if ([_modelName length] > 0 && ![_modelName isEqualToString:metadata.modelName]) {
+            IMPErrLog("Model names don't match: Current model name [%@], new model Name [%@]",
+                      _modelName, metadata.modelName);
         }
 
         _modelName = metadata.modelName;

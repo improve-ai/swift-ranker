@@ -25,9 +25,11 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property(nonatomic, strong) IMPDecisionTracker *tracker;
 
+- (instancetype)init NS_UNAVAILABLE;
+
 + (instancetype)load:(NSURL *)url;
 
-+ (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
+- (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
 
 - (instancetype)initWithModelName:(NSString *)modelName;
 

@@ -30,7 +30,7 @@ class ViewController: UIViewController {
                 print("loadAsync, greeting: \(greeting!)")
             }
         })
-        
+
         greeting = DecisionModel.loadAsync(modelUrl, completion: { model, err in
             greeting = model?.chooseFrom(variants).get()
             if greeting != nil {
