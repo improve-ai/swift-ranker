@@ -91,8 +91,12 @@ model.loadAsync(modelUrl) { loadedModel, error in
         // the model is ready to go
     }
 }
+
+// It is very unlikely that the model will be loaded by the time this is called, 
+// so "Hello World" would be returned and tracked as the decision
+greeting = model.chooseFrom([“Hello World”, “Howdy World”, “Yo World”]).get()
 ...
-// other threads can make decisions at any point, simply returning the first variant if the model isn't loaded
+// other threads can make decisions at any time and if the model is loaded will get AI decisions
 ```
 
 ## Tracking & Training Models
