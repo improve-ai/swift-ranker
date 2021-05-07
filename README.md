@@ -106,7 +106,7 @@ Set a *DecisionTracker* on the *DecisionModel* to automatically track decisions 
 ```swift
 tracker = new DecisionTracker(trackUrl) // trackUrl is obtained from your Gym configuration
 
-fontSize = try DecisionModel.load(modelUrl).setTracker(tracker).chooseFrom([12, 16, 20]).get()
+fontSize = try DecisionModel.load(modelUrl).track(tracker).chooseFrom([12, 16, 20]).get()
 ```
 
 The decision is lazily evaluated and then automatically tracked as being causal upon calling *get()*.
