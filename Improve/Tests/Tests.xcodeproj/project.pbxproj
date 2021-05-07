@@ -24,6 +24,7 @@
 		B32938E12612D80F0071F78E /* NSData+GZIP.m in Sources */ = {isa = PBXBuildFile; fileRef = B32938E02612D80F0071F78E /* NSData+GZIP.m */; };
 		B32938EA2613EA930071F78E /* IMPStreamDownloadHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B32938E92613EA930071F78E /* IMPStreamDownloadHandler.m */; };
 		B352915E26453300000274D6 /* IMPDecisionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B352915D26453300000274D6 /* IMPDecisionTest.m */; };
+		B352916426455F3C000274D6 /* IMPSwiftifiedTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B352916326455F3C000274D6 /* IMPSwiftifiedTest.swift */; };
 		B3675EA725FE2E460040FDBB /* xxhash.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EA325FE2E460040FDBB /* xxhash.c */; };
 		B3675EBA25FE2E900040FDBB /* IMPFeatureEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */; };
 		B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */; };
@@ -130,6 +131,8 @@
 		B32938E82613EA930071F78E /* IMPStreamDownloadHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPStreamDownloadHandler.h; sourceTree = "<group>"; };
 		B32938E92613EA930071F78E /* IMPStreamDownloadHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPStreamDownloadHandler.m; sourceTree = "<group>"; };
 		B352915D26453300000274D6 /* IMPDecisionTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPDecisionTest.m; sourceTree = "<group>"; };
+		B352916226455F3B000274D6 /* ImproveUnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ImproveUnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		B352916326455F3C000274D6 /* IMPSwiftifiedTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMPSwiftifiedTest.swift; sourceTree = "<group>"; };
 		B3675EA125FE2E450040FDBB /* xxhash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxhash.h; sourceTree = "<group>"; };
 		B3675EA325FE2E460040FDBB /* xxhash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xxhash.c; sourceTree = "<group>"; };
 		B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMPFeatureEncoder.m; sourceTree = "<group>"; };
@@ -279,6 +282,8 @@
 				548BEE1E241241F500EFD26A /* TestModel.mlmodel */,
 				54CB9B2423D987800005BB94 /* Info.plist */,
 				B352915D26453300000274D6 /* IMPDecisionTest.m */,
+				B352916326455F3C000274D6 /* IMPSwiftifiedTest.swift */,
+				B352916226455F3B000274D6 /* ImproveUnitTests-Bridging-Header.h */,
 			);
 			path = ImproveUnitTests;
 			sourceTree = "<group>";
@@ -474,6 +479,7 @@
 				TargetAttributes = {
 					54CB9B1E23D987800005BB94 = {
 						CreatedOnToolsVersion = 11.3.1;
+						LastSwiftMigration = 1240;
 					};
 				};
 			};
@@ -578,6 +584,7 @@
 				E761D2FF2600454700F6F238 /* NSDictionary+MLFeatureProvider.m in Sources */,
 				B32938EA2613EA930071F78E /* IMPStreamDownloadHandler.m in Sources */,
 				54394F2925407690009D1CF1 /* IMPDecisionTracker.m in Sources */,
+				B352916426455F3C000274D6 /* IMPSwiftifiedTest.swift in Sources */,
 				54394F99254AA752009D1CF1 /* IMPDecisionTrackerTest.m in Sources */,
 				54394F21253DB815009D1CF1 /* IMPDecision.m in Sources */,
 				544A0E8024BB7B5E007BB69D /* LoggingTest.m in Sources */,
@@ -739,6 +746,9 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "ImproveUnitTests/ImproveUnitTests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -807,6 +817,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "ImproveUnitTests/ImproveUnitTests-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

@@ -31,7 +31,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 - (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
 
-- (instancetype)initWithModelName:(NSString *)modelName;
+- (instancetype)initWithModelName:(NSString *)modelName NS_SWIFT_NAME(init(_:));
 
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
