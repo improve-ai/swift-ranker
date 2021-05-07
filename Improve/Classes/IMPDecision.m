@@ -91,6 +91,11 @@
             } else {
                 _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
             }
+        } else {
+            // Unit test that "variant": null JSON is tracked on null or empty variants.
+            // "count" field should be 1
+            _best = nil;
+            [_model.tracker track:_best variants:nil given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:NO];
         }
 
         _chosen = TRUE;

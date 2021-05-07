@@ -100,12 +100,8 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         kModelKey: modelName,
         kCountKey: @(variants.count),
     } mutableCopy];
-
-    if (bestVariant) {
-        body[kVariantKey] = bestVariant;
-    } else {
-        body[kVariantKey] = [NSNull null]; // explictly mark that the variant is a null value
-    }
+    
+    [self setBestVariant:bestVariant dict:body];
 
     if (givens) {
         body[kGivenKey] = givens;
@@ -144,6 +140,18 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         sampleVariant = samples.randomObject;
     }
     return sampleVariant;
+}
+
+- (void)setBestVariant:(id)bestVariant dict:(NSMutableDictionary *)body {
+    if (bestVariant) {
+        body[kVariantKey] = bestVariant;
+    } else {
+        // This happens only in two cases
+        // case 1: variants is empty
+        // case 2: variants is nil
+        body[kCountKey] = @1;
+        body[kVariantKey] = [NSNull null];
+    }
 }
 
 - (void)trackEvent:(NSString *)eventName

@@ -17,6 +17,8 @@
 
 - (NSArray *)topRunnersUp:(NSArray *)ranked;
 
+- (void)setBestVariant:(id)bestVariant dict:(NSMutableDictionary *)body;
+
 @end
 
 @interface IMPDecisionTracker ()
@@ -259,6 +261,39 @@
     for(int i = 0; i < 50; ++i) {
         XCTAssertEqual([result[i] intValue], i+1);
     }
+}
+
+- (void)testSetBestVariantNil {
+    NSURL *trackerUrl = [NSURL URLWithString:@"tracker url"];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
+    
+    NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
+    [tracker setBestVariant:nil dict:body];
+
+    XCTAssertEqual([body[@"count"] intValue], 1);
+    XCTAssertEqualObjects(body[@"variant"], [NSNull null]);
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:nil];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    // body looks like this when printed
+    // {
+    //     "count" : 1,
+    //     "variant" : null
+    // }
+    NSLog(@"jsonString: %@", jsonString);
+}
+
+- (void)testSetBestVariantNonNil {
+    NSURL *trackerUrl = [NSURL URLWithString:@"tracker url"];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
+    
+    NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
+    [tracker setBestVariant:@"hello" dict:body];
+    
+    XCTAssertEqualObjects(body[@"variant"], @"hello");
 }
 
 @end
