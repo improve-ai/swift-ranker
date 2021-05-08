@@ -17,8 +17,8 @@ class ViewController: UIViewController {
 //        let modelUrl = URL(string: "http://192.168.1.101/TestModel.mlmodel3.gz")!
         let variants = ["Hello, World!", "Hello World", "Hello world"]
         let given = ["language": "cowboy"]
-
-        var greeting = DecisionModel.load(modelUrl).chooseFrom(variants).given(given).get();
+        
+        var greeting = try? DecisionModel.load(modelUrl).chooseFrom(variants).given(given).get();
         if greeting != nil {
             print("load, greeting: \(greeting!)")
         }

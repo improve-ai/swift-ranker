@@ -27,7 +27,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 - (instancetype)init NS_UNAVAILABLE;
 
-+ (instancetype)load:(NSURL *)url;
++ (nullable instancetype)load:(NSURL *)url error:(NSError **)error;
 
 - (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
 

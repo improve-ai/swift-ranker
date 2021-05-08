@@ -88,18 +88,34 @@
     }
 }
 
-- (void)testLoadSync{
+- (void)testLoadSync {
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
-    
+
+    NSError *err;
     for(NSURL *url in self.urlList){
-        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
+        XCTAssertNil(err);
         XCTAssertNotNil(decisionModel);
         XCTAssertTrue([decisionModel.modelName length] > 0);
     }
-    
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
-    XCTAssertNotNil(decisionModel);
+}
+
+- (void)testLoadSyncToFail {
+    NSError *err;
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/not/exist/TestModel.mlmodel3.gz"];
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
+    XCTAssertNotNil(err);
+    XCTAssertNil(decisionModel);
+}
+
+- (void)testLoadSyncToFailWithInvalidModelFile {
+    NSError *err;
+    // The model exists, but is not valid
+    NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/InvalidModel.mlmodel"];
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
+    XCTAssertNotNil(err);
+    XCTAssertNil(decisionModel);
+    NSLog(@"load error: %@", err);
 }
 
 - (void)testLoadSyncFromNonMainThread{
@@ -108,13 +124,15 @@
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         XCTAssert(![NSThread isMainThread]);
+        NSError *err;
         for(NSURL *url in self.urlList){
-            IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+            IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
+            XCTAssertNil(err);
             XCTAssertNotNil(decisionModel);
             XCTAssertTrue([decisionModel.modelName length] > 0);
         }
         NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
-        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
         [decisionModel chooseFrom:@[]];
         [ex fulfill];
     });
@@ -141,8 +159,10 @@
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
     for(NSURL *url in self.urlList){
-        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+        NSError *err;
+        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
         XCTAssertNotNil(decisionModel);
+        XCTAssertNil(err);
         NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
         IMPLog("url=%@, greeting=%@", url, greeting);
         XCTAssertNotNil(greeting);
@@ -151,8 +171,10 @@
 
 - (void)testLoadToFail {
     // url that does not exists
+    NSError *err;
     NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gzs"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url];
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
+    XCTAssertNil(err);
     XCTAssertNil(decisionModel);
 }
 

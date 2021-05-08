@@ -26,11 +26,13 @@
 
 @synthesize model = _model;
 
-+ (instancetype)load:(NSURL *)url {
++ (instancetype)load:(NSURL *)url error:(NSError **)error {
     __block IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@""];
+    __block NSError *blockError = nil;
     if ([NSThread isMainThread]) {
         __block BOOL finished = NO;
-        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
+            blockError = err;
             decisionModel = compiledModel;
             finished = YES;
         }];
@@ -41,12 +43,18 @@
     } else {
         dispatch_group_t group = dispatch_group_create();
         dispatch_group_enter(group);
-        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
+            blockError = err;
             decisionModel = compiledModel;
             dispatch_group_leave(group);
         }];
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     }
+
+    if(error) {
+        *error = blockError;
+    }
+    
     return decisionModel;
 }
 
