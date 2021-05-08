@@ -163,7 +163,7 @@
 {
     // MLModel is not thread safe, synchronize
     @synchronized (self) {
-        if (!variants || [variants count] == 0) {
+        if ([variants count] <= 0) {
             IMPErrLog("Non-nil, non-empty array required for sort variants. Returning empty array");
             return @[];
         }
