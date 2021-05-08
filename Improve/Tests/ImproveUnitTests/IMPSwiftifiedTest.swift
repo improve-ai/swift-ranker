@@ -66,4 +66,18 @@ class IMPSwiftifiedTest: XCTestCase {
         let trackerWithAPIKey = DecisionTracker(trackerUrl, "api-key")
         trackerWithAPIKey.trackEvent("event")
     }
+    
+    func testLoadAsync() throws {
+        let ex = expectation(description: "Model loading")
+        let variants = ["Hello World", "Howdy World", "Hi World"]
+        let modelUrl = URL(fileURLWithPath: "/Users/phx/Documents/improve-ai/TestModel.mlmodel")
+        DecisionModel("hello").loadAsync(modelUrl) { model, err in
+            let greeting = model?.chooseFrom(variants).get()
+            if greeting != nil {
+                print("loadAsync, greeting=\(greeting!)")
+            }
+            ex.fulfill()
+        }
+        waitForExpectations(timeout:3)
+    }
 }
