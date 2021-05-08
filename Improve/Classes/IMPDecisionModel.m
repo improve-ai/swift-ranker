@@ -138,6 +138,11 @@
     }
 }
 
+- (instancetype)track:(IMPDecisionTracker *)tracker {
+    _tracker = tracker;
+    return self;
+}
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [[[IMPDecision alloc] initWithModel:self] chooseFrom:variants];

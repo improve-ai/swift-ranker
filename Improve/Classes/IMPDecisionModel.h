@@ -33,6 +33,8 @@ NS_SWIFT_NAME(DecisionModel)
 
 - (instancetype)initWithModelName:(NSString *)modelName NS_SWIFT_NAME(init(_:));
 
+- (instancetype)track:(IMPDecisionTracker *)tracker;
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
 /**

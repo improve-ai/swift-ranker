@@ -255,4 +255,14 @@
     XCTAssertEqual([topScoringVariant doubleValue], 10.1);
 }
 
+- (void)testSetTracker {
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:@"tracker url"]];
+    
+    NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
+                                      withExtension:@"mlmodelc"];
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:nil];
+    XCTAssertTrue([[decisionModel track:tracker] isKindOfClass:[IMPDecisionModel class]]);
+    XCTAssertNotNil(decisionModel.tracker);
+}
+
 @end
