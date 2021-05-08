@@ -21,7 +21,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property(atomic, strong) MLModel *model;
 
-@property(nonatomic, strong) NSString *modelName;
+@property(nonatomic, readonly, strong) NSString *modelName;
 
 @property(nonatomic, strong) IMPDecisionTracker *tracker;
 

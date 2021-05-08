@@ -82,7 +82,7 @@
 
 - (instancetype)initWithModelName:(NSString *)modelName {
     if(self = [super init]) {
-        self.modelName = modelName;
+        _modelName = modelName;
     }
     return self;
 }
