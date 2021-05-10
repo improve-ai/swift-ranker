@@ -14,9 +14,9 @@ NS_SWIFT_NAME(Decision)
 
 @property (nonatomic, readonly) IMPDecisionModel *model;
 
-@property (nonatomic, strong) NSArray *variants;
+@property (nonatomic, readonly, strong) NSArray *variants;
 
-@property (nonatomic, strong, nullable) NSDictionary *givens;
+@property (nonatomic, readonly, strong, nullable) NSDictionary *givens;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -26,6 +26,9 @@ NS_SWIFT_NAME(Decision)
 
 - (instancetype)given:(NSDictionary<NSString *, id> *)givens;
 
+/**
+ Return the chosen variant or nil if no variants. The chosen variant will be memoized, so same value is returned on subsequent calls.
+ */
 - (nullable id)get;
 
 @end

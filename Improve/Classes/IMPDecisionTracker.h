@@ -17,7 +17,9 @@ NS_SWIFT_NAME(DecisionTracker)
 
 @property(atomic, strong, nullable) NSString *apiKey;
 
-/// Hyperparameter that affects training speed and model performance. Values from 10-100 are probably reasonable.
+/**
+ Hyperparameter that affects training speed and model performance. Values from 10-100 are probably reasonable.  0 disables runners up tracking
+ */
 @property(atomic) NSUInteger maxRunnersUp;
 
 - (instancetype)init NS_UNAVAILABLE;
