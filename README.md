@@ -16,6 +16,16 @@ Improve is available through [CocoaPods](http://cocoapods.org). To install, add 
 pod "Improve"
 ```
 
+### Installation with Swift Package Manager
+
+Once you have your Swift package set up, adding Improve as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/improve-ai/ios-sdk.git", .upToNextMajor(from: "6.0.0"))
+]
+```
+
 ### Hello World (for Cowboys)!
 
 What is the best greeting?
