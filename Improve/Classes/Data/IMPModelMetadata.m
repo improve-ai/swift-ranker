@@ -15,12 +15,10 @@
 
 - (instancetype)initWithDict:(NSDictionary *)json
 {
-    self = [super init];
-    if (!self) return nil;
-
-    _seed = [json[@"model_seed"] unsignedIntValue];
-    _modelName = json[@"model"];
-
+    if(self = [super init]) {
+        _seed = [json[@"model_seed"] unsignedIntValue];
+        _modelName = json[@"model"];
+    }
     return self;
 }
 
