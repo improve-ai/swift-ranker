@@ -12,8 +12,8 @@
 
 // Source: https://stackoverflow.com/a/12948538/3050403
 + (double)gaussianNumber{
-    double u1 = drand48();
-    double u2 = drand48();
+    double u1 = (double)arc4random() / UINT32_MAX;
+    double u2 = (double)arc4random() / UINT32_MAX;
     double f1 = sqrt(-2 * log(u1));
     double f2 = 2 * M_PI * u2;
     return f1 * cos(f2);

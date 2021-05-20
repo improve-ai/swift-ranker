@@ -246,7 +246,6 @@
 // Sort the numbers descending and return the sorted list
 // The median value of the list is expected to have a score near zero
 + (NSArray *)generateDescendingGaussians:(NSUInteger) count {
-    srand48(time(0));
     NSMutableArray *arr = [[NSMutableArray alloc] init];
     for(int i = 0; i < count; ++i){
         [arr addObject:[NSNumber numberWithDouble:[IMPUtils gaussianNumber]]];
