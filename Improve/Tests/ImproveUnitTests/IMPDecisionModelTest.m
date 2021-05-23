@@ -139,13 +139,14 @@
     [self waitForExpectations:@[ex] timeout:300];
 }
 
-- (void)testDescendingGaussians{
+- (void)testDescendingGaussians {
     int n = 4000;
     double total = 0.0;
     
     NSArray *array = [IMPDecisionModel generateDescendingGaussians:n];
+    XCTAssertEqual(array.count, n);
     
-    for(int i = 0; i < n; ++i){
+    for(int i = 0; i < n; ++i) {
         NSLog(@"%f", [[array objectAtIndex:i] doubleValue]);
         total += [[array objectAtIndex:i] doubleValue];
     }
