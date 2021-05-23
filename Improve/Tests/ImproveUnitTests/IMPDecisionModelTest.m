@@ -140,20 +140,23 @@
 }
 
 - (void)testDescendingGaussians {
-    int n = 4000;
+    int n = 40000;
     double total = 0.0;
     
     NSArray *array = [IMPDecisionModel generateDescendingGaussians:n];
     XCTAssertEqual(array.count, n);
     
     for(int i = 0; i < n; ++i) {
-        NSLog(@"%f", [[array objectAtIndex:i] doubleValue]);
         total += [[array objectAtIndex:i] doubleValue];
     }
     
     NSLog(@"median = %f, average = %f", [[array objectAtIndex:n/2] doubleValue], total / n);
-    double diff = ABS([[array objectAtIndex:n/2] doubleValue] * 100);
-    XCTAssert(diff < 10); // might fail here
+    XCTAssertLessThan(ABS([[array objectAtIndex:n/2] doubleValue]), 0.05);
+    
+    // Test that it it descending
+    for(int i = 0; i < n-1; ++i) {
+        XCTAssertGreaterThan([array[i] doubleValue], [array[i+1] doubleValue]);
+    }
 }
 
 - (void)testChooseFrom {
