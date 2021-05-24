@@ -221,11 +221,18 @@
     return bestVariant;
 }
 
+// If variants.count != scores.count, an NSRangeException exception will be thrown.
 // Case 3 #2 refsort approach: https://stackoverflow.com/a/27309301
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
 {
-    NSMutableArray<NSNumber *> *indices = [[NSMutableArray alloc] initWithCapacity:variants.count];
-    for(NSUInteger i = 0; i < variants.count; ++i){
+    NSUInteger size;
+    if(variants.count > scores.count) {
+        size = variants.count;
+    } else {
+        size = scores.count;
+    }
+    NSMutableArray<NSNumber *> *indices = [[NSMutableArray alloc] initWithCapacity:size];
+    for(NSUInteger i = 0; i < size; ++i){
         indices[i] = [NSNumber numberWithInteger:i];
     }
     

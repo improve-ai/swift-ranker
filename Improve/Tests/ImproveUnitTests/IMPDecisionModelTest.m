@@ -217,6 +217,48 @@
     }
 }
 
+- (void)testRank_larger_variants_size {
+    NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
+    NSMutableArray *scores = [[NSMutableArray alloc] init];
+    int size = 10;
+    
+    for(NSUInteger i = 0; i < size; ++i){
+        variants[i] = [NSNumber numberWithInteger:i];
+        scores[i] = [NSNumber numberWithDouble:i/100000.0];
+    }
+    variants[size] = [NSNumber numberWithInt:size];
+    
+    @try {
+        NSArray<NSNumber *> *result = [IMPDecisionModel rank:variants withScores:scores];
+        NSLog(@"ranked size = %lu", result.count);
+    } @catch (NSException *e) {
+        NSLog(@"name=%@, reason=%@", e.name, e.reason);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown, we should not have reached here.");
+}
+
+- (void)testRank_larger_scores_size {
+    NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
+    NSMutableArray *scores = [[NSMutableArray alloc] init];
+    int size = 10;
+    
+    for(NSUInteger i = 0; i < size; ++i){
+        variants[i] = [NSNumber numberWithInteger:i];
+        scores[i] = [NSNumber numberWithDouble:i/100000.0];
+    }
+    scores[size] = [NSNumber numberWithDouble:size/100000.0];
+    
+    @try {
+        NSArray<NSNumber *> *result = [IMPDecisionModel rank:variants withScores:scores];
+        NSLog(@"ranked size = %lu", result.count);
+    } @catch (NSException *e) {
+        NSLog(@"name=%@, reason=%@", e.name, e.reason);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown, we should not have reached here.");
+}
+
 - (void)testTopScoringVariant{
     NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
     NSMutableArray *scores = [[NSMutableArray alloc] init];
