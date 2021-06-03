@@ -188,6 +188,8 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
      (NSObject *result, NSError *error) {
         if (error) {
             IMPErrLog("Improve.track error: %@", error);
+        } else {
+            IMPLog("Improve.track response: %@", result);
         }
     }];
 }

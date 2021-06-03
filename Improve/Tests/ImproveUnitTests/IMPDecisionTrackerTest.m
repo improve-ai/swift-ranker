@@ -8,6 +8,8 @@
 
 #import <XCTest/XCTest.h>
 #import "IMPDecisionTracker.h"
+#import "IMPDecisionModel.h"
+#import "IMPDecision.h"
 
 @interface IMPDecisionTracker ()
 
@@ -294,6 +296,37 @@
     [tracker setBestVariant:@"hello" dict:body];
     
     XCTAssertEqualObjects(body[@"variant"], @"hello");
+}
+
+- (void)testTrackerRequest {
+    NSURL *trackerUrl = [NSURL URLWithString:@"https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track"];
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSDictionary *context = @{@"language": @"cowboy"};
+    
+    NSError *err;
+    NSURL *modelUrl = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel load:modelUrl error:&err] track:tracker];
+    NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
+    NSLog(@"greeting=%@", greeting);
+    
+    [NSThread sleepForTimeInterval:6];
+}
+
+- (void)testTrackerRequestNilVariants {
+    NSURL *trackerUrl = [NSURL URLWithString:@"https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track"];
+//    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSArray *variants = nil;
+    NSDictionary *context = @{@"language": @"cowboy"};
+    
+    NSError *err;
+    NSURL *modelUrl = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel load:modelUrl error:&err] track:tracker];
+    NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
+    NSLog(@"greeting=%@", greeting);
+    
+    [NSThread sleepForTimeInterval:6];
 }
 
 @end
