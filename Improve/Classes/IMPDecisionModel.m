@@ -207,14 +207,17 @@
 // in IMPChooser.score()
 + (id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
 {
+    NSUInteger count = variants.count > scores.count ? variants.count : scores.count;
     double bestScore = -DBL_MAX;
     id bestVariant = nil;
-    for (NSInteger i = 0; i < scores.count; i++) {
+    for (NSInteger i = 0; i < count; i++) {
         double score = [scores[i] doubleValue];
+        id variant = variants[i];
         if (score > bestScore)
         {
             bestScore = score;
-            bestVariant = variants[i];
+            bestVariant = variant;
+//            bestVariant = variants[i];
         }
     }
 

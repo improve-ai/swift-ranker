@@ -13,8 +13,6 @@
 
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
-+ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
-
 @end
 
 // "Package private" methods

@@ -67,6 +67,11 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens;
 
+/**
+ Returns a list of the variants ranked from best to worst
+ */
++ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+
 @end
 
 NS_ASSUME_NONNULL_END
