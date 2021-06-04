@@ -178,7 +178,7 @@
     NSError *err;
     NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gzs"];
     IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
-    XCTAssertNil(err);
+    XCTAssertNotNil(err);
     XCTAssertNil(decisionModel);
 }
 
