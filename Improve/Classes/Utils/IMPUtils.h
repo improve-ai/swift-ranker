@@ -14,6 +14,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (double)gaussianNumber;
 
++ (NSString *)getPlatformString;
+
+//+ (NSString *)
+
 @end
 
 NS_ASSUME_NONNULL_END

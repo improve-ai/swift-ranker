@@ -22,6 +22,14 @@
 
 @end
 
+@implementation GivensProvider
+
+- (NSDictionary *)getGivens {
+    return @{};
+}
+
+@end
+
 @implementation IMPDecisionModel
 
 @synthesize model = _model;
@@ -151,6 +159,27 @@
 - (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens
 {
     return [[[IMPDecision alloc] initWithModel:self] given:givens];
+}
+
+- (NSMutableArray *)givensProviders {
+    if(_givensProviders == nil) {
+        _givensProviders = [[NSMutableArray alloc] init];
+    }
+    return _givensProviders;
+}
+
+- (instancetype)addGivensProvider:(GivensProvider *)provider
+{
+    [self.givensProviders addObject:provider];
+    return self;
+}
+
+- (NSDictionary *)collectAllGivens {
+    NSMutableDictionary *allGivens = [[NSMutableDictionary alloc] init];
+    for(id provider in self.givensProviders) {
+        [allGivens addEntriesFromDictionary:[provider getGivens]];
+    }
+    return allGivens;
 }
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
