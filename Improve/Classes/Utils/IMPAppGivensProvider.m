@@ -182,8 +182,7 @@ static double sLastSessionStartTime;
     for (NSString *key in languageDic) {
         NSLog(@"key=%@, value=%@", key, languageDic[key]);
     }
-    
-    return [languageDic objectForKey:@"kCFLocaleLanguageCodeKey"];
+    return [languageDic objectForKey:NSLocaleLanguageCode];
 }
 
 // numeric GMT offset
@@ -291,7 +290,7 @@ static double sLastSessionStartTime;
     return rect.size.width * scale * rect.size.height * scale;
 }
 
-- (CGFloat)weekDay {
+- (double)weekDay {
     NSDate *now = [NSDate date];
     NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     [gregorian setFirstWeekday:2];
@@ -300,7 +299,7 @@ static double sLastSessionStartTime;
     return weekday + sinceMidnight / (24 * 3600);
 }
 
-- (CGFloat)sinceMidnight {
+- (double)sinceMidnight {
     NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     NSDate *now = [NSDate date];
     NSDate *startOfDay = [gregorian startOfDayForDate:now];
@@ -310,14 +309,14 @@ static double sLastSessionStartTime;
 // When the AppGivensProvider instance is created.
 // If there is some way to get the true app launch
 // time in Android or iOS we could use that instead.
-- (CGFloat)sinceSessionStart {
+- (double)sinceSessionStart {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     double sessionStartTime = [defaults doubleForKey:kSessionStartTimeKey];
     return [[NSDate date] timeIntervalSince1970] - sessionStartTime;
 }
 
 // 0.0 is returned, if there is no last session
-- (CGFloat)sinceLastSessionStart {
+- (double)sinceLastSessionStart {
     if(sLastSessionStartTime <= 0) {
         return 0;
     }
@@ -325,18 +324,23 @@ static double sLastSessionStartTime;
 }
 
 // Born time is the first time an AppGivensProvider is created on this device.
-- (CGFloat)sinceBorn {
+- (double)sinceBorn {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     double bornTime = [defaults doubleForKey:kBornTimeKey];
     return [[NSDate date] timeIntervalSince1970] - bornTime;
 }
 
+// 0 is returned for the first session
 - (NSUInteger)sessionCount {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    return [defaults integerForKey:kDefaultsSessionCountKey];
+    NSInteger count = [defaults integerForKey:kDefaultsSessionCountKey];
+    // We are counting previous session count here, so we need
+    // to remove current session that is already counted in init.
+    return count - 1 >= 0? count-1 : 0;
 }
 
 //  It’s the number of times a givens is provided
+// 0 is returned for the first decision
 - (NSUInteger)decisionCount {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     return [defaults integerForKey:kDefaultsDecisionCountKey];
