@@ -190,12 +190,13 @@ extern NSString * const kTrackerURL;
 // variants are not json encodable
 - (void)testChooseFromInvalidVariants {
     NSURL *variantUrl = [NSURL URLWithString:@"https://hello.com"];
+    NSDate *variantDate = [NSDate date];
     NSURL *modelUrl = [[TestUtils bundle] URLForResource:@"TestModel"
                                            withExtension:@"mlmodelc"];
     IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
     [decisionModel track:tracker];
-    [[decisionModel chooseFrom:@[variantUrl]] get];
+    [[decisionModel chooseFrom:@[variantUrl, variantDate]] get];
 }
 
 - (void)testLoadToFail {

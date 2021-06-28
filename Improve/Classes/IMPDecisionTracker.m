@@ -95,11 +95,6 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         return;
     }
     
-    if(![NSJSONSerialization isValidJSONObject:variants]) {
-        IMPErrLog("Variants not json encodable...This decision won't be tracked");
-        return ;
-    }
-    
     NSMutableDictionary *body = [@{
         kTypeKey: kDecisionType,
         kModelKey: modelName,
@@ -227,13 +222,17 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         kMessageIdKey: [[NSUUID UUID] UUIDString]
     } mutableCopy];
     [body addEntriesFromDictionary:bodyValues];
-
-    NSError * err;
-    NSData *postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
-    if (err) {
-        IMPLog("Data serialization error: %@\nbody: %@", err, body);
+    
+    
+    NSError *err;
+    NSData *postData;
+    @try {
+        postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+    } @catch (NSException *e) {
+        IMPLog("Variants not json encodable...This decision won't be tracked");
+        IMPLog("Data serialization error: %@\nbody: %@", e, body);
         block(nil, err);
-        return;
+        return ;
     }
 
     IMPLog("POSTing %@", [[NSString alloc] initWithData:postData encoding:NSUTF8StringEncoding]);
