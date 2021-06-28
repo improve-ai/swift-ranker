@@ -95,6 +95,11 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         return;
     }
     
+    if(![NSJSONSerialization isValidJSONObject:variants]) {
+        IMPErrLog("Variants not json encodable...This decision won't be tracked");
+        return ;
+    }
+    
     NSMutableDictionary *body = [@{
         kTypeKey: kDecisionType,
         kModelKey: modelName,

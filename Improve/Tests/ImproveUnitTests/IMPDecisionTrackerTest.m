@@ -11,6 +11,8 @@
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
 
+NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazonaws.com/track";
+
 @interface IMPDecisionTracker ()
 
 - (id)sampleVariantOf:(NSArray *)variants runnersUpCount:(NSUInteger)runnersUpCount;
@@ -299,7 +301,7 @@
 }
 
 - (void)testTrackerRequest {
-    NSURL *trackerUrl = [NSURL URLWithString:@"https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track"];
+    NSURL *trackerUrl = [NSURL URLWithString:kTrackerURL];
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
     
@@ -314,7 +316,7 @@
 }
 
 - (void)testTrackerRequestNilVariants {
-    NSURL *trackerUrl = [NSURL URLWithString:@"https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track"];
+    NSURL *trackerUrl = [NSURL URLWithString:kTrackerURL];
 //    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSArray *variants = nil;
     NSDictionary *context = @{@"language": @"cowboy"};

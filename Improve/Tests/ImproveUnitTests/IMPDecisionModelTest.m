@@ -174,6 +174,30 @@
     }
 }
 
+extern NSString * const kTrackerURL;
+
+// variants are json encodable
+- (void)testChooseFromValidVariants {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSURL *modelUrl = [[TestUtils bundle] URLForResource:@"TestModel"
+                                           withExtension:@"mlmodelc"];
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
+    [decisionModel track:tracker];
+    [[decisionModel chooseFrom:variants] get];
+}
+
+// variants are not json encodable
+- (void)testChooseFromInvalidVariants {
+    NSURL *variantUrl = [NSURL URLWithString:@"https://hello.com"];
+    NSURL *modelUrl = [[TestUtils bundle] URLForResource:@"TestModel"
+                                           withExtension:@"mlmodelc"];
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
+    [decisionModel track:tracker];
+    [[decisionModel chooseFrom:@[variantUrl]] get];
+}
+
 - (void)testLoadToFail {
     // url that does not exists
     NSError *err;
