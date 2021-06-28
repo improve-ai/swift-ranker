@@ -229,7 +229,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     @try {
         postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
     } @catch (NSException *e) {
-        IMPLog("Variants not json encodable...This decision won't be tracked");
+        IMPLog("Variants or context not json encodable...This decision won't be tracked.");
         IMPLog("Data serialization error: %@\nbody: %@", e, body);
         block(nil, err);
         return ;
