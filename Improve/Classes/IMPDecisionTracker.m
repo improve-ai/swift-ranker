@@ -231,6 +231,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     } @catch (NSException *e) {
         IMPLog("Variants or context not json encodable...This decision won't be tracked.");
         IMPLog("Data serialization error: %@\nbody: %@", e, body);
+        err = [NSError errorWithDomain:@"ai.improve.IMPDecisionTracker" code:-100 userInfo:@{NSLocalizedDescriptionKey:e.reason}];
         block(nil, err);
         return ;
     }
