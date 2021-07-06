@@ -237,7 +237,7 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     NSLog(@"shouldTrackCount=%d", shouldTrackCount);
 }
 
-- (void)testTopRunnersUp {
+- (void)testTopRunnersUp_1_variant {
     NSURL *url = [NSURL URLWithString:@""];
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
     tracker.maxRunnersUp = 50;
@@ -245,22 +245,44 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     NSArray *variants = @[@1];
     NSArray *result = [tracker topRunnersUp:variants];
     XCTAssertEqual(result.count, 0);
+}
+
+- (void)testTopRunnersUp_2_variant {
+    NSURL *url = [NSURL URLWithString:@""];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    tracker.maxRunnersUp = 50;
+    
+    NSArray *variants = @[@1, @2];
+    NSArray *result = [tracker topRunnersUp:variants];
+    XCTAssertEqual(result.count, 1);
+}
+
+- (void)testTopRunnersUp_10_variants {
+    NSURL *url = [NSURL URLWithString:@""];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    tracker.maxRunnersUp = 50;
     
     NSMutableArray *variants_10 = [[NSMutableArray alloc] init];
     for(int i = 0; i < 10; ++i) {
         [variants_10 addObject:@(i)];
     }
-    result = [tracker topRunnersUp:variants_10];
+    NSArray *result = [tracker topRunnersUp:variants_10];
     XCTAssertEqual(result.count, 9);
     for(int i = 0; i < 9; ++i) {
         XCTAssertEqual([result[i] intValue], i+1);
     }
+}
+
+- (void)testTopRunnersUp_100_variants {
+    NSURL *url = [NSURL URLWithString:@""];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    tracker.maxRunnersUp = 50;
     
     NSMutableArray *variants_100 = [[NSMutableArray alloc] init];
     for(int i = 0; i < 100; ++i) {
         [variants_100 addObject:@(i)];
     }
-    result = [tracker topRunnersUp:variants_100];
+    NSArray *result = [tracker topRunnersUp:variants_100];
     XCTAssertEqual(result.count, 50);
     for(int i = 0; i < 50; ++i) {
         XCTAssertEqual([result[i] intValue], i+1);
