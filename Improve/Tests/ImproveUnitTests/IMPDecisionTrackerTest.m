@@ -23,6 +23,8 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
 
 - (void)setBestVariant:(id)bestVariant dict:(NSMutableDictionary *)body;
 
+- (void)setCount:(NSArray *)variants dict:(NSMutableDictionary *)body;
+
 @end
 
 @interface IMPDecisionTracker ()
@@ -296,7 +298,6 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
     [tracker setBestVariant:nil dict:body];
 
-    XCTAssertEqual([body[@"count"] intValue], 1);
     XCTAssertEqualObjects(body[@"variant"], [NSNull null]);
     
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
@@ -320,6 +321,55 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     [tracker setBestVariant:@"hello" dict:body];
     
     XCTAssertEqualObjects(body[@"variant"], @"hello");
+}
+
+- (void)testSetCount_nil_variants {
+    NSURL *trackerUrl = [NSURL URLWithString:@"tracker url"];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
+    
+    NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
+    [tracker setCount:nil dict:body];
+    
+    XCTAssertEqualObjects(body[@"count"], @1);
+}
+
+- (void)testSetCount_empty_variants {
+    NSURL *trackerUrl = [NSURL URLWithString:@"tracker url"];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
+    
+    NSArray *variants = [[NSArray alloc] init];
+    
+    NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
+    [tracker setCount:variants dict:body];
+    
+    XCTAssertEqualObjects(body[@"count"], @1);
+}
+
+- (void)testSetCount_10_variants {
+    NSURL *trackerUrl = [NSURL URLWithString:@"tracker url"];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
+    
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(int i = 0; i < 10; ++i) {
+        [variants addObject:@(i)];
+    }
+    
+    NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
+    [tracker setCount:variants dict:body];
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:nil];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    // body looks like this when printed
+    // {
+    //     "count" : 1,
+    //     "variant" : null
+    // }
+    NSLog(@"jsonString: %@", jsonString);
+    
+    XCTAssertEqualObjects(body[@"count"], @10);
 }
 
 - (void)testTrackerRequest {
