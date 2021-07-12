@@ -22,6 +22,8 @@
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    [self setContinueAfterFailure:NO];
 }
 
 - (void)tearDown {
@@ -90,7 +92,8 @@
         if([check[key] isKindOfClass:[NSString class]] && [check[key] isEqualToString:@"inf"]){
             XCTAssertEqualWithAccuracy([encoded[key] doubleValue], INFINITY, accuracy);
         } else {
-            XCTAssertEqualWithAccuracy([encoded[key] doubleValue], [check[key] doubleValue], accuracy);
+//            XCTAssertEqualWithAccuracy([encoded[key] doubleValue], [check[key] doubleValue], accuracy);
+            XCTAssertEqualWithAccuracy((float)[encoded[key] doubleValue], [check[key] floatValue], accuracy);
         }
     }
 }
@@ -106,13 +109,14 @@
     }
     
     NSArray *allTestFileNames = [allTestsStr componentsSeparatedByString:@"\n"];
-    XCTAssertTrue(allTestFileNames.count > 1);
+    XCTAssertTrue(allTestFileNames.count >= 1);
     
     for (NSString *filename in allTestFileNames) {
         NSURL *url = [[TestUtils bundle] URLForResource:filename withExtension:nil];
         NSData *data = [NSData dataWithContentsOfURL:url];
         XCTAssertNotNil(data);
         
+        NSLog(@"filename: %@", filename);
         NSError *err = nil;
         NSDictionary *root = [NSJSONSerialization JSONObjectWithData:data options:0 error:&err];
         if(err != nil){
@@ -126,14 +130,15 @@
 }
 
 - (void)verify:(NSString *)filename withData:(NSDictionary *)root{
-    IMPFeatureEncoder *featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:1 andFeatureNames:[NSSet new]];
+    uint64_t modelSeed = [[root objectForKey:@"model_seed"] longValue];
+    IMPFeatureEncoder *featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:modelSeed andFeatureNames:[NSSet new]];
     featureEncoder.testMode = YES;
     featureEncoder.noise = [[root objectForKey:@"noise"] doubleValue];
     
     id variants = [[root objectForKey:@"test_case"] objectForKey:@"variant"];
-    id context = [[root objectForKey:@"test_case"] objectForKey:@"context"];
+    id givens = [[root objectForKey:@"test_case"] objectForKey:@"givens"];
     
-    NSArray<NSDictionary *> *features = [featureEncoder encodeVariants:@[variants] given:context];
+    NSArray<NSDictionary *> *features = [featureEncoder encodeVariants:@[variants] given:givens];
     XCTAssertTrue(features.count == 1);
     NSLog(@"%@, features: %@", filename, features);
     
@@ -154,25 +159,6 @@
     XCTAssertTrue(features.count == 1);
     
     NSDictionary *expected = @{};
-    NSDictionary *test = features[0];
-    
-    [self assertDictionary:test equalTo:expected];
-}
-
-- (void)testNullCharacter{
-    IMPFeatureEncoder *featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:1 andFeatureNames:[NSSet new]];
-    featureEncoder.testMode = YES;
-    featureEncoder.noise = 0.8928601514360016;
-    
-    id variants = @{@"$value":@{@"\0\0\0\0\0\0\0\0":@"foo", @"\0\0\0\0\0\0\0\1":@"bar"}};
-    
-    NSArray<NSDictionary *> *features = [featureEncoder encodeVariants:@[variants] given:nil];
-    XCTAssertTrue(features.count == 1);
-    
-    NSDictionary *expected = @{@"8946516b":@(11509.078405916971),
-                               @"55ae894":@(26103.177819987483),
-                               @"4bfbc00e":@(-19661.13392357309),
-                               @"463cc537":@(-13292.090538057455)};
     NSDictionary *test = features[0];
     
     [self assertDictionary:test equalTo:expected];

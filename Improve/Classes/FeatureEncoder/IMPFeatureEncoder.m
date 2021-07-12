@@ -10,8 +10,11 @@
 
 #import "IMPFeatureEncoder.h"
 #import "xxhash.h"
+#import "IMPLogging.h"
 
 #define sprinkle(x, small_noise) ((x + small_noise) * (1 + small_noise))
+
+#define reverse_sprinkle(sprinkled, small_noise) (sprinkled / (1 + small_noise) - small_noise)
 
 #define shrink(noise) (noise * pow(2, -17))
 
@@ -28,7 +31,7 @@
 @implementation IMPFeatureEncoder{
     uint64_t _variantSeed;
     uint64_t _valueSeed;
-    uint64_t _contextSeed;
+    uint64_t _givensSeed;
 }
 
 - (instancetype)initWithModelSeed:(uint64_t)modelSeed andFeatureNames:(NSSet<NSString *> *)featureNames{
@@ -37,8 +40,8 @@
         _modelFeatureNames = featureNames;
         _variantSeed = xxhash3("variant", strlen("variant"), self.modelSeed);
         _valueSeed = xxhash3("$value", strlen("$value"), _variantSeed);
-        _contextSeed = xxhash3("context", strlen("context"), self.modelSeed);
-//        NSLog(@"seeds: %llu, %llu, %llu", _variantSeed, _contextSeed, _valueSeed);
+        _givensSeed = xxhash3("givens", strlen("givens"), self.modelSeed);
+        // NSLog(@"seeds: %llu, %llu, %llu", _variantSeed, _valueSeed, _givensSeed);
     }
     return self;
 }
@@ -51,7 +54,7 @@
     } else {
         noise = ((double)arc4random() / UINT32_MAX);
     }
-
+    
     // if context, encode contextFeatures
     NSDictionary *contextFeatures = context ? [self encodeContext:context withNoise:noise] : nil;
     
@@ -67,7 +70,7 @@
 - (NSDictionary *)encodeContext:(id)context withNoise:(double)noise{
     NSMutableDictionary *features = [[NSMutableDictionary alloc] initWithFeatureNames:self.modelFeatureNames];
     double smallNoise = shrink(noise);
-    return [self encodeInternal:context withSeed:_contextSeed andNoise:smallNoise forFeatures:features];
+    return [self encodeInternal:context withSeed:_givensSeed andNoise:smallNoise forFeatures:features];
 }
 
 - (NSDictionary *)encodeVariant:(id)variant withNoise:(double)noise forFeatures:(nonnull NSMutableDictionary *)features {
@@ -84,7 +87,12 @@
         NSString *feature_name = [self hash_to_feature_name:seed];
         if(self.testMode || [self.modelFeatureNames containsObject:feature_name]) {
             MLFeatureValue *curValue = [features objectForKey:feature_name];
-            MLFeatureValue *newValue = [MLFeatureValue featureValueWithDouble:(curValue.doubleValue + sprinkle([node doubleValue], noise))];
+            double unsprinkledCurValue = 0;
+            if(curValue != nil) {
+                unsprinkledCurValue = reverse_sprinkle(curValue.doubleValue, noise);
+                // IMPLog("number, reverse sprinkle: %lf, %lf", [curValue doubleValue], unsprinkledCurValue);
+            }
+            MLFeatureValue *newValue = [MLFeatureValue featureValueWithDouble:sprinkle(unsprinkledCurValue + [node doubleValue], noise)];
             [features setObject:newValue forKey:feature_name];
         }
     } else if([node isKindOfClass:[NSString class]]) {
@@ -94,14 +102,24 @@
         NSString *feature_name = [self hash_to_feature_name:seed];
         if(self.testMode || [self.modelFeatureNames containsObject:feature_name]) {
             MLFeatureValue *curValue = [features objectForKey:feature_name];
-            MLFeatureValue *newValue = [MLFeatureValue featureValueWithDouble:(curValue.doubleValue + sprinkle((double)((hashed & 0xffff0000) >> 16) - 0x8000, noise))];
+            double unsprinkledCurValue = 0;
+            if(curValue != nil) {
+                unsprinkledCurValue = reverse_sprinkle(curValue.doubleValue, noise);
+                // IMPLog("string, reverse sprinkle: %lf, %lf", [curValue doubleValue], unsprinkledCurValue);
+            }
+            MLFeatureValue *newValue = [MLFeatureValue featureValueWithDouble:( sprinkle(unsprinkledCurValue + ((double)((hashed & 0xffff0000) >> 16) - 0x8000), noise))];
             [features setObject:newValue forKey:feature_name];
         }
         
         NSString *hashed_feature_name = [self hash_to_feature_name:hashed];
         if(self.testMode || [self.modelFeatureNames containsObject:hashed_feature_name]) {
             MLFeatureValue *curHashedValue = [features objectForKey:hashed_feature_name];
-            MLFeatureValue *newHashedValue = [MLFeatureValue featureValueWithDouble:(curHashedValue.doubleValue + sprinkle((double)(hashed & 0xffff) - 0x8000, noise))];
+            double unsprinkledCurHashedValue = 0;
+            if(curHashedValue != nil) {
+                unsprinkledCurHashedValue = reverse_sprinkle(curHashedValue.doubleValue, noise);
+                // IMPLog("hashed, reverse sprinkle: %lf, %lf", [curHashedValue doubleValue], unsprinkledCurHashedValue);
+            }
+            MLFeatureValue *newHashedValue = [MLFeatureValue featureValueWithDouble:(sprinkle(unsprinkledCurHashedValue+(double)(hashed & 0xffff) - 0x8000, noise))];
             [features setObject:newHashedValue forKey:hashed_feature_name];
         }
     } else if([node isKindOfClass:[NSDictionary class]]){
@@ -134,13 +152,7 @@
     buffer[5] = ref[((hash >> 8) & 0xf)];
     buffer[6] = ref[((hash >> 4) & 0xf)];
     buffer[7] = ref[((hash) & 0xf)];
-    // skip leading zero
-    for(int i = 0; i < 8; ++i) {
-        if(buffer[i] != '0') {
-            return @(buffer+i);
-        }
-    }
-    return @"0";
+    return @(buffer);
 }
 
 // convert uint64_t to 8 bytes
