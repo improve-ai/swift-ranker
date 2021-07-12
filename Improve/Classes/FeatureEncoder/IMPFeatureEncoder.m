@@ -48,12 +48,7 @@
 
 - (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
                                       given:(nullable NSDictionary *)context {
-    double noise;
-    if(self.testMode){
-        noise = self.noise;
-    } else {
-        noise = ((double)arc4random() / UINT32_MAX);
-    }
+    double noise = self.testMode ? self.noise : ((double)arc4random() / UINT32_MAX);
     
     // if context, encode contextFeatures
     NSDictionary *contextFeatures = context ? [self encodeContext:context withNoise:noise] : nil;
