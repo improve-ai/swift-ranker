@@ -107,6 +107,7 @@
 		B3F51D9B269B590000049F17 /* bool_false.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D50269B58FF00049F17 /* bool_false.json */; };
 		B3F51D9C269B590000049F17 /* newline_tab_return_symbols_string.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D51269B590000049F17 /* newline_tab_return_symbols_string.json */; };
 		B3F51D9D269B590000049F17 /* int64_small.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D52269B590000049F17 /* int64_small.json */; };
+		B3F51DA326A077B000049F17 /* feature_names.txt in Resources */ = {isa = PBXBuildFile; fileRef = B3F51DA226A077B000049F17 /* feature_names.txt */; };
 		E761D2FF2600454700F6F238 /* NSDictionary+MLFeatureProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = E761D2FE2600454700F6F238 /* NSDictionary+MLFeatureProvider.m */; };
 /* End PBXBuildFile section */
 
@@ -235,6 +236,7 @@
 		B3F51D50269B58FF00049F17 /* bool_false.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = bool_false.json; sourceTree = "<group>"; };
 		B3F51D51269B590000049F17 /* newline_tab_return_symbols_string.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = newline_tab_return_symbols_string.json; sourceTree = "<group>"; };
 		B3F51D52269B590000049F17 /* int64_small.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = int64_small.json; sourceTree = "<group>"; };
+		B3F51DA226A077B000049F17 /* feature_names.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = feature_names.txt; sourceTree = "<group>"; };
 		E761D2FD2600454700F6F238 /* NSDictionary+MLFeatureProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MLFeatureProvider.h"; sourceTree = "<group>"; };
 		E761D2FE2600454700F6F238 /* NSDictionary+MLFeatureProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+MLFeatureProvider.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -417,6 +419,7 @@
 		B3DADBE626298C45004A82FA /* FeatureEncoderTestSuite */ = {
 			isa = PBXGroup;
 			children = (
+				B3F51DA226A077B000049F17 /* feature_names.txt */,
 				B3F51D3D269B58FB00049F17 /* big_float.json */,
 				B3F51D4E269B58FF00049F17 /* big_int_negative.json */,
 				B3F51D0D269B58F300049F17 /* big_int_positive.json */,
@@ -603,6 +606,7 @@
 				B3F51D64269B590000049F17 /* primitive_dict_big_float.json in Resources */,
 				B3F51D98269B590000049F17 /* float_0.json in Resources */,
 				B3F51D77269B590000049F17 /* primitive_dict_unicode_emoji_02.json in Resources */,
+				B3F51DA326A077B000049F17 /* feature_names.txt in Resources */,
 				B3F51D70269B590000049F17 /* primitive_dict_string.json in Resources */,
 				B3F51D55269B590000049F17 /* nested_dict_string_keys.json in Resources */,
 				B3F51D62269B590000049F17 /* primitive_dict_unicode_string_01.json in Resources */,

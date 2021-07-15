@@ -16,6 +16,8 @@
 
 @interface FeatureEncoderTest : XCTestCase
 
+@property (strong, nonatomic) NSSet<NSString *> *featureNames;
+
 @end
 
 @implementation FeatureEncoderTest
@@ -24,10 +26,27 @@
     // Put setup code here. This method is called before the invocation of each test method in the class.
     
     [self setContinueAfterFailure:NO];
+    
+    [self loadFeatureNames];
 }
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
+}
+
+- (void)loadFeatureNames {
+    NSURL *featureNamesURL = [[TestUtils bundle] URLForResource:@"feature_names.txt" withExtension:nil];
+    NSString *featureNamesStr = [[NSString alloc] initWithContentsOfURL:featureNamesURL encoding:NSUTF8StringEncoding error:nil];
+    XCTAssertTrue(featureNamesStr.length>1);
+    // remove trailing newline
+    if([featureNamesStr hasSuffix:@"\n"]){
+        featureNamesStr = [featureNamesStr substringToIndex:featureNamesStr.length-1];
+    }
+    
+    NSArray *allFeatureNames = [featureNamesStr componentsSeparatedByString:@"\n"];
+    XCTAssertTrue(allFeatureNames.count > 1);
+    
+    self.featureNames = [[NSSet alloc] initWithArray:allFeatureNames];
 }
 
 - (void)testInt2Hex{
@@ -131,8 +150,7 @@
 
 - (void)verify:(NSString *)filename withData:(NSDictionary *)root{
     uint64_t modelSeed = [[root objectForKey:@"model_seed"] longValue];
-    IMPFeatureEncoder *featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:modelSeed andFeatureNames:[NSSet new]];
-    featureEncoder.testMode = YES;
+    IMPFeatureEncoder *featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:modelSeed andFeatureNames:self.featureNames];
     featureEncoder.noise = [[root objectForKey:@"noise"] doubleValue];
     
     id variants = [[root objectForKey:@"test_case"] objectForKey:@"variant"];
@@ -150,7 +168,6 @@
 
 - (void)testNaN{
     IMPFeatureEncoder *featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:1 andFeatureNames:[NSSet new]];
-    featureEncoder.testMode = YES;
     featureEncoder.noise = 0.8928601514360016;
     
     id variants = [NSNumber numberWithDouble:NAN];

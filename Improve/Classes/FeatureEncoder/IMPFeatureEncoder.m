@@ -42,13 +42,15 @@
         _valueSeed = xxhash3("$value", strlen("$value"), _variantSeed);
         _givensSeed = xxhash3("givens", strlen("givens"), self.modelSeed);
         // NSLog(@"seeds: %llu, %llu, %llu", _variantSeed, _valueSeed, _givensSeed);
+        
+        _noise = NAN;
     }
     return self;
 }
 
 - (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
                                       given:(nullable NSDictionary *)context {
-    double noise = self.testMode ? self.noise : ((double)arc4random() / UINT32_MAX);
+    double noise = isnan(self.noise) ? ((double)arc4random() / UINT32_MAX) : self.noise;
     
     // if context, encode contextFeatures
     NSDictionary *contextFeatures = context ? [self encodeContext:context withNoise:noise] : nil;
@@ -80,7 +82,7 @@
 - (NSDictionary *)encodeInternal:(id)node withSeed:(uint64_t)seed andNoise:(double)noise forFeatures:(NSMutableDictionary *)features {
     if([node isKindOfClass:[NSNumber class]] && !isnan([node doubleValue])) {
         NSString *feature_name = [self hash_to_feature_name:seed];
-        if(self.testMode || [self.modelFeatureNames containsObject:feature_name]) {
+        if([self.modelFeatureNames containsObject:feature_name]) {
             MLFeatureValue *curValue = [features objectForKey:feature_name];
             double unsprinkledCurValue = 0;
             if(curValue != nil) {
@@ -95,7 +97,7 @@
         uint64_t hashed = xxhash3(value, [node lengthOfBytesUsingEncoding:NSUTF8StringEncoding], seed);
         
         NSString *feature_name = [self hash_to_feature_name:seed];
-        if(self.testMode || [self.modelFeatureNames containsObject:feature_name]) {
+        if([self.modelFeatureNames containsObject:feature_name]) {
             MLFeatureValue *curValue = [features objectForKey:feature_name];
             double unsprinkledCurValue = 0;
             if(curValue != nil) {
@@ -107,7 +109,7 @@
         }
         
         NSString *hashed_feature_name = [self hash_to_feature_name:hashed];
-        if(self.testMode || [self.modelFeatureNames containsObject:hashed_feature_name]) {
+        if([self.modelFeatureNames containsObject:hashed_feature_name]) {
             MLFeatureValue *curHashedValue = [features objectForKey:hashed_feature_name];
             double unsprinkledCurHashedValue = 0;
             if(curHashedValue != nil) {
