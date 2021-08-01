@@ -160,6 +160,33 @@
     }
 }
 
+- (void)testScoreWithNilVariants {
+    NSArray *variants = nil;
+    NSDictionary *context = @{@"language": @"cowboy"};
+    IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    NSArray *scores = [model score:variants given:context];
+    XCTAssertNotNil(scores);
+    XCTAssertEqual([scores count], 0);
+}
+
+- (void)testScoreWithEmptyVariants {
+    NSArray *variants = @[];
+    NSDictionary *context = @{@"language": @"cowboy"};
+    IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    NSArray *scores = [model score:variants given:context];
+    XCTAssertNotNil(scores);
+    XCTAssertEqual([scores count], 0);
+}
+
+- (void)testScoreWithoutLoadingModel {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSDictionary *context = @{@"language": @"cowboy"};
+    IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    NSArray *scores = [model score:variants given:context];
+    XCTAssertNotNil(scores);
+    XCTAssertEqual([scores count], [variants count]);
+}
+
 - (void)testChooseFrom {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
