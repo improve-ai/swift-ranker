@@ -133,7 +133,7 @@ Events are the mechanism by which decisions are rewarded or penalized.  In most 
 tracker.track(event: "Purchased", { properties: "product_id": 8, "value": 19.99 })
 ```
 
-Like most analytics packages, *track* takes an *event* name and an optional *properties* dictionary.  The only property with special significance is *value*, which indicates a reward value for decisions that lead to that event.  
+Like most analytics packages, *track* takes an *event* name and an optional *properties* dictionary.  The only property with special significance is *value*, which indicates a reward value for decisions prior to that event.  
 
 If *value* is ommitted then the default reward value of an event is *0.001*.
 
