@@ -79,6 +79,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 /**
  Returns a list of the variants ranked from best to worst
+ @warning This method is likely to be changed in the future. Try not to use it in your code.
  */
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
