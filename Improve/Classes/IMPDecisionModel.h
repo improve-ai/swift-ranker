@@ -63,12 +63,12 @@ NS_SWIFT_NAME(DecisionModel)
 /**
  Takes an array of variants and returns an array of NSNumbers of the scores.
  */
-- (NSArray *)score:(NSArray *)variants;
+- (NSArray<NSNumber *> *)score:(NSArray *)variants;
 
 /**
  Takes an array of variants and context and returns an array of NSNumbers of the scores.
  */
-- (NSArray *)score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
+- (NSArray<NSNumber *> *)score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
 
 /**
  Returns a IMPDecision object to be lazily evaluated
