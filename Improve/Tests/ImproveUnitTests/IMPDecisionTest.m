@@ -63,5 +63,23 @@
     XCTAssertNil([decision get]);
 }
 
+// Always pass
+// Just a convenient method to test that an error log is printed when
+// [IMPDecision get] is called but tracker is not set for the model
+- (void)testGetWithoutTracker {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSDictionary *givens = @{@"language": @"cowboy"};
+    
+    IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    [[[model chooseFrom:variants] given:givens] get];
+    
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
+    [[[model chooseFrom:@[]] given:givens] get];
+    
+    [model track:tracker];
+    [[[model chooseFrom:@[]] given:givens] get];
+    
+}
+
 
 @end

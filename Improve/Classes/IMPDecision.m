@@ -97,12 +97,17 @@
                 }
             } else {
                 _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
+                IMPErrLog("tracker not set on DecisionModel, decision will not be tracked");
             }
         } else {
             // Unit test that "variant": null JSON is tracked on null or empty variants.
             // "count" field should be 1
             _best = nil;
-            [_model.tracker track:_best variants:nil given:allGivens modelName:_model.modelName variantsRankedAndTrackRunnersUp:NO];
+            if(_model.tracker) {
+                [_model.tracker track:_best variants:nil given:allGivens modelName:_model.modelName variantsRankedAndTrackRunnersUp:NO];
+            } else {
+                IMPErrLog("tracker not set on DecisionModel, decision will not be tracked");
+            }
         }
 
         _chosen = TRUE;

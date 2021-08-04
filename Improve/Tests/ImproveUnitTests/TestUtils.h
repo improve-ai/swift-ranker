@@ -15,6 +15,8 @@
 #ifndef TestUtils_h
 #define TestUtils_h
 
+extern NSString *const kTrackerURL;
+
 NS_INLINE BOOL __attribute__((overloadable)) isEqualRough(double fl1, double fl2, double precision) {
     if (fl1 == fl2) {
         return YES;
