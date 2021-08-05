@@ -60,6 +60,20 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     }
 }
 
+// 1 best variant, 1 runner-up, 1 sample
+- (void)testSampleVariant_Null_Sample {
+    NSURL *url = [NSURL URLWithString:kTrackerURL];
+    NSArray *variants = @[@"foo", @"bar", [NSNull null]];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    tracker.maxRunnersUp = 1;
+    
+    NSArray *runnersUp = [tracker topRunnersUp:variants];
+    
+    id sample = [tracker sampleVariantOf:variants runnersUpCount:[runnersUp count]];
+    XCTAssertNotNil(sample);
+    XCTAssertEqualObjects(sample, [NSNull null]);
+}
+
 // If there are no runners up, then sample is a random sample from
 // variants with just best excluded.
 - (void)testSampleVariant_0_RunnersUp {
@@ -237,6 +251,19 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     }
     XCTAssertEqual(shouldTrackCount, 0);
     NSLog(@"shouldTrackCount=%d", shouldTrackCount);
+}
+
+// 1 best variant, 2 runners-up
+- (void)testTopRunnersUp_Null_Runnersup {
+    NSURL *url = [NSURL URLWithString:kTrackerURL];
+    NSArray *variants = @[@"foo", [NSNull null], @"bar"];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    tracker.maxRunnersUp = 50;
+    NSArray *runnersUp = [tracker topRunnersUp:variants];
+    
+    XCTAssertEqual([runnersUp count], 2);
+    XCTAssertEqualObjects([runnersUp objectAtIndex:0], [NSNull null]);
+    NSLog(@"runners up: %@", runnersUp);
 }
 
 - (void)testTopRunnersUp_1_variant {
