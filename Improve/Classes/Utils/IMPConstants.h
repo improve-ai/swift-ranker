@@ -11,6 +11,6 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString *const kIMPVersion = @"6.0.0";
+extern NSString *const kIMPVersion;
 
 #endif /* IMPConstants_h */
