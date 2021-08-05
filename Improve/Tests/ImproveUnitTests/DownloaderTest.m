@@ -129,7 +129,7 @@
     NSLog(@"cache capacity: %lu, %lu", [[NSURLCache sharedURLCache] diskCapacity],
           [[NSURLCache sharedURLCache] memoryCapacity]);
     
-    int loop = 100;
+    int loop = 1;
     __block int done = 0;
     double sleepInterval = 1.0f;
     

@@ -11,7 +11,6 @@
 #import "IMPDecision.h"
 #import "IMPUtils.h"
 #import "TestUtils.h"
-#import "IMPAppGivensProvider.h"
 
 @interface IMPDecisionModel ()
 
@@ -415,14 +414,6 @@ extern NSString * const kTrackerURL;
     IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:nil];
     XCTAssertTrue([[decisionModel track:tracker] isKindOfClass:[IMPDecisionModel class]]);
     XCTAssertNotNil(decisionModel.tracker);
-}
-
-- (void)testAddGivensProvider {
-    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
-    NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
-                                      withExtension:@"mlmodelc"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:nil];
-    [[[decisionModel addGivensProvider:[IMPAppGivensProvider new]] chooseFrom:variants] get];
 }
 
 @end

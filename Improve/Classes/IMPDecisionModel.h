@@ -16,12 +16,6 @@ typedef void (^IMPDecisionModelLoadCompletion) (IMPDecisionModel *_Nullable comp
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GivensProvider : NSObject
-
-- (NSDictionary *)getGivens;
-
-@end
-
 NS_SWIFT_NAME(DecisionModel)
 @interface IMPDecisionModel : NSObject
 
@@ -30,8 +24,6 @@ NS_SWIFT_NAME(DecisionModel)
 @property(nonatomic, readonly, strong) NSString *modelName;
 
 @property(nonatomic, strong) IMPDecisionTracker *tracker;
-
-@property(nonatomic, strong) NSMutableArray<GivensProvider *> *givensProviders;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -74,8 +66,6 @@ NS_SWIFT_NAME(DecisionModel)
  Returns a IMPDecision object to be lazily evaluated
  */
 - (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens;
-
-- (instancetype)addGivensProvider:(GivensProvider *)provider;
 
 /**
  Returns a list of the variants ranked from best to worst
