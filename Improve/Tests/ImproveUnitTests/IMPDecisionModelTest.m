@@ -179,12 +179,23 @@
 }
 
 - (void)testScoreWithoutLoadingModel {
-    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(int i = 0; i < 100; i++) {
+        [variants addObject:@(i)];
+    }
+    
     NSDictionary *context = @{@"language": @"cowboy"};
     IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    NSArray *scores = [model score:variants given:context];
+    NSArray<NSNumber *> *scores = [model score:variants given:context];
     XCTAssertNotNil(scores);
     XCTAssertEqual([scores count], [variants count]);
+    
+    // assert that scores is in descending order
+    NSInteger size = [variants count];
+    for(int i = 0; i < size-1; ++i) {
+        NSLog(@"score[%d] = %lf", i, [scores[i] doubleValue]);
+        XCTAssertGreaterThan([scores[i] doubleValue], [scores[i+1] doubleValue]);
+    }
 }
 
 - (void)testChooseFrom {
