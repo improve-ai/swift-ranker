@@ -9,6 +9,8 @@
 #ifndef IMPConstants_h
 #define IMPConstants_h
 
-NSString *const kIMPVersion = @"6.0.0";
+#import <Foundation/Foundation.h>
+
+extern NSString *const kIMPVersion = @"6.0.0";
 
 #endif /* IMPConstants_h */

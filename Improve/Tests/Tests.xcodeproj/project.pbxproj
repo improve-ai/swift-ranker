@@ -155,6 +155,7 @@
 		B36C84CD2674614800D0801B /* IMPConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPConstants.h; sourceTree = "<group>"; };
 		B37E1333262EDF5D0042B761 /* IMPStreamDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPStreamDownloadManager.h; sourceTree = "<group>"; };
 		B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPStreamDownloadManager.m; sourceTree = "<group>"; };
+		B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPConstants.m; sourceTree = "<group>"; };
 		B3DADC0726298C78004A82FA /* feature_encoder_test_suite.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = feature_encoder_test_suite.txt; sourceTree = "<group>"; };
 		B3F51D08269B58F200049F17 /* nested_list.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nested_list.json; sourceTree = "<group>"; };
 		B3F51D09269B58F300049F17 /* noise_2_256.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = noise_2_256.json; sourceTree = "<group>"; };
@@ -377,6 +378,7 @@
 				B3213C8326099B3800052770 /* IMPUtils.h */,
 				B3213C8426099B3800052770 /* IMPUtils.m */,
 				B36C84CD2674614800D0801B /* IMPConstants.h */,
+				B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
