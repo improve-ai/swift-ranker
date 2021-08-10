@@ -17,7 +17,7 @@
 {
     if(self = [super init]) {
         _seed = [json[@"model_seed"] unsignedIntValue];
-        _modelName = json[@"model"];
+        _modelName = json[@"model_name"];
     }
     return self;
 }

@@ -263,6 +263,11 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     
     XCTAssertEqual([runnersUp count], 2);
     XCTAssertEqualObjects([runnersUp objectAtIndex:0], [NSNull null]);
+    
+    NSError *error = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:runnersUp options:NSJSONWritingPrettyPrinted error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSLog(@"runners up jsonString = %@", jsonString);
     NSLog(@"runners up: %@", runnersUp);
 }
 

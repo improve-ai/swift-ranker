@@ -46,6 +46,7 @@
 //            [[TestUtils bundle] URLForResource:@"TestModel"
 //                                 withExtension:@"mlmodelc"]];
         _urlList = @[
+            [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"],
             [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/TestModel.mlmodel"],
             [[TestUtils bundle] URLForResource:@"TestModel"
                                  withExtension:@"mlmodelc"]];
@@ -64,7 +65,7 @@
                                       withExtension:@"mlmodelc"];
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
     [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
-        XCTAssertTrue([decisionModel.modelName isEqualToString:@"messages-2.0"]);
+        XCTAssertEqualObjects(decisionModel.modelName, @"dummy-model-0");
         [ex fulfill];
     }];
     [self waitForExpectations:@[ex] timeout:3];
