@@ -221,7 +221,7 @@ extern NSString * const kTrackerURL;
                                            withExtension:@"mlmodelc"];
     IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
-    [decisionModel track:tracker];
+    [decisionModel trackWith:tracker];
     [[decisionModel chooseFrom:variants] get];
 }
 
@@ -233,7 +233,7 @@ extern NSString * const kTrackerURL;
                                            withExtension:@"mlmodelc"];
     IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
-    [decisionModel track:tracker];
+    [decisionModel trackWith:tracker];
     [[decisionModel chooseFrom:@[variantUrl, variantDate]] get];
 }
 
@@ -413,7 +413,7 @@ extern NSString * const kTrackerURL;
     NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
                                       withExtension:@"mlmodelc"];
     IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:nil];
-    XCTAssertTrue([[decisionModel track:tracker] isKindOfClass:[IMPDecisionModel class]]);
+    XCTAssertTrue([[decisionModel trackWith:tracker] isKindOfClass:[IMPDecisionModel class]]);
     XCTAssertNotNil(decisionModel.tracker);
 }
 

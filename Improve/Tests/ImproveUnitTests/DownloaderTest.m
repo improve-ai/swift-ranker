@@ -67,7 +67,7 @@
 }
 
 - (void)testDownloadRemote{
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel"];
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"];
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
@@ -85,7 +85,7 @@
 }
 
 - (void)testDownloadRemoteGzip{
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101:14000/static/improve-ai/TestModel.mlmodel3.gz"];
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];

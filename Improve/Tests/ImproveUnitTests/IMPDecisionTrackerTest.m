@@ -412,7 +412,7 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     NSError *err;
     NSURL *modelUrl = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"];
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel load:modelUrl error:&err] track:tracker];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel load:modelUrl error:&err] trackWith:tracker];
     NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
     NSLog(@"greeting=%@", greeting);
     
@@ -428,7 +428,7 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     NSError *err;
     NSURL *modelUrl = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"];
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel load:modelUrl error:&err] track:tracker];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel load:modelUrl error:&err] trackWith:tracker];
     NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
     NSLog(@"greeting=%@", greeting);
     

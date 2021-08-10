@@ -76,7 +76,7 @@
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
     [[[model chooseFrom:@[]] given:givens] get];
     
-    [model track:tracker];
+    [model trackWith:tracker];
     [[[model chooseFrom:@[]] given:givens] get];
     
 }

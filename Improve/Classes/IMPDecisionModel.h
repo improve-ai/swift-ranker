@@ -44,7 +44,7 @@ NS_SWIFT_NAME(DecisionModel)
 /**
  Chainable way to set the tracker that returns self
  */
-- (instancetype)track:(IMPDecisionTracker *)tracker;
+- (instancetype)trackWith:(IMPDecisionTracker *)tracker;
 
 /**
  Returns a IMPDecision object to be lazily evaluated

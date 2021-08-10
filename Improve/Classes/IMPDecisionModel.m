@@ -138,7 +138,7 @@
     }
 }
 
-- (instancetype)track:(IMPDecisionTracker *)tracker {
+- (instancetype)trackWith:(IMPDecisionTracker *)tracker {
     _tracker = tracker;
     return self;
 }
