@@ -417,4 +417,43 @@ extern NSString * const kTrackerURL;
     XCTAssertNotNil(decisionModel.tracker);
 }
 
+- (void)testDumpScore_11 {
+    int size = 11;
+    NSMutableArray *scores = [[NSMutableArray alloc] init];
+    for(int i = 0; i < size; ++i) {
+        [scores addObject:@((double)arc4random() / UINT32_MAX)];
+    }
+    
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(int i = 0; i < size; ++i) {
+        [variants addObject:[NSString stringWithFormat:@"Hello-%d", i]];
+    }
+    
+    for(int i = 0; i < size; ++i) {
+        NSLog(@"#%d, score:%lf variant:%@", i, [scores[i] doubleValue], variants[i]);
+    }
+    
+    [IMPUtils dumpScores:scores andVariants:variants];
+    
+    for(int i = 0; i < size; ++i) {
+        NSLog(@"#%d, score:%lf variant:%@", i, [scores[i] doubleValue], variants[i]);
+    }
+}
+
+- (void)testDumpScore_21 {
+    int size = 21;
+    NSMutableArray *scores = [[NSMutableArray alloc] init];
+    for(int i = 0; i < size; ++i) {
+        [scores addObject:@((double)arc4random() / UINT32_MAX)];
+    }
+    
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(int i = 0; i < size; ++i) {
+        NSDictionary *variant = @{@"greeting":@"hi", @"index":@11};
+        [variants addObject:variant];
+    }
+    
+    [IMPUtils dumpScores:scores andVariants:variants];
+}
+
 @end

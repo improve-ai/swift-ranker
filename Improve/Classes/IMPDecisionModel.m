@@ -187,19 +187,10 @@
             val += ((double)arc4random() / UINT32_MAX) * pow(2, -23); // add a very small random number to randomly break ties
             [scores addObject:@(val)];
         }
+#ifdef IMP_DEBUG
+        [IMPUtils dumpScores:scores andVariants:variants];
+#endif
         return scores;
-            
-        /*
-        #ifdef IMP_DEBUG
-            for (NSInteger i = 0; i < scoredVariants.count; i++)
-            {
-                NSDictionary *variant = scoredVariants[i];
-                NSString *variantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"variant"]];
-                NSString *encodedVariantJson = [IMPJSONUtils jsonStringOrDerscriptionOf:variant[@"encodedVariant"]];
-                IMPLog("#%ld score: %@ variant: %@ encoded: %@", i, variant[@"score"], variantJson, encodedVariantJson);
-            }
-        #endif
-         */
     }
 }
 

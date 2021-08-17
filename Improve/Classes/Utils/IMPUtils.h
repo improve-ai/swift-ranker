@@ -16,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSString *)getPlatformString;
 
++ (void)dumpScores:(NSArray<NSNumber *> *)scores andVariants:(NSArray *)variants;
+
 //+ (NSString *)
 
 @end

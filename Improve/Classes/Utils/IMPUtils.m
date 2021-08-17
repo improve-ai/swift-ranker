@@ -9,6 +9,9 @@
 #import <sys/types.h>
 
 #import "IMPUtils.h"
+#import "IMPJSONUtils.h"
+#import "IMPLogging.h"
+#import "IMPDecisionModel.h"
 
 @implementation IMPUtils
 
@@ -34,6 +37,34 @@
     NSString *platform = [NSString stringWithUTF8String:machine];
     free(machine);
     return platform;
+}
+
++ (void)dumpScores:(NSArray<NSNumber *> *)scores andVariants:(NSArray *)variants {
+    int LeadingCount = 10;
+    int TrailingCount = 10;
+    
+    // sort variants by scores
+    NSArray *sortedVariants = [IMPDecisionModel rank:variants withScores:scores];
+
+    // sort scores
+    NSArray *sortedScores = [scores sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:NO]]];
+    
+    if([scores count] <= (LeadingCount + TrailingCount)) {
+        // dump all
+        for(NSUInteger i = 0; i < [scores count]; ++i) {
+            IMPLog("#%ld score: %@ variant: %@", i, sortedScores[i], [IMPJSONUtils jsonStringOrDerscriptionOf:sortedVariants[i]]);
+        }
+    } else {
+        // dump top N scores and variants
+        for(NSUInteger i = 0; i < LeadingCount && i < [scores count]; ++i) {
+            IMPLog("#%ld score: %@ variant: %@", i, sortedScores[i], [IMPJSONUtils jsonStringOrDerscriptionOf:sortedVariants[i]]);
+        }
+        
+        // dump bottom N scores and variants
+        for(NSUInteger i = [scores count] - TrailingCount; i < [scores count]; ++i) {
+            IMPLog("#%ld score: %@ variant: %@", i, sortedScores[i], [IMPJSONUtils jsonStringOrDerscriptionOf:sortedVariants[i]]);
+        }
+    }
 }
 
 @end
