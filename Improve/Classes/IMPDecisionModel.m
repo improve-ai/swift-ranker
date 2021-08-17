@@ -8,7 +8,6 @@
 #import "IMPDecisionModel.h"
 #import "NSArray+Random.h"
 #import "IMPLogging.h"
-#import "IMPModelMetadata.h"
 #import "IMPFeatureEncoder.h"
 #import "IMPModelDownloader.h"
 #import "IMPDecision.h"
@@ -107,34 +106,27 @@
 
         }
         NSDictionary * creatorDefined = model.modelDescription.metadata[MLModelCreatorDefinedKey];
-        NSString *jsonMetadata;
-
-        if (creatorDefined) {
-            jsonMetadata = creatorDefined[@"json"];
-        }
-
-        if (!jsonMetadata) {
-            IMPErrLog("Invalid Improve model. 'json' attribute not found");
-            return;
-        }
-
-        IMPModelMetadata *metadata = [[IMPModelMetadata alloc] initWithString:jsonMetadata];
-        if (!metadata) {
-            return;
+        
+        NSString *modelName = creatorDefined[@"ai.improve.model.name"];
+        if([modelName length] <= 0) {
+            IMPErrLog("Invalid Improve model: modelName is nil or empty");
+            return ;
         }
         
+        NSString *seedString = creatorDefined[@"ai.improve.model.seed"];
+        uint64_t seed = strtoull([seedString UTF8String], NULL, 0);
+
         // If self.modelName != loadedModelName then log warning that model names
         // don’t match. Set self.modelName to loaded model name.
-        if ([_modelName length] > 0 && ![_modelName isEqualToString:metadata.modelName]) {
+        if ([_modelName length] > 0 && ![_modelName isEqualToString:modelName]) {
             IMPErrLog("Model names don't match: Current model name [%@], new model Name [%@]",
-                      _modelName, metadata.modelName);
+                      _modelName, modelName);
         }
-
-        _modelName = metadata.modelName;
+        _modelName = modelName;
         
         NSSet *featureNames = [[NSSet alloc] initWithArray:_model.modelDescription.inputDescriptionsByName.allKeys];
 
-        _featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:metadata.seed andFeatureNames:featureNames];
+        _featureEncoder = [[IMPFeatureEncoder alloc] initWithModelSeed:seed andFeatureNames:featureNames];
     }
 }
 
@@ -166,6 +158,15 @@
         if ([variants count] <= 0) {
             IMPErrLog("Non-nil, non-empty array required for sort variants. Returning empty array");
             return @[];
+        }
+        
+        if(self.model == nil) {
+            // When tracking a decision like this:
+            // IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"model"];
+            // [[model chooseFrom:variants] get];
+            // The model is not loaded. In this case, we return the scores quietly
+            // without logging an error.
+            return [IMPDecisionModel generateDescendingGaussians:variants.count];
         }
 
         NSArray *encodedFeatures = [_featureEncoder encodeVariants:variants given:givens];

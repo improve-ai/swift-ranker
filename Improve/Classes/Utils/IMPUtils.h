@@ -18,8 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)dumpScores:(NSArray<NSNumber *> *)scores andVariants:(NSArray *)variants;
 
-//+ (NSString *)
-
 @end
 
 NS_ASSUME_NONNULL_END
