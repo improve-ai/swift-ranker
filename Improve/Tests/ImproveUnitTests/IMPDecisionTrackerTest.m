@@ -265,8 +265,9 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     XCTAssertEqualObjects([runnersUp objectAtIndex:0], [NSNull null]);
     
     NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:runnersUp options:NSJSONWritingPrettyPrinted error:&error];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:runnersUp options:0 error:&error];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(@"[null,\"bar\"]", jsonString);
     NSLog(@"runners up jsonString = %@", jsonString);
     NSLog(@"runners up: %@", runnersUp);
 }
@@ -433,6 +434,16 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     NSLog(@"greeting=%@", greeting);
     
     [NSThread sleepForTimeInterval:6];
+}
+
+- (void)testTrackingNonJsonEncodable {
+    NSURL *trackerUrl = [NSURL URLWithString:kTrackerURL];
+    NSArray *variants = @[trackerUrl];
+    NSDictionary *context = @{@"language": @"cowboy"};
+    
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    [decisionModel trackWith:[[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl]];
+    [[[decisionModel chooseFrom:variants] given:context] get];
 }
 
 @end

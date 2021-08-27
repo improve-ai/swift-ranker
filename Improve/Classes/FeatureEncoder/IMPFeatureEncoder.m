@@ -132,6 +132,11 @@
             uint64_t newSeed = xxhash3(bytes, 8, seed);
             [self encodeInternal:obj withSeed:newSeed andNoise:noise forFeatures:features];
         }];
+    } else if([node isKindOfClass:[NSNull class]]) {
+        // do nothing
+    } else {
+        NSString *reason = [NSString stringWithFormat:@"unsupported type (%@), not JSON encodeable. Must be one of type NSArray, NSDictionary, NSString, NSNumber, Boolean, or NSNull", NSStringFromClass([node class])];
+        @throw([NSException exceptionWithName:@"UnsupportedTypeException" reason:reason userInfo:nil]);
     }
     return features;
 }

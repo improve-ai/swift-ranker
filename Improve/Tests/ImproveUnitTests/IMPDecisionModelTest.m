@@ -216,7 +216,16 @@ extern NSString * const kTrackerURL;
 
 // variants are json encodable
 - (void)testChooseFromValidVariants {
-    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    // variant must be one of type NSArray, NSDictionary, NSString, NSNumber, Boolean, or NSNull
+    NSArray *variants = @[@[@"hello", @"hi"],
+                          @{@"color":@"#ff0000", @"flag":@(YES), @"font":[NSNull null]},
+                          @"Hi World",
+                          @(3),
+                          @(3.0),
+                          @(YES),
+                          [NSNull null]
+    ];
+    
     NSURL *modelUrl = [[TestUtils bundle] URLForResource:@"TestModel"
                                            withExtension:@"mlmodelc"];
     IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
@@ -227,14 +236,23 @@ extern NSString * const kTrackerURL;
 
 // variants are not json encodable
 - (void)testChooseFromInvalidVariants {
-    NSURL *variantUrl = [NSURL URLWithString:@"https://hello.com"];
-    NSDate *variantDate = [NSDate date];
+    NSURL *urlVariant = [NSURL URLWithString:@"https://hello.com"];
+    NSDate *dateVariant = [NSDate date];
+    
+    NSArray *variants = @[urlVariant, dateVariant];
+    
     NSURL *modelUrl = [[TestUtils bundle] URLForResource:@"TestModel"
                                            withExtension:@"mlmodelc"];
     IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
     [decisionModel trackWith:tracker];
-    [[decisionModel chooseFrom:@[variantUrl, variantDate]] get];
+    @try {
+        [[decisionModel chooseFrom:variants] get];
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+        return ;
+    }
+    XCTFail(@"We should never reach here. An exception should have been thrown.");
 }
 
 - (void)testLoadToFail {
