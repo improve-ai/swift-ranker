@@ -19,7 +19,7 @@ static NSString * const kTimestampKey = @"timestamp";
 static NSString * const kMessageIdKey = @"message_id";
 static NSString * const kTypeKey = @"type";
 static NSString * const kVariantKey = @"variant";
-static NSString * const kGivenKey = @"given";
+static NSString * const kGivensKey = @"givens";
 static NSString * const kSampleKey = @"sample";
 static NSString * const kEventKey = @"event";
 static NSString * const kPropertiesKey = @"properties";
@@ -105,7 +105,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     [self setCount:variants dict:body];
 
     if (givens) {
-        body[kGivenKey] = givens;
+        body[kGivensKey] = givens;
     }
     
     NSArray *runnersUp;
