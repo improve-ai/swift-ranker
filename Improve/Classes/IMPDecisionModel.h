@@ -35,9 +35,11 @@ NS_SWIFT_NAME(DecisionModel)
 + (nullable instancetype)load:(NSURL *)url error:(NSError **)error;
 
 /**
- @param url A url that can be a  local file path,  a remote http url that points to a MLModel file, or even a bundled MLModel file. Urls that end with '.gz'  are considered gzip compressed, and will be decompressed automatically.
+ * @param url A url that can be a  local file path,  a remote http url that
+ * points to a MLModel file, or even a bundled MLModel file. Urls that end
+ * with '.gz'  are considered gzip compressed, and will be decompressed automatically.
  */
-- (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler;
+- (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler __attribute__((deprecated("The callback method signature will likely have to change for multiple URLs")));
 
 - (instancetype)initWithModelName:(NSString *)modelName NS_SWIFT_NAME(init(_:));
 
