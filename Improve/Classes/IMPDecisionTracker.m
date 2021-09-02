@@ -29,8 +29,6 @@ static NSString * const kRunnersUpKey = @"runners_up";
 static NSString * const kDecisionType = @"decision";
 static NSString * const kEventType = @"event";
 
-static NSString * const kApiKeyHeader = @"x-api-key";
-
 static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 
@@ -45,14 +43,8 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 - (instancetype)initWithTrackURL:(NSURL *)trackURL
 {
-    return [self initWithTrackURL:trackURL apiKey:nil];
-}
-
-- (instancetype)initWithTrackURL:(NSURL *)trackURL apiKey:(nullable NSString *)apiKey
-{
     if(self = [super init]) {
         _trackURL = trackURL;
-        _apiKey = apiKey;
         _maxRunnersUp = 50;
 
         if (!trackURL) {
@@ -215,11 +207,6 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     }
 
     NSMutableDictionary *headers = [@{ @"Content-Type": @"application/json" } mutableCopy];
-
-    NSString *trackApiKey = self.apiKey; // copy since atomic
-    if (trackApiKey) {
-        [headers setObject:trackApiKey forKey:kApiKeyHeader];
-    }
 
     NSString *dateStr = [self timestampFromDate:[NSDate date]];
 

@@ -62,9 +62,6 @@ class IMPSwiftifiedTest: XCTestCase {
         
         let tracker = DecisionTracker(trackerUrl)
         tracker.trackEvent("event")
-        
-        let trackerWithAPIKey = DecisionTracker(trackerUrl, "api-key")
-        trackerWithAPIKey.trackEvent("event")
     }
     
     func testLoadAsync() throws {

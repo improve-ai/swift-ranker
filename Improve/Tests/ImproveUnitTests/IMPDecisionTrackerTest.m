@@ -13,6 +13,8 @@
 
 NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazonaws.com/track";
 
+NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.mlmodel.gz";
+
 @interface IMPDecisionTracker ()
 
 - (id)sampleVariantOf:(NSArray *)variants runnersUpCount:(NSUInteger)runnersUpCount;
@@ -411,7 +413,7 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     NSDictionary *context = @{@"language": @"cowboy"};
     
     NSError *err;
-    NSURL *modelUrl = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"];
+    NSURL *modelUrl = [NSURL URLWithString:kRemoteModelURL];
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel load:modelUrl error:&err] trackWith:tracker];
     NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
@@ -427,9 +429,8 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     NSDictionary *context = @{@"language": @"cowboy"};
     
     NSError *err;
-    NSURL *modelUrl = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"];
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel load:modelUrl error:&err] trackWith:tracker];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel load:[self modelUrl] error:&err] trackWith:tracker];
     NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
     NSLog(@"greeting=%@", greeting);
     
@@ -444,6 +445,10 @@ NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazon
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
     [decisionModel trackWith:[[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl]];
     [[[decisionModel chooseFrom:variants] given:context] get];
+}
+
+- (NSURL *)modelUrl {
+    return [NSURL URLWithString:kRemoteModelURL];
 }
 
 @end

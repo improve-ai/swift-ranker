@@ -15,8 +15,6 @@ NS_SWIFT_NAME(DecisionTracker)
 
 @property(atomic, strong) NSURL *trackURL;
 
-@property(atomic, strong, nullable) NSString *apiKey;
-
 /**
  Hyperparameter that affects training speed and model performance. Values from 10-100 are probably reasonable.  0 disables runners up tracking
  */
@@ -25,9 +23,6 @@ NS_SWIFT_NAME(DecisionTracker)
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithTrackURL:(NSURL *)trackURL NS_SWIFT_NAME(init(_:));
-
-- (instancetype)initWithTrackURL:(NSURL *)trackURL
-                          apiKey:(nullable NSString *)apiKey NS_SWIFT_NAME(init(_:_:));
 
 - (void)trackEvent:(NSString *)eventName;
 

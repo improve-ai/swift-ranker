@@ -12,6 +12,8 @@
 #import "IMPUtils.h"
 #import "TestUtils.h"
 
+extern NSString * const kRemoteModelURL;
+
 @interface IMPDecisionModel ()
 
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
@@ -40,13 +42,8 @@
 
 - (NSArray *)urlList{
     if(_urlList == nil){
-//        _urlList = @[
-//            [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/TestModel.mlmodel"],
-//            [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"],
-//            [[TestUtils bundle] URLForResource:@"TestModel"
-//                                 withExtension:@"mlmodelc"]];
         _urlList = @[
-            [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"],
+            [NSURL URLWithString:kRemoteModelURL],
             [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/TestModel.mlmodel"],
             [[TestUtils bundle] URLForResource:@"TestModel"
                                  withExtension:@"mlmodelc"]];
@@ -65,7 +62,7 @@
                                       withExtension:@"mlmodelc"];
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
     [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
-        XCTAssertEqualObjects(decisionModel.modelName, @"dummy-model-0");
+        XCTAssertEqualObjects(decisionModel.modelName, @"songs-2.0");
         [ex fulfill];
     }];
     [self waitForExpectations:@[ex] timeout:3];
@@ -127,12 +124,13 @@
         XCTAssert(![NSThread isMainThread]);
         NSError *err;
         for(NSURL *url in self.urlList){
+            NSLog(@"model: %@", url);
             IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
             XCTAssertNil(err);
             XCTAssertNotNil(decisionModel);
             XCTAssertTrue([decisionModel.modelName length] > 0);
         }
-        NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
+        NSURL *url = [NSURL URLWithString:kRemoteModelURL];
         IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
         [decisionModel chooseFrom:@[]];
         [ex fulfill];

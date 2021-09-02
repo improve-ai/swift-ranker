@@ -10,6 +10,8 @@
 #import "IMPModelDownloader.h"
 #import "TestUtils.h"
 
+extern NSString * const kRemoteModelURL;
+
 @interface DownloaderTest : XCTestCase
 
 @end
@@ -67,7 +69,7 @@
 }
 
 - (void)testDownloadRemote{
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel"];
+    NSURL *url = [NSURL URLWithString:kRemoteModelURL];
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
@@ -85,7 +87,7 @@
 }
 
 - (void)testDownloadRemoteGzip{
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
+    NSURL *url = [NSURL URLWithString:kRemoteModelURL];
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
@@ -122,10 +124,11 @@
 }
 
 - (void)testBatchStreamingDownload {
-//    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
     
     [[NSURLCache sharedURLCache] setDiskCapacity:300 * 1024 * 1024];
     [[NSURLCache sharedURLCache] setMemoryCapacity:300 * 1024 * 1024];
+    
     NSLog(@"cache capacity: %lu, %lu", [[NSURLCache sharedURLCache] diskCapacity],
           [[NSURLCache sharedURLCache] memoryCapacity]);
     
@@ -135,21 +138,23 @@
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
     for (int i = 0; i < loop; i++) {
-        NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gz"];
-        IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
-        [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
-            if (error != nil) {
-                XCTFail(@"Downloading error: %@", error);
-            }
-            XCTAssert(compiledModelURL != nil);
-            done++;
-            
-            if(done == loop){
-                [expectation fulfill];
-            }
-            
-            NSLog(@"%d done, Compiled model URL: %@", done, compiledModelURL);
-        }];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 6 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            NSURL *url = [NSURL URLWithString:@"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.mlmodel.gz"];
+            IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
+            [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+                if (error != nil) {
+                    XCTFail(@"Downloading error: %@", error);
+                }
+                XCTAssert(compiledModelURL != nil);
+                done++;
+                
+                if(done == loop){
+                    [expectation fulfill];
+                }
+                
+                NSLog(@"%d done, Compiled model URL: %@", done, compiledModelURL);
+            }];
+        });
         [NSThread sleepForTimeInterval:sleepInterval];
     }
     [self waitForExpectations:@[expectation] timeout:300.0];
