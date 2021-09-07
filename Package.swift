@@ -16,6 +16,16 @@ let package = Package(
         .target(
             name: "Improve",
             path: "Improve",
-            publicHeadersPath: "Classes")
+            exclude: ["Tests"],
+            publicHeadersPath:"Classes",
+            cSettings: [
+                .headerSearchPath("Categories"),
+                .headerSearchPath("Classes/Utils"),
+                .headerSearchPath("Classes/FeatureEncoder"),
+                .headerSearchPath("Classes/Utils"),
+                .headerSearchPath("Classes/Downloader"),
+                .headerSearchPath("Thirdparty/GZip"),
+                .headerSearchPath("Thirdparty/XXHash"),
+            ])
     ]
 )
