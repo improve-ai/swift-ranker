@@ -192,6 +192,24 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     NSLog(@"shouldTrackCount=%d", shouldTrackCount);
 }
 
+- (void)testShouldTrackRunnersUp_2_variantsCount {
+    int loop = 1000000;
+    int variantCount = 2;
+    int shouldTrackCount = 0;
+    
+    NSURL *url = [NSURL URLWithString:@""];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    tracker.maxRunnersUp = 50;
+    
+    for (int i = 0; i < loop; ++i) {
+        if([tracker shouldTrackRunnersUp:variantCount]) {
+            shouldTrackCount++;
+        }
+    }
+    XCTAssertEqual(shouldTrackCount, loop);
+    NSLog(@"shouldTrackCount=%d", shouldTrackCount);
+}
+
 - (void)testShouldTrackRunnersUp_10_variantsCount {
     int loop = 1000000;
     int variantCount = 10;

@@ -77,7 +77,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     if (variantsCount <= 1 || self.maxRunnersUp == 0) {
         return NO;
     }
-    return ((double)arc4random() / UINT32_MAX) < 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
+    return ((double)arc4random() / UINT32_MAX) <= 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
 - (void)track:(id)bestVariant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
