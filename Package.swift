@@ -26,6 +26,7 @@ let package = Package(
                 .headerSearchPath("Classes/Downloader"),
                 .headerSearchPath("Thirdparty/GZip"),
                 .headerSearchPath("Thirdparty/XXHash"),
+                .define("IMP_DEBUG", .when(configuration: .debug)),
             ])
     ]
 )
