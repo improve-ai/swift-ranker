@@ -1,24 +1,12 @@
-# Improve AI for iOS/MacOS
+# Improve AI for iOS
 
 ## Fast AI Decisions for Swift and Objective C
- 
-[![Version](https://img.shields.io/cocoapods/v/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
-[![License](https://img.shields.io/cocoapods/l/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
-[![Platform](https://img.shields.io/cocoapods/p/Improve.svg?style=flat)](http://cocoapods.org/pods/Improve)
 
 It's like an AI *if/then* statement. Quickly make decisions that configure your app to maximize revenue, performance, user retention, or any other metric.
 
 ## Installation
 
-Improve is available through [CocoaPods](http://cocoapods.org). To install, add the following line to your Podfile:
-
-```ruby
-pod "Improve"
-```
-
-### Installation with Swift Package Manager
-
-Once you have your Swift package set up, adding Improve as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
+Improve is available through Swift Package Manager. Add the dependency by adding it to the `dependencies` value of your `Package.swift`.
 
 ```swift
 dependencies: [
