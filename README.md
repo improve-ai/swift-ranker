@@ -57,9 +57,9 @@ Improve learns to use the attributes of each key and value in a complex variant 
 
 Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries, arrays, strings, numbers, nulls, and booleans.
 
-## Models
+## Decision Models
 
-A *DecisionModel* contains the AI decision logic, analogous to a large number of *if/then* statements.
+A *Decision Model* contains the AI decision logic, analogous to a large number of *if/then* statements.
 
 Models are thread-safe and a single model can be used for multiple decisions.
 
