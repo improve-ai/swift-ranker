@@ -59,7 +59,7 @@ Variants can be any JSON encodeable data structure of arbitrary complexity, incl
 
 ## Decision Models
 
-A *Decision Model* contains the AI decision logic, analogous to a large number of *if/then* statements.
+A *Decision Model* contains the AI decision logic, analogous to a large number of *if/then* statements.  Decision models are continuously trained by the Improve AI Gym based on previous decisions, so they automatically improve over time.
 
 Models are thread-safe and a single model can be used for multiple decisions.
 
