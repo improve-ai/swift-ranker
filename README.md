@@ -2,7 +2,7 @@
 
 ## Fast AI Decisions for Swift and Objective C
 
-It's like an AI *if/then* statement. Quickly make decisions that configure your app to maximize revenue, performance, user retention, or any other metric.
+Lift revenue, performance, user retention, or any other metric with fast AI decisions. It's like an AI *if/then* statement. 
 
 ## Installation
 
