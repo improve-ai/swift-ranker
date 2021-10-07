@@ -188,6 +188,27 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     XCTAssertTrue(ABS(loop/4 - [sampleCountDict[@5] intValue]) < 1000);
 }
 
+- (void)testSampleVariant_Not_Ranked_identical_variants {
+    NSURL *url = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    tracker.maxRunnersUp = 0;
+    
+    NSArray *variants = @[@2, @2, @2, @2, @2];
+    NSUInteger runnersUpCount = 0;
+    
+    id bestVariant = @2;
+    
+    int loop = 1000000;
+    NSMutableDictionary *sampleCountDict = [[NSMutableDictionary alloc] init];
+    
+    for(int i = 0; i < loop; ++i) {
+        id sampleVariant = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount ranked:NO bestVariant:bestVariant];
+        sampleCountDict[sampleVariant] = @([sampleCountDict[sampleVariant] intValue] + 1);
+    }
+    NSLog(@"sampleCount: %d", [sampleCountDict[@2] intValue]);
+    XCTAssertEqual([sampleCountDict[@2] intValue], loop);
+}
+
 - (void)testShouldTrackRunnersUp_0_variantsCount {
     int loop = 1000000;
     int variantCount = 0;
