@@ -87,6 +87,11 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         return;
     }
     
+    if(bestVariant != nil && [variants indexOfObject:bestVariant] == NSNotFound) {
+        IMPErrLog("bestVariant must be included in variants");
+        return ;
+    }
+    
     NSMutableDictionary *body = [@{
         kTypeKey: kDecisionType,
         kModelKey: modelName,
@@ -106,7 +111,7 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         body[kRunnersUpKey] = runnersUp;
     }
 
-    id sampleVariant = [self sampleVariantOf:variants runnersUpCount:runnersUp.count];
+    id sampleVariant = [self sampleVariantOf:variants runnersUpCount:runnersUp.count ranked:variantsRankedAndTrackRunnersUp bestVariant:bestVariant];
     if(sampleVariant) {
         body[kSampleKey] = sampleVariant;
     }
@@ -114,25 +119,41 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     [self track:body];
 }
 
-// If there are no runners up, then sample is a random sample from
-// variants with just best excluded.
-//
-// If there are runners up, then sample is a random sample from
-// variants with best and runners up excluded.
-//
-// If there is only one variant, which is the best, then there is no sample.
-//
-// If there are no remaining variants after best and runners up, then
-// there is no sample.
-- (id)sampleVariantOf:(NSArray *)variants runnersUpCount:(NSUInteger)runnersUpCount {
-    id sampleVariant = nil;
+/**
+ * @param variants all variants
+ * @param runnersUpCount number of runners_up variants
+ * @param ranked Yes when variants is ranked with the first variant being the best; otherwise, the best variant
+ * could be any one of the variants
+ * If there are no runners up, then sample is a random sample from variants with just best excluded.
+ * If there are runners up, then sample is a random sample from variants with best and runners up excluded.
+ * If there is only one variant, which is the best, then there is no sample.
+ * If there are no remaining variants after best and runners up, then there is no sample.
+ * @return nil when there's no sample variant
+ */
+- (id)sampleVariantOf:(NSArray *)variants runnersUpCount:(NSUInteger)runnersUpCount ranked:(BOOL)ranked bestVariant:(id)bestVariant {
+    if(bestVariant == nil) {
+        return nil;
+    }
+    
     NSUInteger samplesCount = variants.count - runnersUpCount - 1;
-    if (samplesCount > 0) {
+    if(samplesCount <= 0) {
+        return nil;
+    }
+    
+    if(ranked) {
         NSRange range = NSMakeRange(runnersUpCount+1, samplesCount);
         NSArray *samples = [variants subarrayWithRange:range];
-        sampleVariant = samples.randomObject;
+        return samples.randomObject;
+    } else {
+        // variants is not ranked and there is no runners-up
+        NSUInteger indexOfBestVariant = [variants indexOfObject:bestVariant];
+        while (true) {
+            NSUInteger randomIdx = arc4random_uniform((uint32_t)variants.count);
+            if(randomIdx != indexOfBestVariant) {
+                return [variants objectAtIndex:randomIdx];
+            }
+        }
     }
-    return sampleVariant;
 }
 
 - (void)setBestVariant:(id)bestVariant dict:(NSMutableDictionary *)body {
@@ -144,9 +165,11 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     }
 }
 
+/**
+ * "variant": null JSON is tracked on null or empty variants and "count" field should be 1
+ */
 - (void)setCount:(NSArray *)variants dict:(NSMutableDictionary *)body {
     if ([variants count] <= 0) {
-        // This happens when variants is empty or nil
         body[kCountKey] = @1;
     } else {
         body[kCountKey] = @([variants count]);
