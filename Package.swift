@@ -19,13 +19,7 @@ let package = Package(
             exclude: ["Tests"],
             publicHeadersPath:"Classes",
             cSettings: [
-                .headerSearchPath("Categories"),
-                .headerSearchPath("Classes/Utils"),
-                .headerSearchPath("Classes/FeatureEncoder"),
-                .headerSearchPath("Classes/Utils"),
-                .headerSearchPath("Classes/Downloader"),
-                .headerSearchPath("Thirdparty/GZip"),
-                .headerSearchPath("Thirdparty/XXHash"),
+                .headerSearchPath("**"),
                 .define("IMP_DEBUG", .when(configuration: .debug)),
             ])
     ]
