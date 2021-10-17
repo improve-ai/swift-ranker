@@ -1,11 +1,6 @@
 //
-//  IMPDecisionTracker.h
-//  ImproveUnitTests
+//  Copyright © 2021 Mind Blown Apps, LLC. All rights reserved.
 //
-//  Created by Vladimir on 10/21/20.
-//  Copyright © 2020 Mind Blown Apps, LLC. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN

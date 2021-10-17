@@ -350,6 +350,7 @@
 		54CB9B3223D988F10005BB94 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				E7D156A3271CABAA002A9FCD /* Tracker */,
 				B3675EB725FE2E690040FDBB /* FeatureEncoder */,
 				54CB9B3623D988F10005BB94 /* Utils */,
 				549EE77D23EF3D040040D880 /* Downloader */,
@@ -357,8 +358,6 @@
 				54394F20253DB815009D1CF1 /* IMPDecision.m */,
 				54394F232540767F009D1CF1 /* IMPDecisionModel.h */,
 				54394F242540767F009D1CF1 /* IMPDecisionModel.m */,
-				54394F2725407690009D1CF1 /* IMPDecisionTracker.h */,
-				54394F2825407690009D1CF1 /* IMPDecisionTracker.m */,
 			);
 			name = Classes;
 			path = ../Classes;
@@ -488,6 +487,15 @@
 				B3DADC0726298C78004A82FA /* feature_encoder_test_suite.txt */,
 			);
 			path = FeatureEncoderTestSuite;
+			sourceTree = "<group>";
+		};
+		E7D156A3271CABAA002A9FCD /* Tracker */ = {
+			isa = PBXGroup;
+			children = (
+				54394F2725407690009D1CF1 /* IMPDecisionTracker.h */,
+				54394F2825407690009D1CF1 /* IMPDecisionTracker.m */,
+			);
+			path = Tracker;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

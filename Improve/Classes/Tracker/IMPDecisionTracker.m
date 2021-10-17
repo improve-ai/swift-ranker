@@ -1,11 +1,6 @@
 //
-//  IMPDecisionTracker.m
-//  ImproveUnitTests
+//  Copyright © 2021 Mind Blown Apps, LLC. All rights reserved.
 //
-//  Created by Vladimir on 10/21/20.
-//  Copyright © 2020 Mind Blown Apps, LLC. All rights reserved.
-//
-
 #import "IMPDecisionTracker.h"
 #import "IMPDecision.h"
 #import "IMPLogging.h"
