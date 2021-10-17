@@ -22,7 +22,7 @@ class IMPSwiftifiedTest: XCTestCase {
     func testDecisionModel() throws {
         let context = ["language": "cowboy"]
         let variants = ["Hello World", "Howdy World", "Hi World"]
-        let greeting = try DecisionModel.load(self.modelUrl()).chooseFrom(variants).given(context).get()
+        let greeting = try DecisionModel.load(self.modelUrl()).given(context).chooseFrom(variants).get()
         XCTAssertNotNil(greeting)
         print("greeting = \(greeting!)")
     }

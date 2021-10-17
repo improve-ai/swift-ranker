@@ -481,7 +481,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     NSURL *modelUrl = [NSURL URLWithString:kRemoteModelURL];
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel load:modelUrl error:&err] trackWith:tracker];
-    NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
+    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
     NSLog(@"greeting=%@", greeting);
     
     [NSThread sleepForTimeInterval:6];
@@ -496,7 +496,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     NSError *err;
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel load:[self modelUrl] error:&err] trackWith:tracker];
-    NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
+    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
     NSLog(@"greeting=%@", greeting);
     
     [NSThread sleepForTimeInterval:6];
@@ -509,7 +509,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
     [decisionModel trackWith:[[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl]];
-    [[[decisionModel chooseFrom:variants] given:context] get];
+    [[[decisionModel given:context] chooseFrom:variants] get];
 }
 
 - (NSURL *)modelUrl {

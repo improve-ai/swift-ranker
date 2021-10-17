@@ -53,15 +53,13 @@
     return self;
 }
 
-- (instancetype)given:(NSDictionary <NSString *, id>*)givens
+- (void) setGivens:(NSDictionary <NSString *, id>*)givens
 {
     if (_chosen) {
         IMPErrLog("variant already chosen, ignoring givens");
     } else {
         _givens = givens;
     }
-    
-    return self;
 }
 
 - (id)get

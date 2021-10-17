@@ -32,7 +32,7 @@
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     decisionModel.tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:@""]];
     
-    NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
+    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
     XCTAssertNil(greeting);
 }
 
@@ -43,7 +43,7 @@
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     XCTAssertNotNil(decisionModel);
     
-    NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
+    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
     IMPLog("greeting=%@", greeting);
     XCTAssertNil(greeting);
     
@@ -71,13 +71,13 @@
     NSDictionary *givens = @{@"language": @"cowboy"};
     
     IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    [[[model chooseFrom:variants] given:givens] get];
+    [[[model given:givens] chooseFrom:variants] get];
     
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
-    [[[model chooseFrom:@[]] given:givens] get];
+    [[[model given:givens] chooseFrom:@[]] get];
     
     [model trackWith:tracker];
-    [[[model chooseFrom:@[]] given:givens] get];
+    [[[model given:givens] chooseFrom:@[]] get];
     
 }
 

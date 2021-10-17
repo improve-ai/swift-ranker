@@ -142,7 +142,9 @@
 
 - (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens
 {
-    return [[[IMPDecision alloc] initWithModel:self] given:givens];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:self];
+    decision.givens = givens;
+    return decision;
 }
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants

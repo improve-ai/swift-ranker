@@ -215,7 +215,7 @@ extern NSString * const kRemoteModelURL;
         IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
         XCTAssertNotNil(decisionModel);
         XCTAssertNil(err);
-        NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
+        NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
         IMPLog("url=%@, greeting=%@", url, greeting);
         XCTAssertNotNil(greeting);
     }
