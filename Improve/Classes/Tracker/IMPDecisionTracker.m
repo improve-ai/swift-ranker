@@ -18,6 +18,7 @@ static NSString * const kGivensKey = @"givens";
 static NSString * const kSampleKey = @"sample";
 static NSString * const kEventKey = @"event";
 static NSString * const kPropertiesKey = @"properties";
+static NSString * const kValueKey = @"value";
 static NSString * const kCountKey = @"count";
 static NSString * const kRunnersUpKey = @"runners_up";
 
@@ -171,23 +172,19 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     }
 }
 
-- (void)trackEvent:(NSString *)eventName
+- (void)addReward:(double)reward forModel:(NSString *)modelName
 {
-    [self trackEvent:eventName properties:nil];
-}
-
-- (void)trackEvent:(NSString *)eventName
-        properties:(nullable NSDictionary *)properties
-{
+    // TODO throw exceptions on invalid reward values
+    
+    // this implementation is an enormous hack.  This is just the way the gym is at the moment
+    // before the protocol redesign
     NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
 
-    if (eventName) {
-        [body setObject:eventName forKey:kEventKey];
-    }
+    [body setObject:@"Reward" forKey:kEventKey];
+    [body setObject:modelName forKey:kModelKey];
     
-    if (properties) {
-        [body setObject:properties forKey:kPropertiesKey];
-    }
+    NSDictionary *properties = @{ kValueKey: [NSNumber numberWithDouble:reward]};
+    [body setObject:properties forKey:kPropertiesKey];
 
     [self track:body];
 }

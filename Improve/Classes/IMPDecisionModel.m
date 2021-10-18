@@ -13,78 +13,59 @@
 #import "IMPDecision.h"
 #import "NSDictionary+MLFeatureProvider.h"
 #import "IMPUtils.h"
+#import "IMPDecisionTracker.h"
 
 @interface IMPDecisionModel ()
 // Private vars
 
 @property (strong, atomic) IMPFeatureEncoder *featureEncoder;
 
+@property (strong, atomic) IMPDecisionTracker *tracker;
+
 @end
 
 @implementation IMPDecisionModel
 
+@synthesize trackURL = _trackURL;
 @synthesize model = _model;
 
-+ (instancetype)load:(NSURL *)url error:(NSError **)error {
-    __block IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@""];
-    __block NSError *blockError = nil;
-    if ([NSThread isMainThread]) {
-        __block BOOL finished = NO;
-        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
-            blockError = err;
-            decisionModel = compiledModel;
-            finished = YES;
-        }];
+static NSURL * _defaultTrackURL;
 
-        while (!finished) {
-            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-        }
-    } else {
-        dispatch_group_t group = dispatch_group_create();
-        dispatch_group_enter(group);
-        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
-            blockError = err;
-            decisionModel = compiledModel;
-            dispatch_group_leave(group);
-        }];
-        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-    }
 
-    if(error) {
-        *error = blockError;
-    }
-    
-    return decisionModel;
++ (NSURL *)defaultTrackURL
+{
+    return _defaultTrackURL;
 }
 
-- (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler {
-    [[[IMPModelDownloader alloc] initWithURL:url] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (downloadError) {
-                if (handler) handler(nil, downloadError);
-                return;
-            }
 
-            NSError *modelError;
-            MLModel *model = [MLModel modelWithContentsOfURL:compiledModelURL error:&modelError];
-            if (modelError) {
-                handler(nil, modelError);
-                return;
-            }
-            
-            self.model = model;
-            
-            handler(self, nil);
-        });
-    }];
++ (void)setDefaultTrackURL:(NSURL *)defaultTrackURL
+{
+    _defaultTrackURL = defaultTrackURL;
 }
 
-- (instancetype)initWithModelName:(NSString *)modelName {
+
+- (instancetype)initWithModelName:(NSString *)modelName
+{
     if(self = [super init]) {
         _modelName = modelName;
+        self.trackURL = _defaultTrackURL;
     }
     return self;
 }
+
+
+- (NSURL *)trackURL
+{
+    return _trackURL;
+}
+
+
+- (void)setTrackURL:(NSURL *)trackURL
+{
+    _trackURL = trackURL;
+    _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL];
+}
+
 
 - (MLModel *) model
 {
@@ -93,6 +74,7 @@
         return _model;
     }
 }
+
 
 - (void) setModel:(MLModel *)model
 {
@@ -130,15 +112,68 @@
     }
 }
 
-- (instancetype)trackWith:(IMPDecisionTracker *)tracker {
-    _tracker = tracker;
-    return self;
++ (instancetype)load:(NSURL *)url error:(NSError **)error {
+    __block IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@""];
+    __block NSError *blockError = nil;
+    if ([NSThread isMainThread]) {
+        __block BOOL finished = NO;
+        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
+            blockError = err;
+            decisionModel = compiledModel;
+            finished = YES;
+        }];
+
+        while (!finished) {
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        }
+    } else {
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_group_enter(group);
+        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
+            blockError = err;
+            decisionModel = compiledModel;
+            dispatch_group_leave(group);
+        }];
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    }
+
+    if(error) {
+        *error = blockError;
+    }
+    
+    return decisionModel;
 }
+
+
+- (void)loadAsync:(NSURL *)url completion:(void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler
+{
+    [[[IMPModelDownloader alloc] initWithURL:url] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (downloadError) {
+                if (handler) handler(nil, downloadError);
+                return;
+            }
+
+            NSError *modelError;
+            MLModel *model = [MLModel modelWithContentsOfURL:compiledModelURL error:&modelError];
+            if (modelError) {
+                handler(nil, modelError);
+                return;
+            }
+            
+            self.model = model;
+            
+            handler(self, nil);
+        });
+    }];
+}
+
 
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [[[IMPDecision alloc] initWithModel:self] chooseFrom:variants];
 }
+
 
 - (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens
 {
@@ -147,12 +182,20 @@
     return decision;
 }
 
+
+- (void)addReward:(double) reward
+{
+    [_tracker addReward:reward forModel:self.modelName];
+}
+
+
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
 {
     return [self score:variants given:nil];
 }
 
-- (NSArray <NSNumber *>*) score:(NSArray *)variants
+
+- (NSArray <NSNumber *>*)score:(NSArray *)variants
               given:(nullable NSDictionary <NSString *, id>*)givens
 {
     // MLModel is not thread safe, synchronize
@@ -197,6 +240,7 @@
     }
 }
 
+
 // in case of tie, the lowest index wins. Ties should be very rare due to small random noise added to scores
 // in IMPChooser.score()
 + (id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
@@ -217,6 +261,7 @@
 
     return bestVariant;
 }
+
 
 // If variants.count != scores.count, an NSRangeException exception will be thrown.
 // Case 3 #2 refsort approach: https://stackoverflow.com/a/27309301
@@ -245,6 +290,7 @@
     
     return result;
 }
+
     
 // Generate n = variants.count random (double) gaussian numbers
 // Sort the numbers descending and return the sorted list

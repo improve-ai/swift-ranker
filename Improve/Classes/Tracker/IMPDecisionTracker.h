@@ -19,10 +19,7 @@ NS_SWIFT_NAME(DecisionTracker)
 
 - (instancetype)initWithTrackURL:(NSURL *)trackURL NS_SWIFT_NAME(init(_:));
 
-- (void)trackEvent:(NSString *)eventName;
-
-- (void)trackEvent:(NSString *)eventName
-        properties:(nullable NSDictionary *)properties;
+- (void)addReward:(double) reward forModel:(NSString *)modelName;
 
 @end
 

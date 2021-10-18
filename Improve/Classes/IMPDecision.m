@@ -7,9 +7,12 @@
 
 #import "IMPDecision.h"
 #import "IMPLogging.h"
+#import "IMPDecisionTracker.h"
 
 // Package private methods
 @interface IMPDecisionModel ()
+
+@property (strong, atomic) IMPDecisionTracker *tracker;
 
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 

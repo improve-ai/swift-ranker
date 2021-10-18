@@ -7,23 +7,22 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreML/CoreML.h>
-#import "IMPDecisionTracker.h"
 
 @class IMPDecision;
 @class IMPDecisionModel;
-
-typedef void (^IMPDecisionModelLoadCompletion) (IMPDecisionModel *_Nullable compiledModel, NSError *_Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(DecisionModel)
 @interface IMPDecisionModel : NSObject
 
+@property(class) NSURL *defaultTrackURL;
+
+@property(atomic, strong) NSURL *trackURL;
+
 @property(atomic, strong) MLModel *model;
 
 @property(nonatomic, readonly, strong) NSString *modelName;
-
-@property(nonatomic, strong) IMPDecisionTracker *tracker;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -39,14 +38,9 @@ NS_SWIFT_NAME(DecisionModel)
  * points to a MLModel file, or even a bundled MLModel file. Urls that end
  * with '.gz'  are considered gzip compressed, and will be decompressed automatically.
  */
-- (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler __attribute__((deprecated("The callback method signature will likely have to change for multiple URLs")));
+- (void)loadAsync:(NSURL *)url completion:(void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler;
 
 - (instancetype)initWithModelName:(NSString *)modelName NS_SWIFT_NAME(init(_:));
-
-/**
- Chainable way to set the tracker that returns self
- */
-- (instancetype)trackWith:(IMPDecisionTracker *)tracker;
 
 /**
  Returns a IMPDecision object to be lazily evaluated
@@ -68,6 +62,13 @@ NS_SWIFT_NAME(DecisionModel)
  Returns a IMPDecision object to be lazily evaluated
  */
 - (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens;
+
+/**
+ Adds the reward value to the most recent Decision for this model name for this installation. The most recent Decision can be from a different DecisionModel instance or a previous session as long as they have the same model name.
+ If no previous Decision is found, the reward will be ignored.
+ @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
+ */
+- (void)addReward:(double) reward;
 
 /**
  Returns a list of the variants ranked from best to worst
