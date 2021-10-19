@@ -56,7 +56,7 @@
         }
     } else {
         // dump top N scores and variants
-        for(NSUInteger i = 0; i < LeadingCount && i < [scores count]; ++i) {
+        for(NSUInteger i = 0; i < LeadingCount; ++i) {
             IMPLog("#%ld score: %@ variant: %@", i, sortedScores[i], [IMPJSONUtils jsonStringOrDerscriptionOf:sortedVariants[i]]);
         }
         

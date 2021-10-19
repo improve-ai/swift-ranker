@@ -31,8 +31,6 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 
 @interface IMPDecisionTracker ()
 
-- (NSString *)generateHistoryId;
-
 - (NSString *)historyId;
 
 @end
@@ -44,22 +42,19 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 @implementation IMPTrackerTest
 
 - (void)testHistoryId {
-    // Generation
-    for (int i = 0; i < 10; i++)
-    {
-        // URL doesn't matter here
-        NSURL *url = [NSURL URLWithString:kTrackerURL];
-        IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    // Remove history id cached
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults removeObjectForKey:@"ai.improve.history_id"];
+    
+    NSURL *trackerURL = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionTracker *tracker_1 = [[IMPDecisionTracker alloc] initWithTrackURL:trackerURL];
 
-        // Check initialization
-        XCTAssertNotNil(tracker.historyId);
-
-        // Check id shape
-        NSString *historyId = tracker.historyId;
-        NSLog(@"historyId: %@", historyId);
-        XCTAssertNotNil(historyId);
-        XCTAssert(historyId.length > 32 / 3 * 4);
-    }
+    NSLog(@"historyId: %@", tracker_1.historyId);
+    
+    XCTAssert(tracker_1.historyId.length == 36);
+    
+    IMPDecisionTracker *tracker_2 = [[IMPDecisionTracker alloc] initWithTrackURL:trackerURL];
+    XCTAssertEqualObjects(tracker_1.historyId, tracker_2.historyId);
 }
 
 // 1 best variant, 1 runner-up, 1 sample
