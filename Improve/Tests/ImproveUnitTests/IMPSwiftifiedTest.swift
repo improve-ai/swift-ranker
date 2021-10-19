@@ -57,7 +57,7 @@ class IMPSwiftifiedTest: XCTestCase {
         let trackerUrl = URL(string: "http://improve.ai")!
         
         let tracker = DecisionTracker(trackerUrl)
-        tracker.trackEvent("event")
+        tracker.addReward(3.14, forModel: "greetings")
     }
     
     func testLoadAsync() throws {

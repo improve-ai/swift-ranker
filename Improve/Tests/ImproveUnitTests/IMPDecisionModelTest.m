@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "IMPDecisionTracker.h"
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
 #import "IMPUtils.h"
@@ -238,8 +239,7 @@ extern NSString * const kTrackerURL;
     NSURL *modelUrl = [[TestUtils bundle] URLForResource:@"TestModel"
                                            withExtension:@"mlmodelc"];
     IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
-    [decisionModel trackWith:tracker];
+    decisionModel.trackURL = [NSURL URLWithString:kTrackerURL];
     [[decisionModel chooseFrom:variants] get];
 }
 
@@ -253,8 +253,7 @@ extern NSString * const kTrackerURL;
     NSURL *modelUrl = [[TestUtils bundle] URLForResource:@"TestModel"
                                            withExtension:@"mlmodelc"];
     IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
-    [decisionModel trackWith:tracker];
+    decisionModel.trackURL = [NSURL URLWithString:kTrackerURL];
     @try {
         [[decisionModel chooseFrom:variants] get];
     } @catch (NSException *e){
