@@ -29,6 +29,9 @@
 		B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */; };
 		B37E1335262EDF5E0042B761 /* IMPStreamDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */; };
 		B3DADC4626298C7E004A82FA /* feature_encoder_test_suite.txt in Resources */ = {isa = PBXBuildFile; fileRef = B3DADC0726298C78004A82FA /* feature_encoder_test_suite.txt */; };
+		B3F34BD1271EB0D1006636D8 /* TestModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BCF271EAE06006636D8 /* TestModel.dat */; };
+		B3F34BD5271EB2D7006636D8 /* InvalidModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD3271EB236006636D8 /* InvalidModel.dat */; };
+		B3F34BD8271EB53B006636D8 /* TestModel.mlmodel.gz in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */; };
 		B3F51D53269B590000049F17 /* nested_list.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D08269B58F200049F17 /* nested_list.json */; };
 		B3F51D54269B590000049F17 /* noise_2_256.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D09269B58F300049F17 /* noise_2_256.json */; };
 		B3F51D55269B590000049F17 /* nested_dict_string_keys.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D0A269B58F300049F17 /* nested_dict_string_keys.json */; };
@@ -154,6 +157,9 @@
 		B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPStreamDownloadManager.m; sourceTree = "<group>"; };
 		B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPConstants.m; sourceTree = "<group>"; };
 		B3DADC0726298C78004A82FA /* feature_encoder_test_suite.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = feature_encoder_test_suite.txt; sourceTree = "<group>"; };
+		B3F34BCF271EAE06006636D8 /* TestModel.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestModel.dat; sourceTree = "<group>"; };
+		B3F34BD3271EB236006636D8 /* InvalidModel.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = InvalidModel.dat; sourceTree = "<group>"; };
+		B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = TestModel.mlmodel.gz; sourceTree = "<group>"; };
 		B3F51D08269B58F200049F17 /* nested_list.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nested_list.json; sourceTree = "<group>"; };
 		B3F51D09269B58F300049F17 /* noise_2_256.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = noise_2_256.json; sourceTree = "<group>"; };
 		B3F51D0A269B58F300049F17 /* nested_dict_string_keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nested_dict_string_keys.json; sourceTree = "<group>"; };
@@ -292,12 +298,15 @@
 				540B857E23E6CBF900D578A4 /* TestUtils.h */,
 				54AC4DDC24537B80007CB073 /* TestUtils.m */,
 				B3213C7B2608D67900052770 /* IMPDecisionModelTest.m */,
+				B3F34BCF271EAE06006636D8 /* TestModel.dat */,
+				B3F34BD3271EB236006636D8 /* InvalidModel.dat */,
 				549EE78123F1C4AC0040D880 /* DownloaderTest.m */,
 				54394F94254AA633009D1CF1 /* IMPDecisionTrackerTest.m */,
 				54FCD00624C7401B00D30031 /* ImproveTrainingTest.m */,
 				544A0E7F24BB7B5E007BB69D /* LoggingTest.m */,
 				B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */,
 				548BEE1E241241F500EFD26A /* TestModel.mlmodel */,
+				B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */,
 				54CB9B2423D987800005BB94 /* Info.plist */,
 				B352915D26453300000274D6 /* IMPDecisionTest.m */,
 				B352916326455F3C000274D6 /* IMPSwiftifiedTest.swift */,
@@ -539,6 +548,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3F34BD5271EB2D7006636D8 /* InvalidModel.dat in Resources */,
+				B3F34BD1271EB0D1006636D8 /* TestModel.dat in Resources */,
 				B3F51D79269B590000049F17 /* internal_collisions_01.json in Resources */,
 				B3F51D67269B590000049F17 /* primitive_dict_special_characters_string.json in Resources */,
 				B3F51D6D269B590000049F17 /* encode_feature_vector.json in Resources */,
@@ -560,6 +571,7 @@
 				54A39AC525338DB800F895FF /* TestModel.mlmodel in Resources */,
 				B3F51D8B269B590000049F17 /* primitive_dict_bool_false.json in Resources */,
 				B3F51D9A269B590000049F17 /* primitive_dict_float_1.json in Resources */,
+				B3F34BD8271EB53B006636D8 /* TestModel.mlmodel.gz in Resources */,
 				B3F51D99269B590000049F17 /* big_int_negative.json in Resources */,
 				B3F51D76269B590000049F17 /* primitive_dict_small_float.json in Resources */,
 				B3F51D85269B590000049F17 /* primitive_dict_big_int_negative.json in Resources */,

@@ -8,7 +8,6 @@
 
 import XCTest
 
-
 // This test file is mainly used to ensure that swiftified api works
 class IMPSwiftifiedTest: XCTestCase {
 
@@ -23,17 +22,15 @@ class IMPSwiftifiedTest: XCTestCase {
     func testDecisionModel() throws {
         let context = ["language": "cowboy"]
         let variants = ["Hello World", "Howdy World", "Hi World"]
-        let modelUrl = URL(fileURLWithPath: "/Users/phx/Documents/improve-ai/TestModel.mlmodel")
-        let greeting = try DecisionModel.load(modelUrl).chooseFrom(variants).given(context).get()
+        let greeting = try DecisionModel.load(self.modelUrl()).chooseFrom(variants).given(context).get()
         XCTAssertNotNil(greeting)
         print("greeting = \(greeting!)")
     }
     
     func testDecisionModelThrowError() throws {
         let variants = ["Hello World", "Howdy World", "Hi World"]
-        let modelUrl = URL(fileURLWithPath: "/Users/phx/Documents/improve-ai/TestModel.mlmodelkk")
         do {
-            let greeting = try DecisionModel.load(modelUrl).chooseFrom(variants).get()
+            let greeting = try DecisionModel.load(self.modelUrl()).chooseFrom(variants).get()
             if greeting != nil {
                 print("greeting = \(greeting!)")
             }
@@ -45,8 +42,7 @@ class IMPSwiftifiedTest: XCTestCase {
     // Handle exception by converting Errors to Optional Values
     func testDecisionModelThrowErrorOptional() throws {
         let variants = ["Hello World", "Howdy World", "Hi World"]
-        let modelUrl = URL(fileURLWithPath: "/Users/phx/Documents/improve-ai/TestModel.mlmodelkk")
-        let greeting = try? DecisionModel.load(modelUrl).chooseFrom(variants).get();
+        let greeting = try? DecisionModel.load(self.invalidModelUrl()).chooseFrom(variants).get();
         XCTAssertNil(greeting)
     }
     
@@ -67,14 +63,21 @@ class IMPSwiftifiedTest: XCTestCase {
     func testLoadAsync() throws {
         let ex = expectation(description: "Model loading")
         let variants = ["Hello World", "Howdy World", "Hi World"]
-        let modelUrl = URL(fileURLWithPath: "/Users/phx/Documents/improve-ai/TestModel.mlmodel")
-        DecisionModel("hello").loadAsync(modelUrl) { model, err in
+        DecisionModel("hello").loadAsync(self.modelUrl()) { model, err in
             let greeting = model?.chooseFrom(variants).get()
             if greeting != nil {
                 print("loadAsync, greeting=\(greeting!)")
             }
             ex.fulfill()
         }
-        waitForExpectations(timeout:3)
+        waitForExpectations(timeout:15)
+    }
+    
+    func modelUrl() -> URL {
+        return URL(string:"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.mlmodel.gz")!
+    }
+    
+    func invalidModelUrl() -> URL {
+        return URL(string:"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.mlmodel.gz.not.exist")!
     }
 }

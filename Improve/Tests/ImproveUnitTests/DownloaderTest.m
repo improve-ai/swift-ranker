@@ -32,8 +32,9 @@ extern NSString * const kRemoteModelURL;
 @implementation DownloaderTest
 
 - (void)testDownloadLocal{
-    NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/workspace/improve-ai/Improve/Tests/ImproveUnitTests/TestModel.mlmodel"];
-    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
+    NSURL *modelURL = [[TestUtils bundle] URLForResource:@"TestModel"
+                         withExtension:@"dat"];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelURL];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
     [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
@@ -50,8 +51,9 @@ extern NSString * const kRemoteModelURL;
 }
 
 - (void)testDownloadLocalGzip{
-    NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/workspace/improve-ai/Improve/Tests/ImproveUnitTests/TestModel.mlmodel.gz"];
-    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
+    NSURL *modelURL = [[TestUtils bundle] URLForResource:@"TestModel.mlmodel"
+                         withExtension:@"gz"];
+    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelURL];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
     [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {

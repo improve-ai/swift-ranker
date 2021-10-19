@@ -34,6 +34,15 @@
 }
 
 - (void)downloadWithCompletion:(IMPModelDownloaderCompletion)completion {
+    if(self.modelUrl == nil) {
+        NSString *msg = [NSString stringWithFormat:@"invalid model url: %@",self.modelUrl];
+        NSError *error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
+                                    code:-1
+                                userInfo:@{NSLocalizedDescriptionKey: msg}];
+        completion(nil, error);
+        return ;
+    }
+    
     if([self.modelUrl hasDirectoryPath]) {
         completion(self.modelUrl, nil);
         return ;

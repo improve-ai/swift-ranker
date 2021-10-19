@@ -34,6 +34,7 @@ extern NSString * const kRemoteModelURL;
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    NSLog(@"%@", [[TestUtils bundle] bundlePath]);
 }
 
 - (void)tearDown {
@@ -44,7 +45,6 @@ extern NSString * const kRemoteModelURL;
     if(_urlList == nil){
         _urlList = @[
             [NSURL URLWithString:kRemoteModelURL],
-            [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/TestModel.mlmodel"],
             [[TestUtils bundle] URLForResource:@"TestModel"
                                  withExtension:@"mlmodelc"]];
     }
@@ -66,7 +66,17 @@ extern NSString * const kRemoteModelURL;
         [ex fulfill];
     }];
     [self waitForExpectations:@[ex] timeout:3];
+}
 
+- (void)testLoadLocalModelFile {
+    NSError *error;
+    NSURL *modelURL = [[TestUtils bundle] URLForResource:@"TestModel"
+                         withExtension:@"dat"];
+    NSLog(@"model url: %@", modelURL);
+    IMPDecisionModel *model = [IMPDecisionModel load:modelURL error:&error];
+    XCTAssertNotNil(model);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(@"songs-2.0", model.modelName);
 }
 
 - (void)testLoadAsync{
@@ -109,8 +119,9 @@ extern NSString * const kRemoteModelURL;
 - (void)testLoadSyncToFailWithInvalidModelFile {
     NSError *err;
     // The model exists, but is not valid
-    NSURL *url = [NSURL fileURLWithPath:@"/Users/phx/Documents/improve-ai/InvalidModel.mlmodel"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
+    NSURL *modelURL = [[TestUtils bundle] URLForResource:@"InvalidModel"
+                         withExtension:@"dat"];
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelURL error:&err];
     XCTAssertNotNil(err);
     XCTAssertNil(decisionModel);
     NSLog(@"load error: %@", err);
