@@ -433,16 +433,6 @@ extern NSString * const kTrackerURL;
     XCTFail(@"An exception should have been thrown, we should not have reached here.");
 }
 
-- (void)testSetTracker {
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:@"tracker url"]];
-    
-    NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
-                                      withExtension:@"mlmodelc"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:nil];
-    XCTAssertTrue([[decisionModel trackWith:tracker] isKindOfClass:[IMPDecisionModel class]]);
-    XCTAssertNotNil(decisionModel.tracker);
-}
-
 - (void)testDumpScore_11 {
     int size = 11;
     NSMutableArray *scores = [[NSMutableArray alloc] init];
