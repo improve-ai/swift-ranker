@@ -32,6 +32,7 @@
 		B3F34BD1271EB0D1006636D8 /* TestModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BCF271EAE06006636D8 /* TestModel.dat */; };
 		B3F34BD5271EB2D7006636D8 /* InvalidModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD3271EB236006636D8 /* InvalidModel.dat */; };
 		B3F34BD8271EB53B006636D8 /* TestModel.mlmodel.gz in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */; };
+		B3F34C572727ECE0006636D8 /* ModelDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F34C562727ECE0006636D8 /* ModelDictionary.m */; };
 		B3F51D53269B590000049F17 /* nested_list.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D08269B58F200049F17 /* nested_list.json */; };
 		B3F51D54269B590000049F17 /* noise_2_256.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D09269B58F300049F17 /* noise_2_256.json */; };
 		B3F51D55269B590000049F17 /* nested_dict_string_keys.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D0A269B58F300049F17 /* nested_dict_string_keys.json */; };
@@ -160,6 +161,8 @@
 		B3F34BCF271EAE06006636D8 /* TestModel.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestModel.dat; sourceTree = "<group>"; };
 		B3F34BD3271EB236006636D8 /* InvalidModel.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = InvalidModel.dat; sourceTree = "<group>"; };
 		B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = TestModel.mlmodel.gz; sourceTree = "<group>"; };
+		B3F34C562727ECE0006636D8 /* ModelDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModelDictionary.m; sourceTree = "<group>"; };
+		B3F34C592727ECFA006636D8 /* ModelDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelDictionary.h; sourceTree = "<group>"; };
 		B3F51D08269B58F200049F17 /* nested_list.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nested_list.json; sourceTree = "<group>"; };
 		B3F51D09269B58F300049F17 /* noise_2_256.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = noise_2_256.json; sourceTree = "<group>"; };
 		B3F51D0A269B58F300049F17 /* nested_dict_string_keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nested_dict_string_keys.json; sourceTree = "<group>"; };
@@ -374,6 +377,8 @@
 				B3213C8426099B3800052770 /* IMPUtils.m */,
 				B36C84CD2674614800D0801B /* IMPConstants.h */,
 				B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */,
+				B3F34C592727ECFA006636D8 /* ModelDictionary.h */,
+				B3F34C562727ECE0006636D8 /* ModelDictionary.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -651,6 +656,7 @@
 				E761D2FF2600454700F6F238 /* NSDictionary+MLFeatureProvider.m in Sources */,
 				B32938EA2613EA930071F78E /* IMPStreamDownloadHandler.m in Sources */,
 				54394F2925407690009D1CF1 /* IMPDecisionTracker.m in Sources */,
+				B3F34C572727ECE0006636D8 /* ModelDictionary.m in Sources */,
 				B352916426455F3C000274D6 /* IMPSwiftifiedTest.swift in Sources */,
 				54394F99254AA752009D1CF1 /* IMPDecisionTrackerTest.m in Sources */,
 				54394F21253DB815009D1CF1 /* IMPDecision.m in Sources */,

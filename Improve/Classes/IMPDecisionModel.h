@@ -7,6 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreML/CoreML.h>
+#import "Utils/ModelDictionary.h"
 
 @class IMPDecision;
 @class IMPDecisionModel;
@@ -17,6 +18,8 @@ NS_SWIFT_NAME(DecisionModel)
 @interface IMPDecisionModel : NSObject
 
 @property(class) NSURL *defaultTrackURL;
+
+@property(class, readonly) ModelDictionary *instances;
 
 @property(atomic, strong) NSURL *trackURL;
 

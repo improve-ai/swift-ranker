@@ -31,16 +31,24 @@
 
 static NSURL * _defaultTrackURL;
 
+static ModelDictionary *_instances;
 
 + (NSURL *)defaultTrackURL
 {
     return _defaultTrackURL;
 }
 
-
 + (void)setDefaultTrackURL:(NSURL *)defaultTrackURL
 {
     _defaultTrackURL = defaultTrackURL;
+}
+
++ (ModelDictionary *)instances {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _instances = [[ModelDictionary alloc] init];
+    });
+    return _instances;
 }
 
 - (instancetype)initWithModelName:(NSString *)modelName

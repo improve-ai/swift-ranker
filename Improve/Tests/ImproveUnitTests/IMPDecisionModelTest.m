@@ -31,6 +31,12 @@ extern NSString * const kRemoteModelURL;
 
 @end
 
+@interface ModelDictionary ()
+
+- (NSUInteger)count;
+
+@end
+
 @implementation IMPDecisionModelTest
 
 - (void)setUp {
@@ -178,8 +184,32 @@ extern NSString * const kRemoteModelURL;
             continue ;
         }
         NSLog(@"failed: %@", modelNames[i]);
-        XCTFail(@"An exception should have been throw, we should reach here.");
+        XCTFail(@"An exception should have been throw, we should never reach here.");
     }
+}
+
+- (void)testModelInstances {
+    NSString *modelName = @"hello";
+    IMPDecisionModel.instances[modelName] = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSLog(@"modelName: %@", IMPDecisionModel.instances[modelName].modelName);
+    XCTAssertEqualObjects(modelName, IMPDecisionModel.instances[modelName].modelName);
+    
+    // Same object
+    XCTAssertEqual(IMPDecisionModel.instances[modelName], IMPDecisionModel.instances[modelName]);
+    
+    // Overwrite existing model
+    XCTAssertEqual(1, [IMPDecisionModel.instances count]);
+    IMPDecisionModel *oldModel = IMPDecisionModel.instances[modelName];
+    IMPDecisionModel.instances[modelName] = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    IMPDecisionModel *newModel = IMPDecisionModel.instances[modelName];
+    // oldModel and newModel point to different objects
+    XCTAssertNotEqual(oldModel, newModel);
+    XCTAssertEqual(1, [IMPDecisionModel.instances count]);
+    
+    // set as nil to remove the existing model
+    XCTAssertEqual(1, [IMPDecisionModel.instances count]);
+    IMPDecisionModel.instances[modelName] = nil;
+    XCTAssertEqual(0, [IMPDecisionModel.instances count]);
 }
 
 - (void)testLoadLocalModelFile {
