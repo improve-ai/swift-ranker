@@ -53,20 +53,133 @@ extern NSString * const kRemoteModelURL;
 }
 
 - (void)testInit {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    XCTAssertEqualObjects(decisionModel.modelName, @"hello");
+    IMPDecisionModel *decisionModel_0 = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    XCTAssertEqualObjects(decisionModel_0.modelName, @"hello");
+    XCTAssertNil(decisionModel_0.trackURL);
+    
+    IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionModel *decisionModel_1 = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    XCTAssertNotNil(decisionModel_1.trackURL);
+    XCTAssertEqualObjects(decisionModel_1.trackURL, IMPDecisionModel.defaultTrackURL);
 }
 
+// The modelName set before loading the model has higher priority than
+// the modelName specified in the model file.
 - (void)testModelName {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    NSString *modelName = @"hello";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
     NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
                                       withExtension:@"mlmodelc"];
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
     [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
-        XCTAssertEqualObjects(decisionModel.modelName, @"songs-2.0");
+        XCTAssertEqualObjects(modelName, decisionModel.modelName);
         [ex fulfill];
     }];
     [self waitForExpectations:@[ex] timeout:3];
+}
+
+// modelName cannot be nil
+- (void)testModelName_Nil {
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:nil];
+        NSLog(@"modelName = [%@]", decisionModel.modelName);
+    } @catch(id exception) {
+        NSLog(@"modelName can't be nil");
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
+// modelName length must be in range [1, 64]
+- (void)testModelName_Empty {
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@""];
+        NSLog(@"modelName = [%@]", decisionModel.modelName);
+    } @catch(id exception) {
+        // An exception is expected here.
+        NSLog(@"modelName can't be empty.");
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
+// modelName length must be in range [1, 64]
+- (void)testModelName_Length_5 {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    NSLog(@"modelName = [%@]", decisionModel.modelName);
+    XCTAssertEqualObjects(@"hello", decisionModel.modelName);
+}
+
+// modelName length must be in range [1, 64]
+- (void)testModelName_Length_64 {
+    NSString *modelName = @"";
+    for(int i = 0; i < 64; ++i) {
+        modelName = [modelName stringByAppendingString:@"0"];
+    }
+    XCTAssertEqual(64, modelName.length);
+    
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSLog(@"modelName = [%@]", decisionModel.modelName);
+    XCTAssertEqualObjects(modelName, decisionModel.modelName);
+}
+
+// modelName length must be in range [1, 64]
+- (void)testModelName_Length_65 {
+    NSString *modelName = @"";
+    for(int i = 0; i < 65; ++i) {
+        modelName = [modelName stringByAppendingString:@"0"];
+    }
+    XCTAssertEqual(65, modelName.length);
+    
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+        NSLog(@"modelName = [%@]", decisionModel.modelName);
+    } @catch(id exception) {
+        // An exception is expected here
+        NSLog(@"length of modelName can't exceed 64");
+        return ;
+    }
+    
+    XCTFail("An exception should have been thrown, we should never reach here");
+}
+
+- (void)testModelName_valid_characters {
+    NSArray *modelNames = @[
+        @"a",
+        @"a_",
+        @"a.",
+        @"a-",
+        @"a1",
+        @"3Abb"
+    ];
+    
+    for(int i = 0; i < [modelNames count]; ++i) {
+        NSString *modelName = modelNames[i];
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+        XCTAssertEqual(modelName, decisionModel.modelName);
+    }
+    
+}
+
+- (void)testModelName_invalid_characters {
+    NSArray *modelNames = @[
+        @"_a",
+        @"a+",
+        @"a\\"
+    ];
+    
+    for(int i = 0; i < [modelNames count]; ++i) {
+        @try {
+            NSString *modelName = modelNames[i];
+            IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+            XCTAssertEqual(modelName, decisionModel.modelName);
+        } @catch(id exception) {
+            NSLog(@"case: %@, exception: %@", modelNames[i], exception);
+            continue ;
+        }
+        NSLog(@"failed: %@", modelNames[i]);
+        XCTFail(@"An exception should have been throw, we should reach here.");
+    }
 }
 
 - (void)testLoadLocalModelFile {

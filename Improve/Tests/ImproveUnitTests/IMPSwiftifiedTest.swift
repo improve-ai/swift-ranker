@@ -73,6 +73,11 @@ class IMPSwiftifiedTest: XCTestCase {
         waitForExpectations(timeout:15)
     }
     
+    func testDecisionModelWithTrackURL() {
+        let trackURL = URL(string: "http://improve.ai")!
+        let decisionModel = DecisionModel("hello", trackURL);
+    }
+    
     func modelUrl() -> URL {
         return URL(string:"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.mlmodel.gz")!
     }

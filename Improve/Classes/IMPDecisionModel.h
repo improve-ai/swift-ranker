@@ -40,7 +40,14 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (void)loadAsync:(NSURL *)url completion:(void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler;
 
+/**
+ * @param modelName Length of modelName must be in range [1, 64]; Only alhpanumeric characters([a-zA-Z0-9]), '-', '.' and '_'
+ * are allowed in the modenName and the first character must be an alphnumeric one.
+ * @exception NSInvalidArgumentException in case of an invalid modelName
+ */
 - (instancetype)initWithModelName:(NSString *)modelName NS_SWIFT_NAME(init(_:));
+
+- (instancetype)initWithModelName:(NSString *)modelName trackURL:(nullable NSURL *)trackURL NS_SWIFT_NAME(init(_:_:));
 
 /**
  Returns a IMPDecision object to be lazily evaluated

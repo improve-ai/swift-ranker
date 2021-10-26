@@ -43,22 +43,28 @@ static NSURL * _defaultTrackURL;
     _defaultTrackURL = defaultTrackURL;
 }
 
-
 - (instancetype)initWithModelName:(NSString *)modelName
 {
+    return [self initWithModelName:modelName trackURL:_defaultTrackURL];
+}
+
+- (instancetype)initWithModelName:(NSString *)modelName trackURL:(NSURL *)trackURL
+{
     if(self = [super init]) {
-        _modelName = modelName;
-        self.trackURL = _defaultTrackURL;
+        if([self isValidModelName:modelName]) {
+            _modelName = modelName;
+        } else {
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"invalid model name" userInfo:nil];
+        }
+        _trackURL = trackURL;
     }
     return self;
 }
-
 
 - (NSURL *)trackURL
 {
     return _trackURL;
 }
-
 
 - (void)setTrackURL:(NSURL *)trackURL
 {
@@ -98,13 +104,13 @@ static NSURL * _defaultTrackURL;
         NSString *seedString = creatorDefined[@"ai.improve.model.seed"];
         uint64_t seed = strtoull([seedString UTF8String], NULL, 0);
 
-        // If self.modelName != loadedModelName then log warning that model names
-        // don’t match. Set self.modelName to loaded model name.
-        if ([_modelName length] > 0 && ![_modelName isEqualToString:modelName]) {
-            IMPErrLog("Model names don't match: Current model name [%@], new model Name [%@]",
-                      _modelName, modelName);
+        // The modelName set before loading the model has higher priority than
+        // the one extracted from the model file. Just print a warning here if
+        // they don't match.
+        if (![_modelName isEqualToString:modelName]) {
+            IMPErrLog("Model names don't match: current model name is [%@]; "
+                      "model name extracted is [%@]", _modelName, modelName);
         }
-        _modelName = modelName;
         
         NSSet *featureNames = [[NSSet alloc] initWithArray:_model.modelDescription.inputDescriptionsByName.allKeys];
 
@@ -306,5 +312,10 @@ static NSURL * _defaultTrackURL;
     return [arr copy];
 }
 
+// "^[a-zA-Z0-9][\w\-.]{0,63}$"
+- (BOOL)isValidModelName:(NSString *)modelName {
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", @"^[a-zA-Z0-9][\\w\\-.]{0,63}$"];
+    return [predicate evaluateWithObject:modelName];
+}
 
 @end
