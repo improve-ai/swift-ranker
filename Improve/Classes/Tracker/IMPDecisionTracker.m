@@ -174,7 +174,11 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 
 - (void)addReward:(double)reward forModel:(NSString *)modelName
 {
-    // TODO throw exceptions on invalid reward values
+    if(isnan(reward) || isinf(reward)) {
+        NSString *reason = [NSString stringWithFormat:@"invalid reward: %lf, " \
+                            "must not be NaN or +-Infinity", reward];
+        @throw [NSException exceptionWithName:NSRangeException reason:reason userInfo:nil];
+    }
     
     // this implementation is an enormous hack.  This is just the way the gym is at the moment
     // before the protocol redesign

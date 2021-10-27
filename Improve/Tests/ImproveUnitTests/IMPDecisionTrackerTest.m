@@ -514,6 +514,50 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     [[[decisionModel given:context] chooseFrom:variants] get];
 }
 
+- (void)testAddReward_NaN {
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[self trackURL]];
+    @try {
+        [tracker addReward:NAN forModel:@"hello"];
+    } @catch(id exception) {
+        NSLog(@"addReward exception: %@", exception);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown, we should never reach here.");
+}
+
+- (void)testAddReward_Negative_Infinity {
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[self trackURL]];
+    @try {
+        [tracker addReward:-INFINITY forModel:@"hello"];
+    } @catch(id exception) {
+        NSLog(@"addReward exception: %@", exception);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown, we should never reach here.");
+}
+
+- (void)testAddReward_Positive_Infinity {
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[self trackURL]];
+    @try {
+        [tracker addReward:INFINITY forModel:@"hello"];
+    } @catch(id exception) {
+        NSLog(@"addReward exception: %@", exception);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown, we should never reach here.");
+}
+
+- (void)testAddReward_Valid {
+    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[self trackURL]];
+    [tracker addReward:1.0 forModel:@"hello"];
+    [tracker addReward:0.1 forModel:@"hello"];
+    [tracker addReward:-1.0 forModel:@"hello"];
+}
+
+- (NSURL *)trackURL {
+    return [NSURL URLWithString:kTrackerURL];
+}
+
 - (NSURL *)modelUrl {
     return [NSURL URLWithString:kRemoteModelURL];
 }
