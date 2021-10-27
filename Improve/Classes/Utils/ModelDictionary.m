@@ -35,9 +35,7 @@
 }
 
 - (void)setObject:(IMPDecisionModel *)object forKeyedSubscript:(NSString *)modelName {
-    NSLog(@"before: %ld", [self.models count]);
     self.models[modelName] = object;
-    NSLog(@"after: %ld", [self.models count]);
 }
 
 - (NSUInteger)count {
