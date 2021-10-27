@@ -25,6 +25,14 @@ extern NSString * const kRemoteModelURL;
 
 @end
 
+@interface TestGivensProvider : GivensProvider
+
+@end
+
+@implementation TestGivensProvider
+
+@end
+
 @interface IMPDecisionModelTest : XCTestCase
 
 @property (strong, nonatomic) NSArray *urlList;
@@ -59,14 +67,17 @@ extern NSString * const kRemoteModelURL;
 }
 
 - (void)testInit {
-    IMPDecisionModel *decisionModel_0 = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    NSString *modelName = @"hello";
+    
+    IMPDecisionModel *decisionModel_0 = [[IMPDecisionModel alloc] initWithModelName:modelName];
     XCTAssertEqualObjects(decisionModel_0.modelName, @"hello");
     XCTAssertNil(decisionModel_0.trackURL);
     
     IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
-    IMPDecisionModel *decisionModel_1 = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    
+    IMPDecisionModel *decisionModel_1 = [[IMPDecisionModel alloc] initWithModelName:modelName];
     XCTAssertNotNil(decisionModel_1.trackURL);
-    XCTAssertEqualObjects(decisionModel_1.trackURL, IMPDecisionModel.defaultTrackURL);
+    XCTAssertEqual(IMPDecisionModel.defaultTrackURL, decisionModel_1.trackURL);
 }
 
 // The modelName set before loading the model has higher priority than
@@ -217,6 +228,23 @@ extern NSString * const kRemoteModelURL;
     XCTAssertEqual(1, [IMPDecisionModel.instances count]);
     IMPDecisionModel.instances[modelName] = nil;
     XCTAssertEqual(0, [IMPDecisionModel.instances count]);
+    
+    // modelName and the key can be different
+    IMPDecisionModel.instances[@"aaa"] = [[IMPDecisionModel alloc] initWithModelName:@"bbb"];
+    XCTAssertEqualObjects(@"bbb", IMPDecisionModel.instances[@"aaa"].modelName);
+    
+    NSLog(@"%@", IMPDecisionModel.instances[nil]);
+}
+
+- (void)testGivensProvider {
+    NSString *modelName = @"hello";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    XCTAssertNotNil(decisionModel.givensProvider);
+    XCTAssertEqual(decisionModel.givensProvider, IMPDecisionModel.defaultGivensProvider);
+    
+    decisionModel.givensProvider = [[TestGivensProvider alloc] init];
+    XCTAssertNotNil(decisionModel.givensProvider);
+    XCTAssertNotEqual(decisionModel.givensProvider, IMPDecisionModel.defaultGivensProvider);
 }
 
 - (void)testLoadLocalModelFile {
@@ -361,15 +389,16 @@ extern NSString * const kRemoteModelURL;
 - (void)testChooseFrom {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
-    for(NSURL *url in self.urlList){
-        NSError *err;
-        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
-        XCTAssertNotNil(decisionModel);
-        XCTAssertNil(err);
-        NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
-        IMPLog("url=%@, greeting=%@", url, greeting);
-        XCTAssertNotNil(greeting);
-    }
+    
+    NSURL *modelURL = [NSURL URLWithString:kRemoteModelURL];
+    
+    NSError *err;
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelURL error:&err];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(err);
+    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
+    IMPLog("url=%@, greeting=%@", modelURL, greeting);
+    XCTAssertNotNil(greeting);
 }
 
 extern NSString * const kTrackerURL;

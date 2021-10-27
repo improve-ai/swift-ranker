@@ -73,7 +73,10 @@
             return _best;
         }
         
-        NSArray *scores = [_model score:_variants given:_givens];
+        NSMutableDictionary *givens = [[NSMutableDictionary alloc] initWithDictionary:[_model givens]];
+        [givens addEntriesFromDictionary:_givens];
+        
+        NSArray *scores = [_model score:_variants given:givens];
 
         if (_variants && _variants.count) {
             if (_model.tracker) {
@@ -81,11 +84,11 @@
                     // the more variants there are, the less frequently this is called
                     NSArray *rankedVariants = [IMPDecisionModel rank:_variants withScores:scores];
                     _best = rankedVariants.firstObject;
-                    [_model.tracker track:_best variants:rankedVariants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
+                    [_model.tracker track:_best variants:rankedVariants given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
                 } else {
                     // faster and more common path, avoids array sort
                     _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
-                    [_model.tracker track:_best variants:_variants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
+                    [_model.tracker track:_best variants:_variants given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
                 }
             } else {
                 _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
@@ -96,7 +99,7 @@
             // "count" field should be 1
             _best = nil;
             if(_model.tracker) {
-                [_model.tracker track:_best variants:nil given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:NO];
+                [_model.tracker track:_best variants:nil given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:NO];
             } else {
                 IMPErrLog("tracker not set on DecisionModel, decision will not be tracked");
             }

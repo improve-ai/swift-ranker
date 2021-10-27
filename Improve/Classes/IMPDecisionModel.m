@@ -14,6 +14,7 @@
 #import "NSDictionary+MLFeatureProvider.h"
 #import "IMPUtils.h"
 #import "IMPDecisionTracker.h"
+#import "AppGivensProvider.h"
 
 @interface IMPDecisionModel ()
 // Private vars
@@ -33,6 +34,8 @@ static NSURL * _defaultTrackURL;
 
 static ModelDictionary *_instances;
 
+static GivensProvider *_defaultGivensProvider;
+
 + (NSURL *)defaultTrackURL
 {
     return _defaultTrackURL;
@@ -51,6 +54,10 @@ static ModelDictionary *_instances;
     return _instances;
 }
 
++ (GivensProvider *)defaultGivensProvider {
+    return [AppGivensProvider shared];
+}
+
 - (instancetype)initWithModelName:(NSString *)modelName
 {
     return [self initWithModelName:modelName trackURL:_defaultTrackURL];
@@ -62,11 +69,23 @@ static ModelDictionary *_instances;
         if([self isValidModelName:modelName]) {
             _modelName = modelName;
         } else {
-            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"invalid model name" userInfo:nil];
+            NSString *reason = [NSString stringWithFormat:@"invalid model name: [%@]", modelName];
+            @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                           reason:reason
+                                         userInfo:nil];
         }
-        _trackURL = trackURL;
+        
+        if(trackURL) {
+            _trackURL = trackURL;
+            _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL];
+        }
     }
     return self;
+}
+
+- (GivensProvider *)givensProvider
+{
+    return _givensProvider ? _givensProvider : IMPDecisionModel.defaultGivensProvider;
 }
 
 - (NSURL *)trackURL
@@ -80,7 +99,6 @@ static ModelDictionary *_instances;
     _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL];
 }
 
-
 - (MLModel *) model
 {
     // MLModel is not thread safe, synchronize
@@ -88,7 +106,6 @@ static ModelDictionary *_instances;
         return _model;
     }
 }
-
 
 - (void) setModel:(MLModel *)model
 {
@@ -115,7 +132,7 @@ static ModelDictionary *_instances;
         // The modelName set before loading the model has higher priority than
         // the one extracted from the model file. Just print a warning here if
         // they don't match.
-        if (![_modelName isEqualToString:modelName]) {
+        if(![_modelName isEqualToString:modelName]) {
             IMPErrLog("Model names don't match: current model name is [%@]; "
                       "model name extracted is [%@]", _modelName, modelName);
         }
@@ -126,8 +143,9 @@ static ModelDictionary *_instances;
     }
 }
 
-+ (instancetype)load:(NSURL *)url error:(NSError **)error {
-    __block IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@""];
++ (instancetype)load:(NSURL *)url error:(NSError **)error
+{
+    __block IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] init];
     __block NSError *blockError = nil;
     if ([NSThread isMainThread]) {
         __block BOOL finished = NO;
@@ -196,6 +214,9 @@ static ModelDictionary *_instances;
     return decision;
 }
 
+- (NSDictionary<NSString *, id> *)givens {
+    return [self.givensProvider givensForModel:_modelName];
+}
 
 - (void)addReward:(double) reward
 {

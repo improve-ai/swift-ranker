@@ -35,8 +35,8 @@
     return model;
 }
 
-- (void)setObject:(IMPDecisionModel *)object forKeyedSubscript:(NSString *)modelName {
-    self.models[modelName] = object;
+- (void)setObject:(IMPDecisionModel *)model forKeyedSubscript:(NSString *)modelName {
+    self.models[modelName] = model;
 }
 
 - (NSUInteger)count {
