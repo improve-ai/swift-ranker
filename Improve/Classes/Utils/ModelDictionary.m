@@ -30,6 +30,7 @@
     IMPDecisionModel *model = self.models[modelName];
     if(model == nil) {
         model = [[IMPDecisionModel alloc] initWithModelName:modelName];
+        self.models[modelName] = model;
     }
     return model;
 }

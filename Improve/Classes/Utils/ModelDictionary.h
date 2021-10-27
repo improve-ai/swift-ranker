@@ -14,6 +14,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ModelDictionary : NSObject
 
+/**
+ * Models are automatically created using the provided name, for example DecisionModel.instances[‘greetings’] always
+ * returns a DecisionModel(‘greetings’), even if it was not previously set.  Previously returned models are cached.
+ * Models can be overwritten with DecisionModel.instances[‘greetings’] = newModel.  Shared models can be cleared with
+ * DecisionModel.instances[‘greetings’] = nil
+ */
 - (IMPDecisionModel *)objectForKeyedSubscript:(NSString *)modelName;
 
 - (void)setObject:(nullable IMPDecisionModel *)object forKeyedSubscript:(NSString *)modelName;

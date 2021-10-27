@@ -190,6 +190,13 @@ extern NSString * const kRemoteModelURL;
 
 - (void)testModelInstances {
     NSString *modelName = @"hello";
+    // Create and cache the model if not exist
+    XCTAssertEqual(0, [IMPDecisionModel.instances count]);
+    IMPDecisionModel *decisionModel = IMPDecisionModel.instances[modelName];
+    XCTAssertEqual(1, [IMPDecisionModel.instances count]);
+    XCTAssertNotNil(decisionModel);
+    XCTAssertEqual(decisionModel, IMPDecisionModel.instances[modelName]);
+    
     IMPDecisionModel.instances[modelName] = [[IMPDecisionModel alloc] initWithModelName:modelName];
     NSLog(@"modelName: %@", IMPDecisionModel.instances[modelName].modelName);
     XCTAssertEqualObjects(modelName, IMPDecisionModel.instances[modelName].modelName);
