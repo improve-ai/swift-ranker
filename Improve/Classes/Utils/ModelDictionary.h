@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (IMPDecisionModel *)objectForKeyedSubscript:(NSString *)modelName;
 
 /**
- * @exception NSInvalidArgumentException if modelName is nil.
+ * @exception NSInvalidArgumentException if modelName is nil, or when model != nil and model.modelName != modelName
  */
 - (void)setObject:(nullable IMPDecisionModel *)model forKeyedSubscript:(NSString *)modelName;
 

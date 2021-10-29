@@ -479,7 +479,8 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     
     NSError *err;
     NSURL *modelUrl = [NSURL URLWithString:kRemoteModelURL];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:&err];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    [decisionModel load:modelUrl error:&err];
     decisionModel.trackURL = trackerUrl;
 
     NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
@@ -495,7 +496,8 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     NSDictionary *context = @{@"language": @"cowboy"};
     
     NSError *err;
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:[self modelUrl] error:&err];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    [decisionModel load:[self modelUrl] error:&err];
     decisionModel.trackURL = trackerUrl;
 
     NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];

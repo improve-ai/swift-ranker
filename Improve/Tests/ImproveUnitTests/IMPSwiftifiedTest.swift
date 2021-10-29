@@ -22,7 +22,8 @@ class IMPSwiftifiedTest: XCTestCase {
     func testDecisionModel() throws {
         let context = ["language": "cowboy"]
         let variants = ["Hello World", "Howdy World", "Hi World"]
-        let greeting = try DecisionModel.load(self.modelUrl()).given(context).chooseFrom(variants).get()
+        let decisionModel = DecisionModel("greetings")
+        let greeting = try decisionModel.load(self.modelUrl()).given(context).chooseFrom(variants).get()
         XCTAssertNotNil(greeting)
         print("greeting = \(greeting!)")
     }
@@ -30,7 +31,8 @@ class IMPSwiftifiedTest: XCTestCase {
     func testDecisionModelThrowError() throws {
         let variants = ["Hello World", "Howdy World", "Hi World"]
         do {
-            let greeting = try DecisionModel.load(self.modelUrl()).chooseFrom(variants).get()
+            let decisionModel = DecisionModel("greetings")
+            let greeting = try decisionModel.load(self.modelUrl()).chooseFrom(variants).get()
             if greeting != nil {
                 print("greeting = \(greeting!)")
             }
@@ -42,7 +44,8 @@ class IMPSwiftifiedTest: XCTestCase {
     // Handle exception by converting Errors to Optional Values
     func testDecisionModelThrowErrorOptional() throws {
         let variants = ["Hello World", "Howdy World", "Hi World"]
-        let greeting = try? DecisionModel.load(self.invalidModelUrl()).chooseFrom(variants).get();
+        let decisionModel = DecisionModel("greetings")
+        let greeting = try? decisionModel.load(self.invalidModelUrl()).chooseFrom(variants).get();
         XCTAssertNil(greeting)
     }
     

@@ -56,9 +56,10 @@ NS_SWIFT_NAME(DecisionModel)
 /**
  * @param url A url that can be a  local file path,  a remote http url that points to a MLModel file, or even a bundled MLModel file.
  * Urls that end with '.gz'  are considered gzip compressed, and will be handled appropriately.
- * @return A DecisionModel instance with the model specified by the url loaded synchronously.
+ * @return A DecisionModel instance with the model specified by the url loaded synchronously. If the model failed to load,
+ * a nonnull *error will be set and nil is returned.
  */
-+ (nullable instancetype)load:(NSURL *)url error:(NSError **)error;
+- (nullable instancetype)load:(NSURL *)url error:(NSError **)error;
 
 /**
  * @param url A url that can be a  local file path,  a remote http url that

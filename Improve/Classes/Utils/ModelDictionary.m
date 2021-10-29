@@ -36,11 +36,19 @@
 }
 
 - (void)setObject:(IMPDecisionModel *)model forKeyedSubscript:(NSString *)modelName {
+    if(model != nil && ![model.modelName isEqualToString:modelName]) {
+        NSString *reason = [NSString stringWithFormat:@"modelName(%@) must be equal to model.modelName(%@)", modelName, model.modelName];
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
+    }
     self.models[modelName] = model;
 }
 
 - (NSUInteger)count {
     return [self.models count];
+}
+
+- (void)clear {
+    [self.models removeAllObjects];
 }
 
 @end

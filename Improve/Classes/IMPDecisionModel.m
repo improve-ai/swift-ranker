@@ -134,7 +134,7 @@ static GivensProvider *_defaultGivensProvider;
         // they don't match.
         if(![_modelName isEqualToString:modelName]) {
             IMPErrLog("Model names don't match: current model name is [%@]; "
-                      "model name extracted is [%@]", _modelName, modelName);
+                      "model name extracted is [%@]. [%@] will be used.", _modelName, modelName, _modelName);
         }
         
         NSSet *featureNames = [[NSSet alloc] initWithArray:_model.modelDescription.inputDescriptionsByName.allKeys];
@@ -143,44 +143,28 @@ static GivensProvider *_defaultGivensProvider;
     }
 }
 
-+ (instancetype)load:(NSURL *)url error:(NSError **)error
-{
-    __block IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] init];
+- (instancetype)load:(NSURL *)url error:(NSError **)error {
     __block NSError *blockError = nil;
-    if ([NSThread isMainThread]) {
-        __block BOOL finished = NO;
-        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
-            blockError = err;
-            decisionModel = compiledModel;
-            finished = YES;
-        }];
-
-        while (!finished) {
-            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-        }
-    } else {
-        dispatch_group_t group = dispatch_group_create();
-        dispatch_group_enter(group);
-        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
-            blockError = err;
-            decisionModel = compiledModel;
-            dispatch_group_leave(group);
-        }];
-        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-    }
-
+    
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_group_enter(group);
+    [self loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
+        blockError = err;
+        dispatch_group_leave(group);
+    }];
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    
     if(error) {
         *error = blockError;
     }
-    
-    return decisionModel;
-}
 
+    return error ? nil : self;
+}
 
 - (void)loadAsync:(NSURL *)url completion:(void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler
 {
     [[[IMPModelDownloader alloc] initWithURL:url] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             if (downloadError) {
                 if (handler) handler(nil, downloadError);
                 return;
