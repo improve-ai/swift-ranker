@@ -298,9 +298,8 @@ extern NSString * const kRemoteModelURL;
     NSError *err;
     NSString *modelName = @"greetings";
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
-    [decisionModel load:self.bundledModelURL error:&err];
+    XCTAssertNotNil([decisionModel load:self.bundledModelURL error:&err]);
     XCTAssertNil(err);
-    XCTAssertNotNil(decisionModel);
     XCTAssertTrue([decisionModel.modelName length] > 0);
 }
 
@@ -308,9 +307,15 @@ extern NSString * const kRemoteModelURL;
     NSError *err;
     NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/not/exist/TestModel.mlmodel3.gz"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    [decisionModel load:url error:&err];
+    XCTAssertNil([decisionModel load:url error:&err]);
     XCTAssertNotNil(err);
     NSLog(@"loadToFail, error = %@", err);
+}
+
+- (void)testLoadSyncToFail_Nil_Error {
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/not/exist/TestModel.mlmodel3.gz"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    XCTAssertNil([decisionModel load:url error:nil]);
 }
 
 - (void)testLoadSyncToFailWithInvalidModelFile {
@@ -319,7 +324,7 @@ extern NSString * const kRemoteModelURL;
     NSURL *modelURL = [[TestUtils bundle] URLForResource:@"InvalidModel"
                          withExtension:@"dat"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    [decisionModel load:modelURL error:&err];
+    XCTAssertNil([decisionModel load:modelURL error:&err]);
     XCTAssertNotNil(err);
     NSLog(@"load error: %@", err);
 }
@@ -332,9 +337,8 @@ extern NSString * const kRemoteModelURL;
         XCTAssertFalse([NSThread isMainThread]);
         NSError *err;
         IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-        [decisionModel load:self.bundledModelURL error:&err];
+        XCTAssertNotNil([decisionModel load:self.bundledModelURL error:&err]);
         XCTAssertNil(err);
-        XCTAssertNotNil(decisionModel);
         XCTAssertTrue([decisionModel.modelName length] > 0);
         NSLog(@"modelName: %@", decisionModel.modelName);
         [ex fulfill];

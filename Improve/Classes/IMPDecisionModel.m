@@ -158,7 +158,7 @@ static GivensProvider *_defaultGivensProvider;
         *error = blockError;
     }
 
-    return error ? nil : self;
+    return blockError ? nil : self;
 }
 
 - (void)loadAsync:(NSURL *)url completion:(void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler
