@@ -206,15 +206,15 @@ static GivensProvider *_defaultGivensProvider;
 
 - (void)addReward:(double) reward
 {
+    [AppGivensProvider addReward:reward forModel:self.modelName];
+    
     [_tracker addReward:reward forModel:self.modelName];
 }
-
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
 {
     return [self score:variants given:nil];
 }
-
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
               given:(nullable NSDictionary <NSString *, id>*)givens

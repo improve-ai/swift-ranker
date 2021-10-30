@@ -11,9 +11,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface IMPDeviceInfo : NSObject
+
+@property (nonatomic, strong) NSString *model;
+
+@property (nonatomic) int version;
+
+@end
+
 @interface AppGivensProvider : GivensProvider
 
 + (instancetype)shared;
+
++ (void)addReward:(double)model forModel:(NSString *)modelName;
 
 @end
 

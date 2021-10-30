@@ -16,14 +16,6 @@
 #import "IMPDecisionModel.h"
 #import "IMPConstants.h"
 
-@interface IMPDeviceInfo : NSObject
-
-@property (nonatomic, strong) NSString *model;
-
-@property (nonatomic) int version;
-
-@end
-
 @implementation IMPDeviceInfo
 
 - (instancetype)initWithModel:(NSString *)model version:(int)version {
@@ -50,25 +42,25 @@
 static NSString * PersistPrefix = @"ai.improve";
 
 static NSString * const kCountryKey = @"country";
-static NSString * const kLanguageKey = @"language";
-static NSString * const kTimezoneKey = @"timezone";
+static NSString * const kLanguageKey = @"lang";
+static NSString * const kTimezoneKey = @"tz";
 static NSString * const kCarrierKey = @"carrier";
 static NSString * const kOSKey = @"os";
-static NSString * const kOSVersionKey = @"os_version";
+static NSString * const kOSVersionKey = @"osv";
 static NSString * const kDeviceKey = @"device";
-static NSString * const kDeviceVersionKey = @"device_version";
+static NSString * const kDeviceVersionKey = @"devicev";
 static NSString * const kAppKey = @"app";
-static NSString * const kAppVersionKey = @"app_version";
-static NSString * const kBuildVersionKey = @"build_version";
-static NSString * const kImproveVersionKey = @"improve_version";
+static NSString * const kAppVersionKey = @"appv";
+static NSString * const kImproveVersionKey = @"sdkv";
 static NSString * const kScreenPixelsKey = @"pixels";
 static NSString * const kWeekDayKey = @"weekday";
-static NSString * const kSinceMidnightKey = @"since_midnight";
-static NSString * const kSinceSessionStartKey = @"since_session_start";
-static NSString * const kSinceLastSessionStartKey = @"since_last_session_start";
-static NSString * const kSinceBornKey = @"since_born";
-static NSString * const kSessionCountKey = @"session_count";
-static NSString * const kDecisionCountKey = @"decision_count";
+static NSString * const kSinceMidnightKey = @"today";
+static NSString * const kSinceBornKey = @"day";
+static NSString * const kSinceSessionStartKey = @"since_session";
+static NSString * const kSinceLastSessionStartKey = @"since_last_session";
+static NSString * const kSessionCountKey = @"sessions";
+static NSString * const kDecisionCountKey = @"decisions";
+static NSString * const kRewardsKey = @"rewards";
 
 // persistent key
 
@@ -83,6 +75,8 @@ static NSString * const kSessionStartTimeKey = @"ai.improve.session_start_time";
 static NSString * const kDefaultsSessionCountKey = @"ai.improve.session_count";
 
 static NSString * const kDefaultsDecisionCountKey = @"ai.improve.decision_count-%@";
+
+static NSString * const kDefaultsModelRewardsKey = @"ai.improve.rewards-%@";
 
 NSString * const kGivensModelNameMessages = @"messages";
 NSString * const kGivensModelNameThemes = @"themes";
@@ -129,16 +123,16 @@ static double sLastSessionStartTime;
     givens[kOSVersionKey] = [self osVersion];
     givens[kAppKey] = [self app];
     givens[kAppVersionKey] = [self appVersion];
-    givens[kBuildVersionKey] = @([self buildVersion]);
     givens[kImproveVersionKey] = [self improveVersion:kIMPVersion];
     givens[kScreenPixelsKey] = @([self screenPixels]);
     givens[kWeekDayKey] = [self weekDay];
     givens[kSinceMidnightKey] = [self sinceMidnight];
+    givens[kSinceBornKey] = [self sinceBorn];
     givens[kSinceSessionStartKey] = [self sinceSessionStart];
     givens[kSinceLastSessionStartKey] = [self sinceLastSessionStart];
-    givens[kSinceBornKey] = [self sinceBorn];
     givens[kSessionCountKey] = @([self sessionCount]);
     givens[kDecisionCountKey] = @([self decisionCount:modelName]);
+    givens[kRewardsKey] = [self rewardOfModel:modelName];
     
     IMPDeviceInfo *deviceInfo = [self deviceInfo];
     givens[kDeviceKey] = deviceInfo.model;
@@ -185,15 +179,15 @@ static double sLastSessionStartTime;
 
 - (NSString *)os {
 #if TARGET_OS_OSX
-    return @"macos";
+    return @"macOS";
 #elif TARGET_OS_TV
-    return @"tvos";
+    return @"tvOS";
 #elif TARGET_OS_MACCATALYST
-    return @"macos";
+    return @"macOS";
 #elif TARGET_OS_WATCH
-    return @"watchos";
+    return @"watchOS";
 #else
-    return @"ios";
+    return @"iOS";
 #endif
 }
 
@@ -221,17 +215,12 @@ static double sLastSessionStartTime;
 - (NSDecimalNumber *)appVersion {
     NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     double t = [self versionToNumber:appVersion];
-    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.3lf", t]];
-}
-
-- (double)buildVersion {
-    NSString *buildVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
-    return [self versionToNumber:buildVersion];
+    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", t]];
 }
 
 - (NSDecimalNumber *)improveVersion:(NSString *)version {
     double t = [self versionToNumber:version];
-    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.3lf", t]];
+    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", t]];
     
 }
 
@@ -252,7 +241,7 @@ static double sLastSessionStartTime;
         minor = [versionArray[1] intValue];
         build = [versionArray[2] intValue];
     }
-    return major * 1000 + minor + build / 1000.0;
+    return major + minor / 1000.0 + build / 1000000.0;
 }
 
 - (NSUInteger)screenPixels {
@@ -275,8 +264,8 @@ static double sLastSessionStartTime;
     NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     NSDate *now = [NSDate date];
     NSDate *startOfDay = [gregorian startOfDayForDate:now];
-    double t = [now timeIntervalSinceDate:startOfDay];
-    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.3lf", t]];
+    double t = ([now timeIntervalSinceDate:startOfDay]) / 86400.0;
+    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", t]];
 }
 
 // When the AppGivensProvider instance is created.
@@ -285,8 +274,8 @@ static double sLastSessionStartTime;
 - (NSDecimalNumber *)sinceSessionStart {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     double sessionStartTime = [defaults doubleForKey:kSessionStartTimeKey];
-    double t = [[NSDate date] timeIntervalSince1970] - sessionStartTime;
-    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.3lf", t]];
+    double t = ([[NSDate date] timeIntervalSince1970] - sessionStartTime) / 86400.0;
+    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", t]];
 }
 
 // 0.0 is returned, if there is no last session
@@ -294,16 +283,16 @@ static double sLastSessionStartTime;
     if(sLastSessionStartTime <= 0) {
         return [NSDecimalNumber decimalNumberWithString:@"0"];
     }
-    double t = [[NSDate date] timeIntervalSince1970] - sLastSessionStartTime;
-    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.3lf", t]];
+    double t = ([[NSDate date] timeIntervalSince1970] - sLastSessionStartTime)/86400.0;
+    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", t]];
 }
 
 // Born time is the first time an AppGivensProvider is created on this device.
 - (NSDecimalNumber *)sinceBorn {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     double bornTime = [defaults doubleForKey:kBornTimeKey];
-    double t = [[NSDate date] timeIntervalSince1970] - bornTime;
-    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.3lf", t]];
+    double t = ([[NSDate date] timeIntervalSince1970] - bornTime) / 86400.0;
+    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", t]];
 }
 
 // 0 is returned for the first session
@@ -321,6 +310,10 @@ static double sLastSessionStartTime;
     NSString *decisionCountKey = [NSString stringWithFormat:kDefaultsDecisionCountKey, modelName];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     return [defaults integerForKey:decisionCountKey];
+}
+
+- (NSNumber *)rewardsOfModel:(NSString *)modelName {
+    return [NSNumber numberWithDouble:0];
 }
 
 // https://www.theiphonewiki.com/wiki/Models#iPhone
@@ -376,6 +369,20 @@ static double sLastSessionStartTime;
     NSString *platform = [NSString stringWithUTF8String:machine];
     free(machine);
     return platform;
+}
+
++ (void)addReward:(double)reward forModel:(NSString *)modelName {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString *key = [NSString stringWithFormat:kDefaultsModelRewardsKey, modelName];
+    double curValue = [defaults doubleForKey:key];
+    [defaults setDouble:(curValue+reward) forKey:key];
+}
+
+- (NSDecimalNumber *)rewardOfModel:(NSString *)modelName {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString *key = [NSString stringWithFormat:kDefaultsModelRewardsKey, modelName];
+    double reward = [defaults doubleForKey:key];
+    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", reward]];
 }
 
 @end
