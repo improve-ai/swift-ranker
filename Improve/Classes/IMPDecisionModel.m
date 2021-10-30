@@ -129,10 +129,12 @@ static GivensProvider *_defaultGivensProvider;
         NSString *seedString = creatorDefined[@"ai.improve.model.seed"];
         uint64_t seed = strtoull([seedString UTF8String], NULL, 0);
 
-        // The modelName set before loading the model has higher priority than
-        // the one extracted from the model file. Just print a warning here if
-        // they don't match.
-        if(![_modelName isEqualToString:modelName]) {
+        if(_modelName == nil) {
+            _modelName = modelName;
+        } else if(![_modelName isEqualToString:modelName]) {
+            // The modelName set before loading the model has higher priority than
+            // the one extracted from the model file. Just print a warning here if
+            // they don't match.
             IMPErrLog("Model names don't match: current model name is [%@]; "
                       "model name extracted is [%@]. [%@] will be used.", _modelName, modelName, _modelName);
         }
@@ -325,8 +327,10 @@ static GivensProvider *_defaultGivensProvider;
     return [arr copy];
 }
 
-// "^[a-zA-Z0-9][\w\-.]{0,63}$"
 - (BOOL)isValidModelName:(NSString *)modelName {
+    if(modelName == nil) {
+        return YES;
+    }
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", @"^[a-zA-Z0-9][\\w\\-.]{0,63}$"];
     return [predicate evaluateWithObject:modelName];
 }

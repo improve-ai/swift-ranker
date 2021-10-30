@@ -106,16 +106,15 @@ extern NSString * const kRemoteModelURL;
     [self waitForExpectations:@[ex] timeout:3];
 }
 
-// modelName cannot be nil
+// modelName can be nil
 - (void)testModelName_Nil {
-    @try {
-        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:nil];
-        NSLog(@"modelName = [%@]", decisionModel.modelName);
-    } @catch(id exception) {
-        NSLog(@"modelName can't be nil");
-        return ;
-    }
-    XCTFail(@"An exception should have been thrown");
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:nil];
+    XCTAssertNil(decisionModel.modelName);
+    
+    [decisionModel load:self.modelURL error:nil];
+    NSLog(@"modelName = [%@]", decisionModel.modelName);
+    XCTAssertTrue([decisionModel.modelName length] > 0);
+    
 }
 
 // modelName length must be in range [1, 64]
