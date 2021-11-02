@@ -13,8 +13,6 @@
 
 @property (strong, nonatomic) NSMutableDictionary<NSString *, IMPDecisionModel *> *models;
 
-@property (strong, nonatomic) dispatch_queue_t readWriteQueue;
-
 @end
 
 @implementation ModelDictionary
@@ -22,45 +20,44 @@
 - (instancetype)init {
     if(self = [super init]) {
         _models = [[NSMutableDictionary alloc] init];
-        _readWriteQueue = dispatch_queue_create("ai.improve.models", DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }
 
 - (IMPDecisionModel *)objectForKeyedSubscript:(NSString *)modelName {
-    __block IMPDecisionModel *model = nil;
-    dispatch_sync(self.readWriteQueue, ^{
+    IMPDecisionModel *model;
+    @synchronized (self) {
         model = self.models[modelName];
         if(model == nil) {
             model = [[IMPDecisionModel alloc] initWithModelName:modelName];
             self.models[modelName] = model;
+        } else {
+            model = self.models[modelName];
         }
-    });
+    }
     return model;
 }
 
 - (void)setObject:(IMPDecisionModel *)model forKeyedSubscript:(NSString *)modelName {
-    dispatch_barrier_async(self.readWriteQueue, ^{
+    @synchronized (self) {
         if(model != nil && ![model.modelName isEqualToString:modelName]) {
             NSString *reason = [NSString stringWithFormat:@"modelName(%@) must be equal to model.modelName(%@)", modelName, model.modelName];
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
         }
         self.models[modelName] = model;
-    });
+    }
 }
 
 - (NSUInteger)count {
-    __block NSUInteger c = 0;
-    dispatch_sync(self.readWriteQueue, ^{
-        c = [self.models count];
-    });
-    return c;
+    @synchronized (self) {
+        return [self.models count];
+    }
 }
 
 - (void)clear {
-    dispatch_barrier_async(self.readWriteQueue, ^{
+    @synchronized (self) {
         [self.models removeAllObjects];
-    });
+    }
 }
 
 @end
