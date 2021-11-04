@@ -27,10 +27,14 @@
 		B3675EA725FE2E460040FDBB /* xxhash.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EA325FE2E460040FDBB /* xxhash.c */; };
 		B3675EBA25FE2E900040FDBB /* IMPFeatureEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */; };
 		B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */; };
+		B371835A2734F51800FE03F1 /* NSString+KSUID.m in Sources */ = {isa = PBXBuildFile; fileRef = B37183592734F51800FE03F1 /* NSString+KSUID.m */; };
+		B371835E2734F8E000FE03F1 /* KSUIDTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B371835D2734F8E000FE03F1 /* KSUIDTest.m */; };
 		B37E1335262EDF5E0042B761 /* IMPStreamDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */; };
 		B3CB2829272A80C00081C29F /* IMPConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */; };
 		B3CB282C272A83620081C29F /* AppGivensProviderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B3CB282B272A83620081C29F /* AppGivensProviderTest.m */; };
 		B3DADC4626298C7E004A82FA /* feature_encoder_test_suite.txt in Resources */ = {isa = PBXBuildFile; fileRef = B3DADC0726298C78004A82FA /* feature_encoder_test_suite.txt */; };
+		B3E850F72733DAAC002F02CF /* base62.c in Sources */ = {isa = PBXBuildFile; fileRef = B3E850F62733DAAC002F02CF /* base62.c */; };
+		B3E850FB2733DDF6002F02CF /* ksuid.c in Sources */ = {isa = PBXBuildFile; fileRef = B3E850FA2733DDF6002F02CF /* ksuid.c */; };
 		B3F34BD1271EB0D1006636D8 /* TestModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BCF271EAE06006636D8 /* TestModel.dat */; };
 		B3F34BD5271EB2D7006636D8 /* InvalidModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD3271EB236006636D8 /* InvalidModel.dat */; };
 		B3F34BD8271EB53B006636D8 /* TestModel.mlmodel.gz in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */; };
@@ -158,11 +162,18 @@
 		B3675EB925FE2E900040FDBB /* IMPFeatureEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMPFeatureEncoder.h; sourceTree = "<group>"; };
 		B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeatureEncoderTest.m; sourceTree = "<group>"; };
 		B36C84CD2674614800D0801B /* IMPConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPConstants.h; sourceTree = "<group>"; };
+		B37183582734F51800FE03F1 /* NSString+KSUID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+KSUID.h"; sourceTree = "<group>"; };
+		B37183592734F51800FE03F1 /* NSString+KSUID.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+KSUID.m"; sourceTree = "<group>"; };
+		B371835D2734F8E000FE03F1 /* KSUIDTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KSUIDTest.m; sourceTree = "<group>"; };
 		B37E1333262EDF5D0042B761 /* IMPStreamDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPStreamDownloadManager.h; sourceTree = "<group>"; };
 		B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPStreamDownloadManager.m; sourceTree = "<group>"; };
 		B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPConstants.m; sourceTree = "<group>"; };
 		B3CB282B272A83620081C29F /* AppGivensProviderTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppGivensProviderTest.m; sourceTree = "<group>"; };
 		B3DADC0726298C78004A82FA /* feature_encoder_test_suite.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = feature_encoder_test_suite.txt; sourceTree = "<group>"; };
+		B3E850F52733DAAC002F02CF /* base62.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = base62.h; sourceTree = "<group>"; };
+		B3E850F62733DAAC002F02CF /* base62.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base62.c; sourceTree = "<group>"; };
+		B3E850F92733DDF6002F02CF /* ksuid.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ksuid.h; sourceTree = "<group>"; };
+		B3E850FA2733DDF6002F02CF /* ksuid.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ksuid.c; sourceTree = "<group>"; };
 		B3F34BCF271EAE06006636D8 /* TestModel.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestModel.dat; sourceTree = "<group>"; };
 		B3F34BD3271EB236006636D8 /* InvalidModel.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = InvalidModel.dat; sourceTree = "<group>"; };
 		B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = TestModel.mlmodel.gz; sourceTree = "<group>"; };
@@ -305,6 +316,7 @@
 		54CB9B2123D987800005BB94 /* ImproveUnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				B371835D2734F8E000FE03F1 /* KSUIDTest.m */,
 				B3CB282B272A83620081C29F /* AppGivensProviderTest.m */,
 				B3DADBE626298C45004A82FA /* FeatureEncoderTestSuite */,
 				54BEA57B24BD9E5600F8A52C /* Tests.pch */,
@@ -341,6 +353,7 @@
 		54CB9B2923D988F00005BB94 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				B3E850F42733DA6D002F02CF /* Ksuid */,
 				B32938DE2612D75E0071F78E /* GZip */,
 				B3675E9D25FE2C970040FDBB /* XXHash */,
 			);
@@ -355,6 +368,8 @@
 				5496CE5923EC7CE7004E96C5 /* NSArray+Random.m */,
 				E761D2FD2600454700F6F238 /* NSDictionary+MLFeatureProvider.h */,
 				E761D2FE2600454700F6F238 /* NSDictionary+MLFeatureProvider.m */,
+				B37183582734F51800FE03F1 /* NSString+KSUID.h */,
+				B37183592734F51800FE03F1 /* NSString+KSUID.m */,
 			);
 			name = Categories;
 			path = ../Categories;
@@ -503,6 +518,17 @@
 				B3DADC0726298C78004A82FA /* feature_encoder_test_suite.txt */,
 			);
 			path = FeatureEncoderTestSuite;
+			sourceTree = "<group>";
+		};
+		B3E850F42733DA6D002F02CF /* Ksuid */ = {
+			isa = PBXGroup;
+			children = (
+				B3E850F52733DAAC002F02CF /* base62.h */,
+				B3E850F62733DAAC002F02CF /* base62.c */,
+				B3E850F92733DDF6002F02CF /* ksuid.h */,
+				B3E850FA2733DDF6002F02CF /* ksuid.c */,
+			);
+			path = Ksuid;
 			sourceTree = "<group>";
 		};
 		B3F34C5D27294863006636D8 /* Provider */ = {
@@ -675,10 +701,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3CB2829272A80C00081C29F /* IMPConstants.m in Sources */,
+				B371835A2734F51800FE03F1 /* NSString+KSUID.m in Sources */,
 				B3213C8526099B3800052770 /* IMPUtils.m in Sources */,
 				E761D2FF2600454700F6F238 /* NSDictionary+MLFeatureProvider.m in Sources */,
 				B32938EA2613EA930071F78E /* IMPStreamDownloadHandler.m in Sources */,
 				B3CB282C272A83620081C29F /* AppGivensProviderTest.m in Sources */,
+				B371835E2734F8E000FE03F1 /* KSUIDTest.m in Sources */,
 				54394F2925407690009D1CF1 /* IMPDecisionTracker.m in Sources */,
 				B3F34C572727ECE0006636D8 /* ModelDictionary.m in Sources */,
 				B352916426455F3C000274D6 /* IMPSwiftifiedTest.swift in Sources */,
@@ -698,6 +726,8 @@
 				B3675EA725FE2E460040FDBB /* xxhash.c in Sources */,
 				B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */,
 				54AC4DDD24537B80007CB073 /* TestUtils.m in Sources */,
+				B3E850FB2733DDF6002F02CF /* ksuid.c in Sources */,
+				B3E850F72733DAAC002F02CF /* base62.c in Sources */,
 				5496CE5A23EC7CE7004E96C5 /* NSArray+Random.m in Sources */,
 				B3F34C6227294A5D006636D8 /* AppGivensProvider.m in Sources */,
 			);
