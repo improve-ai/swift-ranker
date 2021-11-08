@@ -56,6 +56,7 @@ extern NSString * const kRemoteModelURL;
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
     NSLog(@"%@", [[TestUtils bundle] bundlePath]);
+    IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
 }
 
 - (void)tearDown {

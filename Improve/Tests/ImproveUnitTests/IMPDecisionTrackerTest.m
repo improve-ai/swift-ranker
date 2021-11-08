@@ -11,7 +11,7 @@
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
 
-NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazonaws.com/track";
+NSString * const kTrackerURL = @"https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track";
 
 NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.mlmodel.gz";
 

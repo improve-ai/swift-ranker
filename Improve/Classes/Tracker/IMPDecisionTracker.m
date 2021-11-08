@@ -5,6 +5,7 @@
 #import "IMPDecision.h"
 #import "IMPLogging.h"
 #import "NSArray+Random.h"
+#import "NSString+KSUID.h"
 
 @import Security;
 
@@ -21,11 +22,13 @@ static NSString * const kPropertiesKey = @"properties";
 static NSString * const kValueKey = @"value";
 static NSString * const kCountKey = @"count";
 static NSString * const kRunnersUpKey = @"runners_up";
+static NSString * const kDecisionIdKey = @"decision_id";
 
 static NSString * const kDecisionType = @"decision";
 static NSString * const kEventType = @"event";
 
 static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
+static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 
 
 @interface IMPDecisionTracker ()
@@ -88,9 +91,17 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         return ;
     }
     
+    // create and persist decisionId
+    NSString *decisionId = [self createAndPersistDecisionIdForModel:modelName];
+    if(decisionId == nil) {
+        IMPErrLog("decisionId generated is nil");
+        return ;
+    }
+    
     NSMutableDictionary *body = [@{
         kTypeKey: kDecisionType,
         kModelKey: modelName,
+        kDecisionIdKey: decisionId
     } mutableCopy];
     
     [self setBestVariant:bestVariant dict:body];
@@ -180,12 +191,15 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     }
     
+    NSString *decisionId = [self lastDecisionIdOfModel:modelName];
+    
     // this implementation is an enormous hack.  This is just the way the gym is at the moment
     // before the protocol redesign
     NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
 
     [body setObject:@"Reward" forKey:kEventKey];
     [body setObject:modelName forKey:kModelKey];
+    [body setObject:decisionId forKey:kDecisionIdKey];
     
     NSDictionary *properties = @{ kValueKey: [NSNumber numberWithDouble:reward]};
     [body setObject:properties forKey:kPropertiesKey];
@@ -310,6 +324,22 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
                                                  formatOptions:options];
 
     return dateStr;
+}
+
+- (nullable NSString *)createAndPersistDecisionIdForModel:(NSString *)modelName {
+    NSString *ksuid = [NSString ksuidString];
+    if(ksuid != nil) {
+        NSString *key = [NSString stringWithFormat:kLastDecisionIdKey, modelName];
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:ksuid forKey:key];
+    }
+    return ksuid;
+}
+
+- (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName {
+    NSString *key = [NSString stringWithFormat:kLastDecisionIdKey, modelName];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults objectForKey:key];
 }
 
 @end
