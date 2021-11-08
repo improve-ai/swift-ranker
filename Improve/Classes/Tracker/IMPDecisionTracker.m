@@ -79,23 +79,23 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     return ((double)arc4random() / UINT32_MAX) <= 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
-- (void)track:(id)bestVariant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
+- (nullable NSString *)track:(id)bestVariant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
 {
     if ([modelName length] <= 0) {
         IMPErrLog("Improve.track error modelName is empty or nil");
-        return;
+        return nil;
     }
     
     if(bestVariant != nil && [variants indexOfObject:bestVariant] == NSNotFound) {
         IMPErrLog("bestVariant must be included in variants");
-        return ;
+        return nil;
     }
     
     // create and persist decisionId
     NSString *decisionId = [self createAndPersistDecisionIdForModel:modelName];
     if(decisionId == nil) {
         IMPErrLog("decisionId generated is nil");
-        return ;
+        return nil;
     }
     
     NSMutableDictionary *body = [@{
@@ -124,6 +124,8 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     }
 
     [self track:body];
+    
+    return decisionId;
 }
 
 /**
@@ -185,13 +187,19 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 
 - (void)addReward:(double)reward forModel:(NSString *)modelName
 {
+    NSString *decisionId = [self lastDecisionIdOfModel:modelName];
+    if(decisionId == nil) {
+        return ;
+    }
+    [self addReward:reward forModel:modelName decision:decisionId];
+}
+
+- (void)addReward:(double)reward forModel:(NSString *)modelName decision:(NSString *)decisionId {
     if(isnan(reward) || isinf(reward)) {
         NSString *reason = [NSString stringWithFormat:@"invalid reward: %lf, " \
                             "must not be NaN or +-Infinity", reward];
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     }
-    
-    NSString *decisionId = [self lastDecisionIdOfModel:modelName];
     
     // this implementation is an enormous hack.  This is just the way the gym is at the moment
     // before the protocol redesign

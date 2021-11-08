@@ -18,6 +18,10 @@ NS_SWIFT_NAME(Decision)
 
 @property (nonatomic, strong, nullable) NSDictionary *givens;
 
+// id of the tracked decision.
+// It's nil until the get() method is called and a decision is tracked.
+@property (nonatomic, strong, readonly) NSString *id;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
@@ -28,6 +32,11 @@ NS_SWIFT_NAME(Decision)
  Return the chosen variant or nil if no variants. The chosen variant will be memoized, so same value is returned on subsequent calls.
  */
 - (nullable id)get;
+
+/**
+ * Add rewards that only apply to this specific decision. This method should not be called before calling get().
+ */
+- (void)addReward:(double)reward;
 
 @end
 

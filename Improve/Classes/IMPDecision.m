@@ -16,6 +16,8 @@
 
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
+- (void)addReward:(double)reward decision:(NSString *)decisionId;
+
 @end
 
 // "Package private" methods
@@ -23,7 +25,7 @@
 
 - (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount;
 
-- (void)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp;
+- (nullable NSString *)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp;
 @end
 
 // private vars
@@ -84,11 +86,11 @@
                     // the more variants there are, the less frequently this is called
                     NSArray *rankedVariants = [IMPDecisionModel rank:_variants withScores:scores];
                     _best = rankedVariants.firstObject;
-                    [_model.tracker track:_best variants:rankedVariants given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
+                    _id = [_model.tracker track:_best variants:rankedVariants given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
                 } else {
                     // faster and more common path, avoids array sort
                     _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
-                    [_model.tracker track:_best variants:_variants given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
+                    _id = [_model.tracker track:_best variants:_variants given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
                 }
             } else {
                 _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
@@ -99,7 +101,7 @@
             // "count" field should be 1
             _best = nil;
             if(_model.tracker) {
-                [_model.tracker track:_best variants:nil given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:NO];
+                _id = [_model.tracker track:_best variants:nil given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:NO];
             } else {
                 IMPErrLog("tracker not set on DecisionModel, decision will not be tracked");
             }
@@ -109,6 +111,14 @@
     }
 
     return _best;
+}
+
+- (void)addReward:(double)reward {
+    if(_id == nil) {
+        IMPErrLog("addReward() should not be called prior to get()");
+        return ;
+    }
+    [self.model addReward:reward decision:_id];
 }
 
 @end

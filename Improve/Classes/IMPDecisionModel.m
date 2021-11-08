@@ -211,6 +211,10 @@ static GivensProvider *_defaultGivensProvider;
     [_tracker addReward:reward forModel:self.modelName];
 }
 
+- (void)addReward:(double)reward decision:(NSString *)decisionId {
+    [_tracker addReward:reward forModel:self.modelName decision:decisionId];
+}
+
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
 {
     return [self score:variants given:nil];

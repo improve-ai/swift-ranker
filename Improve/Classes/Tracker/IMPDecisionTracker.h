@@ -21,6 +21,8 @@ NS_SWIFT_NAME(DecisionTracker)
 
 - (void)addReward:(double)reward forModel:(NSString *)modelName;
 
+- (void)addReward:(double)reward forModel:(NSString *)modelName decision:(NSString *)decisionId;
+
 @end
 
 NS_ASSUME_NONNULL_END
