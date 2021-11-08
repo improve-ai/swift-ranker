@@ -101,7 +101,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     NSMutableDictionary *body = [@{
         kTypeKey: kDecisionType,
         kModelKey: modelName,
-        kDecisionIdKey: decisionId
+        kMessageIdKey: decisionId
     } mutableCopy];
     
     [self setBestVariant:bestVariant dict:body];
@@ -208,6 +208,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     [body setObject:@"Reward" forKey:kEventKey];
     [body setObject:modelName forKey:kModelKey];
     [body setObject:decisionId forKey:kDecisionIdKey];
+    [body setObject:[NSString ksuidString] forKey:kMessageIdKey];
     
     NSDictionary *properties = @{ kValueKey: [NSNumber numberWithDouble:reward]};
     [body setObject:properties forKey:kPropertiesKey];
@@ -253,8 +254,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 
     NSMutableDictionary *body = [@{
         kTimestampKey: dateStr,
-        kHistoryIdKey: self.historyId,
-        kMessageIdKey: [[NSUUID UUID] UUIDString]
+        kHistoryIdKey: self.historyId
     } mutableCopy];
     [body addEntriesFromDictionary:bodyValues];
     

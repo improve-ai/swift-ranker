@@ -24,7 +24,16 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-- (void)testMinValidTimestamp_Minus_1 {
+- (void)testKSUID {
+    NSString *ksuid = [NSString ksuidString];
+    XCTAssertNotNil(ksuid);
+    XCTAssertEqual(27, [ksuid length]);
+    NSLog(@"ksuid: %@", ksuid);
+    
+    XCTAssertNotEqualObjects(ksuid, [NSString ksuidString]);
+}
+
+- (void)testMinTimestamp_Minus_1 {
     char ksuid_buf[KSUID_STRING_LENGTH + 1];
     
     // fill with 0x0
@@ -34,7 +43,7 @@
     XCTAssertNotEqual(0, result);
 }
 
-- (void)testMinValidTimestamp_0 {
+- (void)testMinTimestamp_0 {
     char ksuid_buf[KSUID_STRING_LENGTH + 1];
     
     // fill with 0x0
@@ -45,7 +54,7 @@
     XCTAssertEqualObjects(@"000000000000000000000000000", [NSString stringWithUTF8String:ksuid_buf]);
 }
 
-- (void)testMinValidTimestamp_1 {
+- (void)testMinTimestamp_1 {
     char ksuid_buf[KSUID_STRING_LENGTH + 1];
     
     // fill with 0x0
@@ -56,7 +65,7 @@
     XCTAssertEqualObjects(@"000007n42DGM5Tflk9n8mt7Fhc8", [NSString stringWithUTF8String:ksuid_buf]);
 }
 
-- (void)testMaxValidTimestamp_Minus_1 {
+- (void)testMaxTimestamp_Minus_1 {
     NSLog(@"#%u", UINT32_MAX);
     char ksuid_buf[KSUID_STRING_LENGTH + 1];
     
@@ -72,7 +81,7 @@
     XCTAssertEqualObjects(@"aWgEPLxxrZOFaOlDVFHTB3ZiQON", [NSString stringWithUTF8String:ksuid_buf]);
 }
 
-- (void)testMaxValidTimestamp_0 {
+- (void)testMaxTimestamp_0 {
     NSLog(@"#%u", UINT32_MAX);
     char ksuid_buf[KSUID_STRING_LENGTH + 1];
     
@@ -88,7 +97,7 @@
     XCTAssertEqualObjects(@"aWgEPTl1tmebfsQzFP4bxwgy80V", [NSString stringWithUTF8String:ksuid_buf]);
 }
 
-- (void)testMaxValidTimestamp_1 {
+- (void)testMaxTimestamp_1 {
     NSLog(@"#%u", UINT32_MAX);
     char ksuid_buf[KSUID_STRING_LENGTH + 1];
     

@@ -19,6 +19,7 @@
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
 }
 
 - (void)tearDown {
@@ -77,7 +78,16 @@
     
     model.trackURL = [NSURL URLWithString:kTrackerURL];
     [[[model given:givens] chooseFrom:@[]] get];
+}
+
+- (void)testAddReward {
     
+}
+
+- (void)testAddReward_Before_Get {
+    IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:model];
+    [decision addReward:0.1];
 }
 
 
