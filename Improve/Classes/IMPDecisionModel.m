@@ -19,6 +19,8 @@
 
 @property (strong, atomic) IMPFeatureEncoder *featureEncoder;
 
+@property (nonatomic) BOOL enableTieBreaker;
+
 @end
 
 @implementation IMPDecisionModel
@@ -82,6 +84,7 @@
 - (instancetype)initWithModelName:(NSString *)modelName {
     if(self = [super init]) {
         _modelName = modelName;
+        _enableTieBreaker = YES;
     }
     return self;
 }
@@ -185,12 +188,17 @@
         NSMutableArray *scores = [NSMutableArray arrayWithCapacity:prediction.count];
         for (NSUInteger i = 0; i < prediction.count; i++) {
             double val = [[prediction featuresAtIndex:i] featureValueForName:@"target"].doubleValue;
-            val += ((double)arc4random() / UINT32_MAX) * pow(2, -23); // add a very small random number to randomly break ties
+            if(self.enableTieBreaker) {
+                // add a very small random number to randomly break ties
+                val += ((double)arc4random() / UINT32_MAX) * pow(2, -23);
+            }
             [scores addObject:@(val)];
         }
+        
 #ifdef IMP_DEBUG
         [IMPUtils dumpScores:scores andVariants:variants];
 #endif
+        
         return scores;
     }
 }

@@ -28,6 +28,18 @@
 		B3675EBA25FE2E900040FDBB /* IMPFeatureEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */; };
 		B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */; };
 		B37E1335262EDF5E0042B761 /* IMPStreamDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */; };
+		B3C412C8273E76B300CC7DCD /* model_test_suite.txt in Resources */ = {isa = PBXBuildFile; fileRef = B3C412C7273E76B200CC7DCD /* model_test_suite.txt */; };
+		B3C412D3273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412D2273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward */; };
+		B3C412D8273E84F500CC7DCD /* 0_and_nan in Resources */ = {isa = PBXBuildFile; fileRef = B3C412D7273E84F500CC7DCD /* 0_and_nan */; };
+		B3C412E4273E853D00CC7DCD /* 2_numeric_variants_no_givens_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412DB273E853B00CC7DCD /* 2_numeric_variants_no_givens_binary_reward */; };
+		B3C412E5273E853D00CC7DCD /* 1000_list_of_numeric_variants_20_same_nested_givens_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412DC273E853B00CC7DCD /* 1000_list_of_numeric_variants_20_same_nested_givens_binary_reward */; };
+		B3C412E6273E853D00CC7DCD /* 2_numeric_variants_no_givens_large_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412DD273E853B00CC7DCD /* 2_numeric_variants_no_givens_large_binary_reward */; };
+		B3C412E7273E853D00CC7DCD /* primitive_variants_no_givens_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412DE273E853C00CC7DCD /* primitive_variants_no_givens_binary_reward */; };
+		B3C412E8273E853D00CC7DCD /* 1000_numeric_variants_20_same_nested_givens_large_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412DF273E853C00CC7DCD /* 1000_numeric_variants_20_same_nested_givens_large_binary_reward */; };
+		B3C412E9273E853D00CC7DCD /* 1000_numeric_variants_no_givens_small_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412E0273E853C00CC7DCD /* 1000_numeric_variants_no_givens_small_binary_reward */; };
+		B3C412EA273E853D00CC7DCD /* 1000_numeric_variants_20_random_nested_givens_small_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412E1273E853C00CC7DCD /* 1000_numeric_variants_20_random_nested_givens_small_binary_reward */; };
+		B3C412EB273E853D00CC7DCD /* 2_numeric_variants_100_random_nested_dict_givens_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412E2273E853C00CC7DCD /* 2_numeric_variants_100_random_nested_dict_givens_binary_reward */; };
+		B3C412EC273E853D00CC7DCD /* 2_variants_20_huge_givens in Resources */ = {isa = PBXBuildFile; fileRef = B3C412E3273E853C00CC7DCD /* 2_variants_20_huge_givens */; };
 		B3DADC4626298C7E004A82FA /* feature_encoder_test_suite.txt in Resources */ = {isa = PBXBuildFile; fileRef = B3DADC0726298C78004A82FA /* feature_encoder_test_suite.txt */; };
 		B3F34BD1271EB0D1006636D8 /* TestModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BCF271EAE06006636D8 /* TestModel.dat */; };
 		B3F34BD5271EB2D7006636D8 /* InvalidModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD3271EB236006636D8 /* InvalidModel.dat */; };
@@ -156,6 +168,18 @@
 		B37E1333262EDF5D0042B761 /* IMPStreamDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPStreamDownloadManager.h; sourceTree = "<group>"; };
 		B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPStreamDownloadManager.m; sourceTree = "<group>"; };
 		B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPConstants.m; sourceTree = "<group>"; };
+		B3C412C7273E76B200CC7DCD /* model_test_suite.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = model_test_suite.txt; sourceTree = "<group>"; };
+		B3C412D2273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward; sourceTree = "<group>"; };
+		B3C412D7273E84F500CC7DCD /* 0_and_nan */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 0_and_nan; sourceTree = "<group>"; };
+		B3C412DB273E853B00CC7DCD /* 2_numeric_variants_no_givens_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2_numeric_variants_no_givens_binary_reward; sourceTree = "<group>"; };
+		B3C412DC273E853B00CC7DCD /* 1000_list_of_numeric_variants_20_same_nested_givens_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 1000_list_of_numeric_variants_20_same_nested_givens_binary_reward; sourceTree = "<group>"; };
+		B3C412DD273E853B00CC7DCD /* 2_numeric_variants_no_givens_large_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2_numeric_variants_no_givens_large_binary_reward; sourceTree = "<group>"; };
+		B3C412DE273E853C00CC7DCD /* primitive_variants_no_givens_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = primitive_variants_no_givens_binary_reward; sourceTree = "<group>"; };
+		B3C412DF273E853C00CC7DCD /* 1000_numeric_variants_20_same_nested_givens_large_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 1000_numeric_variants_20_same_nested_givens_large_binary_reward; sourceTree = "<group>"; };
+		B3C412E0273E853C00CC7DCD /* 1000_numeric_variants_no_givens_small_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 1000_numeric_variants_no_givens_small_binary_reward; sourceTree = "<group>"; };
+		B3C412E1273E853C00CC7DCD /* 1000_numeric_variants_20_random_nested_givens_small_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 1000_numeric_variants_20_random_nested_givens_small_binary_reward; sourceTree = "<group>"; };
+		B3C412E2273E853C00CC7DCD /* 2_numeric_variants_100_random_nested_dict_givens_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2_numeric_variants_100_random_nested_dict_givens_binary_reward; sourceTree = "<group>"; };
+		B3C412E3273E853C00CC7DCD /* 2_variants_20_huge_givens */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2_variants_20_huge_givens; sourceTree = "<group>"; };
 		B3DADC0726298C78004A82FA /* feature_encoder_test_suite.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = feature_encoder_test_suite.txt; sourceTree = "<group>"; };
 		B3F34BCF271EAE06006636D8 /* TestModel.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestModel.dat; sourceTree = "<group>"; };
 		B3F34BD3271EB236006636D8 /* InvalidModel.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = InvalidModel.dat; sourceTree = "<group>"; };
@@ -293,6 +317,7 @@
 		54CB9B2123D987800005BB94 /* ImproveUnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				B3C4124E273E745D00CC7DCD /* ModelTestSuite */,
 				B3DADBE626298C45004A82FA /* FeatureEncoderTestSuite */,
 				54BEA57B24BD9E5600F8A52C /* Tests.pch */,
 				540B857E23E6CBF900D578A4 /* TestUtils.h */,
@@ -404,6 +429,25 @@
 				B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */,
 			);
 			path = FeatureEncoder;
+			sourceTree = "<group>";
+		};
+		B3C4124E273E745D00CC7DCD /* ModelTestSuite */ = {
+			isa = PBXGroup;
+			children = (
+				B3C412E2273E853C00CC7DCD /* 2_numeric_variants_100_random_nested_dict_givens_binary_reward */,
+				B3C412DB273E853B00CC7DCD /* 2_numeric_variants_no_givens_binary_reward */,
+				B3C412DD273E853B00CC7DCD /* 2_numeric_variants_no_givens_large_binary_reward */,
+				B3C412E3273E853C00CC7DCD /* 2_variants_20_huge_givens */,
+				B3C412DC273E853B00CC7DCD /* 1000_list_of_numeric_variants_20_same_nested_givens_binary_reward */,
+				B3C412E1273E853C00CC7DCD /* 1000_numeric_variants_20_random_nested_givens_small_binary_reward */,
+				B3C412DF273E853C00CC7DCD /* 1000_numeric_variants_20_same_nested_givens_large_binary_reward */,
+				B3C412E0273E853C00CC7DCD /* 1000_numeric_variants_no_givens_small_binary_reward */,
+				B3C412DE273E853C00CC7DCD /* primitive_variants_no_givens_binary_reward */,
+				B3C412D7273E84F500CC7DCD /* 0_and_nan */,
+				B3C412D2273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward */,
+				B3C412C7273E76B200CC7DCD /* model_test_suite.txt */,
+			);
+			path = ModelTestSuite;
 			sourceTree = "<group>";
 		};
 		B3DADBE626298C45004A82FA /* FeatureEncoderTestSuite */ = {
@@ -550,26 +594,33 @@
 			files = (
 				B3F34BD5271EB2D7006636D8 /* InvalidModel.dat in Resources */,
 				B3F34BD1271EB0D1006636D8 /* TestModel.dat in Resources */,
+				B3C412D3273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward in Resources */,
 				B3F51D79269B590000049F17 /* internal_collisions_01.json in Resources */,
 				B3F51D67269B590000049F17 /* primitive_dict_special_characters_string.json in Resources */,
 				B3F51D6D269B590000049F17 /* encode_feature_vector.json in Resources */,
 				B3F51D6C269B590000049F17 /* primitive_dict_big_int_positive.json in Resources */,
 				B3F51D97269B590000049F17 /* int64_big.json in Resources */,
 				B3F51D5B269B590000049F17 /* npnan.json in Resources */,
+				B3C412C8273E76B300CC7DCD /* model_test_suite.txt in Resources */,
 				B3F51D9B269B590000049F17 /* bool_false.json in Resources */,
 				B3F51D59269B590000049F17 /* bool_true.json in Resources */,
 				B3F51D6A269B590000049F17 /* primitive_dict_unicode_emoji_01.json in Resources */,
+				B3C412E4273E853D00CC7DCD /* 2_numeric_variants_no_givens_binary_reward in Resources */,
 				B3F51D5D269B590000049F17 /* empty_list.json in Resources */,
 				B3F51D71269B590000049F17 /* noise_1_string.json in Resources */,
 				B3F51D81269B590000049F17 /* int_1.json in Resources */,
+				B3C412E8273E853D00CC7DCD /* 1000_numeric_variants_20_same_nested_givens_large_binary_reward in Resources */,
 				B3F51D95269B590000049F17 /* leading_zeros_in_feature_names_02.json in Resources */,
 				B3F51D9D269B590000049F17 /* int64_small.json in Resources */,
 				B3F51D96269B590000049F17 /* none.json in Resources */,
+				B3C412D8273E84F500CC7DCD /* 0_and_nan in Resources */,
 				B3F51D60269B590000049F17 /* primitive_dict_float_0.json in Resources */,
 				B3F51D66269B590000049F17 /* primitive_dict_int64_big.json in Resources */,
 				B3F51D61269B590000049F17 /* string.json in Resources */,
+				B3C412EB273E853D00CC7DCD /* 2_numeric_variants_100_random_nested_dict_givens_binary_reward in Resources */,
 				54A39AC525338DB800F895FF /* TestModel.mlmodel in Resources */,
 				B3F51D8B269B590000049F17 /* primitive_dict_bool_false.json in Resources */,
+				B3C412E6273E853D00CC7DCD /* 2_numeric_variants_no_givens_large_binary_reward in Resources */,
 				B3F51D9A269B590000049F17 /* primitive_dict_float_1.json in Resources */,
 				B3F34BD8271EB53B006636D8 /* TestModel.mlmodel.gz in Resources */,
 				B3F51D99269B590000049F17 /* big_int_negative.json in Resources */,
@@ -584,6 +635,7 @@
 				B3F51D7C269B590000049F17 /* unicode_string_02.json in Resources */,
 				B3F51D8D269B590000049F17 /* primitive_dict_unicode_string_with_u0000.json in Resources */,
 				B3F51D87269B590000049F17 /* external_collisions_02.json in Resources */,
+				B3C412E7273E853D00CC7DCD /* primitive_variants_no_givens_binary_reward in Resources */,
 				B3F51D56269B590000049F17 /* primitive_dict_unicode_string_02.json in Resources */,
 				B3F51D6F269B590000049F17 /* noise_3_128.json in Resources */,
 				B3F51D8F269B590000049F17 /* special_characters_string.json in Resources */,
@@ -593,6 +645,7 @@
 				B3F51D7D269B590000049F17 /* unicode_string_01.json in Resources */,
 				B3F51D7F269B590000049F17 /* primitive_dict_bool_true.json in Resources */,
 				B3F51D69269B590000049F17 /* unicode_emoji_in_key.json in Resources */,
+				B3C412E9273E853D00CC7DCD /* 1000_numeric_variants_no_givens_small_binary_reward in Resources */,
 				B3F51D86269B590000049F17 /* internal_collisions_02.json in Resources */,
 				B3F51D58269B590000049F17 /* big_int_positive.json in Resources */,
 				B3F51D9C269B590000049F17 /* newline_tab_return_symbols_string.json in Resources */,
@@ -605,10 +658,13 @@
 				B3F51D62269B590000049F17 /* primitive_dict_unicode_string_01.json in Resources */,
 				B3F51D93269B590000049F17 /* primitive_dict_foo_bar.json in Resources */,
 				B3F51D72269B590000049F17 /* float_m1.json in Resources */,
+				B3C412EA273E853D00CC7DCD /* 1000_numeric_variants_20_random_nested_givens_small_binary_reward in Resources */,
 				B3F51D5F269B590000049F17 /* primitive_dict_newline_tab_return_symbols_string.json in Resources */,
+				B3C412EC273E853D00CC7DCD /* 2_variants_20_huge_givens in Resources */,
 				B3F51D80269B590000049F17 /* dict_foo_bar.json in Resources */,
 				B3F51D75269B590000049F17 /* primitive_dict_int_0.json in Resources */,
 				B3F51D6B269B590000049F17 /* internal_collisions_03.json in Resources */,
+				B3C412E5273E853D00CC7DCD /* 1000_list_of_numeric_variants_20_same_nested_givens_binary_reward in Resources */,
 				B3F51D68269B590000049F17 /* primitive_dict_float_m1.json in Resources */,
 				B3F51D8C269B590000049F17 /* noise_0_string.json in Resources */,
 				B3F51D88269B590000049F17 /* big_float.json in Resources */,

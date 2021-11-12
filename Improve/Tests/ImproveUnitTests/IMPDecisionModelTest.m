@@ -11,6 +11,7 @@
 #import "IMPDecision.h"
 #import "IMPUtils.h"
 #import "TestUtils.h"
+#import "IMPFeatureEncoder.h"
 
 extern NSString * const kRemoteModelURL;
 
@@ -21,6 +22,12 @@ extern NSString * const kRemoteModelURL;
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
 + (NSArray *)generateDescendingGaussians:(NSUInteger)count;
+
+- (IMPFeatureEncoder *)featureEncoder;
+
+- (BOOL)enableTieBreaker;
+
+- (void)setEnableTieBreaker:(BOOL)enableTieBreaker;
 
 @end
 
@@ -481,6 +488,80 @@ extern NSString * const kTrackerURL;
     }
     
     [IMPUtils dumpScores:scores andVariants:variants];
+}
+
+- (void)testValidateModels {
+    NSURL *testsuiteURL = [[TestUtils bundle] URLForResource:@"model_test_suite.txt" withExtension:nil];
+    NSString *allTestsStr = [[NSString alloc] initWithContentsOfURL:testsuiteURL encoding:NSUTF8StringEncoding error:nil];
+    XCTAssertTrue(allTestsStr.length>1);
+    
+    if([allTestsStr hasSuffix:@"\n"]){
+        allTestsStr = [allTestsStr substringToIndex:allTestsStr.length-1];
+    }
+    
+    NSArray *allTestCases = [allTestsStr componentsSeparatedByString:@"\n"];
+    XCTAssertTrue(allTestCases.count >= 1);
+    
+    for(NSString *testCase in allTestCases) {
+        NSString *jsonFileName = [NSString stringWithFormat:@"%@.json", testCase];
+        NSURL *url = [[TestUtils bundle] URLForResource:jsonFileName withExtension:nil subdirectory:testCase];
+        NSData *data = [NSData dataWithContentsOfURL:url];
+        XCTAssertNotNil(data);
+        
+        NSError *err = nil;
+        NSDictionary *root = [NSJSONSerialization JSONObjectWithData:data options:0 error:&err];
+        XCTAssertNil(err);
+        
+        XCTAssertTrue([self verifyModel:testCase withData:root]);
+    }
+}
+
+- (BOOL)verifyModel:(NSString *)path withData:(NSDictionary *)root {
+    NSLog(@"verifyModel: <<<<<<<< %@ >>>>>>>>", path);
+    NSURL *modelURL = [[TestUtils bundle] URLForResource:@"model.mlmodel.gz" withExtension:nil subdirectory:path];
+    
+    NSDictionary *testCase = [root objectForKey:@"test_case"];
+    XCTAssertNotNil(testCase);
+    
+    double noise = [[testCase objectForKey:@"noise"] doubleValue];
+    NSArray *variants = [testCase objectForKey:@"variants"];
+    NSArray *givens = [testCase objectForKey:@"givens"];
+    NSArray *expectedOutputs = [root objectForKey:@"expected_output"];
+    XCTAssertNotNil(variants);
+    XCTAssertNotNil(givens);
+    
+    IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelURL error:nil];
+    decisionModel.enableTieBreaker = NO;
+    decisionModel.featureEncoder.noise = noise;
+    
+    if([givens isEqual:[NSNull null]]) {
+        NSArray *scores = [decisionModel score:variants];
+        NSArray *expectedScores = [expectedOutputs[0] objectForKey:@"scores"];
+        XCTAssertEqual([scores count], [expectedScores count]);
+        XCTAssertTrue([scores count] > 0);
+        
+        for(int j = 0; j < [scores count]; ++j) {
+            XCTAssertEqualWithAccuracy([expectedScores[j] doubleValue],
+                                       [scores[j] doubleValue],
+                                       pow(2, -18));
+        }
+    } else {
+        for(int i = 0; i < [givens count]; ++i) {
+            NSLog(@"%d/%ld", i, [givens count]);
+            NSArray *scores = [decisionModel score:variants given:givens[i]];
+            NSArray *expectedScores = [expectedOutputs[i] objectForKey:@"scores"];
+            XCTAssertEqual([scores count], [expectedScores count]);
+            XCTAssertTrue([scores count] > 0);
+            
+            for(int j = 0; j < [scores count]; ++j) {
+//                NSLog(@"%d, %d, variant: %@\n, givens: %@", j, i, variants[j], givens[i]);
+                XCTAssertEqualWithAccuracy([expectedScores[j] doubleValue],
+                                           [scores[j] doubleValue],
+                                           pow(2, -18));
+            }
+        }
+    }
+    return YES;
 }
 
 @end

@@ -42,6 +42,13 @@ MLFeatureValue * NaNMLFeatureValue = nil;
 
 - (nullable MLFeatureValue *)featureValueForName:(NSString *)featureName {
     MLFeatureValue *val = self[featureName];
+    if(val) {
+        // In order to be able to perform 'correct' comparisons (obtain exactly
+        // identical split results to those of native pure xgboost) inputs must
+        // be converted to float32 prior to predct() call
+        float correctedVal = (float)[val doubleValue];
+        val = [MLFeatureValue featureValueWithDouble:correctedVal];
+    }
     return val ? val : NaNMLFeatureValue;
 }
 
