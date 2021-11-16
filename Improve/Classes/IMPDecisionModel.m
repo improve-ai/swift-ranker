@@ -200,10 +200,6 @@ static GivensProvider *_defaultGivensProvider;
     return decision;
 }
 
-- (NSDictionary<NSString *, id> *)givens {
-    return [self.givensProvider givensForModel:_modelName];
-}
-
 - (void)addReward:(double) reward
 {
     [_tracker addReward:reward forModel:self.modelName];

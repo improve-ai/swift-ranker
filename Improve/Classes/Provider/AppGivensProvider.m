@@ -113,7 +113,8 @@ static double sLastSessionStartTime;
     return self;
 }
 
-- (NSDictionary<NSString *, id> *)givensForModel:(NSString *)modelName {
+- (NSDictionary<NSString *, id> *)givensForModel:(IMPDecisionModel *)decisionModel givens:(NSDictionary *)givens_ {
+    [NSMutableDictionary dictionaryWithDictionary:givens_];
     NSMutableDictionary *givens = [[NSMutableDictionary alloc] init];
     givens[kCountryKey] = [self country];
     givens[kLanguageKey] = [self language];
@@ -131,8 +132,8 @@ static double sLastSessionStartTime;
     givens[kSinceSessionStartKey] = [self sinceSessionStart];
     givens[kSinceLastSessionStartKey] = [self sinceLastSessionStart];
     givens[kSessionCountKey] = @([self sessionCount]);
-    givens[kDecisionCountKey] = @([self decisionCount:modelName]);
-    givens[kRewardsKey] = [self rewardOfModel:modelName];
+    givens[kDecisionCountKey] = @([self decisionCount:decisionModel.modelName]);
+    givens[kRewardsKey] = [self rewardOfModel:decisionModel.modelName];
     
     IMPDeviceInfo *deviceInfo = [self deviceInfo];
     givens[kDeviceKey] = deviceInfo.model;
@@ -140,7 +141,7 @@ static double sLastSessionStartTime;
     
     // When getGivens is called, increment decision count value by 1
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString *decisionCountKey = [NSString stringWithFormat:kDefaultsDecisionCountKey, modelName];
+    NSString *decisionCountKey = [NSString stringWithFormat:kDefaultsDecisionCountKey, decisionModel.modelName];
     NSInteger curDecisionCount = [defaults integerForKey:decisionCountKey];
     [defaults setInteger:curDecisionCount+1 forKey:decisionCountKey];
     

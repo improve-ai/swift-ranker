@@ -76,8 +76,6 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens;
 
-- (NSDictionary<NSString *, id> *)givens;
-
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.

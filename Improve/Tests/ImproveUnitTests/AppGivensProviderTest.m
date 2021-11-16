@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "AppGivensProvider.h"
+#import "IMPDecisionModel.h"
 
 @interface AppGivensProviderTest : XCTestCase
 
@@ -34,9 +35,9 @@
 }
 
 - (void)testAppGivensProvider {
-    NSString *modelName = @"hello";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     AppGivensProvider *appGivensProvider = [[AppGivensProvider alloc] init];
-    NSDictionary *givens = [appGivensProvider givensForModel:modelName];
+    NSDictionary *givens = [appGivensProvider givensForModel:decisionModel givens:@{}];
     NSLog(@"app givens: %@", givens);
     
     // nil carrier excluded from the givens

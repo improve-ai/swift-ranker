@@ -10,7 +10,7 @@
 
 @implementation GivensProvider
 
-- (NSDictionary<NSString *, id> *)givensForModel:(NSString *)modelName {
+- (NSDictionary<NSString *, id> *)givensForModel:(IMPDecisionModel *)decisionModel givens:(NSDictionary *)givens {
     return @{};
 }
 

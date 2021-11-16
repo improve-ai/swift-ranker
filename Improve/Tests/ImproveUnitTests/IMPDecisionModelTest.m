@@ -83,7 +83,7 @@ extern NSString * const kRemoteModelURL;
     
     IMPDecisionModel *decisionModel_0 = [[IMPDecisionModel alloc] initWithModelName:modelName];
     XCTAssertEqualObjects(decisionModel_0.modelName, @"hello");
-    XCTAssertNil(decisionModel_0.trackURL);
+    XCTAssertNotNil(decisionModel_0.trackURL);
     
     IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
     

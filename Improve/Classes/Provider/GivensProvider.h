@@ -10,6 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class IMPDecisionModel;
+
 @interface GivensProvider : NSObject
 
 /**
@@ -21,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
  * for the dictionary value; otherwise, a runtime exception would later be thrown while calculating the
  * feature vector of a variant.
  */
-- (NSDictionary<NSString *, id> *)givensForModel:(NSString *)modelName;
+- (NSDictionary<NSString *, id> *)givensForModel:(IMPDecisionModel *)decisionModel givens:(NSDictionary *)givens;
 
 @end
 
