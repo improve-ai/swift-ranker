@@ -129,9 +129,7 @@ static GivensProvider *_defaultGivensProvider;
         NSString *seedString = creatorDefined[@"ai.improve.model.seed"];
         uint64_t seed = strtoull([seedString UTF8String], NULL, 0);
 
-        if(_modelName == nil) {
-            _modelName = modelName;
-        } else if(![_modelName isEqualToString:modelName]) {
+        if(![_modelName isEqualToString:modelName]) {
             // The modelName set before loading the model has higher priority than
             // the one extracted from the model file. Just print a warning here if
             // they don't match.
