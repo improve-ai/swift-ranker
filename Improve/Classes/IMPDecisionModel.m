@@ -204,13 +204,12 @@ static GivensProvider *_defaultGivensProvider;
 
 - (void)addReward:(double) reward
 {
-    [AppGivensProvider addReward:reward forModel:self.modelName];
-    
     [_tracker addReward:reward forModel:self.modelName];
-}
-
-- (void)addReward:(double)reward decision:(NSString *)decisionId {
-    [_tracker addReward:reward forModel:self.modelName decision:decisionId];
+    
+    // _tracker.addReward() would thrown an exception in case of
+    // an invalid reward. We should call AppGivensProvider.addReward()
+    // after _tracker.addReward()
+    [AppGivensProvider addReward:reward forModel:self.modelName];
 }
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
