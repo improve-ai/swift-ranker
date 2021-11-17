@@ -96,7 +96,11 @@ static GivensProvider *_defaultGivensProvider;
 - (void)setTrackURL:(NSURL *)trackURL
 {
     _trackURL = trackURL;
-    _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL];
+    if(trackURL != nil) {
+        _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL];
+    } else {
+        _tracker = nil;
+    }
 }
 
 - (MLModel *) model
@@ -202,14 +206,20 @@ static GivensProvider *_defaultGivensProvider;
 
 - (void)addReward:(double) reward
 {
-    if(_tracker != nil) {
-        [_tracker addReward:reward forModel:self.modelName];
-        
-        // _tracker.addReward() would thrown an exception in case of
-        // an invalid reward. We should call AppGivensProvider.addReward()
-        // after _tracker.addReward()
-        [AppGivensProvider addReward:reward forModel:self.modelName];
+    if(_tracker == nil) {
+        IMPErrLog("trackURL of model(%@) is nil, this reward won't be tracked", self.modelName);
+        return ;
     }
+    [_tracker addReward:reward forModel:self.modelName];
+}
+
+// Add reward for a specific tracked decision
+- (void)addReward:(double)reward decision:(NSString *)decisionId {
+    if(_tracker == nil) {
+        IMPErrLog("trackURL of model(%@) is nil, this reward won't be tracked", self.modelName);
+        return ;
+    }
+    [_tracker addReward:reward forModel:self.modelName decision:decisionId];
 }
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants

@@ -313,10 +313,6 @@ static double sLastSessionStartTime;
     return [defaults integerForKey:decisionCountKey];
 }
 
-- (NSNumber *)rewardsOfModel:(NSString *)modelName {
-    return [NSNumber numberWithDouble:0];
-}
-
 // https://www.theiphonewiki.com/wiki/Models#iPhone
 // Check the link above to see what platform might look like.
 // Pay attention to filed 'identifier'

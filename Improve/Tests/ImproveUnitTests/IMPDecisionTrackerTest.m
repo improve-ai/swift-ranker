@@ -27,6 +27,8 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 
 - (void)setCount:(NSArray *)variants dict:(NSMutableDictionary *)body;
 
+- (nullable NSString *)createAndPersistDecisionIdForModel:(NSString *)modelName;
+
 @end
 
 @interface IMPDecisionTracker ()
@@ -517,9 +519,11 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 }
 
 - (void)testAddReward_NaN {
+    NSString *modelName = @"test_AddReward_NaN";
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[self trackURL]];
+    [tracker createAndPersistDecisionIdForModel:modelName];
     @try {
-        [tracker addReward:NAN forModel:@"hello"];
+        [tracker addReward:NAN forModel:modelName];
     } @catch(id exception) {
         NSLog(@"addReward exception: %@", exception);
         return ;
@@ -528,9 +532,11 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 }
 
 - (void)testAddReward_Negative_Infinity {
+    NSString *modelName = @"test_AddReward_Infinity";
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[self trackURL]];
+    [tracker createAndPersistDecisionIdForModel:modelName];
     @try {
-        [tracker addReward:-INFINITY forModel:@"hello"];
+        [tracker addReward:-INFINITY forModel:modelName];
     } @catch(id exception) {
         NSLog(@"addReward exception: %@", exception);
         return ;
@@ -539,9 +545,11 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 }
 
 - (void)testAddReward_Positive_Infinity {
+    NSString *modelName = @"test_AddReward_Infinity";
     IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[self trackURL]];
+    [tracker createAndPersistDecisionIdForModel:modelName];
     @try {
-        [tracker addReward:INFINITY forModel:@"hello"];
+        [tracker addReward:INFINITY forModel:modelName];
     } @catch(id exception) {
         NSLog(@"addReward exception: %@", exception);
         return ;

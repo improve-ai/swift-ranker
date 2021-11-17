@@ -6,6 +6,7 @@
 #import "IMPLogging.h"
 #import "NSArray+Random.h"
 #import "NSString+KSUID.h"
+#import "AppGivensProvider.h"
 
 @import Security;
 
@@ -189,20 +190,21 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 {
     NSString *decisionId = [self lastDecisionIdOfModel:modelName];
     if(decisionId == nil) {
+        IMPErrLog("last decisionId is nil, can't add reward for model(%@)", modelName);
         return ;
     }
     [self addReward:reward forModel:modelName decision:decisionId];
 }
 
 - (void)addReward:(double)reward forModel:(NSString *)modelName decision:(NSString *)decisionId {
+    // this implementation is an enormous hack.  This is just the way the gym is at the moment
+    // before the protocol redesign
     if(isnan(reward) || isinf(reward)) {
         NSString *reason = [NSString stringWithFormat:@"invalid reward: %lf, " \
                             "must not be NaN or +-Infinity", reward];
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     }
     
-    // this implementation is an enormous hack.  This is just the way the gym is at the moment
-    // before the protocol redesign
     NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
 
     [body setObject:@"Reward" forKey:kEventKey];
@@ -214,6 +216,8 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     [body setObject:properties forKey:kPropertiesKey];
 
     [self track:body];
+    
+    [AppGivensProvider addReward:reward forModel:modelName];
 }
 
 - (void)track:(NSDictionary *)body
