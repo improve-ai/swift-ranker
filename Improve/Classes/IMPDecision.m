@@ -77,8 +77,6 @@
         
         NSDictionary *givens = [_model.givensProvider givensForModel:_model givens:_givens];
         
-        [_model.givensProvider givensForModel:_model givens:_givens];
-        
         NSArray *scores = [_model score:_variants given:givens];
 
         if (_variants && _variants.count) {
