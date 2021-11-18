@@ -18,10 +18,10 @@
 
 @implementation IMPDeviceInfo
 
-- (instancetype)initWithModel:(NSString *)model version:(int)version {
+- (instancetype)initWithModel:(NSString *)model version:(double)version {
     if(self = [super init]) {
         _model = model;
-        _version = version;
+        _version = [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.3lf", version]];
     }
     return self;
 }
@@ -41,8 +41,9 @@
 
 static NSString * PersistPrefix = @"ai.improve";
 
+NSString * const kLanguageKey = @"lang";
+
 static NSString * const kCountryKey = @"country";
-static NSString * const kLanguageKey = @"lang";
 static NSString * const kTimezoneKey = @"tz";
 static NSString * const kCarrierKey = @"carrier";
 static NSString * const kOSKey = @"os";
@@ -114,7 +115,6 @@ static double sLastSessionStartTime;
 }
 
 - (NSDictionary<NSString *, id> *)givensForModel:(IMPDecisionModel *)decisionModel givens:(NSDictionary *)givens_ {
-    [NSMutableDictionary dictionaryWithDictionary:givens_];
     NSMutableDictionary *givens = [[NSMutableDictionary alloc] init];
     givens[kCountryKey] = [self country];
     givens[kLanguageKey] = [self language];
@@ -137,13 +137,16 @@ static double sLastSessionStartTime;
     
     IMPDeviceInfo *deviceInfo = [self deviceInfo];
     givens[kDeviceKey] = deviceInfo.model;
-    givens[kDeviceVersionKey] = @(deviceInfo.version);
+    givens[kDeviceVersionKey] = deviceInfo.version;
     
     // When getGivens is called, increment decision count value by 1
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *decisionCountKey = [NSString stringWithFormat:kDefaultsDecisionCountKey, decisionModel.modelName];
     NSInteger curDecisionCount = [defaults integerForKey:decisionCountKey];
     [defaults setInteger:curDecisionCount+1 forKey:decisionCountKey];
+
+    // If keys in givens_ overlap with keys in AppGivensProvider, keys in givens_ win
+    [givens addEntriesFromDictionary:givens_];
     
     return givens;
 }
@@ -350,7 +353,7 @@ static double sLastSessionStartTime;
     int major = [versionArray[0] intValue];
     int minor = [versionArray[1] intValue];
     
-    return [[IMPDeviceInfo alloc] initWithModel:model version:major*1000+minor];
+    return [[IMPDeviceInfo alloc] initWithModel:model version:major+minor/1000.0];
 }
 
 + (NSString *)getPlatformString {

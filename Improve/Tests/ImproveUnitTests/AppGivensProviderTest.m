@@ -83,4 +83,18 @@
     XCTAssertEqualWithAccuracy(reward, [[provider rewardOfModel:modelName] doubleValue], accuracy);
 }
 
+extern NSString *const kLanguageKey;
+- (void)testOverlappingKeys {
+    NSDictionary *givens = @{
+       kLanguageKey : @"hi"
+    };
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    AppGivensProvider *provider = [[AppGivensProvider alloc] init];
+    NSDictionary *allGivens = [provider givensForModel:decisionModel givens:givens];
+    
+    NSLog(@"%@ = %@", kLanguageKey, allGivens[kLanguageKey]);
+    
+    XCTAssertEqual(@"hi", allGivens[kLanguageKey]);
+}
+
 @end

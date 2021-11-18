@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSString *model;
 
-@property (nonatomic) int version;
+@property (nonatomic, strong) NSDecimalNumber *version;
 
 @end
 
