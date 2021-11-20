@@ -1,6 +1,6 @@
 # Improve AI for iOS
 
-## Fast AI Decisions for Swift and Objective C
+## AI Decisions in Swift and Objective C
 
 Lift revenue, performance, user retention, or any other metric with fast AI decisions. It's like an AI *if/then* statement. 
 
@@ -124,9 +124,9 @@ decisionModel.addReward(19.99)
   
 It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is never tracked, persisted, or used as training data.
 
-## An Ask
+## Improve Our World
 
-Thank you so much for enjoying my labor of love. Please only use it to create things that are good, true, and beautiful. - Justin Chapweske
+The mission of Improve AI is to make our corner of the world better. When each of us improve our corner of the world, the whole world becomes better. If your product or work does not make the world better, do not use Improve AI. Otherwise, welcome, I hope you find value in my labor of love. - Justin Chapweske
 
 ## License
 
