@@ -40,20 +40,18 @@ NS_SWIFT_NAME(DecisionModel)
  * The defaultTrackURL will be used to track decisions. So it's an equivalent of
  *   [[IMPDecisionModel alloc] initWithModelName:modelName trackURL:defaultTrackURL];
  * @param modelName Length of modelName must be in range [1, 64]; Only alhpanumeric characters([a-zA-Z0-9]), '-', '.' and '_'
- * are allowed in the modenName and the first character must be an alphnumeric one. And nil is also a valid model name. After calling
- * the load/loadAysnc method, the modelName property will be set with the value extracted from the CoreML file if the model is loaded
- * successfully.
+ * are allowed in the modenName and the first character must be an alphnumeric one. 
  * @exception NSInvalidArgumentException in case of an invalid modelName
  */
-- (instancetype)initWithModelName:(nullable NSString *)modelName NS_SWIFT_NAME(init(_:));
+- (instancetype)initWithModelName:(nonnull NSString *)modelName NS_SWIFT_NAME(init(_:));
 
 /**
  * @param modelName Length of modelName must be in range [1, 64]; Only alhpanumeric characters([a-zA-Z0-9]), '-', '.' and '_'
- * are allowed in the modenName and the first character must be an alphnumeric one; nil is also a valid model name.
+ * are allowed in the modenName and the first character must be an alphnumeric one;
  * @param trackURL url for tracking decisions. If trackURL is nil, no decisions would be tracked.
  * @exception NSInvalidArgumentException in case of an invalid modelName
  */
-- (instancetype)initWithModelName:(nullable NSString *)modelName trackURL:(nullable NSURL *)trackURL NS_SWIFT_NAME(init(_:_:));
+- (instancetype)initWithModelName:(nonnull NSString *)modelName trackURL:(nullable NSURL *)trackURL NS_SWIFT_NAME(init(_:_:));
 
 /**
  * @param url A url that can be a  local file path,  a remote http url that points to a MLModel file, or even a bundled MLModel file.

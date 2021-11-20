@@ -133,9 +133,7 @@ static GivensProvider *_defaultGivensProvider;
         NSString *seedString = creatorDefined[@"ai.improve.model.seed"];
         uint64_t seed = strtoull([seedString UTF8String], NULL, 0);
 
-        if(_modelName == nil) {
-            _modelName = modelName;
-        } else if(![_modelName isEqualToString:modelName]) {
+        if(![_modelName isEqualToString:modelName]) {
             // The modelName set before loading the model has higher priority than
             // the one extracted from the model file. Just print a warning here if
             // they don't match.
@@ -339,9 +337,6 @@ static GivensProvider *_defaultGivensProvider;
 }
 
 - (BOOL)isValidModelName:(NSString *)modelName {
-    if(modelName == nil) {
-        return YES;
-    }
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", @"^[a-zA-Z0-9][\\w\\-.]{0,63}$"];
     return [predicate evaluateWithObject:modelName];
 }

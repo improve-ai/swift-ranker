@@ -97,25 +97,21 @@ extern NSString * const kRemoteModelURL;
 - (void)testModelName {
     NSString *modelName = @"hello";
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
-    NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
-                                      withExtension:@"mlmodelc"];
-    XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
-    [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
-        XCTAssertEqualObjects(modelName, decisionModel.modelName);
-        [ex fulfill];
-    }];
-    [self waitForExpectations:@[ex] timeout:3];
+    NSError *err;
+    [decisionModel load:[self modelURL] error:&err];
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(modelName, decisionModel.modelName);
 }
 
 // modelName can be nil
 - (void)testModelName_Nil {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:nil];
-    XCTAssertNil(decisionModel.modelName);
-    
-    [decisionModel load:self.modelURL error:nil];
-    NSLog(@"modelName = [%@]", decisionModel.modelName);
-    XCTAssertTrue([decisionModel.modelName length] > 0);
-    
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:nil];
+    } @catch(id exception) {
+        NSLog(@"modelName can't be nil");
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
 }
 
 // modelName length must be in range [1, 64]
