@@ -58,7 +58,7 @@ static NSString * const kWeekDayKey = @"weekday";
 static NSString * const kSinceMidnightKey = @"today";
 static NSString * const kSinceBornKey = @"day";
 static NSString * const kSinceSessionStartKey = @"since_session";
-static NSString * const kSinceLastSessionStartKey = @"since_last_session";
+NSString * const kSinceLastSessionStartKey = @"since_last_session";
 static NSString * const kSessionCountKey = @"sessions";
 static NSString * const kDecisionCountKey = @"decisions";
 static NSString * const kRewardsKey = @"rewards";
@@ -71,7 +71,7 @@ static NSString * const kBornTimeKey = @"ai.improve.born_time";
 // When the AppGivensProvider instance is created.
 // If there is some way to get the true app launch
 // time in Android or iOS we could use that instead.
-static NSString * const kSessionStartTimeKey = @"ai.improve.session_start_time";
+NSString * const kSessionStartTimeKey = @"ai.improve.session_start_time";
 
 static NSString * const kDefaultsSessionCountKey = @"ai.improve.session_count";
 
@@ -130,7 +130,13 @@ static double sLastSessionStartTime;
     givens[kSinceMidnightKey] = [self sinceMidnight];
     givens[kSinceBornKey] = [self sinceBorn];
     givens[kSinceSessionStartKey] = [self sinceSessionStart];
-    givens[kSinceLastSessionStartKey] = [self sinceLastSessionStart];
+    
+    // There's no last session when the app runs for the first time.
+    // In this case, we exclude since_last_session_start from the givens map.
+    if(sLastSessionStartTime > 0) {
+        givens[kSinceLastSessionStartKey] = [self sinceLastSessionStart];
+    }
+    
     givens[kSessionCountKey] = @([self sessionCount]);
     givens[kDecisionCountKey] = @([self decisionCount:decisionModel.modelName]);
     givens[kRewardsKey] = [self rewardOfModel:decisionModel.modelName];
