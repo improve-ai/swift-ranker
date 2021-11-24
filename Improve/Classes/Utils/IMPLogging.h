@@ -8,7 +8,7 @@
 
 // DEBUG MODE
 // Add the following macro to your project to activate verbose logging:
-// #define IMP_DEBUG
+// #define IMPROVE_AI_DEBUG
 // Make sure, that macro is defined before Improve framework import.
 // The best place to define this macro is a Prefix Header.
 
@@ -20,10 +20,10 @@
 /**
  IMPLog is for any debug data. Outputs only if
  1) running app in Debug scheme (DEBUG=1 is defined) and
- 2) IMP_DEBUG macro is defined in the project
+ 2) IMPROVE_AI_DEBUG macro is defined in the project
  Format: "-/+[<class> <method>] L<line> <formatted message>"
  */
-#if defined DEBUG && defined IMP_DEBUG
+#if defined DEBUG && defined IMPROVE_AI_DEBUG
 #   define IMPLog(fmt, ...) os_log_debug(OS_LOG_DEFAULT, ("[improve.ai] %s L%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 #   define IMPLog(...) (void)0

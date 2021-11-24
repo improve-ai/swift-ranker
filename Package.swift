@@ -20,7 +20,7 @@ let package = Package(
             publicHeadersPath:"Classes",
             cSettings: [
                 .headerSearchPath("**"),
-                .define("IMP_DEBUG", .when(configuration: .debug)),
+                .define("IMPROVE_AI_DEBUG", .when(configuration: .debug)),
             ])
     ]
 )

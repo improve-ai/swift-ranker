@@ -263,7 +263,7 @@ static GivensProvider *_defaultGivensProvider;
             val += ((double)arc4random() / UINT32_MAX) * pow(2, -23); // add a very small random number to randomly break ties
             [scores addObject:@(val)];
         }
-#ifdef IMP_DEBUG
+#ifdef IMPROVE_AI_DEBUG
         [IMPUtils dumpScores:scores andVariants:variants];
 #endif
         return scores;
