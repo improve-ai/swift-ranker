@@ -205,12 +205,18 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     }
     
+    NSString *ksuid = [NSString ksuidString];
+    if(ksuid == nil) {
+        IMPErrLog("failed to generate ksuid");
+        return ;
+    }
+    
     NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
 
     [body setObject:@"Reward" forKey:kEventKey];
     [body setObject:modelName forKey:kModelKey];
     [body setObject:decisionId forKey:kDecisionIdKey];
-    [body setObject:[NSString ksuidString] forKey:kMessageIdKey];
+    [body setObject:ksuid forKey:kMessageIdKey];
     
     NSDictionary *properties = @{ kValueKey: [NSNumber numberWithDouble:reward]};
     [body setObject:properties forKey:kPropertiesKey];
