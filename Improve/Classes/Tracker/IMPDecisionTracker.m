@@ -11,7 +11,6 @@
 @import Security;
 
 static NSString * const kModelKey = @"model";
-static NSString * const kHistoryIdKey = @"history_id";
 static NSString * const kTimestampKey = @"timestamp";
 static NSString * const kMessageIdKey = @"message_id";
 static NSString * const kTypeKey = @"type";
@@ -28,16 +27,7 @@ static NSString * const kDecisionIdKey = @"decision_id";
 static NSString * const kDecisionType = @"decision";
 static NSString * const kEventType = @"event";
 
-static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
-
-
-@interface IMPDecisionTracker ()
-// Private vars
-
-@property (strong, atomic) NSString *historyId;
-
-@end
 
 @implementation IMPDecisionTracker
 
@@ -49,13 +39,6 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 
         if (!trackURL) {
             IMPErrLog("trackUrl is nil, tracking disabled");
-        }
-
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        _historyId = [defaults stringForKey:kHistoryIdDefaultsKey];
-        if (!_historyId) {
-            _historyId = [[NSUUID UUID] UUIDString];
-            [defaults setObject:_historyId forKey:kHistoryIdDefaultsKey];
         }
     }
     return self;
@@ -248,23 +231,17 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 /**
  Sends POST HTTP request to the sepcified url.
 
- Body values for kTimestampKey, kHistoryIdKey and kMessageIdKey are added autmatically. You can override them
+ Body values for kTimestampKey and kMessageIdKey are added autmatically. You can override them
  providing values in the body.
  */
 - (void) postImproveRequest:(NSDictionary *) bodyValues url:(NSURL *) url block:(void (^)(NSObject *, NSError *)) block
 {
-    if (!self.historyId) {
-        block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: @"_historyId cannot be nil"}]);
-        return;
-    }
-
     NSMutableDictionary *headers = [@{ @"Content-Type": @"application/json" } mutableCopy];
 
     NSString *dateStr = [self timestampFromDate:[NSDate date]];
 
     NSMutableDictionary *body = [@{
-        kTimestampKey: dateStr,
-        kHistoryIdKey: self.historyId
+        kTimestampKey: dateStr
     } mutableCopy];
     [body addEntriesFromDictionary:bodyValues];
     
