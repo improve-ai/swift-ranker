@@ -29,9 +29,12 @@
 @implementation IMPDecisionModel
 
 @synthesize trackURL = _trackURL;
+@synthesize trackApiKey = _trackApiKey;
 @synthesize model = _model;
 
 static NSURL * _defaultTrackURL;
+
+static NSString * _defaultTrackApiKey;
 
 static ModelDictionary *_instances;
 
@@ -47,7 +50,17 @@ static GivensProvider *_defaultGivensProvider;
     _defaultTrackURL = defaultTrackURL;
 }
 
-+ (ModelDictionary *)instances {
++ (NSString *)defaultTrackApiKey
+{
+    return _defaultTrackApiKey;
+}
+
++ (void)setDefaultTrackApiKey:(NSString *)defaultTrackApiKey {
+    _defaultTrackApiKey = defaultTrackApiKey;
+}
+
++ (ModelDictionary *)instances
+{
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _instances = [[ModelDictionary alloc] init];
@@ -55,16 +68,17 @@ static GivensProvider *_defaultGivensProvider;
     return _instances;
 }
 
-+ (GivensProvider *)defaultGivensProvider {
++ (GivensProvider *)defaultGivensProvider
+{
     return [AppGivensProvider shared];
 }
 
 - (instancetype)initWithModelName:(NSString *)modelName
 {
-    return [self initWithModelName:modelName trackURL:_defaultTrackURL];
+    return [self initWithModelName:modelName trackURL:_defaultTrackURL trackApiKey:_defaultTrackApiKey];
 }
 
-- (instancetype)initWithModelName:(NSString *)modelName trackURL:(NSURL *)trackURL
+- (instancetype)initWithModelName:(NSString *)modelName trackURL:(NSURL *)trackURL trackApiKey:(nullable NSString *)trackApiKey
 {
     if(self = [super init]) {
         if([self isValidModelName:modelName]) {
@@ -78,8 +92,10 @@ static GivensProvider *_defaultGivensProvider;
         
         if(trackURL) {
             _trackURL = trackURL;
-            _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL];
+            _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL trackApiKey:trackApiKey];
         }
+        
+        _trackApiKey = trackApiKey;
     }
     return self;
 }
@@ -98,9 +114,22 @@ static GivensProvider *_defaultGivensProvider;
 {
     _trackURL = trackURL;
     if(trackURL != nil) {
-        _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL];
+        _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL trackApiKey:_trackApiKey];
     } else {
         _tracker = nil;
+    }
+}
+
+- (NSString *)trackApiKey
+{
+    return _trackApiKey;
+}
+
+- (void)setTrackApiKey:(NSString *)trackApiKey
+{
+    _trackApiKey = trackApiKey;
+    if(_tracker != nil) {
+        _tracker.trackApiKey = trackApiKey;
     }
 }
 

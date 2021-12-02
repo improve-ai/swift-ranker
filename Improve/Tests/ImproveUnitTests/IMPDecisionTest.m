@@ -106,7 +106,7 @@
 - (void)testAddReward_nil_trackURL {
     @try {
         NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
-        IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:nil];
+        IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:nil trackApiKey:nil];
         IMPDecision *decision = [[IMPDecision alloc] initWithModel:model];
         [[decision chooseFrom:variants] get];
         [decision addReward:0.1];

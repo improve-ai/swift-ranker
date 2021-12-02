@@ -16,7 +16,11 @@
 
 extern NSString * const kRemoteModelURL;
 
+extern NSString *const kTrackApiKey;
+
 @interface IMPDecisionModel ()
+
+@property (strong, atomic) IMPDecisionTracker *tracker;
 
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
@@ -58,6 +62,7 @@ extern NSString * const kRemoteModelURL;
     // Put setup code here. This method is called before the invocation of each test method in the class.
     NSLog(@"%@", [[TestUtils bundle] bundlePath]);
     IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionModel.defaultTrackApiKey = kTrackApiKey;
 }
 
 - (void)tearDown {
@@ -83,14 +88,36 @@ extern NSString * const kRemoteModelURL;
     NSString *modelName = @"hello";
     
     IMPDecisionModel *decisionModel_0 = [[IMPDecisionModel alloc] initWithModelName:modelName];
-    XCTAssertEqualObjects(decisionModel_0.modelName, @"hello");
+    XCTAssertEqualObjects(decisionModel_0.modelName, modelName);
     XCTAssertNotNil(decisionModel_0.trackURL);
+    XCTAssertNotNil(decisionModel_0.trackURL);
+    XCTAssertNotNil(decisionModel_0.trackApiKey);
     
     IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
     
     IMPDecisionModel *decisionModel_1 = [[IMPDecisionModel alloc] initWithModelName:modelName];
     XCTAssertNotNil(decisionModel_1.trackURL);
     XCTAssertEqual(IMPDecisionModel.defaultTrackURL, decisionModel_1.trackURL);
+}
+
+- (void)testInit_nil_url_and_apikey {
+    NSString *modelName = @"hello";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName trackURL:nil trackApiKey:nil];
+    XCTAssertNil(decisionModel.tracker);
+    XCTAssertNil(decisionModel.trackApiKey);
+    XCTAssertNil(decisionModel.trackURL);
+    
+    decisionModel.trackURL = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionTracker *tracker = decisionModel.tracker;
+    XCTAssertNotNil(tracker);
+    XCTAssertNotNil(decisionModel.trackURL);
+    XCTAssertNil(decisionModel.trackApiKey);
+    
+    decisionModel.trackApiKey = kTrackApiKey;
+    XCTAssertEqual(tracker, decisionModel.tracker); // same object
+    XCTAssertNotNil(decisionModel.tracker);
+    XCTAssertNotNil(decisionModel.trackApiKey);
+    XCTAssertEqualObjects(kTrackApiKey, decisionModel.trackApiKey);
 }
 
 // The modelName set before loading the model has higher priority than
@@ -656,13 +683,17 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testAddReward_valid {
+//    XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    [[decisionModel chooseFrom:variants] get];
     [decisionModel addReward:0.1];
+//    [self waitForExpectations:@[ex] timeout:300];
 }
 
 - (void)testAddReward_nil_trackURL {
     @try {
-        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting" trackURL:nil];
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting" trackURL:nil trackApiKey:nil];
         [decisionModel addReward:0.1];
     } @catch(NSException *e) {
         XCTAssertEqualObjects(e.name, IMPIllegalStateException);

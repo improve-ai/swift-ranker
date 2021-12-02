@@ -59,7 +59,7 @@ class IMPSwiftifiedTest: XCTestCase {
     func testTracker() throws {
         let trackerUrl = URL(string: "http://improve.ai")!
         
-        let tracker = DecisionTracker(trackerUrl)
+        let tracker = DecisionTracker(trackerUrl, nil)
         tracker.addReward(3.14, forModel: "greetings")
     }
     
@@ -78,7 +78,7 @@ class IMPSwiftifiedTest: XCTestCase {
     
     func testDecisionModelWithTrackURL() {
         let trackURL = URL(string: "http://improve.ai")!
-        let decisionModel = DecisionModel("hello", trackURL);
+        let decisionModel = DecisionModel("hello", trackURL, nil);
     }
     
     func modelUrl() -> URL {

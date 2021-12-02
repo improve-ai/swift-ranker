@@ -8,7 +8,11 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(DecisionTracker)
 @interface IMPDecisionTracker : NSObject
 
-@property(atomic, strong) NSURL *trackURL;
+// TODO
+// trackURL and trackApiKey used to be declared as 'atomic', why?
+@property(nonatomic, strong) NSURL *trackURL;
+
+@property(nonatomic, strong) NSString *trackApiKey;
 
 /**
  Hyperparameter that affects training speed and model performance. Values from 10-100 are probably reasonable.  0 disables runners up tracking
@@ -17,7 +21,7 @@ NS_SWIFT_NAME(DecisionTracker)
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithTrackURL:(NSURL *)trackURL NS_SWIFT_NAME(init(_:));
+- (instancetype)initWithTrackURL:(NSURL *)trackURL trackApiKey:(nullable NSString *)trackApiKey NS_SWIFT_NAME(init(_:_:));
 
 - (void)addReward:(double)reward forModel:(NSString *)modelName;
 

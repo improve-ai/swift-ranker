@@ -20,11 +20,15 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property(class) NSURL *defaultTrackURL;
 
+@property(class) NSString *defaultTrackApiKey;
+
 @property(class, readonly) ModelDictionary *instances;
 
 @property (class, readonly) GivensProvider *defaultGivensProvider;
 
 @property(atomic, strong, nullable) NSURL *trackURL;
+
+@property(atomic, strong, nullable) NSString *trackApiKey;
 
 @property(atomic, strong) MLModel *model;
 
@@ -35,10 +39,10 @@ NS_SWIFT_NAME(DecisionModel)
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * We suggest to have the defaultTrackURL set on startup before creating any IMPDecisionModel instances.
+ * We suggest to have the defaultTrackURL/defaultTrackApiKey set on startup before creating any IMPDecisionModel instances.
  *
- * The defaultTrackURL will be used to track decisions. So it's an equivalent of
- *   [[IMPDecisionModel alloc] initWithModelName:modelName trackURL:defaultTrackURL];
+ * The defaultTrackURL/defaultTrackApiKey will be used to track decisions. So it's an equivalent of
+ *   [[IMPDecisionModel alloc] initWithModelName:modelName trackURL:defaultTrackURL trackApiKey:defaultTrackApiKey];
  * @param modelName Length of modelName must be in range [1, 64]; Only alhpanumeric characters([a-zA-Z0-9]), '-', '.' and '_'
  * are allowed in the modenName and the first character must be an alphnumeric one. 
  * @exception NSInvalidArgumentException in case of an invalid modelName
@@ -49,9 +53,10 @@ NS_SWIFT_NAME(DecisionModel)
  * @param modelName Length of modelName must be in range [1, 64]; Only alhpanumeric characters([a-zA-Z0-9]), '-', '.' and '_'
  * are allowed in the modenName and the first character must be an alphnumeric one;
  * @param trackURL url for tracking decisions. If trackURL is nil, no decisions would be tracked.
+ * @param trackApiKey will be attached to the header fields of all the post request for tracking
  * @exception NSInvalidArgumentException in case of an invalid modelName
  */
-- (instancetype)initWithModelName:(nonnull NSString *)modelName trackURL:(nullable NSURL *)trackURL NS_SWIFT_NAME(init(_:_:));
+- (instancetype)initWithModelName:(nonnull NSString *)modelName trackURL:(nullable NSURL *)trackURL trackApiKey:(nullable NSString *)trackApiKey NS_SWIFT_NAME(init(_:_:_:));
 
 /**
  * @param url A url that can be a  local file path,  a remote http url that points to a MLModel file, or even a bundled MLModel file.

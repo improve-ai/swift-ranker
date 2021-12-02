@@ -23,6 +23,7 @@ static NSString * const kValueKey = @"value";
 static NSString * const kCountKey = @"count";
 static NSString * const kRunnersUpKey = @"runners_up";
 static NSString * const kDecisionIdKey = @"decision_id";
+static NSString * const kTrackApiKeyHeader = @"x-api-key";
 
 static NSString * const kDecisionType = @"decision";
 static NSString * const kEventType = @"event";
@@ -31,15 +32,15 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 
 @implementation IMPDecisionTracker
 
-- (instancetype)initWithTrackURL:(NSURL *)trackURL
+- (instancetype)initWithTrackURL:(NSURL *)trackURL trackApiKey:(NSString *)trackApiKey
 {
     if(self = [super init]) {
-        _trackURL = trackURL;
-        _maxRunnersUp = 50;
-
-        if (!trackURL) {
-            IMPErrLog("trackUrl is nil, tracking disabled");
+        if(trackURL == nil) {
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"trackURL can't be nil" userInfo:nil];
         }
+        _trackURL = trackURL;
+        _trackApiKey = trackApiKey;
+        _maxRunnersUp = 50;
     }
     return self;
 }
@@ -235,6 +236,10 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 - (void) postImproveRequest:(NSDictionary *) bodyValues url:(NSURL *) url block:(void (^)(NSObject *, NSError *)) block
 {
     NSMutableDictionary *headers = [@{ @"Content-Type": @"application/json" } mutableCopy];
+    
+    if(self.trackApiKey) {
+        [headers setObject:self.trackApiKey forKey:kTrackApiKeyHeader];
+    }
 
     NSString *dateStr = [self timestampFromDate:[NSDate date]];
 
