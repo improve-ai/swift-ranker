@@ -12,6 +12,7 @@
 #import "IMPDecision.h"
 #import "IMPUtils.h"
 #import "TestUtils.h"
+#import "IMPConstants.h"
 
 extern NSString * const kRemoteModelURL;
 
@@ -652,6 +653,22 @@ extern NSString * const kTrackerURL;
     }
     
     [IMPUtils dumpScores:scores andVariants:variants];
+}
+
+- (void)testAddReward_valid {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    [decisionModel addReward:0.1];
+}
+
+- (void)testAddReward_nil_trackURL {
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting" trackURL:nil];
+        [decisionModel addReward:0.1];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(e.name, IMPIllegalStateException);
+        return ;
+    }
+    XCTFail(@"trackURL can't be nil when calling DecisionModel.addReward()");
 }
 
 @end

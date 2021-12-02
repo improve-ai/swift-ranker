@@ -220,10 +220,8 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
                          url:trackURL
                        block:^
      (NSObject *result, NSError *error) {
-        if (error) {
-            IMPErrLog("Improve.track error: %@", error);
-        } else {
-            IMPLog("Improve.track response: %@", result);
+        if (error == nil) {
+            IMPLog("xxxxx, Improve.track response: %@", result);
         }
     }];
 }

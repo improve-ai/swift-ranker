@@ -8,6 +8,7 @@
 #import "IMPDecision.h"
 #import "IMPLogging.h"
 #import "IMPDecisionTracker.h"
+#import "IMPConstants.h"
 
 // Package private methods
 @interface IMPDecisionModel ()
@@ -93,7 +94,7 @@
                 }
             } else {
                 _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
-                IMPErrLog("tracker not set on DecisionModel, decision will not be tracked");
+                IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
             }
         } else {
             // Unit test that "variant": null JSON is tracked on null or empty variants.
@@ -102,7 +103,7 @@
             if(_model.tracker) {
                 _id = [_model.tracker track:_best variants:nil given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:NO];
             } else {
-                IMPErrLog("tracker not set on DecisionModel, decision will not be tracked");
+                IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
             }
         }
 
@@ -114,8 +115,7 @@
 
 - (void)addReward:(double)reward {
     if(_id == nil) {
-        IMPErrLog("addReward() should not be called prior to get()");
-        return ;
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"_id can't be nil when calling addReward()" userInfo:nil];
     }
     [self.model addReward:reward decision:_id];
 }

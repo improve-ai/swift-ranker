@@ -24,7 +24,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property (class, readonly) GivensProvider *defaultGivensProvider;
 
-@property(atomic, strong) NSURL *trackURL;
+@property(atomic, strong, nullable) NSURL *trackURL;
 
 @property(atomic, strong) MLModel *model;
 

@@ -15,6 +15,7 @@
 #import "IMPUtils.h"
 #import "IMPDecisionTracker.h"
 #import "AppGivensProvider.h"
+#import "IMPConstants.h"
 
 @interface IMPDecisionModel ()
 // Private vars
@@ -205,8 +206,7 @@ static GivensProvider *_defaultGivensProvider;
 - (void)addReward:(double) reward
 {
     if(_tracker == nil) {
-        IMPErrLog("trackURL of model(%@) is nil, this reward won't be tracked", self.modelName);
-        return ;
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
     }
     [_tracker addReward:reward forModel:self.modelName];
 }
@@ -214,8 +214,7 @@ static GivensProvider *_defaultGivensProvider;
 // Add reward for a specific tracked decision
 - (void)addReward:(double)reward decision:(NSString *)decisionId {
     if(_tracker == nil) {
-        IMPErrLog("trackURL of model(%@) is nil, this reward won't be tracked", self.modelName);
-        return ;
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
     }
     [_tracker addReward:reward forModel:self.modelName decision:decisionId];
 }
