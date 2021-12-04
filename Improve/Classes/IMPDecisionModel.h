@@ -106,7 +106,7 @@ NS_SWIFT_NAME(DecisionModel)
  * can be from a different DecisionModel instance or a previous session as long as they have the same model name.
  * If no previous Decision is found, the reward will be ignored.
  * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
- * @exception NSInvalidArgumentException in case of NaN or +-Infinity
+ * @throws NSInvalidArgumentException Thrown if reward is NaN or +-Infinity
  */
 - (void)addReward:(double) reward;
 

@@ -80,7 +80,7 @@
         
         NSArray *scores = [_model score:_variants given:givens];
 
-        if (_variants && _variants.count) {
+        if ([_variants count] > 0) {
             if (_model.tracker) {
                 if ([_model.tracker shouldTrackRunnersUp:_variants.count]) {
                     // the more variants there are, the less frequently this is called
@@ -97,14 +97,7 @@
                 IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
             }
         } else {
-            // Unit test that "variant": null JSON is tracked on null or empty variants.
-            // "count" field should be 1
-            _best = nil;
-            if(_model.tracker) {
-                _id = [_model.tracker track:_best variants:nil given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:NO];
-            } else {
-                IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
-            }
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants to choose from can't be nil or empty" userInfo:nil];
         }
 
         _chosen = TRUE;

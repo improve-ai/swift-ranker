@@ -64,6 +64,12 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     return ((double)arc4random() / UINT32_MAX) <= 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
+/**
+ * Since Decision.get() throwns an exception if variants is nil or empty, we can assume here that
+ * bestVariant won't be nil and variants.count > 0
+ * @param bestVariant won't be nil or empty.
+ * @param variants can't be nil or empty
+ */
 - (nullable NSString *)track:(id)bestVariant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
 {
     if ([modelName length] <= 0) {
@@ -151,23 +157,11 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 }
 
 - (void)setBestVariant:(id)bestVariant dict:(NSMutableDictionary *)body {
-    if (bestVariant) {
-        body[kVariantKey] = bestVariant;
-    } else {
-        // This happens when variants is empty or nil
-        body[kVariantKey] = [NSNull null];
-    }
+    body[kVariantKey] = bestVariant;
 }
 
-/**
- * "variant": null JSON is tracked on null or empty variants and "count" field should be 1
- */
 - (void)setCount:(NSArray *)variants dict:(NSMutableDictionary *)body {
-    if ([variants count] <= 0) {
-        body[kCountKey] = @1;
-    } else {
-        body[kCountKey] = @([variants count]);
-    }
+    body[kCountKey] = @([variants count]);
 }
 
 - (void)addReward:(double)reward forModel:(NSString *)modelName
