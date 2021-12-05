@@ -32,7 +32,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property(atomic, strong) MLModel *model;
 
-@property(nonatomic, readonly, strong) NSString *modelName;
+@property(nonatomic, readonly, copy) NSString *modelName;
 
 @property(strong, nonatomic) GivensProvider *givensProvider;
 

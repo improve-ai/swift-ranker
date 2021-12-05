@@ -120,6 +120,16 @@ extern NSString *const kTrackApiKey;
     XCTAssertEqualObjects(kTrackApiKey, decisionModel.trackApiKey);
 }
 
+- (void)testInit_mutable_modelName {
+    NSMutableString *modelName = [[NSMutableString alloc] initWithString:@"hello"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    XCTAssertNotEqual(modelName, decisionModel.modelName); // not same object
+    
+    XCTAssertEqualObjects(@"hello", decisionModel.modelName);
+    [modelName setString:@"world"];
+    XCTAssertEqualObjects(@"hello", decisionModel.modelName);
+}
+
 // The modelName set before loading the model has higher priority than
 // the modelName specified in the model file.
 - (void)testModelName {

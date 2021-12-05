@@ -82,7 +82,7 @@ static GivensProvider *_defaultGivensProvider;
 {
     if(self = [super init]) {
         if([self isValidModelName:modelName]) {
-            _modelName = modelName;
+            _modelName = [modelName copy];
         } else {
             NSString *reason = [NSString stringWithFormat:@"invalid model name: [%@]", modelName];
             @throw [NSException exceptionWithName:NSInvalidArgumentException
