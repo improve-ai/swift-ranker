@@ -39,7 +39,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"trackURL can't be nil" userInfo:nil];
         }
         _trackURL = trackURL;
-        _trackApiKey = trackApiKey;
+        _trackApiKey = [trackApiKey copy];
         _maxRunnersUp = 50;
     }
     return self;

@@ -17,6 +17,12 @@ NSString * const kTrackApiKey = @"api-key";
 
 NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.mlmodel.gz";
 
+@interface IMPDecisionModel ()
+
+@property (strong, atomic) IMPDecisionTracker *tracker;
+
+@end
+
 @interface IMPDecisionTracker ()
 
 - (id)sampleVariantOf:(NSArray *)variants runnersUpCount:(NSUInteger)runnersUpCount ranked:(BOOL)ranked bestVariant:(id)bestVariant;
@@ -42,6 +48,20 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 - (IMPDecisionTracker *)tracker {
     NSURL *url = [NSURL URLWithString:kTrackerURL];
     return [[IMPDecisionTracker alloc] initWithTrackURL:url trackApiKey:nil];
+}
+
+- (void)testInit_mutable_trackApiKey {
+    NSMutableString *trackApiKey = [[NSMutableString alloc] initWithString:@"hello"];
+    NSURL *url = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:url trackApiKey:trackApiKey];
+    XCTAssertNotNil(decisionModel.tracker.trackApiKey);
+    XCTAssertNotEqual(trackApiKey, decisionModel.tracker.trackApiKey);
+    XCTAssertEqualObjects(@"hello", decisionModel.tracker.trackApiKey);
+    
+    // test setter
+    decisionModel.tracker.trackApiKey = trackApiKey;
+    [trackApiKey setString:@"world"];
+    XCTAssertEqualObjects(@"hello", decisionModel.tracker.trackApiKey);
 }
 
 // 1 best variant, 1 runner-up, 1 sample

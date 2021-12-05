@@ -12,7 +12,7 @@ NS_SWIFT_NAME(DecisionTracker)
 // trackURL and trackApiKey used to be declared as 'atomic', why?
 @property(nonatomic, strong) NSURL *trackURL;
 
-@property(nonatomic, strong) NSString *trackApiKey;
+@property(nonatomic, copy) NSString *trackApiKey;
 
 /**
  Hyperparameter that affects training speed and model performance. Values from 10-100 are probably reasonable.  0 disables runners up tracking
