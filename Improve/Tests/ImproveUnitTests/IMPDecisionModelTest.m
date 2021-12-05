@@ -130,6 +130,25 @@ extern NSString *const kTrackApiKey;
     XCTAssertEqualObjects(@"hello", decisionModel.modelName);
 }
 
+- (void)testInit_mutable_trackApiKey {
+    NSMutableString *trackApiKey = [[NSMutableString alloc] initWithString:@"hello"];
+    NSURL *trackURL = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:trackURL trackApiKey:trackApiKey];
+    XCTAssertNotEqual(trackApiKey, decisionModel.trackApiKey); // not same object
+    
+    XCTAssertEqualObjects(@"hello", decisionModel.trackApiKey);
+    [trackApiKey setString:@"world"];
+    XCTAssertEqualObjects(@"hello", decisionModel.trackApiKey);
+    
+    // test setter
+    decisionModel.trackApiKey = trackApiKey;
+    XCTAssertNotEqual(trackApiKey, decisionModel.trackApiKey); // not same object
+    
+    XCTAssertEqualObjects(@"world", decisionModel.trackApiKey);
+    [trackApiKey setString:@"hello"];
+    XCTAssertEqualObjects(@"world", decisionModel.trackApiKey);
+}
+
 // The modelName set before loading the model has higher priority than
 // the modelName specified in the model file.
 - (void)testModelName {

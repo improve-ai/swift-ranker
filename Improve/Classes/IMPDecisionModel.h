@@ -28,7 +28,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property(atomic, strong, nullable) NSURL *trackURL;
 
-@property(atomic, strong, nullable) NSString *trackApiKey;
+@property(atomic, copy, nullable) NSString *trackApiKey;
 
 @property(atomic, strong) MLModel *model;
 
