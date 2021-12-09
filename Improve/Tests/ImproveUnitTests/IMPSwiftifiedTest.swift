@@ -20,9 +20,10 @@ class IMPSwiftifiedTest: XCTestCase {
     }
 
     func testDecisionModel() throws {
-        let context = ["language": "cowboy"]
+        let givens = ["language": "cowboy"]
         let variants = ["Hello World", "Howdy World", "Hi World"]
-        let greeting = try DecisionModel.load(self.modelUrl()).chooseFrom(variants).given(context).get()
+        let decisionModel = DecisionModel("greetings")
+        let greeting = try decisionModel.load(self.modelUrl()).given(givens).chooseFrom(variants).get()
         XCTAssertNotNil(greeting)
         print("greeting = \(greeting!)")
     }
@@ -30,7 +31,8 @@ class IMPSwiftifiedTest: XCTestCase {
     func testDecisionModelThrowError() throws {
         let variants = ["Hello World", "Howdy World", "Hi World"]
         do {
-            let greeting = try DecisionModel.load(self.modelUrl()).chooseFrom(variants).get()
+            let decisionModel = DecisionModel("greetings")
+            let greeting = try decisionModel.load(self.modelUrl()).chooseFrom(variants).get()
             if greeting != nil {
                 print("greeting = \(greeting!)")
             }
@@ -42,7 +44,8 @@ class IMPSwiftifiedTest: XCTestCase {
     // Handle exception by converting Errors to Optional Values
     func testDecisionModelThrowErrorOptional() throws {
         let variants = ["Hello World", "Howdy World", "Hi World"]
-        let greeting = try? DecisionModel.load(self.invalidModelUrl()).chooseFrom(variants).get();
+        let decisionModel = DecisionModel("greetings")
+        let greeting = try? decisionModel.load(self.invalidModelUrl()).chooseFrom(variants).get();
         XCTAssertNil(greeting)
     }
     
@@ -56,8 +59,8 @@ class IMPSwiftifiedTest: XCTestCase {
     func testTracker() throws {
         let trackerUrl = URL(string: "http://improve.ai")!
         
-        let tracker = DecisionTracker(trackerUrl)
-        tracker.trackEvent("event")
+        let tracker = DecisionTracker(trackerUrl, nil)
+        tracker.addReward(3.14, forModel: "greetings")
     }
     
     func testLoadAsync() throws {
@@ -71,6 +74,11 @@ class IMPSwiftifiedTest: XCTestCase {
             ex.fulfill()
         }
         waitForExpectations(timeout:15)
+    }
+    
+    func testDecisionModelWithTrackURL() {
+        let trackURL = URL(string: "http://improve.ai")!
+        let decisionModel = DecisionModel("hello", trackURL, nil);
     }
     
     func modelUrl() -> URL {

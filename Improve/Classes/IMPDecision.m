@@ -7,11 +7,17 @@
 
 #import "IMPDecision.h"
 #import "IMPLogging.h"
+#import "IMPDecisionTracker.h"
+#import "IMPConstants.h"
 
 // Package private methods
 @interface IMPDecisionModel ()
 
+@property (strong, atomic) IMPDecisionTracker *tracker;
+
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+
+- (void)addReward:(double)reward decision:(NSString *)decisionId;
 
 @end
 
@@ -20,7 +26,7 @@
 
 - (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount;
 
-- (void)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp;
+- (nullable NSString *)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp;
 @end
 
 // private vars
@@ -53,15 +59,13 @@
     return self;
 }
 
-- (instancetype)given:(NSDictionary <NSString *, id>*)givens
+- (void) setGivens:(NSDictionary <NSString *, id>*)givens
 {
     if (_chosen) {
         IMPErrLog("variant already chosen, ignoring givens");
     } else {
         _givens = givens;
     }
-    
-    return self;
 }
 
 - (id)get
@@ -72,39 +76,41 @@
             return _best;
         }
         
-        NSArray *scores = [_model score:_variants given:_givens];
+        NSDictionary *givens = [_model.givensProvider givensForModel:_model givens:_givens];
+        
+        NSArray *scores = [_model score:_variants given:givens];
 
-        if (_variants && _variants.count) {
+        if ([_variants count] > 0) {
             if (_model.tracker) {
                 if ([_model.tracker shouldTrackRunnersUp:_variants.count]) {
                     // the more variants there are, the less frequently this is called
                     NSArray *rankedVariants = [IMPDecisionModel rank:_variants withScores:scores];
                     _best = rankedVariants.firstObject;
-                    [_model.tracker track:_best variants:rankedVariants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
+                    _id = [_model.tracker track:_best variants:rankedVariants given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
                 } else {
                     // faster and more common path, avoids array sort
                     _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
-                    [_model.tracker track:_best variants:_variants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
+                    _id = [_model.tracker track:_best variants:_variants given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
                 }
             } else {
                 _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
-                IMPErrLog("tracker not set on DecisionModel, decision will not be tracked");
+                IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
             }
         } else {
-            // Unit test that "variant": null JSON is tracked on null or empty variants.
-            // "count" field should be 1
-            _best = nil;
-            if(_model.tracker) {
-                [_model.tracker track:_best variants:nil given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:NO];
-            } else {
-                IMPErrLog("tracker not set on DecisionModel, decision will not be tracked");
-            }
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants to choose from can't be nil or empty" userInfo:nil];
         }
 
         _chosen = TRUE;
     }
 
     return _best;
+}
+
+- (void)addReward:(double)reward {
+    if(_id == nil) {
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"_id can't be nil when calling addReward()" userInfo:nil];
+    }
+    [self.model addReward:reward decision:_id];
 }
 
 @end

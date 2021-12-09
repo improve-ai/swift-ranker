@@ -11,9 +11,17 @@
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
 
-NSString * const kTrackerURL = @"https://15dow26m4a.execute-api.us-east-2.amazonaws.com/track";
+NSString * const kTrackerURL = @"https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track";
+
+NSString * const kTrackApiKey = @"api-key";
 
 NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.mlmodel.gz";
+
+@interface IMPDecisionModel ()
+
+@property (strong, atomic) IMPDecisionTracker *tracker;
+
+@end
 
 @interface IMPDecisionTracker ()
 
@@ -27,11 +35,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 
 - (void)setCount:(NSArray *)variants dict:(NSMutableDictionary *)body;
 
-@end
-
-@interface IMPDecisionTracker ()
-
-- (NSString *)historyId;
+- (nullable NSString *)createAndPersistDecisionIdForModel:(NSString *)modelName;
 
 @end
 
@@ -41,27 +45,29 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 
 @implementation IMPTrackerTest
 
-- (void)testHistoryId {
-    // Remove history id cached
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults removeObjectForKey:@"ai.improve.history_id"];
-    
-    NSURL *trackerURL = [NSURL URLWithString:kTrackerURL];
-    IMPDecisionTracker *tracker_1 = [[IMPDecisionTracker alloc] initWithTrackURL:trackerURL];
+- (IMPDecisionTracker *)tracker {
+    NSURL *url = [NSURL URLWithString:kTrackerURL];
+    return [[IMPDecisionTracker alloc] initWithTrackURL:url trackApiKey:nil];
+}
 
-    NSLog(@"historyId: %@", tracker_1.historyId);
+- (void)testInit_mutable_trackApiKey {
+    NSMutableString *trackApiKey = [[NSMutableString alloc] initWithString:@"hello"];
+    NSURL *url = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:url trackApiKey:trackApiKey];
+    XCTAssertNotNil(decisionModel.tracker.trackApiKey);
+    XCTAssertNotEqual(trackApiKey, decisionModel.tracker.trackApiKey);
+    XCTAssertEqualObjects(@"hello", decisionModel.tracker.trackApiKey);
     
-    XCTAssert(tracker_1.historyId.length == 36);
-    
-    IMPDecisionTracker *tracker_2 = [[IMPDecisionTracker alloc] initWithTrackURL:trackerURL];
-    XCTAssertEqualObjects(tracker_1.historyId, tracker_2.historyId);
+    // test setter
+    decisionModel.tracker.trackApiKey = trackApiKey;
+    [trackApiKey setString:@"world"];
+    XCTAssertEqualObjects(@"hello", decisionModel.tracker.trackApiKey);
 }
 
 // 1 best variant, 1 runner-up, 1 sample
 - (void)testSampleVariant_Null_Sample {
-    NSURL *url = [NSURL URLWithString:kTrackerURL];
     NSArray *variants = @[@"foo", @"bar", [NSNull null]];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 1;
     
     NSArray *runnersUp = [tracker topRunnersUp:variants];
@@ -74,8 +80,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 // If there are no runners up, then sample is a random sample from
 // variants with just best excluded.
 - (void)testSampleVariant_0_RunnersUp {
-    NSURL *url = [NSURL URLWithString:kTrackerURL];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 0;
 
     int loop = 1000000;
@@ -104,7 +109,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 // variants with best and runners up excluded.
 - (void)testSampleVariant_2_RunnersUp {
     NSURL *url = [NSURL URLWithString:kTrackerURL];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 2;
 
     int loop = 1000000;
@@ -128,8 +133,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 
 // If there is only one variant, which is the best, then there is no sample.
 - (void)testSampleVariant_1_variant {
-    NSURL *url = [NSURL URLWithString:kTrackerURL];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
 
     NSArray *variants = @[@1];
@@ -141,8 +145,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 
 // If there are no remaining variants after best and runners up, then there is no sample.
 - (void)testSampleVariant_0_remaining_variants {
-    NSURL *url = [NSURL URLWithString:kTrackerURL];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
 
     NSArray *variants = @[@1, @2, @3, @4, @5];
@@ -153,8 +156,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 }
 
 - (void)testSampleVariant_0_Runners_Up_Not_Ranked {
-    NSURL *url = [NSURL URLWithString:kTrackerURL];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 0;
     
     NSArray *variants = @[@1, @2, @3, @4, @5];
@@ -183,51 +185,12 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     XCTAssertTrue(ABS(loop/4 - [sampleCountDict[@5] intValue]) < 1000);
 }
 
-- (void)testSampleVariant_Not_Ranked_identical_variants {
-    NSURL *url = [NSURL URLWithString:kTrackerURL];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
-    tracker.maxRunnersUp = 0;
-    
-    NSArray *variants = @[@2, @2, @2, @2, @2];
-    NSUInteger runnersUpCount = 0;
-    
-    id bestVariant = @2;
-    
-    int loop = 1000000;
-    NSMutableDictionary *sampleCountDict = [[NSMutableDictionary alloc] init];
-    
-    for(int i = 0; i < loop; ++i) {
-        id sampleVariant = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount ranked:NO bestVariant:bestVariant];
-        sampleCountDict[sampleVariant] = @([sampleCountDict[sampleVariant] intValue] + 1);
-    }
-    NSLog(@"sampleCount: %d", [sampleCountDict[@2] intValue]);
-    XCTAssertEqual([sampleCountDict[@2] intValue], loop);
-}
-
-- (void)testShouldTrackRunnersUp_0_variantsCount {
-    int loop = 1000000;
-    int variantCount = 0;
-    int shouldTrackCount = 0;
-    
-    NSURL *url = [NSURL URLWithString:@""];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
-    tracker.maxRunnersUp = 50;
-    for (int i = 0; i < loop; ++i) {
-        if([tracker shouldTrackRunnersUp:variantCount]) {
-            shouldTrackCount++;
-        }
-    }
-    XCTAssertEqual(shouldTrackCount, 0);
-    NSLog(@"shouldTrackCount=%d", shouldTrackCount);
-}
-
 - (void)testShouldTrackRunnersUp_1_variantsCount {
     int loop = 1000000;
     int variantCount = 1;
     int shouldTrackCount = 0;
     
-    NSURL *url = [NSURL URLWithString:@""];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
     
     for (int i = 0; i < loop; ++i) {
@@ -244,8 +207,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     int variantCount = 2;
     int shouldTrackCount = 0;
     
-    NSURL *url = [NSURL URLWithString:@""];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
     
     for (int i = 0; i < loop; ++i) {
@@ -262,8 +224,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     int variantCount = 10;
     int shouldTrackCount = 0;
     
-    NSURL *url = [NSURL URLWithString:@""];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
     
     for (int i = 0; i < loop; ++i) {
@@ -283,8 +244,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     int variantCount = 100;
     int shouldTrackCount = 0;
     
-    NSURL *url = [NSURL URLWithString:@""];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
     
     for (int i = 0; i < loop; ++i) {
@@ -305,8 +265,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     int variantCount;
     int shouldTrackCount;
     
-    NSURL *url = [NSURL URLWithString:@""];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 0;
     
     variantCount = 10;
@@ -322,9 +281,8 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 
 // 1 best variant, 2 runners-up
 - (void)testTopRunnersUp_Null_Runnersup {
-    NSURL *url = [NSURL URLWithString:kTrackerURL];
     NSArray *variants = @[@"foo", [NSNull null], @"bar"];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
     NSArray *runnersUp = [tracker topRunnersUp:variants];
     
@@ -340,8 +298,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 }
 
 - (void)testTopRunnersUp_1_variant {
-    NSURL *url = [NSURL URLWithString:@""];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
     
     NSArray *variants = @[@1];
@@ -350,8 +307,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 }
 
 - (void)testTopRunnersUp_2_variant {
-    NSURL *url = [NSURL URLWithString:@""];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
     
     NSArray *variants = @[@1, @2];
@@ -360,8 +316,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 }
 
 - (void)testTopRunnersUp_10_variants {
-    NSURL *url = [NSURL URLWithString:@""];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
     
     NSMutableArray *variants_10 = [[NSMutableArray alloc] init];
@@ -376,8 +331,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 }
 
 - (void)testTopRunnersUp_100_variants {
-    NSURL *url = [NSURL URLWithString:@""];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:url];
+    IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 50;
     
     NSMutableArray *variants_100 = [[NSMutableArray alloc] init];
@@ -391,31 +345,8 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     }
 }
 
-- (void)testSetBestVariantNil {
-    NSURL *trackerUrl = [NSURL URLWithString:@"tracker url"];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
-    
-    NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
-    [tracker setBestVariant:nil dict:body];
-
-    XCTAssertEqualObjects(body[@"variant"], [NSNull null]);
-    
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:nil];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    
-    // body looks like this when printed
-    // {
-    //     "count" : 1,
-    //     "variant" : null
-    // }
-    NSLog(@"jsonString: %@", jsonString);
-}
-
 - (void)testSetBestVariantNonNil {
-    NSURL *trackerUrl = [NSURL URLWithString:@"tracker url"];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
+    IMPDecisionTracker *tracker = [self tracker];
     
     NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
     [tracker setBestVariant:@"hello" dict:body];
@@ -423,31 +354,8 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     XCTAssertEqualObjects(body[@"variant"], @"hello");
 }
 
-- (void)testSetCount_nil_variants {
-    NSURL *trackerUrl = [NSURL URLWithString:@"tracker url"];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
-    
-    NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
-    [tracker setCount:nil dict:body];
-    
-    XCTAssertEqualObjects(body[@"count"], @1);
-}
-
-- (void)testSetCount_empty_variants {
-    NSURL *trackerUrl = [NSURL URLWithString:@"tracker url"];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
-    
-    NSArray *variants = [[NSArray alloc] init];
-    
-    NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
-    [tracker setCount:variants dict:body];
-    
-    XCTAssertEqualObjects(body[@"count"], @1);
-}
-
 - (void)testSetCount_10_variants {
-    NSURL *trackerUrl = [NSURL URLWithString:@"tracker url"];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
+    IMPDecisionTracker *tracker = [self tracker];
     
     NSMutableArray *variants = [[NSMutableArray alloc] init];
     for(int i = 0; i < 10; ++i) {
@@ -462,11 +370,6 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
                                                          error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
-    // body looks like this when printed
-    // {
-    //     "count" : 1,
-    //     "variant" : null
-    // }
     NSLog(@"jsonString: %@", jsonString);
     
     XCTAssertEqualObjects(body[@"count"], @10);
@@ -479,24 +382,11 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     
     NSError *err;
     NSURL *modelUrl = [NSURL URLWithString:kRemoteModelURL];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel load:modelUrl error:&err] trackWith:tracker];
-    NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
-    NSLog(@"greeting=%@", greeting);
-    
-    [NSThread sleepForTimeInterval:6];
-}
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    [decisionModel load:modelUrl error:&err];
+    decisionModel.trackURL = trackerUrl;
 
-- (void)testTrackerRequestNilVariants {
-    NSURL *trackerUrl = [NSURL URLWithString:kTrackerURL];
-//    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
-    NSArray *variants = nil;
-    NSDictionary *context = @{@"language": @"cowboy"};
-    
-    NSError *err;
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl];
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel load:[self modelUrl] error:&err] trackWith:tracker];
-    NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
+    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
     NSLog(@"greeting=%@", greeting);
     
     [NSThread sleepForTimeInterval:6];
@@ -508,8 +398,54 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     NSDictionary *context = @{@"language": @"cowboy"};
     
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    [decisionModel trackWith:[[IMPDecisionTracker alloc] initWithTrackURL:trackerUrl]];
-    [[[decisionModel chooseFrom:variants] given:context] get];
+    decisionModel.trackURL = trackerUrl;
+    [[[decisionModel given:context] chooseFrom:variants] get];
+}
+
+- (void)testAddReward_NaN {
+    NSString *modelName = @"test_AddReward_NaN";
+    IMPDecisionTracker *tracker = [self tracker];
+    [tracker createAndPersistDecisionIdForModel:modelName];
+    @try {
+        [tracker addReward:NAN forModel:modelName];
+    } @catch(id exception) {
+        NSLog(@"addReward exception: %@", exception);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown, we should never reach here.");
+}
+
+- (void)testAddReward_Negative_Infinity {
+    NSString *modelName = @"test_AddReward_Infinity";
+    IMPDecisionTracker *tracker = [self tracker];
+    [tracker createAndPersistDecisionIdForModel:modelName];
+    @try {
+        [tracker addReward:-INFINITY forModel:modelName];
+    } @catch(id exception) {
+        NSLog(@"addReward exception: %@", exception);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown, we should never reach here.");
+}
+
+- (void)testAddReward_Positive_Infinity {
+    NSString *modelName = @"test_AddReward_Infinity";
+    IMPDecisionTracker *tracker = [self tracker];
+    [tracker createAndPersistDecisionIdForModel:modelName];
+    @try {
+        [tracker addReward:INFINITY forModel:modelName];
+    } @catch(id exception) {
+        NSLog(@"addReward exception: %@", exception);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown, we should never reach here.");
+}
+
+- (void)testAddReward_Valid {
+    IMPDecisionTracker *tracker = [self tracker];
+    [tracker addReward:1.0 forModel:@"hello"];
+    [tracker addReward:0.1 forModel:@"hello"];
+    [tracker addReward:-1.0 forModel:@"hello"];
 }
 
 - (NSURL *)modelUrl {

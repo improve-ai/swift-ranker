@@ -13,4 +13,6 @@
 
 extern NSString *const kIMPVersion;
 
+extern NSString *const IMPIllegalStateException;
+
 #endif /* IMPConstants_h */

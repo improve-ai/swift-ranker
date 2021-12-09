@@ -7,15 +7,21 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "IMPDecisionTracker.h"
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
 #import "IMPUtils.h"
 #import "TestUtils.h"
 #import "IMPFeatureEncoder.h"
+#import "IMPConstants.h"
 
 extern NSString * const kRemoteModelURL;
 
+extern NSString *const kTrackApiKey;
+
 @interface IMPDecisionModel ()
+
+@property (strong, atomic) IMPDecisionTracker *tracker;
 
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
@@ -31,9 +37,29 @@ extern NSString * const kRemoteModelURL;
 
 @end
 
+@interface TestGivensProvider : GivensProvider
+
+@end
+
+@implementation TestGivensProvider
+
+@end
+
 @interface IMPDecisionModelTest : XCTestCase
 
 @property (strong, nonatomic) NSArray *urlList;
+
+@property (strong, nonatomic) NSURL *modelURL;
+
+@property (strong, nonatomic) NSURL *bundledModelURL;
+
+@end
+
+@interface ModelDictionary ()
+
+- (NSUInteger)count;
+
+- (void)clear;
 
 @end
 
@@ -42,37 +68,260 @@ extern NSString * const kRemoteModelURL;
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
     NSLog(@"%@", [[TestUtils bundle] bundlePath]);
+    IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionModel.defaultTrackApiKey = kTrackApiKey;
 }
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-- (NSArray *)urlList{
-    if(_urlList == nil){
-        _urlList = @[
-            [NSURL URLWithString:kRemoteModelURL],
-            [[TestUtils bundle] URLForResource:@"TestModel"
-                                 withExtension:@"mlmodelc"]];
+- (NSURL *)modelURL {
+    if(_modelURL == nil) {
+        _modelURL = [NSURL URLWithString:kRemoteModelURL];
     }
-    return _urlList;
+    return _modelURL;
+}
+
+- (NSURL *)bundledModelURL {
+    if(_bundledModelURL == nil) {
+        _bundledModelURL = [[TestUtils bundle] URLForResource:@"TestModel"
+                                                withExtension:@"mlmodelc"];
+    }
+    return _bundledModelURL;
 }
 
 - (void)testInit {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    XCTAssertEqualObjects(decisionModel.modelName, @"hello");
+    NSString *modelName = @"hello";
+    
+    IMPDecisionModel *decisionModel_0 = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    XCTAssertEqualObjects(decisionModel_0.modelName, modelName);
+    XCTAssertNotNil(decisionModel_0.trackURL);
+    XCTAssertNotNil(decisionModel_0.trackURL);
+    XCTAssertNotNil(decisionModel_0.trackApiKey);
+    
+    IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
+    
+    IMPDecisionModel *decisionModel_1 = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    XCTAssertNotNil(decisionModel_1.trackURL);
+    XCTAssertEqual(IMPDecisionModel.defaultTrackURL, decisionModel_1.trackURL);
 }
 
+- (void)testInit_nil_url_and_apikey {
+    NSString *modelName = @"hello";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName trackURL:nil trackApiKey:nil];
+    XCTAssertNil(decisionModel.tracker);
+    XCTAssertNil(decisionModel.trackApiKey);
+    XCTAssertNil(decisionModel.trackURL);
+    
+    decisionModel.trackURL = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionTracker *tracker = decisionModel.tracker;
+    XCTAssertNotNil(tracker);
+    XCTAssertNotNil(decisionModel.trackURL);
+    XCTAssertNil(decisionModel.trackApiKey);
+    
+    decisionModel.trackApiKey = kTrackApiKey;
+    XCTAssertEqual(tracker, decisionModel.tracker); // same object
+    XCTAssertNotNil(decisionModel.tracker);
+    XCTAssertNotNil(decisionModel.trackApiKey);
+    XCTAssertEqualObjects(kTrackApiKey, decisionModel.trackApiKey);
+}
+
+- (void)testInit_mutable_modelName {
+    NSMutableString *modelName = [[NSMutableString alloc] initWithString:@"hello"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    XCTAssertNotEqual(modelName, decisionModel.modelName); // not same object
+    
+    XCTAssertEqualObjects(@"hello", decisionModel.modelName);
+    [modelName setString:@"world"];
+    XCTAssertEqualObjects(@"hello", decisionModel.modelName);
+}
+
+- (void)testInit_mutable_trackApiKey {
+    NSMutableString *trackApiKey = [[NSMutableString alloc] initWithString:@"hello"];
+    NSURL *trackURL = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:trackURL trackApiKey:trackApiKey];
+    XCTAssertNotEqual(trackApiKey, decisionModel.trackApiKey); // not same object
+    
+    XCTAssertEqualObjects(@"hello", decisionModel.trackApiKey);
+    [trackApiKey setString:@"world"];
+    XCTAssertEqualObjects(@"hello", decisionModel.trackApiKey);
+    
+    // test setter
+    decisionModel.trackApiKey = trackApiKey;
+    XCTAssertNotEqual(trackApiKey, decisionModel.trackApiKey); // not same object
+    
+    XCTAssertEqualObjects(@"world", decisionModel.trackApiKey);
+    [trackApiKey setString:@"hello"];
+    XCTAssertEqualObjects(@"world", decisionModel.trackApiKey);
+}
+
+// The modelName set before loading the model has higher priority than
+// the modelName specified in the model file.
 - (void)testModelName {
+    NSString *modelName = @"hello";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSError *err;
+    [decisionModel load:[self modelURL] error:&err];
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(modelName, decisionModel.modelName);
+}
+
+// modelName can be nil
+- (void)testModelName_Nil {
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:nil];
+    } @catch(id exception) {
+        NSLog(@"modelName can't be nil");
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
+// modelName length must be in range [1, 64]
+- (void)testModelName_Empty {
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@""];
+        NSLog(@"modelName = [%@]", decisionModel.modelName);
+    } @catch(id exception) {
+        // An exception is expected here.
+        NSLog(@"modelName can't be empty.");
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
+// modelName length must be in range [1, 64]
+- (void)testModelName_Length_5 {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
-                                      withExtension:@"mlmodelc"];
-    XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
-    [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
-        XCTAssertEqualObjects(decisionModel.modelName, @"songs-2.0");
-        [ex fulfill];
-    }];
-    [self waitForExpectations:@[ex] timeout:3];
+    NSLog(@"modelName = [%@]", decisionModel.modelName);
+    XCTAssertEqualObjects(@"hello", decisionModel.modelName);
+}
+
+// modelName length must be in range [1, 64]
+- (void)testModelName_Length_64 {
+    NSString *modelName = @"";
+    for(int i = 0; i < 64; ++i) {
+        modelName = [modelName stringByAppendingString:@"0"];
+    }
+    XCTAssertEqual(64, modelName.length);
+    
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSLog(@"modelName = [%@]", decisionModel.modelName);
+    XCTAssertEqualObjects(modelName, decisionModel.modelName);
+}
+
+// modelName length must be in range [1, 64]
+- (void)testModelName_Length_65 {
+    NSString *modelName = @"";
+    for(int i = 0; i < 65; ++i) {
+        modelName = [modelName stringByAppendingString:@"0"];
+    }
+    XCTAssertEqual(65, modelName.length);
+    
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+        NSLog(@"modelName = [%@]", decisionModel.modelName);
+    } @catch(id exception) {
+        // An exception is expected here
+        NSLog(@"length of modelName can't exceed 64");
+        return ;
+    }
+    
+    XCTFail("An exception should have been thrown, we should never reach here");
+}
+
+- (void)testModelName_valid_characters {
+    NSArray *modelNames = @[
+        @"a",
+        @"a_",
+        @"a.",
+        @"a-",
+        @"a1",
+        @"3Abb"
+    ];
+    
+    for(int i = 0; i < [modelNames count]; ++i) {
+        NSString *modelName = modelNames[i];
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+        XCTAssertEqual(modelName, decisionModel.modelName);
+    }
+    
+}
+
+- (void)testModelName_invalid_characters {
+    NSArray *modelNames = @[
+        @"_a",
+        @"a+",
+        @"a\\"
+    ];
+    
+    for(int i = 0; i < [modelNames count]; ++i) {
+        @try {
+            NSString *modelName = modelNames[i];
+            IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+            XCTAssertEqual(modelName, decisionModel.modelName);
+        } @catch(id exception) {
+            NSLog(@"case: %@, exception: %@", modelNames[i], exception);
+            continue ;
+        }
+        NSLog(@"failed: %@", modelNames[i]);
+        XCTFail(@"An exception should have been throw, we should never reach here.");
+    }
+}
+
+- (void)testModelInstances {
+    [IMPDecisionModel.instances clear];
+    
+    NSString *modelName = @"hello";
+    // Create and cache the model if not exist
+    XCTAssertEqual(0, [IMPDecisionModel.instances count]);
+    IMPDecisionModel *decisionModel = IMPDecisionModel.instances[modelName];
+    XCTAssertEqual(1, [IMPDecisionModel.instances count]);
+    XCTAssertNotNil(decisionModel);
+    XCTAssertEqual(decisionModel, IMPDecisionModel.instances[modelName]);
+    
+    IMPDecisionModel.instances[modelName] = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSLog(@"modelName: %@", IMPDecisionModel.instances[modelName].modelName);
+    XCTAssertEqualObjects(modelName, IMPDecisionModel.instances[modelName].modelName);
+    
+    // Same object
+    XCTAssertEqual(IMPDecisionModel.instances[modelName], IMPDecisionModel.instances[modelName]);
+    
+    // Overwrite existing model
+    XCTAssertEqual(1, [IMPDecisionModel.instances count]);
+    IMPDecisionModel *oldModel = IMPDecisionModel.instances[modelName];
+    IMPDecisionModel.instances[modelName] = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    IMPDecisionModel *newModel = IMPDecisionModel.instances[modelName];
+    // oldModel and newModel point to different objects
+    XCTAssertNotEqual(oldModel, newModel);
+    XCTAssertEqual(1, [IMPDecisionModel.instances count]);
+    
+    // set as nil to remove the existing model
+    XCTAssertEqual(1, [IMPDecisionModel.instances count]);
+    IMPDecisionModel.instances[modelName] = nil;
+    XCTAssertEqual(0, [IMPDecisionModel.instances count]);
+}
+
+// modelName and the key must be equal
+- (void)testModelInstances_Invalid {
+    @try {
+        IMPDecisionModel.instances[@"aaa"] = [[IMPDecisionModel alloc] initWithModelName:@"bbb"];
+    } @catch(id exception) {
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown. We should never reach here");
+}
+
+- (void)testGivensProvider {
+    NSString *modelName = @"hello";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    XCTAssertNotNil(decisionModel.givensProvider);
+    XCTAssertEqual(decisionModel.givensProvider, IMPDecisionModel.defaultGivensProvider);
+    
+    decisionModel.givensProvider = [[TestGivensProvider alloc] init];
+    XCTAssertNotNil(decisionModel.givensProvider);
+    XCTAssertNotEqual(decisionModel.givensProvider, IMPDecisionModel.defaultGivensProvider);
 }
 
 - (void)testLoadLocalModelFile {
@@ -80,10 +329,10 @@ extern NSString * const kRemoteModelURL;
     NSURL *modelURL = [[TestUtils bundle] URLForResource:@"TestModel"
                          withExtension:@"dat"];
     NSLog(@"model url: %@", modelURL);
-    IMPDecisionModel *model = [IMPDecisionModel load:modelURL error:&error];
-    XCTAssertNotNil(model);
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [model load:modelURL error:&error];
     XCTAssertNil(error);
-    XCTAssertEqualObjects(@"songs-2.0", model.modelName);
 }
 
 - (void)testLoadAsync{
@@ -107,20 +356,26 @@ extern NSString * const kRemoteModelURL;
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
 
     NSError *err;
-    for(NSURL *url in self.urlList){
-        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
-        XCTAssertNil(err);
-        XCTAssertNotNil(decisionModel);
-        XCTAssertTrue([decisionModel.modelName length] > 0);
-    }
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    XCTAssertNotNil([decisionModel load:self.bundledModelURL error:&err]);
+    XCTAssertNil(err);
+    XCTAssertTrue([decisionModel.modelName length] > 0);
 }
 
 - (void)testLoadSyncToFail {
     NSError *err;
     NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/not/exist/TestModel.mlmodel3.gz"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    XCTAssertNil([decisionModel load:url error:&err]);
     XCTAssertNotNil(err);
-    XCTAssertNil(decisionModel);
+    NSLog(@"loadToFail, error = %@", err);
+}
+
+- (void)testLoadSyncToFail_Nil_Error {
+    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/not/exist/TestModel.mlmodel3.gz"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    XCTAssertNil([decisionModel load:url error:nil]);
 }
 
 - (void)testLoadSyncToFailWithInvalidModelFile {
@@ -128,9 +383,9 @@ extern NSString * const kRemoteModelURL;
     // The model exists, but is not valid
     NSURL *modelURL = [[TestUtils bundle] URLForResource:@"InvalidModel"
                          withExtension:@"dat"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelURL error:&err];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    XCTAssertNil([decisionModel load:modelURL error:&err]);
     XCTAssertNotNil(err);
-    XCTAssertNil(decisionModel);
     NSLog(@"load error: %@", err);
 }
 
@@ -139,21 +394,16 @@ extern NSString * const kRemoteModelURL;
     
     XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        XCTAssert(![NSThread isMainThread]);
+        XCTAssertFalse([NSThread isMainThread]);
         NSError *err;
-        for(NSURL *url in self.urlList){
-            NSLog(@"model: %@", url);
-            IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
-            XCTAssertNil(err);
-            XCTAssertNotNil(decisionModel);
-            XCTAssertTrue([decisionModel.modelName length] > 0);
-        }
-        NSURL *url = [NSURL URLWithString:kRemoteModelURL];
-        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
-        [decisionModel chooseFrom:@[]];
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+        XCTAssertNotNil([decisionModel load:self.bundledModelURL error:&err]);
+        XCTAssertNil(err);
+        XCTAssertTrue([decisionModel.modelName length] > 0);
+        NSLog(@"modelName: %@", decisionModel.modelName);
         [ex fulfill];
     });
-    [self waitForExpectations:@[ex] timeout:300];
+    [self waitForExpectations:@[ex] timeout:30];
 }
 
 - (void)testDescendingGaussians {
@@ -217,15 +467,17 @@ extern NSString * const kRemoteModelURL;
 - (void)testChooseFrom {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
-    for(NSURL *url in self.urlList){
-        NSError *err;
-        IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
-        XCTAssertNotNil(decisionModel);
-        XCTAssertNil(err);
-        NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
-        IMPLog("url=%@, greeting=%@", url, greeting);
-        XCTAssertNotNil(greeting);
-    }
+    
+    NSURL *modelURL = [NSURL URLWithString:kRemoteModelURL];
+    
+    NSError *err;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    [decisionModel load:modelURL error:&err];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(err);
+    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
+    IMPLog("url=%@, greeting=%@", modelURL, greeting);
+    XCTAssertNotNil(greeting);
 }
 
 extern NSString * const kTrackerURL;
@@ -242,11 +494,8 @@ extern NSString * const kTrackerURL;
                           [NSNull null]
     ];
     
-    NSURL *modelUrl = [[TestUtils bundle] URLForResource:@"TestModel"
-                                           withExtension:@"mlmodelc"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
-    [decisionModel trackWith:tracker];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    [decisionModel load:self.modelURL error:nil];
     [[decisionModel chooseFrom:variants] get];
 }
 
@@ -257,11 +506,10 @@ extern NSString * const kTrackerURL;
     
     NSArray *variants = @[urlVariant, dateVariant];
     
-    NSURL *modelUrl = [[TestUtils bundle] URLForResource:@"TestModel"
-                                           withExtension:@"mlmodelc"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelUrl error:nil];
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
-    [decisionModel trackWith:tracker];
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    [decisionModel load:self.modelURL error:&error];
+    XCTAssertNil(error);
     @try {
         [[decisionModel chooseFrom:variants] get];
     } @catch (NSException *e){
@@ -270,16 +518,6 @@ extern NSString * const kTrackerURL;
     }
     XCTFail(@"We should never reach here. An exception should have been thrown.");
 }
-
-- (void)testLoadToFail {
-    // url that does not exists
-    NSError *err;
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/TestModel.mlmodel3.gzs"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:&err];
-    XCTAssertNotNil(err);
-    XCTAssertNil(decisionModel);
-}
-
 
 - (void)testRank{
     NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
@@ -441,16 +679,6 @@ extern NSString * const kTrackerURL;
     XCTFail(@"An exception should have been thrown, we should not have reached here.");
 }
 
-- (void)testSetTracker {
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:@"tracker url"]];
-    
-    NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
-                                      withExtension:@"mlmodelc"];
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:url error:nil];
-    XCTAssertTrue([[decisionModel trackWith:tracker] isKindOfClass:[IMPDecisionModel class]]);
-    XCTAssertNotNil(decisionModel.tracker);
-}
-
 - (void)testDumpScore_11 {
     int size = 11;
     NSMutableArray *scores = [[NSMutableArray alloc] init];
@@ -530,7 +758,7 @@ extern NSString * const kTrackerURL;
     XCTAssertNotNil(variants);
     XCTAssertNotNil(givens);
     
-    IMPDecisionModel *decisionModel = [IMPDecisionModel load:modelURL error:nil];
+    IMPDecisionModel *decisionModel = [[[IMPDecisionModel alloc] initWithModelName:@"hello"] load:modelURL error:nil];
     decisionModel.enableTieBreaker = NO;
     decisionModel.featureEncoder.noise = noise;
     
@@ -562,6 +790,26 @@ extern NSString * const kTrackerURL;
         }
     }
     return YES;
+}
+
+- (void)testAddReward_valid {
+//    XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    [[decisionModel chooseFrom:variants] get];
+    [decisionModel addReward:0.1];
+//    [self waitForExpectations:@[ex] timeout:300];
+}
+
+- (void)testAddReward_nil_trackURL {
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting" trackURL:nil trackApiKey:nil];
+        [decisionModel addReward:0.1];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(e.name, IMPIllegalStateException);
+        return ;
+    }
+    XCTFail(@"trackURL can't be nil when calling DecisionModel.addReward()");
 }
 
 @end

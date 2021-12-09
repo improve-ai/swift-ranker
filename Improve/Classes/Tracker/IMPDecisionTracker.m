@@ -1,20 +1,16 @@
 //
-//  IMPDecisionTracker.m
-//  ImproveUnitTests
+//  Copyright © 2021 Mind Blown Apps, LLC. All rights reserved.
 //
-//  Created by Vladimir on 10/21/20.
-//  Copyright © 2020 Mind Blown Apps, LLC. All rights reserved.
-//
-
 #import "IMPDecisionTracker.h"
 #import "IMPDecision.h"
 #import "IMPLogging.h"
 #import "NSArray+Random.h"
+#import "NSString+KSUID.h"
+#import "AppGivensProvider.h"
 
 @import Security;
 
 static NSString * const kModelKey = @"model";
-static NSString * const kHistoryIdKey = @"history_id";
 static NSString * const kTimestampKey = @"timestamp";
 static NSString * const kMessageIdKey = @"message_id";
 static NSString * const kTypeKey = @"type";
@@ -23,40 +19,28 @@ static NSString * const kGivensKey = @"givens";
 static NSString * const kSampleKey = @"sample";
 static NSString * const kEventKey = @"event";
 static NSString * const kPropertiesKey = @"properties";
+static NSString * const kValueKey = @"value";
 static NSString * const kCountKey = @"count";
 static NSString * const kRunnersUpKey = @"runners_up";
+static NSString * const kDecisionIdKey = @"decision_id";
+static NSString * const kTrackApiKeyHeader = @"x-api-key";
 
 static NSString * const kDecisionType = @"decision";
 static NSString * const kEventType = @"event";
 
-static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
-
-
-@interface IMPDecisionTracker ()
-// Private vars
-
-@property (strong, atomic) NSString *historyId;
-
-@end
+static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 
 @implementation IMPDecisionTracker
 
-- (instancetype)initWithTrackURL:(NSURL *)trackURL
+- (instancetype)initWithTrackURL:(NSURL *)trackURL trackApiKey:(NSString *)trackApiKey
 {
     if(self = [super init]) {
+        if(trackURL == nil) {
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"trackURL can't be nil" userInfo:nil];
+        }
         _trackURL = trackURL;
+        _trackApiKey = [trackApiKey copy];
         _maxRunnersUp = 50;
-
-        if (!trackURL) {
-            IMPErrLog("trackUrl is nil, tracking disabled");
-        }
-
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        _historyId = [defaults stringForKey:kHistoryIdDefaultsKey];
-        if (!_historyId) {
-            _historyId = [[NSUUID UUID] UUIDString];
-            [defaults setObject:_historyId forKey:kHistoryIdDefaultsKey];
-        }
     }
     return self;
 }
@@ -80,21 +64,35 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     return ((double)arc4random() / UINT32_MAX) <= 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
-- (void)track:(id)bestVariant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
+/**
+ * Since Decision.get() throwns an exception if variants is nil or empty, we can assume here that
+ * bestVariant won't be nil and variants.count > 0
+ * @param bestVariant won't be nil or empty.
+ * @param variants can't be nil or empty
+ */
+- (nullable NSString *)track:(id)bestVariant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
 {
     if ([modelName length] <= 0) {
         IMPErrLog("Improve.track error modelName is empty or nil");
-        return;
+        return nil;
     }
     
     if(bestVariant != nil && [variants indexOfObject:bestVariant] == NSNotFound) {
         IMPErrLog("bestVariant must be included in variants");
-        return ;
+        return nil;
+    }
+    
+    // create and persist decisionId
+    NSString *decisionId = [self createAndPersistDecisionIdForModel:modelName];
+    if(decisionId == nil) {
+        IMPErrLog("decisionId generated is nil");
+        return nil;
     }
     
     NSMutableDictionary *body = [@{
         kTypeKey: kDecisionType,
         kModelKey: modelName,
+        kMessageIdKey: decisionId
     } mutableCopy];
     
     [self setBestVariant:bestVariant dict:body];
@@ -117,6 +115,8 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
     }
 
     [self track:body];
+    
+    return decisionId;
 }
 
 /**
@@ -157,44 +157,51 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 }
 
 - (void)setBestVariant:(id)bestVariant dict:(NSMutableDictionary *)body {
-    if (bestVariant) {
-        body[kVariantKey] = bestVariant;
-    } else {
-        // This happens when variants is empty or nil
-        body[kVariantKey] = [NSNull null];
-    }
+    body[kVariantKey] = bestVariant;
 }
 
-/**
- * "variant": null JSON is tracked on null or empty variants and "count" field should be 1
- */
 - (void)setCount:(NSArray *)variants dict:(NSMutableDictionary *)body {
-    if ([variants count] <= 0) {
-        body[kCountKey] = @1;
-    } else {
-        body[kCountKey] = @([variants count]);
+    body[kCountKey] = @([variants count]);
+}
+
+- (void)addReward:(double)reward forModel:(NSString *)modelName
+{
+    NSString *decisionId = [self lastDecisionIdOfModel:modelName];
+    if(decisionId == nil) {
+        IMPErrLog("last decisionId is nil, can't add reward for model(%@)", modelName);
+        return ;
     }
+    [self addReward:reward forModel:modelName decision:decisionId];
 }
 
-- (void)trackEvent:(NSString *)eventName
-{
-    [self trackEvent:eventName properties:nil];
-}
-
-- (void)trackEvent:(NSString *)eventName
-        properties:(nullable NSDictionary *)properties
-{
-    NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
-
-    if (eventName) {
-        [body setObject:eventName forKey:kEventKey];
+- (void)addReward:(double)reward forModel:(NSString *)modelName decision:(NSString *)decisionId {
+    // this implementation is an enormous hack.  This is just the way the gym is at the moment
+    // before the protocol redesign
+    if(isnan(reward) || isinf(reward)) {
+        NSString *reason = [NSString stringWithFormat:@"invalid reward: %lf, " \
+                            "must not be NaN or +-Infinity", reward];
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     }
     
-    if (properties) {
-        [body setObject:properties forKey:kPropertiesKey];
+    NSString *ksuid = [NSString ksuidString];
+    if(ksuid == nil) {
+        IMPErrLog("failed to generate ksuid");
+        return ;
     }
+    
+    NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
+
+    [body setObject:@"Reward" forKey:kEventKey];
+    [body setObject:modelName forKey:kModelKey];
+    [body setObject:decisionId forKey:kDecisionIdKey];
+    [body setObject:ksuid forKey:kMessageIdKey];
+    
+    NSDictionary *properties = @{ kValueKey: [NSNumber numberWithDouble:reward]};
+    [body setObject:properties forKey:kPropertiesKey];
 
     [self track:body];
+    
+    [AppGivensProvider addReward:reward forModel:modelName];
 }
 
 - (void)track:(NSDictionary *)body
@@ -208,10 +215,8 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
                          url:trackURL
                        block:^
      (NSObject *result, NSError *error) {
-        if (error) {
-            IMPErrLog("Improve.track error: %@", error);
-        } else {
-            IMPLog("Improve.track response: %@", result);
+        if (error == nil) {
+            IMPLog("xxxxx, Improve.track response: %@", result);
         }
     }];
 }
@@ -219,24 +224,21 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
 /**
  Sends POST HTTP request to the sepcified url.
 
- Body values for kTimestampKey, kHistoryIdKey and kMessageIdKey are added autmatically. You can override them
+ Body values for kTimestampKey and kMessageIdKey are added autmatically. You can override them
  providing values in the body.
  */
 - (void) postImproveRequest:(NSDictionary *) bodyValues url:(NSURL *) url block:(void (^)(NSObject *, NSError *)) block
 {
-    if (!self.historyId) {
-        block(nil, [NSError errorWithDomain:@"ai.improve" code:400 userInfo:@{NSLocalizedDescriptionKey: @"_historyId cannot be nil"}]);
-        return;
-    }
-
     NSMutableDictionary *headers = [@{ @"Content-Type": @"application/json" } mutableCopy];
+    
+    if(self.trackApiKey) {
+        [headers setObject:self.trackApiKey forKey:kTrackApiKeyHeader];
+    }
 
     NSString *dateStr = [self timestampFromDate:[NSDate date]];
 
     NSMutableDictionary *body = [@{
-        kTimestampKey: dateStr,
-        kHistoryIdKey: self.historyId,
-        kMessageIdKey: [[NSUUID UUID] UUIDString]
+        kTimestampKey: dateStr
     } mutableCopy];
     [body addEntriesFromDictionary:bodyValues];
     
@@ -314,6 +316,22 @@ static NSString * const kHistoryIdDefaultsKey = @"ai.improve.history_id";
                                                  formatOptions:options];
 
     return dateStr;
+}
+
+- (nullable NSString *)createAndPersistDecisionIdForModel:(NSString *)modelName {
+    NSString *ksuid = [NSString ksuidString];
+    if(ksuid != nil) {
+        NSString *key = [NSString stringWithFormat:kLastDecisionIdKey, modelName];
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:ksuid forKey:key];
+    }
+    return ksuid;
+}
+
+- (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName {
+    NSString *key = [NSString stringWithFormat:kLastDecisionIdKey, modelName];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults objectForKey:key];
 }
 
 @end

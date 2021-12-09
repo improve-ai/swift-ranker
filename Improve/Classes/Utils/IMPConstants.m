@@ -8,4 +8,6 @@
 
 #import "IMPConstants.h"
 
-NSString *const kIMPVersion = @"6.0.0";
+NSString *const kIMPVersion = @"7.0";
+
+NSString *const IMPIllegalStateException = @"IllegalStateException";

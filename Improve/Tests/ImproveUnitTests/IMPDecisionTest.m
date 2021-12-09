@@ -10,6 +10,7 @@
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
 #import "TestUtils.h"
+#import "IMPConstants.h"
 
 @interface IMPDecisionTest : XCTestCase
 
@@ -19,67 +20,117 @@
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
 }
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-- (void)testChooseFromNilVariants {
+- (void)testGet_nil_variants {
     NSArray *variants = nil;
     NSDictionary *context = @{@"language": @"cowboy"};
-    
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    decisionModel.tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:@""]];
-    
-    NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
-    XCTAssertNil(greeting);
+    @try {
+        [[[decisionModel given:context] chooseFrom:variants] get];
+    } @catch(NSException *e) {
+        XCTAssertEqual(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
 }
 
-- (void)testChooseFromEmptyVariants {
+- (void)testGet_empty_variants {
     NSArray *variants = @[];
     NSDictionary *context = @{@"language": @"cowboy"};
-    
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    XCTAssertNotNil(decisionModel);
     
-    NSString *greeting = [[[decisionModel chooseFrom:variants] given:context] get];
-    IMPLog("greeting=%@", greeting);
-    XCTAssertNil(greeting);
-    
-    NSURL *url = [[TestUtils bundle] URLForResource:@"TestModel"
-                                      withExtension:@"mlmodelc"];
-    [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
-        XCTAssertNil(error);
-        
-        NSString *greeting = [[compiledModel chooseFrom:variants] get];
-        XCTAssertNil(greeting);
-    }];
+    @try {
+        [[[decisionModel given:context] chooseFrom:variants] get];
+    } @catch(NSException *e) {
+        XCTAssertEqual(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
 }
 
-- (void)testGetWithoutChooseFrom {
+- (void)testGet_without_chooseFrom {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecision *decision = [[IMPDecision alloc] initWithModel:decisionModel];
-    XCTAssertNil([decision get]);
+    @try {
+        [decision get];
+    } @catch(NSException *e) {
+        XCTAssertEqual(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
 }
 
 // Always pass
 // Just a convenient method to test that an error log is printed when
-// [IMPDecision get] is called but tracker is not set for the model
-- (void)testGetWithoutTracker {
+// [IMPDecision get] is called but model.tracker is nil
+- (void)testGet_without_tracker {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *givens = @{@"language": @"cowboy"};
     
+    IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:nil trackApiKey:nil];
+    [[[model given:givens] chooseFrom:variants] get];
+}
+
+- (void)testAddReward_valid {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    [[[model chooseFrom:variants] given:givens] get];
-    
-    IMPDecisionTracker *tracker = [[IMPDecisionTracker alloc] initWithTrackURL:[NSURL URLWithString:kTrackerURL]];
-    [[[model chooseFrom:@[]] given:givens] get];
-    
-    [model trackWith:tracker];
-    [[[model chooseFrom:@[]] given:givens] get];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:model];
+    [[decision chooseFrom:variants] get];
+    [decision addReward:0.1];
     
 }
 
+- (void)testAddReward_before_get {
+    @try {
+        IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+        IMPDecision *decision = [[IMPDecision alloc] initWithModel:model];
+        [decision addReward:0.1];
+    } @catch(NSException *e) {
+        NSLog(@"Decision.addReward() can't be called prior to get()");
+        XCTAssertEqualObjects(IMPIllegalStateException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
+}
+
+- (void)testAddReward_nil_trackURL {
+    @try {
+        NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+        IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:nil trackApiKey:nil];
+        IMPDecision *decision = [[IMPDecision alloc] initWithModel:model];
+        [[decision chooseFrom:variants] get];
+        [decision addReward:0.1];
+    } @catch(NSException *e) {
+        NSLog(@"trackURL of the underlying DecisionModel can't be nil");
+        XCTAssertEqualObjects(IMPIllegalStateException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
+}
+
+- (void)testAddReward_nil_trackURL_after_get {
+    @try {
+        NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+        IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+        IMPDecision *decision = [[IMPDecision alloc] initWithModel:model];
+        [[decision chooseFrom:variants] get];
+        
+        // set trackURL to nil after calling get
+        model.trackURL = nil;
+        
+        [decision addReward:0.1];
+    } @catch(NSException *e) {
+        NSLog(@"trackURL of the underlying DecisionModel can't be nil");
+        XCTAssertEqualObjects(IMPIllegalStateException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
+}
 
 @end

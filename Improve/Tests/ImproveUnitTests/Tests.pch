@@ -13,6 +13,6 @@
 // You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
 
 // Enable debug mode
-#define IMP_DEBUG
+#define IMPROVE_AI_DEBUG
 
 #endif /* Tests_pch */

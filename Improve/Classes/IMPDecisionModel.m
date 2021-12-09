@@ -13,6 +13,9 @@
 #import "IMPDecision.h"
 #import "NSDictionary+MLFeatureProvider.h"
 #import "IMPUtils.h"
+#import "IMPDecisionTracker.h"
+#import "AppGivensProvider.h"
+#import "IMPConstants.h"
 
 @interface IMPDecisionModel ()
 // Private vars
@@ -21,72 +24,116 @@
 
 @property (nonatomic) BOOL enableTieBreaker;
 
+@property (strong, atomic) IMPDecisionTracker *tracker;
+
 @end
 
 @implementation IMPDecisionModel
 
+@synthesize trackURL = _trackURL;
+@synthesize trackApiKey = _trackApiKey;
 @synthesize model = _model;
 
-+ (instancetype)load:(NSURL *)url error:(NSError **)error {
-    __block IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@""];
-    __block NSError *blockError = nil;
-    if ([NSThread isMainThread]) {
-        __block BOOL finished = NO;
-        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
-            blockError = err;
-            decisionModel = compiledModel;
-            finished = YES;
-        }];
+static NSURL * _defaultTrackURL;
 
-        while (!finished) {
-            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-        }
-    } else {
-        dispatch_group_t group = dispatch_group_create();
-        dispatch_group_enter(group);
-        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
-            blockError = err;
-            decisionModel = compiledModel;
-            dispatch_group_leave(group);
-        }];
-        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-    }
+static NSString * _defaultTrackApiKey;
 
-    if(error) {
-        *error = blockError;
-    }
-    
-    return decisionModel;
+static ModelDictionary *_instances;
+
+static GivensProvider *_defaultGivensProvider;
+
++ (NSURL *)defaultTrackURL
+{
+    return _defaultTrackURL;
 }
 
-- (void)loadAsync:(NSURL *)url completion:(IMPDecisionModelLoadCompletion)handler {
-    [[[IMPModelDownloader alloc] initWithURL:url] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (downloadError) {
-                if (handler) handler(nil, downloadError);
-                return;
-            }
-
-            NSError *modelError;
-            MLModel *model = [MLModel modelWithContentsOfURL:compiledModelURL error:&modelError];
-            if (modelError) {
-                handler(nil, modelError);
-                return;
-            }
-            
-            self.model = model;
-            
-            handler(self, nil);
-        });
-    }];
++ (void)setDefaultTrackURL:(NSURL *)defaultTrackURL
+{
+    _defaultTrackURL = defaultTrackURL;
 }
 
-- (instancetype)initWithModelName:(NSString *)modelName {
++ (NSString *)defaultTrackApiKey
+{
+    return _defaultTrackApiKey;
+}
+
++ (void)setDefaultTrackApiKey:(NSString *)defaultTrackApiKey {
+    _defaultTrackApiKey = defaultTrackApiKey;
+}
+
++ (ModelDictionary *)instances
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _instances = [[ModelDictionary alloc] init];
+    });
+    return _instances;
+}
+
++ (GivensProvider *)defaultGivensProvider
+{
+    return [AppGivensProvider shared];
+}
+
+- (instancetype)initWithModelName:(NSString *)modelName
+{
+    return [self initWithModelName:modelName trackURL:_defaultTrackURL trackApiKey:_defaultTrackApiKey];
+}
+
+- (instancetype)initWithModelName:(NSString *)modelName trackURL:(NSURL *)trackURL trackApiKey:(nullable NSString *)trackApiKey
+{
     if(self = [super init]) {
-        _modelName = modelName;
         _enableTieBreaker = YES;
+        if([self isValidModelName:modelName]) {
+            _modelName = [modelName copy];
+        } else {
+            NSString *reason = [NSString stringWithFormat:@"invalid model name: [%@]", modelName];
+            @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                           reason:reason
+                                         userInfo:nil];
+        }
+        
+        if(trackURL) {
+            _trackURL = trackURL;
+            _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL trackApiKey:trackApiKey];
+        }
+        
+        _trackApiKey = [trackApiKey copy];
     }
     return self;
+}
+
+- (GivensProvider *)givensProvider
+{
+    return _givensProvider ? _givensProvider : IMPDecisionModel.defaultGivensProvider;
+}
+
+- (NSURL *)trackURL
+{
+    return _trackURL;
+}
+
+- (void)setTrackURL:(NSURL *)trackURL
+{
+    _trackURL = trackURL;
+    if(trackURL != nil) {
+        _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL trackApiKey:_trackApiKey];
+    } else {
+        _tracker = nil;
+    }
+}
+
+- (NSString *)trackApiKey
+{
+    return _trackApiKey;
+}
+
+- (void)setTrackApiKey:(NSString *)trackApiKey
+{
+    _trackApiKey = [trackApiKey copy];
+    if(_tracker != nil) {
+        _tracker.trackApiKey = trackApiKey;
+    }
 }
 
 - (MLModel *) model
@@ -119,13 +166,13 @@
         NSString *seedString = creatorDefined[@"ai.improve.model.seed"];
         uint64_t seed = strtoull([seedString UTF8String], NULL, 0);
 
-        // If self.modelName != loadedModelName then log warning that model names
-        // don’t match. Set self.modelName to loaded model name.
-        if ([_modelName length] > 0 && ![_modelName isEqualToString:modelName]) {
-            IMPErrLog("Model names don't match: Current model name [%@], new model Name [%@]",
-                      _modelName, modelName);
+        if(![_modelName isEqualToString:modelName]) {
+            // The modelName set before loading the model has higher priority than
+            // the one extracted from the model file. Just print a warning here if
+            // they don't match.
+            IMPErrLog("Model names don't match: current model name is [%@]; "
+                      "model name extracted is [%@]. [%@] will be used.", _modelName, modelName, _modelName);
         }
-        _modelName = modelName;
         
         NSSet *featureNames = [[NSSet alloc] initWithArray:_model.modelDescription.inputDescriptionsByName.allKeys];
 
@@ -133,19 +180,75 @@
     }
 }
 
-- (instancetype)trackWith:(IMPDecisionTracker *)tracker {
-    _tracker = tracker;
-    return self;
+- (instancetype)load:(NSURL *)url error:(NSError **)error {
+    __block NSError *blockError = nil;
+    
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_group_enter(group);
+    [self loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable err) {
+        blockError = err;
+        dispatch_group_leave(group);
+    }];
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    
+    if(error) {
+        *error = blockError;
+    }
+
+    return blockError ? nil : self;
 }
+
+- (void)loadAsync:(NSURL *)url completion:(void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler
+{
+    [[[IMPModelDownloader alloc] initWithURL:url] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            if (downloadError) {
+                if (handler) handler(nil, downloadError);
+                return;
+            }
+
+            NSError *modelError;
+            MLModel *model = [MLModel modelWithContentsOfURL:compiledModelURL error:&modelError];
+            if (modelError) {
+                handler(nil, modelError);
+                return;
+            }
+            
+            self.model = model;
+            
+            handler(self, nil);
+        });
+    }];
+}
+
 
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [[[IMPDecision alloc] initWithModel:self] chooseFrom:variants];
 }
 
+
 - (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens
 {
-    return [[[IMPDecision alloc] initWithModel:self] given:givens];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:self];
+    decision.givens = givens;
+    return decision;
+}
+
+- (void)addReward:(double) reward
+{
+    if(_tracker == nil) {
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
+    }
+    [_tracker addReward:reward forModel:self.modelName];
+}
+
+// Add reward for a specific tracked decision
+- (void)addReward:(double)reward decision:(NSString *)decisionId {
+    if(_tracker == nil) {
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
+    }
+    [_tracker addReward:reward forModel:self.modelName decision:decisionId];
 }
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
@@ -153,7 +256,7 @@
     return [self score:variants given:nil];
 }
 
-- (NSArray <NSNumber *>*) score:(NSArray *)variants
+- (NSArray <NSNumber *>*)score:(NSArray *)variants
               given:(nullable NSDictionary <NSString *, id>*)givens
 {
     // MLModel is not thread safe, synchronize
@@ -194,14 +297,14 @@
             }
             [scores addObject:@(val)];
         }
-        
-#ifdef IMP_DEBUG
+#ifdef IMPROVE_AI_DEBUG
         [IMPUtils dumpScores:scores andVariants:variants];
 #endif
         
         return scores;
     }
 }
+
 
 // in case of tie, the lowest index wins. Ties should be very rare due to small random noise added to scores
 // in IMPChooser.score()
@@ -223,6 +326,7 @@
 
     return bestVariant;
 }
+
 
 // If variants.count != scores.count, an NSRangeException exception will be thrown.
 // Case 3 #2 refsort approach: https://stackoverflow.com/a/27309301
@@ -251,6 +355,7 @@
     
     return result;
 }
+
     
 // Generate n = variants.count random (double) gaussian numbers
 // Sort the numbers descending and return the sorted list
@@ -266,5 +371,9 @@
     return [arr copy];
 }
 
+- (BOOL)isValidModelName:(NSString *)modelName {
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", @"^[a-zA-Z0-9][\\w\\-.]{0,63}$"];
+    return [predicate evaluateWithObject:modelName];
+}
 
 @end
