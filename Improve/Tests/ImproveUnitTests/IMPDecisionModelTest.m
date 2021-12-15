@@ -519,6 +519,34 @@ extern NSString * const kTrackerURL;
     XCTFail(@"We should never reach here. An exception should have been thrown.");
 }
 
+// pass only one variant to which() and the variant is not an array
+- (void)testWhich_1_argument_non_array {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        id best = [decisionModel which:@1, nil];
+        NSLog(@"best is %@", best);
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
+- (void)testWhich_1_argument_array {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    id best = [decisionModel which:@[@1, @2, @3], nil];
+    NSLog(@"best is %@", best);
+}
+
+- (void)testWhich_multiple_arguments {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    id best = [decisionModel which:@"Hi", @"Hello", @"Hey", nil];
+    NSLog(@"best is %@", best);
+    
+    best = [decisionModel which:@[@"Hi", @"Hello", @"Hey"], @"Hi~", nil];
+    NSLog(@"best is %@", best);
+}
+
 - (void)testRank{
     NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
     NSMutableArray *scores = [[NSMutableArray alloc] init];

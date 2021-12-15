@@ -87,6 +87,14 @@ NS_SWIFT_NAME(DecisionModel)
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
 /**
+ * @param firstVariant If there's only one variant, then the firstVariant must be a NSArray. Primitive type
+ * arguments are not allowed.
+ * @return Returns the chosen variant.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a NSArray.
+ */
+- (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
+
+/**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
  * @return scores of the variants
