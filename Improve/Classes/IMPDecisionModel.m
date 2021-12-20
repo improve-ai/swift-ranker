@@ -229,18 +229,24 @@ static GivensProvider *_defaultGivensProvider;
 
 - (id)which:(id)firstVariant, ...
 {
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    
-    [variants addObject:firstVariant];
-    
     va_list args;
     va_start(args, firstVariant);
+    id variant = [self which:firstVariant args:args];
+    va_end(args);
+    return variant;
+}
+
+- (id)which:(id)firstVariant args:(va_list)args NS_SWIFT_NAME(which(_:_:))
+{
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+
+    [variants addObject:firstVariant];
+
     id arg = nil;
     while((arg = va_arg(args, id))) {
         [variants addObject:arg];
     }
-    va_end(args);
-    
+
     if([variants count] == 1) {
         if(!([firstVariant isKindOfClass:[NSArray class]])) {
             NSString *reason = @"If only one argument, it must be a NSArray";

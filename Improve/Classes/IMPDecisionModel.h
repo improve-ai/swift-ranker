@@ -94,6 +94,8 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
+- (id)which:(id)firstVariant args:(va_list)args NS_SWIFT_NAME(which(_:_:));
+
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.

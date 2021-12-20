@@ -8,6 +8,12 @@
 
 import XCTest
 
+extension DecisionModel {
+    func which(_ firstVariant: Any, _ args: CVarArg...) ->Any {
+        return which(firstVariant, getVaList(args))
+    }
+}
+
 // This test file is mainly used to ensure that swiftified api works
 class IMPSwiftifiedTest: XCTestCase {
 
@@ -78,7 +84,13 @@ class IMPSwiftifiedTest: XCTestCase {
     
     func testDecisionModelWithTrackURL() {
         let trackURL = URL(string: "http://improve.ai")!
-        let decisionModel = DecisionModel("hello", trackURL, nil);
+        let _ = DecisionModel("hello", trackURL, nil);
+    }
+    
+    func testWhich() {
+        let decisionModel = DecisionModel("hello")
+        let best = decisionModel.which("Hi", "Hello")
+        print("best is \(best)")
     }
     
     func modelUrl() -> URL {
