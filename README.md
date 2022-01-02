@@ -74,22 +74,20 @@ Models can be loaded from the app bundle or from https URLs.
 
 ### Asynchronous Model Loading
 
-Asynchronous model loading allows decisions to be made at any point, even before the model is loaded.  If the model isn't yet loaded or fails to load, the first variant will be returned as the decision.
+Asynchronous model loading allows decisions to be made at any time, even before the model is loaded.  If the model isn't yet loaded or fails to load, the first variant will be returned as the decision.
 
 ```swift
-model = DecisionModel("greetings") 
+model = DecisionModel("products") 
 model.loadAsync(modelUrl) { loadedModel, error in
-    // loadedModel is the same reference as model but is made available to allow async chaining
-    if (error)
-        NSLog("Error loading model: %@", error)
+    if (loadedModel) {
+        product = loadedModel.which("clutch", "dress", "jacket")
     } else {
-        // the model is ready to go
+        NSLog("Error loading model: %@", error)
+        
+        // The model isn't loaded, so "clutch" will be returned
+        product = model.which("clutch", "dress", "jacket")
     }
 }
-
-// It is very unlikely that the model will be loaded by the time this is called, 
-// so "Hello World" would be returned and tracked as the decision
-greeting = model.which(“Hello World”, “Howdy World”, “Yo World”)
 ```
 
 ## Tracking & Training Models
