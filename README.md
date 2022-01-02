@@ -20,7 +20,7 @@ What is the best greeting?
 
 ```swift
 
-greeting = decisionModel.given({“language”: “cowboy”}).chooseFrom(“Hello World”, “Howdy World”, “Yo World”).get()
+greeting = decisionModel.given({“language”: “cowboy”}).which(“Hello World”, “Howdy World”, “Yo World”)
 ```
 
 *greeting* should result in *Howdy World* assuming it performs best when *language* is *cowboy*.
@@ -31,7 +31,7 @@ What discount should we offer?
 
 ```swift
 
-discount = discountModel.chooseFrom(0.1, 0.2, 0.3).get()
+discount = discountModel.which(0.1, 0.2, 0.3)
 
 ```
 
@@ -40,7 +40,7 @@ discount = discountModel.chooseFrom(0.1, 0.2, 0.3).get()
 Dynamically enable feature flags for best performance...
 
 ```
-featureFlag = decisionModel.given(deviceAttributes).chooseFrom(true, false).get()
+featureFlag = decisionModel.given(deviceAttributes).which(true, false)
 ```
 
 ### Complex Objects
@@ -49,9 +49,10 @@ featureFlag = decisionModel.given(deviceAttributes).chooseFrom(true, false).get(
 themeVariants = [ { "textColor": "#000000", "backgroundColor": "#ffffff" },
                   { "textColor": "#F0F0F0", "backgroundColor": "#aaaaaa" } ]
                             
-theme = themeModel.chooseFrom(themeVariants).get()
+theme = themeModel.which(themeVariants)
 
 ```
+When a single Array argument is passed to which, it is treated as a list of variants.
 
 Improve learns to use the attributes of each key and value in a complex variant to make the optimal decision.
 
@@ -67,7 +68,7 @@ Models are thread-safe and a single model can be used for multiple decisions.
 
 ```swift
 
-product = try DecisionModel("products").load(modelUrl).chooseFrom("clutch", "dress", "jacket").get()
+product = try DecisionModel("products").load(modelUrl).which("clutch", "dress", "jacket")
 
 ```
 
@@ -90,7 +91,7 @@ model.loadAsync(modelUrl) { loadedModel, error in
 
 // It is very unlikely that the model will be loaded by the time this is called, 
 // so "Hello World" would be returned and tracked as the decision
-greeting = model.chooseFrom(“Hello World”, “Howdy World”, “Yo World”).get()
+greeting = model.which(“Hello World”, “Howdy World”, “Yo World”)
 ```
 
 ## Tracking & Training Models
@@ -105,7 +106,7 @@ Set a *DecisionTracker* on the *DecisionModel* to automatically track decisions 
 DecisionModel.defaultTrackURL = trackURL // trackUrl is obtained from your Gym configuration
 
 // When a new DecisionModel instance is created, it's trackURL is set to DecisionModel.defaultTrackURL
-fontSize = try DecisionModel("fontSizes").load(modelUrl).chooseFrom(12, 16, 20).get()
+fontSize = try DecisionModel("fontSizes").load(modelUrl).which(12, 16, 20)
 ```
 
 The decision is lazily evaluated and then automatically tracked as being causal upon calling *get()*.
