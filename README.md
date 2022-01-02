@@ -1,6 +1,6 @@
 # Improve AI for iOS
 
-Lift revenue, performance, user retention, or any other metric with fast AI decisions that get smarter over time. It's like an AI *if/then* statement. 
+Improve AI provides quick AI decisions that get smarter over time. It's like an AI *if/then* statement. Increase your app's revenue, user retention, or any other metric automatically and become a top performing app.
 
 ## Installation
 
