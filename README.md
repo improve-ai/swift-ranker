@@ -1,7 +1,5 @@
 # Improve AI for iOS
 
-## On-Device AI Decisions
-
 Lift revenue, performance, user retention, or any other metric with fast AI decisions that get smarter over time. It's like an AI *if/then* statement. 
 
 ## Installation
