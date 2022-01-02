@@ -1,8 +1,8 @@
 # Improve AI for iOS
 
-## AI Decisions in Swift and Objective C
+## On-Device AI Decisions
 
-Lift revenue, performance, user retention, or any other metric with fast AI decisions. It's like an AI *if/then* statement. 
+Lift revenue, performance, user retention, or any other metric with fast AI decisions that get smarter over time. It's like an AI *if/then* statement. 
 
 ## Installation
 
