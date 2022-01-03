@@ -202,21 +202,21 @@ static GivensProvider *_defaultGivensProvider;
 {
     [[[IMPModelDownloader alloc] initWithURL:url] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            if (downloadError) {
-                if (handler) handler(nil, downloadError);
+            if(downloadError) {
+                if(handler) handler(nil, downloadError);
                 return;
             }
 
             NSError *modelError;
             MLModel *model = [MLModel modelWithContentsOfURL:compiledModelURL error:&modelError];
-            if (modelError) {
-                handler(nil, modelError);
+            if(modelError) {
+                if(handler) handler(nil, modelError);
                 return;
             }
             
             self.model = model;
             
-            handler(self, nil);
+            if(handler) handler(self, nil);
         });
     }];
 }

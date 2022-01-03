@@ -365,7 +365,7 @@ extern NSString *const kTrackApiKey;
 
 - (void)testLoadSyncToFail {
     NSError *err;
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/not/exist/TestModel.mlmodel3.gz"];
+    NSURL *url = [NSURL URLWithString:@"http://127.0.0.1/not/exist/TestModel.mlmodel3.gz"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     XCTAssertNil([decisionModel load:url error:&err]);
     XCTAssertNotNil(err);
@@ -373,20 +373,51 @@ extern NSString *const kTrackApiKey;
 }
 
 - (void)testLoadSyncToFail_Nil_Error {
-    NSURL *url = [NSURL URLWithString:@"http://192.168.1.101/not/exist/TestModel.mlmodel3.gz"];
+    NSURL *url = [NSURL URLWithString:@"http://127.0.0.1/not/exist/TestModel.mlmodel3.gz"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     XCTAssertNil([decisionModel load:url error:nil]);
 }
 
 - (void)testLoadSyncToFailWithInvalidModelFile {
     NSError *err;
-    // The model exists, but is not valid
+    // The model exists, but is invalid
     NSURL *modelURL = [[TestUtils bundle] URLForResource:@"InvalidModel"
                          withExtension:@"dat"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     XCTAssertNil([decisionModel load:modelURL error:&err]);
     XCTAssertNotNil(err);
     NSLog(@"load error: %@", err);
+}
+
+- (void)testLoadAsync_invalid_model_file {
+    // The model file exists, but is invalid
+    NSURL *modelURL = [[TestUtils bundle] URLForResource:@"InvalidModel"
+                         withExtension:@"dat"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    
+    XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
+    [decisionModel loadAsync:modelURL completion:^(IMPDecisionModel * _Nullable loadedModel, NSError * _Nullable error) {
+        XCTAssertNil(loadedModel);
+        XCTAssertNotNil(error);
+        NSLog(@"loadAsync error: %@", error);
+        [ex fulfill];
+    }];
+    [self waitForExpectations:@[ex] timeout:3];
+}
+
+- (void)testLoadAsync_url_not_exist {
+    // The model file exists, but is invalid
+    NSURL *modelURL = [NSURL URLWithString:@"http://127.0.0.1/not/exist/TestModel.mlmodel3.gz"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    
+    XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
+    [decisionModel loadAsync:modelURL completion:^(IMPDecisionModel * _Nullable loadedModel, NSError * _Nullable error) {
+        XCTAssertNil(loadedModel);
+        XCTAssertNotNil(error);
+        NSLog(@"loadAsync error: %@", error);
+        [ex fulfill];
+    }];
+    [self waitForExpectations:@[ex] timeout:10];
 }
 
 - (void)testLoadSyncFromNonMainThread{
