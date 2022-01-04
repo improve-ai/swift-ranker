@@ -550,6 +550,12 @@ extern NSString * const kTrackerURL;
     XCTFail(@"We should never reach here. An exception should have been thrown.");
 }
 
+- (void)testChooseFromCombined {
+    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[@3, @4]};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    [decisionModel chooseFromCombined:variants];
+}
+
 // pass only one variant to which() and the variant is not an array
 - (void)testWhich_1_argument_non_array {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];

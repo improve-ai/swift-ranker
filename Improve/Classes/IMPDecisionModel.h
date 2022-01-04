@@ -86,6 +86,8 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
+- (IMPDecision *)chooseFromCombined:(NSDictionary<NSString *, id> *)variants;
+
 /**
  * @param firstVariant If there's only one variant, then the firstVariant must be a NSArray. Primitive type
  * arguments are not allowed.
