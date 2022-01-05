@@ -86,7 +86,22 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
-- (IMPDecision *)chooseFromCombined:(NSDictionary<NSString *, id> *)variants;
+/**
+ * This method is an alternative of chooseFrom(). An example here might be more expressive:
+ * chooseMutilVariate({"style":["bold", "italic", "size":[3, 5]})
+ *       is equivalent to
+ * chooseFrom([
+ *      {"style":"bold", "size":3},
+ *      {"style":"italic", "size":3},
+ *      {"style":"bold", "size":5},
+ *      {"style":"italic", "size":5},
+ * ])
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
+ * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
+ * So chooseMutilVariate({"style":["bold", "italic", "size":3}) is equivalent to chooseMutilVariate({"style":["bold", "italic", "size":[3]})
+ * @return An IMPDecision object to be lazily evaluated.
+ */
+- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants;
 
 /**
  * @param firstVariant If there's only one variant, then the firstVariant must be a NSArray. Primitive type

@@ -227,7 +227,7 @@ static GivensProvider *_defaultGivensProvider;
     return [[[IMPDecision alloc] initWithModel:self] chooseFrom:variants];
 }
 
-- (IMPDecision *)chooseFromCombined:(NSDictionary<NSString *, id> *)variants {
+- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {
     NSArray *allKeys = [variants allKeys];
     
     NSMutableArray *categories = [NSMutableArray arrayWithCapacity:[variants count]];
