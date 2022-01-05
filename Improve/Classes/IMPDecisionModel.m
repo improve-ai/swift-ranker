@@ -282,14 +282,15 @@ static GivensProvider *_defaultGivensProvider;
     }
 
     if([variants count] == 1) {
-        if(!([firstVariant isKindOfClass:[NSArray class]])) {
-            NSString *reason = @"If only one argument, it must be a NSArray";
-            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-        } else {
-            return [[[[IMPDecision alloc] initWithModel:self] chooseFrom:firstVariant] get];
+        if([firstVariant isKindOfClass:[NSArray class]]) {
+            return [[self chooseFrom:firstVariant] get];
+        } else if([firstVariant isKindOfClass:[NSDictionary class]]) {
+            return [[self chooseMultiVariate:firstVariant] get];
         }
+        NSString *reason = @"If only one argument, it must be an NSArray or an NSDictionary";
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     } else {
-        return [[[[IMPDecision alloc] initWithModel:self] chooseFrom:variants] get];
+        return [[self chooseFrom:variants] get];
     }
 }
 

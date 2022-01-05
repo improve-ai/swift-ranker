@@ -640,6 +640,12 @@ extern NSString * const kTrackerURL;
     NSLog(@"best is %@", best);
 }
 
+- (void)testWhich_1_argument_dictionary {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    id best = [decisionModel which:@{@"style":@[@"bold", @"italic"], @"size":@[@3, @5]}, nil];
+    NSLog(@"best is %@", best);
+}
+
 - (void)testWhich_multiple_arguments {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     id best = [decisionModel which:@"Hi", @"Hello", @"Hey", nil];
