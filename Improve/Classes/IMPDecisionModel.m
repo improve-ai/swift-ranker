@@ -229,6 +229,7 @@ static GivensProvider *_defaultGivensProvider;
 
 - (IMPDecision *)chooseFromCombined:(NSDictionary<NSString *, id> *)variants {
     NSArray *allKeys = [variants allKeys];
+    
     NSMutableArray *categories = [NSMutableArray arrayWithCapacity:[variants count]];
     [variants enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         if(![obj isKindOfClass:[NSArray class]]) {
@@ -255,7 +256,7 @@ static GivensProvider *_defaultGivensProvider;
         }
         combinations = newCombinations;
     }
-    NSLog(@"Combinations: %ld, %@", [combinations count], combinations);
+    IMPLog("Choosing from %ld combinations", [combinations count]);
     
     return [self chooseFrom:combinations];
 }

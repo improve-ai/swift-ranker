@@ -550,10 +550,70 @@ extern NSString * const kTrackerURL;
     XCTFail(@"We should never reach here. An exception should have been thrown.");
 }
 
-- (void)testChooseFromCombined {
-    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[@3, @4]};
+- (void)testChooseFromCombined_nil_dictionary {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    [decisionModel chooseFromCombined:variants];
+    IMPDecision *decision = [decisionModel chooseFromCombined:@{}];
+    XCTAssertNotNil(decision.variants);
+    XCTAssertEqual(0, decision.variants.count);
+}
+
+- (void)testChooseFromCombined_empty_dictionary {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    IMPDecision *decision = [decisionModel chooseFromCombined:@{}];
+    XCTAssertNotNil(decision.variants);
+    XCTAssertEqual(0, decision.variants.count);
+}
+
+- (void)testChooseFromCombined_1_variate {
+    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"]};
+
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    IMPDecision *decision = [decisionModel chooseFromCombined:variants];
+    XCTAssertEqual(2, [decision.variants count]);
+    NSLog(@"%@", decision.variants);
+    XCTAssertEqualObjects(@"Italic", decision.variants[0][@"font"]);
+    XCTAssertEqualObjects(@"Bold", decision.variants[1][@"font"]);
+}
+
+- (void)testChooseFromCombined_2_variates {
+    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]};
+
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    IMPDecision *decision = [decisionModel chooseFromCombined:variants];
+    XCTAssertEqual(4, [decision.variants count]);
+    XCTAssertEqualObjects(@"#000000", decision.variants[0][@"color"]);
+    XCTAssertEqualObjects(@"Italic", decision.variants[0][@"font"]);
+    XCTAssertEqualObjects(@"#000000", decision.variants[1][@"color"]);
+    XCTAssertEqualObjects(@"Bold", decision.variants[1][@"font"]);
+    XCTAssertEqualObjects(@"#ffffff", decision.variants[2][@"color"]);
+    XCTAssertEqualObjects(@"Italic", decision.variants[2][@"font"]);
+    XCTAssertEqualObjects(@"#ffffff", decision.variants[3][@"color"]);
+    XCTAssertEqualObjects(@"Bold", decision.variants[3][@"font"]);
+}
+
+- (void)testChooseFromCombined_3_variates {
+    NSDictionary *variants = @{
+        @"font":@[@"Italic", @"Bold"],
+        @"color":@[@"#000000", @"#ffffff"],
+        @"size":@3
+    };
+
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    IMPDecision *decision = [decisionModel chooseFromCombined:variants];
+    XCTAssertEqual(4, [decision.variants count]);
+    XCTAssertEqualObjects(@"#000000", decision.variants[0][@"color"]);
+    XCTAssertEqualObjects(@"Italic", decision.variants[0][@"font"]);
+    XCTAssertEqualObjects(@3, decision.variants[0][@"size"]);
+    XCTAssertEqualObjects(@"#000000", decision.variants[1][@"color"]);
+    XCTAssertEqualObjects(@"Bold", decision.variants[1][@"font"]);
+    XCTAssertEqualObjects(@3, decision.variants[1][@"size"]);
+    XCTAssertEqualObjects(@"#ffffff", decision.variants[2][@"color"]);
+    XCTAssertEqualObjects(@"Italic", decision.variants[2][@"font"]);
+    XCTAssertEqualObjects(@3, decision.variants[2][@"size"]);
+    XCTAssertEqualObjects(@"#ffffff", decision.variants[3][@"color"]);
+    XCTAssertEqualObjects(@"Bold", decision.variants[3][@"font"]);
+    XCTAssertEqualObjects(@3, decision.variants[3][@"size"]);
+    NSLog(@"combinations: %@", decision.variants);
 }
 
 // pass only one variant to which() and the variant is not an array
