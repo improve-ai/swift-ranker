@@ -3,18 +3,18 @@
 import PackageDescription
 
 let package = Package(
-    name: "Improve",
+    name: "ImproveAI",
     platforms: [
         .iOS(.v12)
     ],
     products: [
         .library(
-            name: "Improve",
-            targets: ["Improve"]),
+            name: "ImproveAI",
+            targets: ["ImproveAI"]),
     ],
     targets: [
         .target(
-            name: "Improve",
+            name: "ImproveAI",
             path: "Improve",
             exclude: ["Tests"],
             publicHeadersPath:"Classes",
