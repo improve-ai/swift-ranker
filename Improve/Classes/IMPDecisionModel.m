@@ -228,7 +228,7 @@ static GivensProvider *_defaultGivensProvider;
 }
 
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {
-    NSArray *allKeys = [variants allKeys];
+    NSMutableArray *allKeys = [[NSMutableArray alloc] initWithCapacity:[variants count]];
     
     NSMutableArray *categories = [NSMutableArray arrayWithCapacity:[variants count]];
     [variants enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
@@ -237,6 +237,9 @@ static GivensProvider *_defaultGivensProvider;
         } else {
             [categories addObject:obj];
         }
+        // I'm not sure whether the order of keys in [variants allKeys] and the enumeration
+        // here is the same, so I'm adding the keys to a new array here anyway for safety.
+        [allKeys addObject:key];
     }];
     
     NSMutableArray<NSDictionary *> *combinations = [[NSMutableArray alloc] init];
