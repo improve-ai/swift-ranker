@@ -571,8 +571,10 @@ extern NSString * const kTrackerURL;
     IMPDecision *decision = [decisionModel chooseMultiVariate:variants];
     XCTAssertEqual(2, [decision.variants count]);
     NSLog(@"combinations: %@", decision.variants);
-    [self assertVariants:@[@{@"font":@"Italic"} ,@{@"font":@"Bold"}]
-                equalsTo:decision.variants];
+    NSArray *expected = @[
+        @{@"font":@"Italic"} ,@{@"font":@"Bold"}
+    ];
+    XCTAssertTrue([expected isEqualToArray:decision.variants]);
 }
 
 - (void)testChooseMultiVariate_2_variates {
@@ -587,7 +589,7 @@ extern NSString * const kTrackerURL;
         @{@"font":@"Italic", @"color":@"#ffffff"},
         @{@"font":@"Bold", @"color":@"#ffffff"}
     ];
-    [self assertVariants:expected equalsTo:decision.variants];
+    XCTAssertTrue([expected isEqualToArray:decision.variants]);
 }
 
 - (void)testChooseMultiVariate_3_variates {
@@ -606,19 +608,7 @@ extern NSString * const kTrackerURL;
         @{@"font":@"Italic", @"color":@"#ffffff", @"size": @3},
         @{@"font":@"Bold", @"color":@"#ffffff", @"size": @3}
     ];
-    [self assertVariants:expected equalsTo:decision.variants];
-    
-}
-
-- (void)assertVariants:(NSArray *)expected equalsTo:(NSArray *)check {
-    XCTAssertNotNil(check);
-    XCTAssertEqual([expected count], [check count]);
-    
-    for(int i = 0; i < [expected count]; ++i) {
-        [expected[i] enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            XCTAssertEqualObjects(obj, check[i][key]);
-        }];
-    }
+    XCTAssertTrue([expected isEqualToArray:decision.variants]);
 }
 
 // pass only one variant to which() and the variant is not an array
