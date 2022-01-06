@@ -227,6 +227,43 @@ static GivensProvider *_defaultGivensProvider;
     return [[[IMPDecision alloc] initWithModel:self] chooseFrom:variants];
 }
 
+- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {
+    NSMutableArray *allKeys = [[NSMutableArray alloc] initWithCapacity:[variants count]];
+    
+    NSMutableArray *categories = [NSMutableArray arrayWithCapacity:[variants count]];
+    [variants enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if(![obj isKindOfClass:[NSArray class]]) {
+            [categories addObject:@[obj]];
+        } else {
+            [categories addObject:obj];
+        }
+        // I'm not sure whether the order of keys in [variants allKeys] and the enumeration
+        // here is the same, so I'm adding the keys to a new array here anyway for safety.
+        [allKeys addObject:key];
+    }];
+    
+    NSMutableArray<NSDictionary *> *combinations = [[NSMutableArray alloc] init];
+    for(int i = 0; i < [categories count]; ++i) {
+        NSArray *category = categories[i];
+        NSMutableArray<NSDictionary *> *newCombinations = [[NSMutableArray alloc] init];
+        for(int m = 0; m < [category count]; ++m) {
+            if([combinations count] == 0) {
+                [newCombinations addObject:@{allKeys[i]:category[m]}];
+            } else {
+                for(int n = 0; n < [combinations count]; ++n) {
+                    NSMutableDictionary *newVariant = [combinations[n] mutableCopy];
+                    [newVariant setObject:category[m] forKey:allKeys[i]];
+                    [newCombinations addObject:newVariant];
+                }
+            }
+        }
+        combinations = newCombinations;
+    }
+    IMPLog("Choosing from %ld combinations", [combinations count]);
+    
+    return [self chooseFrom:combinations];
+}
+
 - (id)which:(id)firstVariant, ...
 {
     va_list args;
@@ -248,14 +285,15 @@ static GivensProvider *_defaultGivensProvider;
     }
 
     if([variants count] == 1) {
-        if(!([firstVariant isKindOfClass:[NSArray class]])) {
-            NSString *reason = @"If only one argument, it must be a NSArray";
-            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-        } else {
-            return [[[[IMPDecision alloc] initWithModel:self] chooseFrom:firstVariant] get];
+        if([firstVariant isKindOfClass:[NSArray class]]) {
+            return [[self chooseFrom:firstVariant] get];
+        } else if([firstVariant isKindOfClass:[NSDictionary class]]) {
+            return [[self chooseMultiVariate:firstVariant] get];
         }
+        NSString *reason = @"If only one argument, it must be an NSArray or an NSDictionary";
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     } else {
-        return [[[[IMPDecision alloc] initWithModel:self] chooseFrom:variants] get];
+        return [[self chooseFrom:variants] get];
     }
 }
 

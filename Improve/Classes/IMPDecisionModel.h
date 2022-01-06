@@ -87,8 +87,29 @@ NS_SWIFT_NAME(DecisionModel)
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
 /**
- * @param firstVariant If there's only one variant, then the firstVariant must be a NSArray. Primitive type
- * arguments are not allowed.
+ * This method is an alternative of chooseFrom(). An example here might be more expressive:
+ * chooseMutilVariate({"style":["bold", "italic", "size":[3, 5]})
+ *       is equivalent to
+ * chooseFrom([
+ *      {"style":"bold", "size":3},
+ *      {"style":"italic", "size":3},
+ *      {"style":"bold", "size":5},
+ *      {"style":"italic", "size":5},
+ * ])
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
+ * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
+ * So chooseMutilVariate({"style":["bold", "italic", "size":3}) is equivalent to chooseMutilVariate({"style":["bold", "italic", "size":[3]})
+ * @return An IMPDecision object to be lazily evaluated.
+ */
+- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants;
+
+/**
+ * This method is a short hand of chooseFrom(variants).get().
+ * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray or an NSDictionary.
+ * When the only argument is an NSArray, it's equivalent to calling chooseFrom(firstVariant).get();
+ * When the only argument is an NSDictionary, it's equivalent to calling chooseMultiVariate(firstVariant).get();
+ * When there are two or more arguments, all the arguments would form an NSArray and be passed to chooseFrom()
+ * Primitive type arguments are not allowed.
  * @return Returns the chosen variant.
  * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a NSArray.
  */
