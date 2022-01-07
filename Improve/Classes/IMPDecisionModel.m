@@ -117,9 +117,9 @@ static GivensProvider *_defaultGivensProvider;
 {
     _trackURL = trackURL;
     if(trackURL != nil) {
-        _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL trackApiKey:_trackApiKey];
+        self.tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL trackApiKey:self.trackApiKey];;
     } else {
-        _tracker = nil;
+        self.tracker = nil;
     }
 }
 
@@ -131,8 +131,8 @@ static GivensProvider *_defaultGivensProvider;
 - (void)setTrackApiKey:(NSString *)trackApiKey
 {
     _trackApiKey = [trackApiKey copy];
-    if(_tracker != nil) {
-        _tracker.trackApiKey = trackApiKey;
+    if(self.tracker != nil) {
+        self.tracker.trackApiKey = trackApiKey;
     }
 }
 
