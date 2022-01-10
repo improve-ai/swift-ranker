@@ -17,16 +17,15 @@ static NSString * const kTypeKey = @"type";
 static NSString * const kVariantKey = @"variant";
 static NSString * const kGivensKey = @"givens";
 static NSString * const kSampleKey = @"sample";
-static NSString * const kEventKey = @"event";
-static NSString * const kPropertiesKey = @"properties";
 static NSString * const kValueKey = @"value";
+static NSString * const kRewardKey = @"reward";
 static NSString * const kCountKey = @"count";
 static NSString * const kRunnersUpKey = @"runners_up";
 static NSString * const kDecisionIdKey = @"decision_id";
 static NSString * const kTrackApiKeyHeader = @"x-api-key";
 
 static NSString * const kDecisionType = @"decision";
-static NSString * const kEventType = @"event";
+static NSString * const kRewardType = @"reward";
 
 static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 
@@ -189,15 +188,12 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
         return ;
     }
     
-    NSMutableDictionary *body = [@{ kTypeKey: kEventType } mutableCopy];
-
-    [body setObject:@"Reward" forKey:kEventKey];
+    NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
+    [body setObject:kTypeKey forKey:kRewardType];
     [body setObject:modelName forKey:kModelKey];
     [body setObject:decisionId forKey:kDecisionIdKey];
     [body setObject:ksuid forKey:kMessageIdKey];
-    
-    NSDictionary *properties = @{ kValueKey: [NSNumber numberWithDouble:reward]};
-    [body setObject:properties forKey:kPropertiesKey];
+    [body setObject:@(reward) forKey:kRewardKey];
 
     [self track:body];
     
