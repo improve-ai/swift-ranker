@@ -189,7 +189,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     }
     
     NSMutableDictionary *body = [[NSMutableDictionary alloc] init];
-    [body setObject:kTypeKey forKey:kRewardType];
+    [body setObject:kRewardType forKey:kTypeKey];
     [body setObject:modelName forKey:kModelKey];
     [body setObject:decisionId forKey:kDecisionIdKey];
     [body setObject:ksuid forKey:kMessageIdKey];
