@@ -36,6 +36,12 @@
 
 @property(nonatomic, readonly) BOOL chosen;
 
+@property(nonatomic, strong) NSArray *scores;
+
+@property(nonatomic, strong) NSDictionary *allGivens;
+
+@property(nonatomic, readonly) BOOL tracked;
+
 @end
 
 @implementation IMPDecision
@@ -50,65 +56,80 @@
 
 - (instancetype)chooseFrom:(NSArray *)variants
 {
-    if (_chosen) {
-        IMPErrLog("variant already chosen, ignoring variants");
-    } else {
+    @synchronized (self) {
+        if (_chosen) {
+            // if get() was previously called
+            IMPErrLog("variant already chosen, ignoring variants");
+            return self;
+        }
+        
+        if([variants count] <= 0) {
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants to choose from can't be nil or empty" userInfo:nil];
+        }
+        
         _variants = variants;
+        
+        _allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
+        
+        _scores = [_model score:_variants given:_allGivens];
+        
+        _best = [IMPDecisionModel topScoringVariant:_variants withScores:_scores];
+
+        _chosen = TRUE;
     }
-    
     return self;
 }
 
 - (void) setGivens:(NSDictionary <NSString *, id>*)givens
 {
-    if (_chosen) {
-        IMPErrLog("variant already chosen, ignoring givens");
-    } else {
-        _givens = givens;
+    @synchronized (self) {
+        if (_chosen) {
+            IMPErrLog("variant already chosen, ignoring givens");
+        } else {
+            _givens = givens;
+        }
     }
+}
+
+- (id)peek
+{
+    if(!_chosen) {
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"peek() must be called after chooseFrom()" userInfo:nil];
+    }
+    return _best;
 }
 
 - (id)get
 {
     @synchronized (self) {
-        if (_chosen) {
-            // if get() was previously called
-            return _best;
+        if (!_chosen) {
+            @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"get() must be called after chooseFrom()" userInfo:nil];
         }
-        
-        NSDictionary *givens = [_model.givensProvider givensForModel:_model givens:_givens];
-        
-        NSArray *scores = [_model score:_variants given:givens];
-
-        if ([_variants count] > 0) {
-            if (_model.tracker) {
-                if ([_model.tracker shouldTrackRunnersUp:_variants.count]) {
+        // No matter how many times get() is called, we only call track for once.
+        if(!_tracked) {
+            IMPDecisionTracker *tracker = _model.tracker;
+            if (tracker) {
+                if ([tracker shouldTrackRunnersUp:_variants.count]) {
                     // the more variants there are, the less frequently this is called
-                    NSArray *rankedVariants = [IMPDecisionModel rank:_variants withScores:scores];
-                    _best = rankedVariants.firstObject;
-                    _id = [_model.tracker track:_best variants:rankedVariants given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
+                    NSArray *rankedVariants = [IMPDecisionModel rank:_variants withScores:_scores];
+                    _id = [tracker track:_best variants:rankedVariants given:_allGivens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
                 } else {
                     // faster and more common path, avoids array sort
-                    _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
-                    _id = [_model.tracker track:_best variants:_variants given:givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
+                    _id = [tracker track:_best variants:_variants given:_allGivens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
                 }
+                _tracked = YES;
             } else {
-                _best = [IMPDecisionModel topScoringVariant:_variants withScores:scores];
                 IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
             }
-        } else {
-            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants to choose from can't be nil or empty" userInfo:nil];
         }
-
-        _chosen = TRUE;
     }
-
     return _best;
 }
 
-- (void)addReward:(double)reward {
+- (void)addReward:(double)reward
+{
     if(_id == nil) {
-        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"_id can't be nil when calling addReward()" userInfo:nil];
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"_id can't be nil. Make sure that addReward() is called after get(); and the trackURL is set in the DecisionModel on creation of the Decision." userInfo:nil];
     }
     [self.model addReward:reward decision:_id];
 }

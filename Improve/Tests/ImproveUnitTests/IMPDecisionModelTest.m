@@ -594,17 +594,23 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testChooseMultiVariate_nil_dictionary {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    IMPDecision *decision = [decisionModel chooseMultiVariate:nil];
-    XCTAssertNotNil(decision.variants);
-    XCTAssertEqual(0, decision.variants.count);
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+        IMPDecision *decision = [decisionModel chooseMultiVariate:nil];
+    } @catch(NSException *e) {
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
 }
 
 - (void)testChooseMultiVariate_empty_dictionary {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    IMPDecision *decision = [decisionModel chooseMultiVariate:@{}];
-    XCTAssertNotNil(decision.variants);
-    XCTAssertEqual(0, decision.variants.count);
+    @try {
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+        IMPDecision *decision = [decisionModel chooseMultiVariate:@{}];
+    } @catch(NSException *e) {
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
 }
 
 - (void)testChooseMultiVariate_1_variate {

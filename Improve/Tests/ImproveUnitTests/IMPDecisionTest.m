@@ -7,10 +7,31 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "IMPDecisionTracker.h"
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
 #import "TestUtils.h"
 #import "IMPConstants.h"
+
+@interface IMPDecisionModel ()
+
+@property (strong, atomic) IMPDecisionTracker *tracker;
+
+@end
+
+@interface IMPDecision ()
+
+@property(nonatomic, readonly, nullable) id best;
+
+@property(nonatomic, readonly) BOOL chosen;
+
+@property(nonatomic, strong) NSArray *scores;
+
+@property(nonatomic, strong) NSDictionary *allGivens;
+
+@property (nonatomic, readonly) BOOL tracked;
+
+@end
 
 @interface IMPDecisionTest : XCTestCase
 
@@ -27,12 +48,47 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-- (void)testGet_nil_variants {
+- (NSArray *)variants {
+    return @[@"Hello World", @"Howdy World", @"Hi World"];
+}
+
+- (void)testGivens {
+    NSDictionary *givens = @{@"language": @"cowboy"};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel given:givens];
+    XCTAssertNotNil(decision.givens);
+    XCTAssertEqualObjects(givens, decision.givens);
+}
+
+- (void)testGivens_setter_after_chooseFrom {
+    NSDictionary *givens = @{@"language": @"cowboy"};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel chooseFrom:[self variants]];
+    XCTAssertNil(decision.givens);
+    decision.givens = givens;
+    XCTAssertNil(decision.givens);
+}
+
+- (void)testChooseFrom {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:decisionModel];
+    XCTAssertNil(decision.best);
+    XCTAssertFalse(decision.chosen);
+    XCTAssertNil(decision.allGivens);
+    XCTAssertNil(decision.scores);
+    [decision chooseFrom:[self variants]];
+    XCTAssertNotNil(decision.best);
+    XCTAssertTrue(decision.chosen);
+    XCTAssertNotNil(decision.allGivens);
+    XCTAssertNotNil(decision.scores);
+}
+
+- (void)testChooseFrom_nil_variants {
     NSArray *variants = nil;
-    NSDictionary *context = @{@"language": @"cowboy"};
+    NSDictionary *givens = @{@"language": @"cowboy"};
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     @try {
-        [[[decisionModel given:context] chooseFrom:variants] get];
+        [[decisionModel given:givens] chooseFrom:variants];
     } @catch(NSException *e) {
         XCTAssertEqual(NSInvalidArgumentException, e.name);
         return ;
@@ -40,13 +96,13 @@
     XCTFail(@"An exception should have been thrown.");
 }
 
-- (void)testGet_empty_variants {
+- (void)testChooseFrom_empty_variants {
     NSArray *variants = @[];
     NSDictionary *context = @{@"language": @"cowboy"};
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     
     @try {
-        [[[decisionModel given:context] chooseFrom:variants] get];
+        [[decisionModel given:context] chooseFrom:variants];
     } @catch(NSException *e) {
         XCTAssertEqual(NSInvalidArgumentException, e.name);
         return ;
@@ -54,27 +110,69 @@
     XCTFail(@"An exception should have been thrown.");
 }
 
-- (void)testGet_without_chooseFrom {
+- (void)testPeek_before_chooseFrom {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:decisionModel];
+    @try {
+        [decision peek];
+    } @catch(NSException *e) {
+        XCTAssertEqual(IMPIllegalStateException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
+}
+
+- (void)testPeek {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    [[decisionModel chooseFrom:[self variants]] peek];
+}
+
+- (void)testGet_before_chooseFrom {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecision *decision = [[IMPDecision alloc] initWithModel:decisionModel];
     @try {
         [decision get];
     } @catch(NSException *e) {
-        XCTAssertEqual(NSInvalidArgumentException, e.name);
+        XCTAssertEqual(IMPIllegalStateException, e.name);
         return ;
     }
     XCTFail(@"An exception should have been thrown.");
 }
 
-// Always pass
-// Just a convenient method to test that an error log is printed when
-// [IMPDecision get] is called but model.tracker is nil
-- (void)testGet_without_tracker {
+- (void)testGet_track_only_once {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
-    NSDictionary *givens = @{@"language": @"cowboy"};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    XCTAssertNotNil(decisionModel.tracker);
     
-    IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:nil trackApiKey:nil];
-    [[[model given:givens] chooseFrom:variants] get];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:decisionModel];
+    
+    XCTAssertFalse(decision.tracked);
+    [[decision chooseFrom:variants] get];
+    XCTAssertTrue(decision.tracked);
+    
+    NSString *decisionId = decision.id;
+    XCTAssertTrue([decisionId length] > 0);
+    
+    int loop = 10000;
+    for(int i = 0; i < loop; ++i) {
+        [decision get];
+        XCTAssertEqualObjects(decisionId, decision.id);
+    }
+}
+
+- (void)testGet_without_tracker {
+    IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:model];
+    XCTAssertFalse(decision.tracked);
+    [[decision chooseFrom:[self variants]] get];
+    XCTAssertTrue(decision.tracked);
+    
+    decision = [[IMPDecision alloc] initWithModel:model];
+    model.trackURL = nil;
+    XCTAssertFalse(decision.tracked);
+    [[decision chooseFrom:[self variants]] get];
+    XCTAssertFalse(decision.tracked);
 }
 
 - (void)testAddReward_valid {

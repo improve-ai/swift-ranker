@@ -26,13 +26,26 @@ NS_SWIFT_NAME(Decision)
 
 - (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
 
+/**
+ * @return Returns self for chaining. The chosen variant will be memoized and returned directly in
+ * subsequent calls of get() and peek().
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
+ */
 - (instancetype)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
 /**
- * Returns the chosen variant. The chosen variant will be memoized, so same value is returned on subsequent calls.
- * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
+ * The decision would be tracked in the first call of get().
+ * @return Returns the chosen variant memoized.
+ * @throws IMPIllegalStateException Thrown if called before chooseFrom()
  */
 - (nullable id)get;
+
+/**
+ * Same as get() except that peek won't track the decision.
+ * @return Returns the chosen variant memoized.
+ * @throws IMPIllegalStateException Thrown if called before chooseFrom()
+ */
+- (nullable id)peek;
 
 /**
  * Add rewards that only apply to this specific decision. This method should not be called prior to get().

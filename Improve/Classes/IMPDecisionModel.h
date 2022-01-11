@@ -82,7 +82,8 @@ NS_SWIFT_NAME(DecisionModel)
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
- * @return An IMPDecision object to be lazily evaluated
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
@@ -99,7 +100,8 @@ NS_SWIFT_NAME(DecisionModel)
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
  * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
  * So chooseMutilVariate({"style":["bold", "italic", "size":3}) is equivalent to chooseMutilVariate({"style":["bold", "italic", "size":[3]})
- * @return An IMPDecision object to be lazily evaluated.
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants;
 
@@ -111,7 +113,7 @@ NS_SWIFT_NAME(DecisionModel)
  * When there are two or more arguments, all the arguments would form an NSArray and be passed to chooseFrom()
  * Primitive type arguments are not allowed.
  * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a NSArray.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not an NSArray or NSDictionary.
  */
 - (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
