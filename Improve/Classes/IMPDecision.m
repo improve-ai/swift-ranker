@@ -40,7 +40,13 @@
 
 @property(nonatomic, strong) NSDictionary *allGivens;
 
-@property(nonatomic, readonly) BOOL tracked;
+/**
+ * A decision should be tracked only once when calling get(). A boolean here may
+ * be more appropriate in the first glance. But I find it hard to unit test
+ * that it's tracked only once with a boolean value in multi-thread mode. So I'm
+ * using an int here with 0 as 'untracked', and anything else as 'tracked'.
+ */
+@property(nonatomic, readonly) int tracked;
 
 @end
 
@@ -58,7 +64,6 @@
 {
     @synchronized (self) {
         if (_chosen) {
-            // if get() was previously called
             IMPErrLog("variant already chosen, ignoring variants");
             return self;
         }
@@ -106,7 +111,7 @@
             @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"get() must be called after chooseFrom()" userInfo:nil];
         }
         // No matter how many times get() is called, we only call track for once.
-        if(!_tracked) {
+        if(_tracked == 0) {
             IMPDecisionTracker *tracker = _model.tracker;
             if (tracker) {
                 if ([tracker shouldTrackRunnersUp:_variants.count]) {
@@ -117,7 +122,7 @@
                     // faster and more common path, avoids array sort
                     _id = [tracker track:_best variants:_variants given:_allGivens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
                 }
-                _tracked = YES;
+                _tracked++;
             } else {
                 IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
             }
@@ -129,7 +134,7 @@
 - (void)addReward:(double)reward
 {
     if(_id == nil) {
-        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"_id can't be nil. Make sure that addReward() is called after get(); and the trackURL is set in the DecisionModel on creation of the Decision." userInfo:nil];
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"_id can't be nil. Make sure that addReward() is called after get(); and trackURL is set in the DecisionModel." userInfo:nil];
     }
     [self.model addReward:reward decision:_id];
 }

@@ -34,7 +34,7 @@ NS_SWIFT_NAME(Decision)
 - (instancetype)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
 /**
- * The decision would be tracked in the first call of get().
+ * Get the chosen variant and track the decision. The decision would be tracked only once.
  * @return Returns the chosen variant memoized.
  * @throws IMPIllegalStateException Thrown if called before chooseFrom()
  */
@@ -48,7 +48,7 @@ NS_SWIFT_NAME(Decision)
 - (nullable id)peek;
 
 /**
- * Add rewards that only apply to this specific decision. This method should not be called prior to get().
+ * Add rewards that only apply to this specific decision. Must be called after get().
  * @throws NSInvalidArgumentException Thrown if reward is NaN or +-Infinity
  * @throws IMPIllegalStateException Thrown if the trackURL of the underlying DecisionModel is nil, or _id is nil.
  * The _id could be nil when addReward() is called prior to get(), or less likely the system clock is so
