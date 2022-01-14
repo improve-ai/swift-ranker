@@ -203,8 +203,8 @@ static double sLastSessionStartTime;
 
 - (NSDecimalNumber *)osVersion {
     NSOperatingSystemVersion systemVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
-    double t = systemVersion.majorVersion * 1000 + systemVersion.minorVersion + systemVersion.patchVersion/1000.0;
-    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.3lf", t]];
+    double t = systemVersion.majorVersion + systemVersion.minorVersion/1000.0 + systemVersion.patchVersion/1000000.0;
+    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", t]];
 }
 
 - (IMPDeviceInfo *)deviceInfo {
