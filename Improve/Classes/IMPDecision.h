@@ -12,26 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Decision)
 @interface IMPDecision : NSObject
 
-@property (nonatomic, readonly) IMPDecisionModel *model;
-
-@property (nonatomic, readonly, strong) NSArray *variants;
-
-@property (nonatomic, strong, nullable) NSDictionary *givens;
-
-// id of the tracked decision.
-// It's nil until the get() method is called and a decision is tracked.
-@property (nonatomic, strong, readonly) NSString *id;
-
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
-
-/**
- * @return Returns self for chaining. The chosen variant will be memoized and returned directly in
- * subsequent calls of get() and peek().
- * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
- */
-- (instancetype)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
 /**
  * Get the chosen variant and track the decision. The decision would be tracked only once.

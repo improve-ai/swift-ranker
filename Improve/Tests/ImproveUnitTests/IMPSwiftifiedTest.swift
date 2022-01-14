@@ -25,14 +25,14 @@ class IMPSwiftifiedTest: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testDecisionModel() throws {
-        let givens = ["language": "cowboy"]
-        let variants = ["Hello World", "Howdy World", "Hi World"]
-        let decisionModel = DecisionModel("greetings")
-        let greeting = try decisionModel.load(self.modelUrl()).given(givens).chooseFrom(variants).get()
-        XCTAssertNotNil(greeting)
-        print("greeting = \(greeting!)")
-    }
+//    func testDecisionModel() throws {
+//        let givens = ["language": "cowboy"]
+//        let variants = ["Hello World", "Howdy World", "Hi World"]
+//        let decisionModel = DecisionModel("greetings")
+//        let greeting = try decisionModel.load(self.modelUrl()).given(givens).chooseFrom(variants).get()
+//        XCTAssertNotNil(greeting)
+//        print("greeting = \(greeting!)")
+//    }
     
     func testDecisionModelThrowError() throws {
         let variants = ["Hello World", "Howdy World", "Hi World"]

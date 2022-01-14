@@ -539,19 +539,19 @@ extern NSString *const kTrackApiKey;
 }
 
 - (void)testChooseFrom {
-    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
-    NSDictionary *context = @{@"language": @"cowboy"};
-    
-    NSURL *modelURL = [NSURL URLWithString:kRemoteModelURL];
-    
-    NSError *err;
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    [decisionModel load:modelURL error:&err];
-    XCTAssertNotNil(decisionModel);
-    XCTAssertNil(err);
-    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
-    IMPLog("url=%@, greeting=%@", modelURL, greeting);
-    XCTAssertNotNil(greeting);
+//    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+//    NSDictionary *context = @{@"language": @"cowboy"};
+//    
+//    NSURL *modelURL = [NSURL URLWithString:kRemoteModelURL];
+//    
+//    NSError *err;
+//    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+//    [decisionModel load:modelURL error:&err];
+//    XCTAssertNotNil(decisionModel);
+//    XCTAssertNil(err);
+//    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
+//    IMPLog("url=%@, greeting=%@", modelURL, greeting);
+//    XCTAssertNotNil(greeting);
 }
 
 extern NSString * const kTrackerURL;
@@ -613,52 +613,52 @@ extern NSString * const kTrackerURL;
     XCTFail(@"An exception should have been thrown");
 }
 
-- (void)testChooseMultiVariate_1_variate {
-    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"]};
+//- (void)testChooseMultiVariate_1_variate {
+//    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"]};
+//
+//    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+//    IMPDecision *decision = [decisionModel chooseMultiVariate:variants];
+//    XCTAssertEqual(2, [decision.variants count]);
+//    NSLog(@"combinations: %@", decision.variants);
+//    NSArray *expected = @[
+//        @{@"font":@"Italic"} ,@{@"font":@"Bold"}
+//    ];
+//    XCTAssertTrue([expected isEqualToArray:decision.variants]);
+//}
 
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    IMPDecision *decision = [decisionModel chooseMultiVariate:variants];
-    XCTAssertEqual(2, [decision.variants count]);
-    NSLog(@"combinations: %@", decision.variants);
-    NSArray *expected = @[
-        @{@"font":@"Italic"} ,@{@"font":@"Bold"}
-    ];
-    XCTAssertTrue([expected isEqualToArray:decision.variants]);
-}
+//- (void)testChooseMultiVariate_2_variates {
+//    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]};
+//
+//    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+//    IMPDecision *decision = [decisionModel chooseMultiVariate:variants];
+//    XCTAssertEqual(4, [decision.variants count]);
+//    NSArray *expected = @[
+//        @{@"font":@"Italic", @"color":@"#000000"},
+//        @{@"font":@"Bold", @"color":@"#000000"},
+//        @{@"font":@"Italic", @"color":@"#ffffff"},
+//        @{@"font":@"Bold", @"color":@"#ffffff"}
+//    ];
+//    XCTAssertTrue([expected isEqualToArray:decision.variants]);
+//}
 
-- (void)testChooseMultiVariate_2_variates {
-    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]};
-
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    IMPDecision *decision = [decisionModel chooseMultiVariate:variants];
-    XCTAssertEqual(4, [decision.variants count]);
-    NSArray *expected = @[
-        @{@"font":@"Italic", @"color":@"#000000"},
-        @{@"font":@"Bold", @"color":@"#000000"},
-        @{@"font":@"Italic", @"color":@"#ffffff"},
-        @{@"font":@"Bold", @"color":@"#ffffff"}
-    ];
-    XCTAssertTrue([expected isEqualToArray:decision.variants]);
-}
-
-- (void)testChooseMultiVariate_3_variates {
-    NSDictionary *variants = @{
-        @"font":@[@"Italic", @"Bold"],
-        @"color":@[@"#000000", @"#ffffff"],
-        @"size":@3
-    };
-
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    IMPDecision *decision = [decisionModel chooseMultiVariate:variants];
-    XCTAssertEqual(4, [decision.variants count]);
-    NSArray *expected = @[
-        @{@"font":@"Italic", @"color":@"#000000", @"size": @3},
-        @{@"font":@"Bold", @"color":@"#000000", @"size": @3},
-        @{@"font":@"Italic", @"color":@"#ffffff", @"size": @3},
-        @{@"font":@"Bold", @"color":@"#ffffff", @"size": @3}
-    ];
-    XCTAssertTrue([expected isEqualToArray:decision.variants]);
-}
+//- (void)testChooseMultiVariate_3_variates {
+//    NSDictionary *variants = @{
+//        @"font":@[@"Italic", @"Bold"],
+//        @"color":@[@"#000000", @"#ffffff"],
+//        @"size":@3
+//    };
+//
+//    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+//    IMPDecision *decision = [decisionModel chooseMultiVariate:variants];
+//    XCTAssertEqual(4, [decision.variants count]);
+//    NSArray *expected = @[
+//        @{@"font":@"Italic", @"color":@"#000000", @"size": @3},
+//        @{@"font":@"Bold", @"color":@"#000000", @"size": @3},
+//        @{@"font":@"Italic", @"color":@"#ffffff", @"size": @3},
+//        @{@"font":@"Bold", @"color":@"#ffffff", @"size": @3}
+//    ];
+//    XCTAssertTrue([expected isEqualToArray:decision.variants]);
+//}
 
 // pass only one variant to which() and the variant is not an array
 - (void)testWhich_1_argument_non_array {

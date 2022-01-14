@@ -11,6 +11,7 @@
 #import "IMPFeatureEncoder.h"
 #import "IMPModelDownloader.h"
 #import "IMPDecision.h"
+#import "IMPDecisionContext.h"
 #import "NSDictionary+MLFeatureProvider.h"
 #import "IMPUtils.h"
 #import "IMPDecisionTracker.h"
@@ -221,10 +222,9 @@ static GivensProvider *_defaultGivensProvider;
     }];
 }
 
-
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
-    return [[[IMPDecision alloc] initWithModel:self] chooseFrom:variants];
+    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseFrom:variants];
 }
 
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {
@@ -297,11 +297,9 @@ static GivensProvider *_defaultGivensProvider;
     }
 }
 
-- (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens
+- (IMPDecisionContext *)given:(NSDictionary <NSString *, id>*)givens
 {
-    IMPDecision *decision = [[IMPDecision alloc] initWithModel:self];
-    decision.givens = givens;
-    return decision;
+    return [[IMPDecisionContext alloc] initWithModel:self andGivens:givens];
 }
 
 - (void)addReward:(double) reward

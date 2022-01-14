@@ -376,30 +376,30 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 }
 
 - (void)testTrackerRequest {
-    NSURL *trackerUrl = [NSURL URLWithString:kTrackerURL];
-    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
-    NSDictionary *context = @{@"language": @"cowboy"};
-    
-    NSError *err;
-    NSURL *modelUrl = [NSURL URLWithString:kRemoteModelURL];
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    [decisionModel load:modelUrl error:&err];
-    decisionModel.trackURL = trackerUrl;
-
-    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
-    NSLog(@"greeting=%@", greeting);
-    
-    [NSThread sleepForTimeInterval:6];
+//    NSURL *trackerUrl = [NSURL URLWithString:kTrackerURL];
+//    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+//    NSDictionary *context = @{@"language": @"cowboy"};
+//
+//    NSError *err;
+//    NSURL *modelUrl = [NSURL URLWithString:kRemoteModelURL];
+//    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+//    [decisionModel load:modelUrl error:&err];
+//    decisionModel.trackURL = trackerUrl;
+//
+//    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
+//    NSLog(@"greeting=%@", greeting);
+//
+//    [NSThread sleepForTimeInterval:6];
 }
 
 - (void)testTrackingNonJsonEncodable {
-    NSURL *trackerUrl = [NSURL URLWithString:kTrackerURL];
-    NSArray *variants = @[trackerUrl];
-    NSDictionary *context = @{@"language": @"cowboy"};
-    
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    decisionModel.trackURL = trackerUrl;
-    [[[decisionModel given:context] chooseFrom:variants] get];
+//    NSURL *trackerUrl = [NSURL URLWithString:kTrackerURL];
+//    NSArray *variants = @[trackerUrl];
+//    NSDictionary *context = @{@"language": @"cowboy"};
+//    
+//    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+//    decisionModel.trackURL = trackerUrl;
+//    [[[decisionModel given:context] chooseFrom:variants] get];
 }
 
 - (void)testAddReward_NaN {

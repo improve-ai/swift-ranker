@@ -10,6 +10,7 @@
 #import "Utils/ModelDictionary.h"
 #import "Provider/GivensProvider.h"
 
+@class IMPDecisionContext;
 @class IMPDecision;
 @class IMPDecisionModel;
 
@@ -77,7 +78,7 @@ NS_SWIFT_NAME(DecisionModel)
  * @param givens Additional context info that will be used with each of the variants to calcuate the score
  * @return A IMPDecision object to be lazily evaluated
  */
-- (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens;
+- (IMPDecisionContext *)given:(NSDictionary <NSString *, id>*)givens;
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
