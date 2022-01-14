@@ -212,7 +212,6 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
                        block:^
      (NSObject *result, NSError *error) {
         if (error == nil) {
-            IMPLog("xxxxx, Improve.track response: %@", result);
         }
     }];
 }
@@ -258,7 +257,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     [request setHTTPMethod:@"POST"];
     [request setAllHTTPHeaderFields:headers];
     [request setHTTPBody:postData];
-
+    
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                           delegate:nil
                                                      delegateQueue:[NSOperationQueue mainQueue]];
@@ -295,6 +294,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
         } else {
             // success!
             block(jsonObject, nil);
+            IMPLog("tracking response: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
         }
     }];
     [dataTask resume];
