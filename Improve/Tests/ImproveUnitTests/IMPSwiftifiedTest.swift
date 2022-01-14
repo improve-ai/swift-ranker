@@ -19,36 +19,22 @@ class IMPSwiftifiedTest: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        DecisionModel.defaultTrackURL = URL(string:"https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track")!
     }
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-//    func testDecisionModel() throws {
-//        let givens = ["language": "cowboy"]
-//        let variants = ["Hello World", "Howdy World", "Hi World"]
-//        let decisionModel = DecisionModel("greetings")
-//        let greeting = try decisionModel.load(self.modelUrl()).given(givens).chooseFrom(variants).get()
-//        XCTAssertNotNil(greeting)
-//        print("greeting = \(greeting!)")
-//    }
-    
-    func testDecisionModelThrowError() throws {
+    func testDecisionModel() throws {
         let variants = ["Hello World", "Howdy World", "Hi World"]
-        do {
-            let decisionModel = DecisionModel("greetings")
-            let greeting = try decisionModel.load(self.modelUrl()).chooseFrom(variants).get()
-            if greeting != nil {
-                print("greeting = \(greeting!)")
-            }
-        } catch {
-            print("unexpected error: \(error)")
-        }
+        let decisionModel = DecisionModel("greetings")
+        let greeting = try decisionModel.load(self.modelUrl()).chooseFrom(variants).get()
+        print("greeting = \(greeting)")
     }
     
     // Handle exception by converting Errors to Optional Values
-    func testDecisionModelThrowErrorOptional() throws {
+    func testDecisionModelThrowError() throws {
         let variants = ["Hello World", "Howdy World", "Hi World"]
         let decisionModel = DecisionModel("greetings")
         let greeting = try? decisionModel.load(self.invalidModelUrl()).chooseFrom(variants).get();
@@ -56,15 +42,17 @@ class IMPSwiftifiedTest: XCTestCase {
     }
     
     func testDecision() throws {
+        let variants = ["Hello World", "Howdy World", "Hi World"]
         let decisionModel = DecisionModel("hello")
-        let decision = Decision(decisionModel)
-        
-        decision.get();
+        let decision = decisionModel.chooseFrom(variants);
+        var best = decision.peek();
+        best = decision.get();
+        print("best is \(best)")
+        decision.addReward(0.1);
     }
     
     func testTracker() throws {
         let trackerUrl = URL(string: "http://improve.ai")!
-        
         let tracker = DecisionTracker(trackerUrl, nil)
         tracker.addReward(3.14, forModel: "greetings")
     }

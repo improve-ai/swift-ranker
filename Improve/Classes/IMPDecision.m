@@ -40,7 +40,7 @@
 
 @property (nonatomic, copy, nullable) NSDictionary *givens;
 
-@property(nonatomic, strong) id best;
+@property (nonatomic, strong) id best;
 
 /**
  * A decision should be tracked only once when calling get(). A boolean here may

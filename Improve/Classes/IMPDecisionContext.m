@@ -19,6 +19,8 @@
 
 @property(nonatomic, strong) id best;
 
+- (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
+
 @end
 
 @interface IMPDecisionModel ()
@@ -46,6 +48,10 @@
 }
 
 - (IMPDecision *)chooseFrom:(NSArray *)variants {
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants to choose from can't be nil or empty" userInfo:nil];
+    }
+    
     NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
     
     NSArray *scores = [_model score:variants  given:allGivens];

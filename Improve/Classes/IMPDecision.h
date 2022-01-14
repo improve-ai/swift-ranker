@@ -14,21 +14,19 @@ NS_SWIFT_NAME(Decision)
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
-
 /**
  * Get the chosen variant and track the decision. The decision would be tracked only once.
  * @return Returns the chosen variant memoized.
  * @throws IMPIllegalStateException Thrown if called before chooseFrom()
  */
-- (nullable id)get;
+- (id)get;
 
 /**
  * Same as get() except that peek won't track the decision.
  * @return Returns the chosen variant memoized.
  * @throws IMPIllegalStateException Thrown if called before chooseFrom()
  */
-- (nullable id)peek;
+- (id)peek;
 
 /**
  * Add rewards that only apply to this specific decision. Must be called after get().
