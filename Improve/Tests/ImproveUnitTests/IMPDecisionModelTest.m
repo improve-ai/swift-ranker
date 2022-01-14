@@ -529,9 +529,10 @@ extern NSString *const kTrackApiKey;
         XCTAssertEqualWithAccuracy([score_2[0] doubleValue], [score_2[1] doubleValue], 0.000001);
         NSLog(@"score#2: %lf, %lf, %lf", score_2[0].doubleValue, score_2[1].doubleValue, score_2[0].doubleValue - score_2[1].doubleValue);
         
-        // Scores of the first and second call should differ because of the random noise in the FeatureEncoder.
-        // However, if the noises happens to be very close to each other, the scores can be very similar as well,
-        // and the following assertion might fail.
+        // Scores of the first and second call should differ because of the random noise
+        // in the FeatureEncoder. However, if the noises happens to be very close to each
+        // other, the scores can be very similar as well, and the following assertion might
+        // fail.
         NSLog(@"diff score#: %lf", score_1[0].doubleValue - score_2[0].doubleValue);
         XCTAssertNotEqualWithAccuracy([score_1[0] doubleValue], [score_2[0] doubleValue], 0.000001);
     }
