@@ -495,6 +495,49 @@ extern NSString *const kTrackApiKey;
     }
 }
 
+- (void)testScore_consistent_encoding {
+    int loop = 7;
+        for(int i = 0; i < loop; ++i) {
+        NSArray *variant = @[@1.0, @2];
+        NSDictionary *givens = @{
+            @"a": @"b",
+            @"c": @{
+                    @"d": @[@0.0, @1.2, @2],
+                    @"e": @(true),
+                    @"f": @"AsD"
+            }
+        };
+        IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+        
+        NSURL *url = [[TestUtils bundle] URLForResource:@"model.mlmodel.gz" withExtension:nil subdirectory:@"1000_list_of_numeric_variants_20_same_nested_givens_binary_reward"];
+        NSError *error;
+        model = [model load:url error:&error];
+        XCTAssertNil(error);
+        XCTAssertNotNil(model);
+        
+        // First call of model.score()
+        // The scores should be identical up to about ~32 bits of precesion for two identical variants
+        NSArray<NSNumber *> *score_1 = [model score:@[variant, variant] given:givens];
+        XCTAssertEqual(2, [score_1 count]);
+        XCTAssertEqualWithAccuracy([score_1[0] doubleValue], [score_1[1] doubleValue], 0.000001);
+        NSLog(@"score#1: %lf, %lf, %lf", score_1[0].doubleValue, score_1[1].doubleValue, score_1[0].doubleValue - score_1[1].doubleValue);
+        
+        // Second call of model.score()
+        // The scores should be identical up to about ~32 bits of precesion for two identical variants
+        NSArray<NSNumber *> *score_2 = [model score:@[variant, variant] given:givens];
+        XCTAssertEqual(2, [score_2 count]);
+        XCTAssertEqualWithAccuracy([score_2[0] doubleValue], [score_2[1] doubleValue], 0.000001);
+        NSLog(@"score#2: %lf, %lf, %lf", score_2[0].doubleValue, score_2[1].doubleValue, score_2[0].doubleValue - score_2[1].doubleValue);
+        
+        // Scores of the first and second call should differ because of the random noise
+        // in the FeatureEncoder. However, if the noises happens to be very close to each
+        // other, the scores can be very similar as well, and the following assertion might
+        // fail.
+        NSLog(@"diff score#: %lf", score_1[0].doubleValue - score_2[0].doubleValue);
+        XCTAssertNotEqualWithAccuracy([score_1[0] doubleValue], [score_2[0] doubleValue], 0.000001);
+    }
+}
+
 - (void)testChooseFrom {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
