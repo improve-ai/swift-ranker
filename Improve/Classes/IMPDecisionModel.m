@@ -11,6 +11,7 @@
 #import "IMPFeatureEncoder.h"
 #import "IMPModelDownloader.h"
 #import "IMPDecision.h"
+#import "IMPDecisionContext.h"
 #import "NSDictionary+MLFeatureProvider.h"
 #import "IMPUtils.h"
 #import "IMPDecisionTracker.h"
@@ -221,47 +222,13 @@ static GivensProvider *_defaultGivensProvider;
     }];
 }
 
-
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
-    return [[[IMPDecision alloc] initWithModel:self] chooseFrom:variants];
+    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseFrom:variants];
 }
 
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {
-    NSMutableArray *allKeys = [[NSMutableArray alloc] initWithCapacity:[variants count]];
-    
-    NSMutableArray *categories = [NSMutableArray arrayWithCapacity:[variants count]];
-    [variants enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if(![obj isKindOfClass:[NSArray class]]) {
-            [categories addObject:@[obj]];
-        } else {
-            [categories addObject:obj];
-        }
-        // I'm not sure whether the order of keys in [variants allKeys] and the enumeration
-        // here is the same, so I'm adding the keys to a new array here anyway for safety.
-        [allKeys addObject:key];
-    }];
-    
-    NSMutableArray<NSDictionary *> *combinations = [[NSMutableArray alloc] init];
-    for(int i = 0; i < [categories count]; ++i) {
-        NSArray *category = categories[i];
-        NSMutableArray<NSDictionary *> *newCombinations = [[NSMutableArray alloc] init];
-        for(int m = 0; m < [category count]; ++m) {
-            if([combinations count] == 0) {
-                [newCombinations addObject:@{allKeys[i]:category[m]}];
-            } else {
-                for(int n = 0; n < [combinations count]; ++n) {
-                    NSMutableDictionary *newVariant = [combinations[n] mutableCopy];
-                    [newVariant setObject:category[m] forKey:allKeys[i]];
-                    [newCombinations addObject:newVariant];
-                }
-            }
-        }
-        combinations = newCombinations;
-    }
-    IMPLog("Choosing from %ld combinations", [combinations count]);
-    
-    return [self chooseFrom:combinations];
+    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseMultiVariate:variants];
 }
 
 - (id)which:(id)firstVariant, ...
@@ -275,33 +242,12 @@ static GivensProvider *_defaultGivensProvider;
 
 - (id)which:(id)firstVariant args:(va_list)args NS_SWIFT_NAME(which(_:_:))
 {
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-
-    [variants addObject:firstVariant];
-
-    id arg = nil;
-    while((arg = va_arg(args, id))) {
-        [variants addObject:arg];
-    }
-
-    if([variants count] == 1) {
-        if([firstVariant isKindOfClass:[NSArray class]]) {
-            return [[self chooseFrom:firstVariant] get];
-        } else if([firstVariant isKindOfClass:[NSDictionary class]]) {
-            return [[self chooseMultiVariate:firstVariant] get];
-        }
-        NSString *reason = @"If only one argument, it must be an NSArray or an NSDictionary";
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-    } else {
-        return [[self chooseFrom:variants] get];
-    }
+    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] which:firstVariant args:args];
 }
 
-- (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens
+- (IMPDecisionContext *)given:(NSDictionary <NSString *, id>*)givens
 {
-    IMPDecision *decision = [[IMPDecision alloc] initWithModel:self];
-    decision.givens = givens;
-    return decision;
+    return [[IMPDecisionContext alloc] initWithModel:self andGivens:givens];
 }
 
 - (void)addReward:(double) reward
@@ -322,19 +268,31 @@ static GivensProvider *_defaultGivensProvider;
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
 {
-    return [self score:variants given:nil];
+    NSDictionary *givens = nil;
+    GivensProvider *givensProvider = self.givensProvider;
+    if(givensProvider != nil) {
+        givens = [givensProvider givensForModel:self givens:nil];
+    }
+    return [self score:variants given:givens];
 }
 
+/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @param givens Additional context info that will be used with each of the variants to calcuate the score
+ * @return scores of the variants
+ */
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
               given:(nullable NSDictionary <NSString *, id>*)givens
 {
     // MLModel is not thread safe, synchronize
     @synchronized (self) {
         if ([variants count] <= 0) {
-            IMPErrLog("Non-nil, non-empty array required for sort variants. Returning empty array");
-            return @[];
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be empty or nil" userInfo:nil];
         }
-        
+#ifdef IMPROVE_AI_DEBUG
+        IMPLog("givens: %@", givens);
+#endif
         if(self.model == nil) {
             // When tracking a decision like this:
             // IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"model"];

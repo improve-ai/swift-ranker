@@ -10,6 +10,7 @@
 #import "IMPDecisionTracker.h"
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
+#import "IMPDecisionContext.h"
 
 NSString * const kTrackerURL = @"https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track";
 
@@ -379,7 +380,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     NSURL *trackerUrl = [NSURL URLWithString:kTrackerURL];
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
-    
+
     NSError *err;
     NSURL *modelUrl = [NSURL URLWithString:kRemoteModelURL];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
@@ -388,7 +389,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 
     NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
     NSLog(@"greeting=%@", greeting);
-    
+
     [NSThread sleepForTimeInterval:6];
 }
 

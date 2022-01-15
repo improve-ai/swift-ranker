@@ -10,6 +10,7 @@
 #import "Utils/ModelDictionary.h"
 #import "Provider/GivensProvider.h"
 
+@class IMPDecisionContext;
 @class IMPDecision;
 @class IMPDecisionModel;
 
@@ -34,7 +35,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property(nonatomic, readonly, copy) NSString *modelName;
 
-@property(strong, nonatomic) GivensProvider *givensProvider;
+@property(atomic, strong) GivensProvider *givensProvider;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -77,18 +78,19 @@ NS_SWIFT_NAME(DecisionModel)
  * @param givens Additional context info that will be used with each of the variants to calcuate the score
  * @return A IMPDecision object to be lazily evaluated
  */
-- (IMPDecision *)given:(NSDictionary <NSString *, id>*)givens;
+- (IMPDecisionContext *)given:(NSDictionary <NSString *, id>*)givens NS_SWIFT_NAME(given(_:));
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
- * @return An IMPDecision object to be lazily evaluated
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
 /**
  * This method is an alternative of chooseFrom(). An example here might be more expressive:
- * chooseMutilVariate({"style":["bold", "italic", "size":[3, 5]})
+ * chooseMutilVariate({"style":["bold", "italic"], "size":[3, 5]})
  *       is equivalent to
  * chooseFrom([
  *      {"style":"bold", "size":3},
@@ -99,9 +101,10 @@ NS_SWIFT_NAME(DecisionModel)
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
  * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
  * So chooseMutilVariate({"style":["bold", "italic", "size":3}) is equivalent to chooseMutilVariate({"style":["bold", "italic", "size":[3]})
- * @return An IMPDecision object to be lazily evaluated.
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
-- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants;
+- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultiVariate(_:));
 
 /**
  * This method is a short hand of chooseFrom(variants).get().
@@ -111,7 +114,7 @@ NS_SWIFT_NAME(DecisionModel)
  * When there are two or more arguments, all the arguments would form an NSArray and be passed to chooseFrom()
  * Primitive type arguments are not allowed.
  * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a NSArray.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not an NSArray or NSDictionary.
  */
 - (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
@@ -120,17 +123,10 @@ NS_SWIFT_NAME(DecisionModel)
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
  * @return scores of the variants
  */
 - (NSArray<NSNumber *> *)score:(NSArray *)variants;
-
-/**
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
- *  arrays, strings, numbers, nulls, and booleans.
- * @param givens Additional context info that will be used with each of the variants to calcuate the score
- * @return scores of the variants
- */
-- (NSArray<NSNumber *> *)score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
 
 /**
  * Adds the reward value to the most recent Decision for this model name for this installation. The most recent Decision
