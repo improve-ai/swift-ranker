@@ -25,6 +25,8 @@
 
 @interface IMPDecisionModel ()
 
+- (NSArray<NSNumber *> *)score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
+
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
 @end
@@ -54,7 +56,7 @@
     
     NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
     
-    NSArray *scores = [_model score:variants  given:allGivens];
+    NSArray *scores = [_model score:variants given:allGivens];
     
     id best = [IMPDecisionModel topScoringVariant:variants withScores:scores];
     

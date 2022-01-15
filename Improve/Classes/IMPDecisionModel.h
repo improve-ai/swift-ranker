@@ -35,7 +35,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property(nonatomic, readonly, copy) NSString *modelName;
 
-@property(strong, nonatomic) GivensProvider *givensProvider;
+@property(atomic, strong) GivensProvider *givensProvider;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -123,17 +123,10 @@ NS_SWIFT_NAME(DecisionModel)
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
  * @return scores of the variants
  */
 - (NSArray<NSNumber *> *)score:(NSArray *)variants;
-
-/**
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
- *  arrays, strings, numbers, nulls, and booleans.
- * @param givens Additional context info that will be used with each of the variants to calcuate the score
- * @return scores of the variants
- */
-- (NSArray<NSNumber *> *)score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
 
 /**
  * Adds the reward value to the most recent Decision for this model name for this installation. The most recent Decision

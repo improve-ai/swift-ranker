@@ -15,6 +15,7 @@
 #import "TestUtils.h"
 #import "IMPFeatureEncoder.h"
 #import "IMPConstants.h"
+#import "AppGivensProvider.h"
 
 extern NSString * const kRemoteModelURL;
 
@@ -38,6 +39,8 @@ extern NSString *const kTrackApiKey;
 @interface IMPDecisionModel ()
 
 @property (strong, atomic) IMPDecisionTracker *tracker;
+
+- (NSArray <NSNumber *>*)score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
 
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
@@ -473,33 +476,37 @@ extern NSString *const kTrackApiKey;
     }
 }
 
-- (void)testScoreWithNilVariants {
-    NSArray *variants = nil;
-    NSDictionary *context = @{@"language": @"cowboy"};
+- (void)testScore_nil_variants {
     IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    NSArray *scores = [model score:variants given:context];
-    XCTAssertNotNil(scores);
-    XCTAssertEqual([scores count], 0);
+    @try {
+        [model score:nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"variants can't be nil");
 }
 
-- (void)testScoreWithEmptyVariants {
+- (void)testScore_empty_variants {
     NSArray *variants = @[];
-    NSDictionary *context = @{@"language": @"cowboy"};
     IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    NSArray *scores = [model score:variants given:context];
-    XCTAssertNotNil(scores);
-    XCTAssertEqual([scores count], 0);
+    @try {
+        [model score:variants];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"variants can't be nil");
 }
 
-- (void)testScoreWithoutLoadingModel {
+- (void)testScore_without_loading_model {
     NSMutableArray *variants = [[NSMutableArray alloc] init];
     for(int i = 0; i < 100; i++) {
         [variants addObject:@(i)];
     }
     
-    NSDictionary *context = @{@"language": @"cowboy"};
     IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    NSArray<NSNumber *> *scores = [model score:variants given:context];
+    NSArray<NSNumber *> *scores = [model score:variants];
     XCTAssertNotNil(scores);
     XCTAssertEqual([scores count], [variants count]);
     
@@ -512,8 +519,8 @@ extern NSString *const kTrackApiKey;
 }
 
 - (void)testScore_consistent_encoding {
-    int loop = 7;
-        for(int i = 0; i < loop; ++i) {
+    int loop = 10;
+    for(int i = 0; i < loop; ++i) {
         NSArray *variant = @[@1.0, @2];
         NSDictionary *givens = @{
             @"a": @"b",
@@ -1001,6 +1008,22 @@ extern NSString * const kTrackerURL;
         return ;
     }
     XCTFail(@"trackURL can't be nil when calling DecisionModel.addReward()");
+}
+
+- (void)testGivensProvider_thread_safe {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    
+    for(int i = 0; i < 100; ++i) {
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            [decisionModel score:variants];
+        });
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            decisionModel.givensProvider = [[AppGivensProvider alloc] init];
+        });
+    }
+    
+    [NSThread sleepForTimeInterval:2.0f];
 }
 
 @end

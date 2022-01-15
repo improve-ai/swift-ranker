@@ -320,17 +320,27 @@ static GivensProvider *_defaultGivensProvider;
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
 {
-    return [self score:variants given:nil];
+    NSDictionary *givens = nil;
+    GivensProvider *givensProvider = self.givensProvider;
+    if(givensProvider != nil) {
+        givens = [givensProvider givensForModel:self givens:nil];
+    }
+    return [self score:variants given:givens];
 }
 
+/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @param givens Additional context info that will be used with each of the variants to calcuate the score
+ * @return scores of the variants
+ */
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
               given:(nullable NSDictionary <NSString *, id>*)givens
 {
     // MLModel is not thread safe, synchronize
     @synchronized (self) {
         if ([variants count] <= 0) {
-            IMPErrLog("Non-nil, non-empty array required for sort variants. Returning empty array");
-            return @[];
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be empty or nil" userInfo:nil];
         }
         
         if(self.model == nil) {
