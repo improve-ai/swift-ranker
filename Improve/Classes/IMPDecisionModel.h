@@ -104,7 +104,7 @@ NS_SWIFT_NAME(DecisionModel)
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
-- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants;
+- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultiVariate(_:));
 
 /**
  * This method is a short hand of chooseFrom(variants).get().

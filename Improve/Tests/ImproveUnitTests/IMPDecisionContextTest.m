@@ -10,6 +10,8 @@
 #import "IMPDecisionModel.h"
 #import "IMPDecisionContext.h"
 
+extern NSString * const kRemoteModelURL;
+
 @interface IMPDecision ()
 
 @property(nonatomic, readonly, nullable) id best;
@@ -23,6 +25,8 @@
 @end
 
 @interface IMPDecisionContextTest : XCTestCase
+
+@property (strong, nonatomic) NSURL *modelURL;
 
 @end
 
@@ -106,6 +110,13 @@
     NSArray<NSNumber *> *scores = [decisionContext score:variants];
     XCTAssertEqual([variants count], [scores count]);
     NSLog(@"scores: %@", scores);
+}
+
+- (NSURL *)modelURL {
+    if(_modelURL == nil) {
+        _modelURL = [NSURL URLWithString:kRemoteModelURL];
+    }
+    return _modelURL;
 }
 
 @end
