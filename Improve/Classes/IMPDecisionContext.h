@@ -17,7 +17,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithModel:(IMPDecisionModel *)model andGivens:(nullable NSDictionary *)givens;
 
-- (IMPDecision *)chooseFrom:(NSArray *)variants;
+/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
+ */
+- (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
+
+/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
+ * @return scores of the variants
+ */
+- (NSArray<NSNumber *> *)score:(NSArray *)variants NS_SWIFT_NAME(score(_:));
 
 @end
 

@@ -342,7 +342,9 @@ static GivensProvider *_defaultGivensProvider;
         if ([variants count] <= 0) {
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be empty or nil" userInfo:nil];
         }
-        
+#ifdef IMPROVE_AI_DEBUG
+        IMPLog("givens: %@", givens);
+#endif
         if(self.model == nil) {
             // When tracking a decision like this:
             // IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"model"];

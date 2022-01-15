@@ -69,4 +69,10 @@
     return decision;
 }
 
+- (NSArray<NSNumber *> *)score:(NSArray *)variants {
+    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
+    return [_model score:variants given:allGivens];
+}
+
+
 @end

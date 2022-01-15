@@ -75,5 +75,37 @@
     XCTFail(@"An exception should have been thrown.");
 }
 
+- (void)testScore_nil_variants {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
+    @try {
+        [decisionContext score:nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"variants can't be nil");
+}
+
+- (void)testScore_empty_variants {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
+    @try {
+        [decisionContext score:@[]];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"variants can't be nil");
+}
+
+- (void)testScore_valid {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
+    NSArray<NSNumber *> *scores = [decisionContext score:variants];
+    XCTAssertEqual([variants count], [scores count]);
+    NSLog(@"scores: %@", scores);
+}
 
 @end

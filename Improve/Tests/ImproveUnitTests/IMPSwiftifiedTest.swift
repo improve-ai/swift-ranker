@@ -57,6 +57,16 @@ class IMPSwiftifiedTest: XCTestCase {
         tracker.addReward(3.14, forModel: "greetings")
     }
     
+    func testDecisionContext() {
+        let givens = ["lang":"Cowboy"]
+        let variants = ["Hello World", "Howdy World", "Hi World"]
+        
+        let decisionModel = DecisionModel("hello")
+        let decisionContext = decisionModel.given(givens)
+        decisionContext.chooseFrom(variants)
+        decisionContext.score(variants)
+    }
+    
     func testLoadAsync() throws {
         let ex = expectation(description: "Model loading")
         let variants = ["Hello World", "Howdy World", "Hi World"]
