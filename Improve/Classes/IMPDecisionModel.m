@@ -273,7 +273,7 @@ static GivensProvider *_defaultGivensProvider;
     if(givensProvider != nil) {
         givens = [givensProvider givensForModel:self givens:nil];
     }
-    return [self score:variants given:givens];
+    return [self scoreInternal:variants given:givens];
 }
 
 /**
@@ -282,7 +282,7 @@ static GivensProvider *_defaultGivensProvider;
  * @param givens Additional context info that will be used with each of the variants to calcuate the score
  * @return scores of the variants
  */
-- (NSArray <NSNumber *>*)score:(NSArray *)variants
+- (NSArray <NSNumber *>*)scoreInternal:(NSArray *)variants
               given:(nullable NSDictionary <NSString *, id>*)givens
 {
     // MLModel is not thread safe, synchronize

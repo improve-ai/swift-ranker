@@ -40,8 +40,6 @@ extern NSString *const kTrackApiKey;
 
 @property (strong, atomic) IMPDecisionTracker *tracker;
 
-- (NSArray <NSNumber *>*)score:(NSArray *)variants given:(nullable NSDictionary <NSString *, id>*)givens;
-
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
@@ -540,14 +538,14 @@ extern NSString *const kTrackApiKey;
         
         // First call of model.score()
         // The scores should be identical up to about ~32 bits of precesion for two identical variants
-        NSArray<NSNumber *> *score_1 = [model score:@[variant, variant] given:givens];
+        NSArray<NSNumber *> *score_1 = [[model given:givens] score:@[variant, variant]];
         XCTAssertEqual(2, [score_1 count]);
         XCTAssertEqualWithAccuracy([score_1[0] doubleValue], [score_1[1] doubleValue], 0.000001);
         NSLog(@"score#1: %lf, %lf, %lf", score_1[0].doubleValue, score_1[1].doubleValue, score_1[0].doubleValue - score_1[1].doubleValue);
         
         // Second call of model.score()
         // The scores should be identical up to about ~32 bits of precesion for two identical variants
-        NSArray<NSNumber *> *score_2 = [model score:@[variant, variant] given:givens];
+        NSArray<NSNumber *> *score_2 = [[model given:givens] score:@[variant, variant]];
         XCTAssertEqual(2, [score_2 count]);
         XCTAssertEqualWithAccuracy([score_2[0] doubleValue], [score_2[1] doubleValue], 0.000001);
         NSLog(@"score#2: %lf, %lf, %lf", score_2[0].doubleValue, score_2[1].doubleValue, score_2[0].doubleValue - score_2[1].doubleValue);
@@ -974,7 +972,14 @@ extern NSString * const kTrackerURL;
     } else {
         for(int i = 0; i < [givens count]; ++i) {
             NSLog(@"%d/%ld", i, [givens count]);
-            NSArray *scores = [decisionModel score:variants given:givens[i]];
+            NSArray *scores;
+            if([givens[i] isKindOfClass:[NSDictionary class]]) {
+                scores = [[decisionModel given:givens[i]] score:variants];
+            } else if([givens[i] isEqual:[NSNull null]]) {
+                scores = [decisionModel score:variants];
+            } else {
+                XCTFail(@"unexpected type of givens");
+            }
             NSArray *expectedScores = [expectedOutputs[i] objectForKey:@"scores"];
             XCTAssertEqual([scores count], [expectedScores count]);
             XCTAssertTrue([scores count] > 0);
