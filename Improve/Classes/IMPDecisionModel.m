@@ -14,6 +14,7 @@
 #import "IMPDecisionContext.h"
 #import "NSDictionary+MLFeatureProvider.h"
 #import "IMPUtils.h"
+#import "IMPJSONUtils.h"
 #import "IMPDecisionTracker.h"
 #import "AppGivensProvider.h"
 #import "IMPConstants.h"
@@ -291,7 +292,7 @@ static GivensProvider *_defaultGivensProvider;
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be empty or nil" userInfo:nil];
         }
 #ifdef IMPROVE_AI_DEBUG
-        IMPLog("givens: %@", givens);
+        IMPLog("givens: %@", [IMPJSONUtils jsonStringOrDerscriptionOf:givens]);
 #endif
         if(self.model == nil) {
             // When tracking a decision like this:
