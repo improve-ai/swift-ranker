@@ -144,7 +144,7 @@
     return features;
 }
 
-// int to hex string; skip leading zero
+// int to hex string
 - (NSString *)hash_to_feature_name:(uint64_t)hash {
     char buffer[9] = {0};
     hash = (hash >> 32);
