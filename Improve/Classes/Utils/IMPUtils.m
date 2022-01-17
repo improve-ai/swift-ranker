@@ -52,17 +52,17 @@
     if([scores count] <= (LeadingCount + TrailingCount)) {
         // dump all
         for(NSUInteger i = 0; i < [scores count]; ++i) {
-            IMPLog("#%ld score: %@ variant: %@", i, sortedScores[i], [IMPJSONUtils jsonStringOrDerscriptionOf:sortedVariants[i]]);
+            IMPLog("#%ld score: %@ variant: %@", i, sortedScores[i], [IMPJSONUtils jsonStringOrDescriptionOf:sortedVariants[i]]);
         }
     } else {
         // dump top N scores and variants
         for(NSUInteger i = 0; i < LeadingCount; ++i) {
-            IMPLog("#%ld score: %@ variant: %@", i, sortedScores[i], [IMPJSONUtils jsonStringOrDerscriptionOf:sortedVariants[i]]);
+            IMPLog("#%ld score: %@ variant: %@", i, sortedScores[i], [IMPJSONUtils jsonStringOrDescriptionOf:sortedVariants[i]]);
         }
         
         // dump bottom N scores and variants
         for(NSUInteger i = [scores count] - TrailingCount; i < [scores count]; ++i) {
-            IMPLog("#%ld score: %@ variant: %@", i, sortedScores[i], [IMPJSONUtils jsonStringOrDerscriptionOf:sortedVariants[i]]);
+            IMPLog("#%ld score: %@ variant: %@", i, sortedScores[i], [IMPJSONUtils jsonStringOrDescriptionOf:sortedVariants[i]]);
         }
     }
 }

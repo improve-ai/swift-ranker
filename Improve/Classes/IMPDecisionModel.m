@@ -274,7 +274,7 @@ static GivensProvider *_defaultGivensProvider;
     if(givensProvider != nil) {
         givens = [givensProvider givensForModel:self givens:nil];
     }
-    return [self scoreInternal:variants given:givens];
+    return [self scoreInternal:variants allGivens:givens];
 }
 
 /**
@@ -284,7 +284,7 @@ static GivensProvider *_defaultGivensProvider;
  * @return scores of the variants
  */
 - (NSArray <NSNumber *>*)scoreInternal:(NSArray *)variants
-              given:(nullable NSDictionary <NSString *, id>*)givens
+              allGivens:(nullable NSDictionary <NSString *, id>*)allGivens
 {
     // MLModel is not thread safe, synchronize
     @synchronized (self) {
@@ -292,7 +292,7 @@ static GivensProvider *_defaultGivensProvider;
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be empty or nil" userInfo:nil];
         }
 #ifdef IMPROVE_AI_DEBUG
-        IMPLog("givens: %@", [IMPJSONUtils jsonStringOrDerscriptionOf:givens]);
+        IMPLog("givens: %@", [IMPJSONUtils jsonStringOrDescriptionOf:allGivens]);
 #endif
         if(self.model == nil) {
             // When tracking a decision like this:
@@ -303,7 +303,7 @@ static GivensProvider *_defaultGivensProvider;
             return [IMPDecisionModel generateDescendingGaussians:variants.count];
         }
 
-        NSArray *encodedFeatures = [_featureEncoder encodeVariants:variants given:givens];
+        NSArray *encodedFeatures = [_featureEncoder encodeVariants:variants given:allGivens];
         MLArrayBatchProvider *batchProvider = [[MLArrayBatchProvider alloc] initWithFeatureProviderArray:encodedFeatures];
 
         NSError *error = nil;

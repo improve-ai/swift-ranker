@@ -294,7 +294,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
         } else {
             // success!
             block(jsonObject, nil);
-            IMPLog("tracking response: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+            IMPLog("track response: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
         }
     }];
     [dataTask resume];

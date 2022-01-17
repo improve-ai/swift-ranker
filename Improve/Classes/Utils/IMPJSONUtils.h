@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable id)objectFromString:(NSString *)jsonString error:(NSError **)error;
 
 /// Tries to convert the object to JSON, otherwise returns the description + error message. For debug purposes.
-+ (NSString *)jsonStringOrDerscriptionOf:(NSObject *)object;
++ (NSString *)jsonStringOrDescriptionOf:(NSObject *)object;
 
 /**
  Tries to convert the object to JSON, otherwise returns the description + error message. For debug purposes.
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param condensed If YES - outputs string without newlines
  @returns A string describing the object.
  */
-+ (NSString *)jsonStringOrDerscriptionOf:(NSObject *)object
++ (NSString *)jsonStringOrDescriptionOf:(NSObject *)object
                                condensed:(BOOL)condensed;
 
 @end

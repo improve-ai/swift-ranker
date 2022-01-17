@@ -21,12 +21,12 @@
     return [NSJSONSerialization JSONObjectWithData:data options:0 error:error];
 }
 
-+ (NSString *)jsonStringOrDerscriptionOf:(NSObject *)object
++ (NSString *)jsonStringOrDescriptionOf:(NSObject *)object
 {
-    return [self jsonStringOrDerscriptionOf:object condensed:YES];
+    return [self jsonStringOrDescriptionOf:object condensed:YES];
 }
 
-+ (NSString *)jsonStringOrDerscriptionOf:(NSObject *)object
++ (NSString *)jsonStringOrDescriptionOf:(NSObject *)object
                                condensed:(BOOL)condensed
 {
     NSString *description = [NSString stringWithFormat:@"%@", object];
