@@ -35,6 +35,7 @@
 @synthesize trackURL = _trackURL;
 @synthesize trackApiKey = _trackApiKey;
 @synthesize model = _model;
+@synthesize givensProvider = _givensProvider;
 
 static NSURL * _defaultTrackURL;
 
@@ -105,36 +106,53 @@ static GivensProvider *_defaultGivensProvider;
     return self;
 }
 
+// TODO: If givensProvider is set as nil explicitly, should the default givens provider be used anyway?
 - (GivensProvider *)givensProvider
 {
-    return _givensProvider ? _givensProvider : IMPDecisionModel.defaultGivensProvider;
+    @synchronized (self) {
+        return _givensProvider ? _givensProvider : IMPDecisionModel.defaultGivensProvider;
+    }
+}
+
+- (void)setGivensProvider:(GivensProvider *)givensProvider {
+    @synchronized (self) {
+        _givensProvider = givensProvider;
+    }
 }
 
 - (NSURL *)trackURL
 {
-    return _trackURL;
+    @synchronized (self) {
+        return _trackURL;
+    }
 }
 
 - (void)setTrackURL:(NSURL *)trackURL
 {
-    _trackURL = trackURL;
-    if(trackURL != nil) {
-        self.tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL trackApiKey:self.trackApiKey];;
-    } else {
-        self.tracker = nil;
+    @synchronized (self) {
+        _trackURL = trackURL;
+        if(trackURL != nil) {
+            _tracker = [[IMPDecisionTracker alloc] initWithTrackURL:trackURL trackApiKey:_trackApiKey];;
+        } else {
+            _tracker = nil;
+        }
     }
 }
 
 - (NSString *)trackApiKey
 {
-    return _trackApiKey;
+    @synchronized (self) {
+        return _trackApiKey;
+    }
 }
 
 - (void)setTrackApiKey:(NSString *)trackApiKey
 {
-    _trackApiKey = [trackApiKey copy];
-    if(self.tracker != nil) {
-        self.tracker.trackApiKey = trackApiKey;
+    @synchronized (self) {
+        _trackApiKey = [trackApiKey copy];
+        if(_tracker != nil) {
+            _tracker.trackApiKey = trackApiKey;
+        }
     }
 }
 
