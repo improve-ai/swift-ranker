@@ -44,6 +44,13 @@ extern NSString * const kRemoteModelURL;
     return @[@"Hello World", @"Howdy World", @"Hi World"];
 }
 
+- (NSURL *)modelURL {
+    if(_modelURL == nil) {
+        _modelURL = [NSURL URLWithString:kRemoteModelURL];
+    }
+    return _modelURL;
+}
+
 - (void)testChooseFrom {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
@@ -112,11 +119,29 @@ extern NSString * const kRemoteModelURL;
     NSLog(@"scores: %@", scores);
 }
 
-- (NSURL *)modelURL {
-    if(_modelURL == nil) {
-        _modelURL = [NSURL URLWithString:kRemoteModelURL];
-    }
-    return _modelURL;
+- (void)testWhich {
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    decisionModel = [decisionModel load:self.modelURL error:&error];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(error);
+    
+    IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
+    id best = [decisionContext which:@"Hello World", @"Howdy World", @"Hi World", nil];
+    XCTAssertNotNil(best);
+}
+
+- (void)testChooseMultiVariate {
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    decisionModel = [decisionModel load:self.modelURL error:&error];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(error);
+    
+    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]};
+    
+    IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
+    [decisionContext chooseMultiVariate:variants];
 }
 
 @end
