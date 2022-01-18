@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This method is an alternative of chooseFrom(). An example here might be more expressive:
- * chooseMutilVariate({"style":["bold", "italic"], "size":[3, 5]})
+ * chooseMultiVariate({"style":["bold", "italic"], "size":[3, 5]})
  *       is equivalent to
  * chooseFrom([
  *      {"style":"bold", "size":3},
