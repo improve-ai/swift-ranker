@@ -41,27 +41,26 @@
 
 static NSString * PersistPrefix = @"ai.improve";
 
-NSString * const kLanguageKey = @"lang";
-
 static NSString * const kCountryKey = @"country";
+NSString * const kLanguageKey = @"lang";
 static NSString * const kTimezoneKey = @"tz";
 static NSString * const kCarrierKey = @"carrier";
-static NSString * const kOSKey = @"os";
-static NSString * const kOSVersionKey = @"osv";
 static NSString * const kDeviceKey = @"device";
 static NSString * const kDeviceVersionKey = @"devicev";
+static NSString * const kOSKey = @"os";
+static NSString * const kOSVersionKey = @"osv";
+static NSString * const kScreenPixelsKey = @"pixels";
 static NSString * const kAppKey = @"app";
 static NSString * const kAppVersionKey = @"appv";
 static NSString * const kImproveVersionKey = @"sdkv";
-static NSString * const kScreenPixelsKey = @"pixels";
 static NSString * const kWeekDayKey = @"weekday";
-static NSString * const kSinceMidnightKey = @"today";
+static NSString * const kSinceMidnightKey = @"time";
+static NSString * const kSinceSessionStartKey = @"runtime";
 static NSString * const kSinceBornKey = @"day";
-static NSString * const kSinceSessionStartKey = @"since_session";
-NSString * const kSinceLastSessionStartKey = @"since_last_session";
-static NSString * const kSessionCountKey = @"sessions";
-static NSString * const kDecisionCountKey = @"decisions";
-static NSString * const kRewardsKey = @"rewards";
+static NSString * const kDecisionCountKey = @"d"; // number of decisions for this model
+static NSString * const kRewardsKey = @"r";  // total rewards for this model
+static NSString * const kRewardsPerDecision = @"r/d";
+static NSString * const kDecisionsPerDay = @"d/day";
 
 // persistent key
 
@@ -72,8 +71,6 @@ static NSString * const kBornTimeKey = @"ai.improve.born_time";
 // If there is some way to get the true app launch
 // time in Android or iOS we could use that instead.
 NSString * const kSessionStartTimeKey = @"ai.improve.session_start_time";
-
-static NSString * const kDefaultsSessionCountKey = @"ai.improve.session_count";
 
 static NSString * const kDefaultsDecisionCountKey = @"ai.improve.decision_count-%@";
 
@@ -105,10 +102,6 @@ static double sLastSessionStartTime;
             // set session start time
             double sessionStartTime = [[NSDate date] timeIntervalSince1970];
             [defaults setDouble:sessionStartTime forKey:kSessionStartTimeKey];
-            
-            // increment session count value by 1
-            NSInteger curSessionCount = [defaults integerForKey:kDefaultsSessionCountKey];
-            [defaults setInteger:curSessionCount+1 forKey:kDefaultsSessionCountKey];
         });
     }
     return self;
@@ -128,18 +121,12 @@ static double sLastSessionStartTime;
     givens[kScreenPixelsKey] = @([self screenPixels]);
     givens[kWeekDayKey] = [self weekDay];
     givens[kSinceMidnightKey] = [self sinceMidnight];
-    givens[kSinceBornKey] = [self sinceBorn];
+    givens[kSinceBornKey] = [self sinceBornDecimalNumber];
     givens[kSinceSessionStartKey] = [self sinceSessionStart];
-    
-    // There's no last session when the app runs for the first time.
-    // In this case, we exclude since_last_session_start from the givens map.
-    if(sLastSessionStartTime > 0) {
-        givens[kSinceLastSessionStartKey] = [self sinceLastSessionStart];
-    }
-    
-    givens[kSessionCountKey] = @([self sessionCount]);
     givens[kDecisionCountKey] = @([self decisionCount:decisionModel.modelName]);
     givens[kRewardsKey] = [self rewardOfModel:decisionModel.modelName];
+    givens[kRewardsPerDecision] = [self rewardsPerDecision:decisionModel.modelName];
+    givens[kDecisionsPerDay] = [self decisionsPerDay:decisionModel.modelName];
     
     IMPDeviceInfo *deviceInfo = [self deviceInfo];
     givens[kDeviceKey] = deviceInfo.model;
@@ -288,30 +275,16 @@ static double sLastSessionStartTime;
     return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", t]];
 }
 
-// 0.0 is returned, if there is no last session
-- (NSDecimalNumber *)sinceLastSessionStart {
-    if(sLastSessionStartTime <= 0) {
-        return [NSDecimalNumber decimalNumberWithString:@"0"];
-    }
-    double t = ([[NSDate date] timeIntervalSince1970] - sLastSessionStartTime)/86400.0;
+// Born time is the first time an AppGivensProvider is created on this device.
+- (NSDecimalNumber *)sinceBornDecimalNumber {
+    double t = [self sinceBorn];
     return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", t]];
 }
 
-// Born time is the first time an AppGivensProvider is created on this device.
-- (NSDecimalNumber *)sinceBorn {
+- (double)sinceBorn {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     double bornTime = [defaults doubleForKey:kBornTimeKey];
-    double t = ([[NSDate date] timeIntervalSince1970] - bornTime) / 86400.0;
-    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", t]];
-}
-
-// 0 is returned for the first session
-- (NSUInteger)sessionCount {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSInteger count = [defaults integerForKey:kDefaultsSessionCountKey];
-    // We are counting previous session count here, so we need
-    // to remove current session that is already counted in init.
-    return count - 1 >= 0? count-1 : 0;
+    return ([[NSDate date] timeIntervalSince1970] - bornTime) / 86400.0;
 }
 
 //  It’s the number of times a givens is provided
@@ -384,11 +357,30 @@ static double sLastSessionStartTime;
     [defaults setDouble:(curValue+reward) forKey:key];
 }
 
+// Total rewards for this model
 - (NSDecimalNumber *)rewardOfModel:(NSString *)modelName {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *key = [NSString stringWithFormat:kDefaultsModelRewardsKey, modelName];
     double reward = [defaults doubleForKey:key];
     return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", reward]];
+}
+
+- (NSDecimalNumber *)rewardsPerDecision:(NSString *)modelName {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString *key = [NSString stringWithFormat:kDefaultsModelRewardsKey, modelName];
+    double rewards = [defaults doubleForKey:key];
+    NSUInteger decisions = [self decisionCount:modelName];
+    if(decisions == 0) {
+        return [NSDecimalNumber decimalNumberWithString:@"0"];
+    } else {
+        return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", rewards / decisions]];
+    }
+}
+
+- (NSDecimalNumber *)decisionsPerDay:(NSString *)modelName {
+    NSUInteger decisions = [self decisionCount:modelName];
+    double days = [self sinceBorn];
+    return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", decisions / days]];
 }
 
 @end

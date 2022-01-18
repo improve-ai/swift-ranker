@@ -97,19 +97,4 @@ extern NSString *const kLanguageKey;
     XCTAssertEqual(@"hi", allGivens[kLanguageKey]);
 }
 
-extern NSString *const kSessionStartTimeKey;
-extern NSString * const kSinceLastSessionStartKey;
-// exclude since_last_session_start from givens when it's 0
-- (void)testExclude_0_Since_Last_Session_Start {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults removeObjectForKey:kSessionStartTimeKey];
-    
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    AppGivensProvider *provider = [[AppGivensProvider alloc] init];
-    NSDictionary *allGivens = [provider givensForModel:decisionModel givens:@{}];
-    
-    XCTAssertEqual(18, [allGivens count]);
-    XCTAssertNil(allGivens[kSinceLastSessionStartKey]);
-}
-
 @end
