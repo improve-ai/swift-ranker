@@ -271,18 +271,20 @@ static GivensProvider *_defaultGivensProvider;
 
 - (void)addReward:(double) reward
 {
-    if(_tracker == nil) {
+    IMPDecisionTracker *tracker = self.tracker;
+    if(tracker == nil) {
         @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
     }
-    [_tracker addReward:reward forModel:self.modelName];
+    [tracker addReward:reward forModel:self.modelName];
 }
 
 // Add reward for a specific tracked decision
 - (void)addReward:(double)reward decision:(NSString *)decisionId {
-    if(_tracker == nil) {
+    IMPDecisionTracker *tracker = self.tracker;
+    if(tracker == nil) {
         @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
     }
-    [_tracker addReward:reward forModel:self.modelName decision:decisionId];
+    [tracker addReward:reward forModel:self.modelName decision:decisionId];
 }
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants

@@ -131,6 +131,40 @@ extern NSString * const kRemoteModelURL;
     XCTAssertNotNil(best);
 }
 
+- (void)testWhich_empty_dict {
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    decisionModel = [decisionModel load:self.modelURL error:&error];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(error);
+    
+    IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
+    @try {
+        [decisionContext which:@{}, nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
+- (void)testWhich_empty_array {
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    decisionModel = [decisionModel load:self.modelURL error:&error];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(error);
+    
+    IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
+    @try {
+        [decisionContext which:@[], nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
 - (void)testChooseMultiVariate {
     NSError *error;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
@@ -142,6 +176,40 @@ extern NSString * const kRemoteModelURL;
     
     IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
     [decisionContext chooseMultiVariate:variants];
+}
+
+- (void)testChooseMultiVariate_nil_variants {
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    decisionModel = [decisionModel load:self.modelURL error:&error];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(error);
+    
+    IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
+    @try {
+        [decisionContext chooseMultiVariate:nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
+}
+
+- (void)testChooseMultiVariate_empty_variants {
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    decisionModel = [decisionModel load:self.modelURL error:&error];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(error);
+    
+    IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];
+    @try {
+        [decisionContext chooseMultiVariate:@{}];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
 }
 
 @end

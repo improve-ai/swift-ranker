@@ -100,7 +100,7 @@ NS_SWIFT_NAME(DecisionModel)
  * ])
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
  * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
- * So chooseMutilVariate({"style":["bold", "italic", "size":3}) is equivalent to chooseMutilVariate({"style":["bold", "italic", "size":[3]})
+ * So chooseMultiVariate({"style":["bold", "italic"], "size":3}) is equivalent to chooseMultiVariate({"style":["bold", "italic"], "size":[3]})
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
