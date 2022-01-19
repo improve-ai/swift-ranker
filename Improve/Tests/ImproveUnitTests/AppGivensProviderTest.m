@@ -20,7 +20,7 @@
 
 - (NSDecimalNumber *)improveVersion:(NSString *)version;
 
-- (NSDecimalNumber *)rewardOfModel:(NSString *)modelName;
+- (double)rewardOfModel:(NSString *)modelName;
 
 @end
 
@@ -78,9 +78,9 @@
     double accuracy = 0.000001;
     double reward = (double)arc4random() / UINT32_MAX;
     NSString *modelName = [[NSUUID UUID] UUIDString];
-    XCTAssertEqualWithAccuracy(0, [[provider rewardOfModel:modelName] doubleValue], accuracy);
+    XCTAssertEqualWithAccuracy(0, [provider rewardOfModel:modelName], accuracy);
     [AppGivensProvider addReward:reward forModel:modelName];
-    XCTAssertEqualWithAccuracy(reward, [[provider rewardOfModel:modelName] doubleValue], accuracy);
+    XCTAssertEqualWithAccuracy(reward, [provider rewardOfModel:modelName], accuracy);
 }
 
 extern NSString *const kLanguageKey;

@@ -41,26 +41,26 @@
 
 static NSString * PersistPrefix = @"ai.improve";
 
-static NSString * const kCountryKey = @"country";
-NSString * const kLanguageKey = @"lang";
-static NSString * const kTimezoneKey = @"tz";
-static NSString * const kCarrierKey = @"carrier";
-static NSString * const kDeviceKey = @"device";
-static NSString * const kDeviceVersionKey = @"devicev";
-static NSString * const kOSKey = @"os";
-static NSString * const kOSVersionKey = @"osv";
-static NSString * const kScreenPixelsKey = @"pixels";
-static NSString * const kAppKey = @"app";
-static NSString * const kAppVersionKey = @"appv";
-static NSString * const kImproveVersionKey = @"sdkv";
-static NSString * const kWeekDayKey = @"weekday";
-static NSString * const kSinceMidnightKey = @"time";
-static NSString * const kSinceSessionStartKey = @"runtime";
-static NSString * const kSinceBornKey = @"day";
-static NSString * const kDecisionCountKey = @"d"; // number of decisions for this model
-static NSString * const kRewardsKey = @"r";  // total rewards for this model
-static NSString * const kRewardsPerDecision = @"r/d";
-static NSString * const kDecisionsPerDay = @"d/day";
+static NSString * const kCountryKey = @"$country";
+NSString * const kLanguageKey = @"$lang";
+static NSString * const kTimezoneKey = @"$tz";
+static NSString * const kCarrierKey = @"$carrier";
+static NSString * const kDeviceKey = @"$device";
+static NSString * const kDeviceVersionKey = @"$devicev";
+static NSString * const kOSKey = @"$os";
+static NSString * const kOSVersionKey = @"$osv";
+static NSString * const kScreenPixelsKey = @"$pixels";
+static NSString * const kAppKey = @"$app";
+static NSString * const kAppVersionKey = @"$appv";
+static NSString * const kImproveVersionKey = @"$sdkv";
+static NSString * const kWeekDayKey = @"$weekday";
+static NSString * const kSinceMidnightKey = @"$time";
+static NSString * const kSinceSessionStartKey = @"$runtime";
+static NSString * const kSinceBornKey = @"$day";
+static NSString * const kDecisionCountKey = @"$d"; // number of decisions for this model
+static NSString * const kRewardsKey = @"$r";  // total rewards for this model
+static NSString * const kRewardsPerDecision = @"$r/d";
+static NSString * const kDecisionsPerDay = @"$d/day";
 
 // persistent key
 
@@ -124,7 +124,7 @@ static double sLastSessionStartTime;
     givens[kSinceBornKey] = [self sinceBornDecimalNumber];
     givens[kSinceSessionStartKey] = [self sinceSessionStart];
     givens[kDecisionCountKey] = @([self decisionCount:decisionModel.modelName]);
-    givens[kRewardsKey] = [self rewardOfModel:decisionModel.modelName];
+    givens[kRewardsKey] = [self rewardOfModelDecimalNumber:decisionModel.modelName];
     givens[kRewardsPerDecision] = [self rewardsPerDecision:decisionModel.modelName];
     givens[kDecisionsPerDay] = [self decisionsPerDay:decisionModel.modelName];
     
@@ -358,17 +358,19 @@ static double sLastSessionStartTime;
 }
 
 // Total rewards for this model
-- (NSDecimalNumber *)rewardOfModel:(NSString *)modelName {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString *key = [NSString stringWithFormat:kDefaultsModelRewardsKey, modelName];
-    double reward = [defaults doubleForKey:key];
+- (NSDecimalNumber *)rewardOfModelDecimalNumber:(NSString *)modelName {
+    double reward = [self rewardOfModel:modelName];
     return [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.6lf", reward]];
 }
 
-- (NSDecimalNumber *)rewardsPerDecision:(NSString *)modelName {
+- (double)rewardOfModel:(NSString *)modelName {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *key = [NSString stringWithFormat:kDefaultsModelRewardsKey, modelName];
-    double rewards = [defaults doubleForKey:key];
+    return [defaults doubleForKey:key];
+}
+
+- (NSDecimalNumber *)rewardsPerDecision:(NSString *)modelName {
+    double rewards = [self rewardOfModel:modelName];
     NSUInteger decisions = [self decisionCount:modelName];
     if(decisions == 0) {
         return [NSDecimalNumber decimalNumberWithString:@"0"];
