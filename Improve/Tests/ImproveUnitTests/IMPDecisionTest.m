@@ -19,7 +19,15 @@
 
 @end
 
+@interface IMPDecisionTracker ()
+
+- (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName;
+
+@end
+
 @interface IMPDecision ()
+
+@property (nonatomic, strong, readonly) NSString *id;
 
 @property(nonatomic, readonly, nullable) id best;
 
@@ -86,6 +94,22 @@
     XCTAssertEqual(0, decision.tracked);
     [decision get];
     XCTAssertEqual(0, decision.tracked);
+}
+
+- (void)testGet_persist_decision_id {
+    NSString *modelName = @"hello";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    IMPDecision *decision = [decisionModel chooseFrom:[self variants]];
+    
+    NSString *decisionIdBeforeGet = [decisionModel.tracker lastDecisionIdOfModel:modelName];
+    
+    [decision get];
+    
+    NSString *decisionIdAfterGet = [decisionModel.tracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(decision.id);
+    XCTAssertEqualObjects(decision.id, decisionIdAfterGet);
+    XCTAssertNotEqualObjects(decisionIdBeforeGet, decisionIdAfterGet);
+    NSLog(@"decisionId: %@, %@, %@", decision.id, decisionIdBeforeGet, decisionIdAfterGet);
 }
 
 - (void)testAddReward_valid {
@@ -168,6 +192,5 @@
     }
     XCTFail(@"An exception should have been thrown.");
 }
-
 
 @end
