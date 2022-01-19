@@ -90,11 +90,19 @@ extern NSString *const kLanguageKey;
     };
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     AppGivensProvider *provider = [[AppGivensProvider alloc] init];
-    NSDictionary *allGivens = [provider givensForModel:decisionModel givens:givens];
     
-    NSLog(@"%@ = %@", kLanguageKey, allGivens[kLanguageKey]);
+    NSDictionary *allGivens = [provider givensForModel:decisionModel givens:nil];
+    NSLog(@"allGivens: %@", allGivens);
     
-    XCTAssertEqual(@"hi", allGivens[kLanguageKey]);
+    // assert that kLanguageKey exists in AppGivensProvider givens
+    XCTAssertTrue([allGivens[kLanguageKey] length] > 0);
+    XCTAssertNotEqualObjects(@"hi", allGivens[kLanguageKey]);
+    
+    allGivens = [provider givensForModel:decisionModel givens:givens];
+    NSLog(@"allGivens: %@", allGivens);
+    
+    // assert that user givens wins in case of overlapping
+    XCTAssertEqualObjects(@"hi", allGivens[kLanguageKey]);
 }
 
 @end
