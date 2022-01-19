@@ -76,22 +76,11 @@ static NSString * const kDefaultsDecisionCountKey = @"ai.improve.decision_count-
 
 static NSString * const kDefaultsModelRewardsKey = @"ai.improve.rewards-%@";
 
-NSString * const kGivensModelNameMessages = @"messages";
-NSString * const kGivensModelNameThemes = @"themes";
-NSString * const kGivensModelNameStories = @"stories";
-NSString * const kGivensModelNameSongs = @"songs";
-
-static double sLastSessionStartTime;
-
 - (instancetype)init {
     if(self = [super init]) {
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-            
-            // cache last session start time before it is overwritten in NSUserDefaults
-            // by current session start time
-            sLastSessionStartTime = [defaults doubleForKey:kSessionStartTimeKey];
             
             // set born time
             if([defaults objectForKey:kBornTimeKey] == nil) {
