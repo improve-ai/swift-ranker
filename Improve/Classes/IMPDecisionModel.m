@@ -300,7 +300,8 @@ static GivensProvider *_defaultGivensProvider;
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
- * @param givens Additional context info that will be used with each of the variants to calcuate the score
+ * @param allGivens Additional context info that will be used with each of the variants to calcuate the score, including the givens passed in
+ * through DecisionModel.given(givens) and the givens provided by the AppGivensProvider or other custom GivensProvider.
  * @return scores of the variants
  */
 - (NSArray <NSNumber *>*)scoreInternal:(NSArray *)variants

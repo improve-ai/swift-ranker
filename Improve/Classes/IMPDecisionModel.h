@@ -75,7 +75,7 @@ NS_SWIFT_NAME(DecisionModel)
 - (void)loadAsync:(NSURL *)url completion:(void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler;
 
 /**
- * @param givens Additional context info that will be used with each of the variants to calcuate the score
+ * @param givens Additional context info that will be used with each of the variants to calculate the score
  * @return A IMPDecision object to be lazily evaluated
  */
 - (IMPDecisionContext *)given:(NSDictionary <NSString *, id>*)givens NS_SWIFT_NAME(given(_:));
