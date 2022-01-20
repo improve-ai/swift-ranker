@@ -327,7 +327,7 @@
 		54CB9B1423D987590005BB94 = {
 			isa = PBXGroup;
 			children = (
-				54CB9B2823D988D10005BB94 /* Improve */,
+				54CB9B2823D988D10005BB94 /* ImproveAI */,
 				54CB9B2123D987800005BB94 /* ImproveUnitTests */,
 				54CB9B2023D987800005BB94 /* Products */,
 				54CA20F123FDB63300723655 /* Frameworks */,
@@ -371,14 +371,14 @@
 			path = ImproveUnitTests;
 			sourceTree = "<group>";
 		};
-		54CB9B2823D988D10005BB94 /* Improve */ = {
+		54CB9B2823D988D10005BB94 /* ImproveAI */ = {
 			isa = PBXGroup;
 			children = (
 				54CB9B2F23D988F00005BB94 /* Categories */,
 				54CB9B3223D988F10005BB94 /* Classes */,
 				54CB9B2923D988F00005BB94 /* ThirdParty */,
 			);
-			name = Improve;
+			name = ImproveAI;
 			sourceTree = "<group>";
 		};
 		54CB9B2923D988F00005BB94 /* ThirdParty */ = {
