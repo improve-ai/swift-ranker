@@ -9,6 +9,9 @@
 #import <XCTest/XCTest.h>
 #import "AppGivensProvider.h"
 #import "IMPDecisionModel.h"
+#import "IMPDecision.h"
+
+extern NSString * const kTrackerURL;
 
 @interface AppGivensProviderTest : XCTestCase
 
@@ -28,6 +31,7 @@
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
 }
 
 - (void)tearDown {
@@ -72,15 +76,27 @@
                                             :[NSDecimalNumber decimalNumberWithString:@"0"]]);
 }
 
-- (void)testAddReward {
-    AppGivensProvider *provider = [[AppGivensProvider alloc] init];
+- (void)testAddReward_decision {
+    NSString *modelName = @"greeting";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    IMPDecision *decision = [decisionModel chooseFrom:@[@1, @2, @3]];
+    [decision get];
     
-    double accuracy = 0.000001;
-    double reward = (double)arc4random() / UINT32_MAX;
-    NSString *modelName = [[NSUUID UUID] UUIDString];
-    XCTAssertEqualWithAccuracy(0, [provider rewardOfModel:modelName], accuracy);
-    [AppGivensProvider addReward:reward forModel:modelName];
-    XCTAssertEqualWithAccuracy(reward, [provider rewardOfModel:modelName], accuracy);
+    AppGivensProvider *provider = [[AppGivensProvider alloc] init];
+    double oldTotalRewardOfModel = [provider rewardOfModel:modelName];
+    [decision addReward:0.1];
+    double newTotalRewardOfModel = [provider rewardOfModel:modelName];
+    XCTAssertEqualWithAccuracy(oldTotalRewardOfModel+0.1, newTotalRewardOfModel, 0.000001);
+}
+
+- (void)testAddReward_decisionModel {
+    NSString *modelName = @"greeting";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    AppGivensProvider *provider = [[AppGivensProvider alloc] init];
+    double oldTotalRewardOfModel = [provider rewardOfModel:modelName];
+    [decisionModel addReward:0.1];
+    double newTotalRewardOfModel = [provider rewardOfModel:modelName];
+    XCTAssertEqualWithAccuracy(oldTotalRewardOfModel+0.1, newTotalRewardOfModel, 0.000001);
 }
 
 extern NSString *const kLanguageKey;
