@@ -27,7 +27,7 @@
     NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
     if(res.statusCode == 200) {
         // retrieve gzip file contnet length from http response header fields
-        NSUInteger contentLength = [[res.allHeaderFields objectForKey:@"Content-Length"] unsignedIntValue];
+        NSUInteger contentLength = [[res.allHeaderFields objectForKey:@"Content-Length"] intValue];
         _zipInputData = [NSMutableData dataWithCapacity:contentLength];
         _zipOutputData = [NSMutableData dataWithCapacity:contentLength*2];
         _stream.next_in = (Bytef *)_zipInputData.bytes;
