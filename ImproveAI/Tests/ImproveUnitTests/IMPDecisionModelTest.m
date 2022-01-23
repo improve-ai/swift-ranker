@@ -474,6 +474,17 @@ extern NSString *const kTrackApiKey;
     }
 }
 
+- (void)testScore {
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    decisionModel = [decisionModel load:[self modelURL] error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(decisionModel);
+    NSArray *scores = [decisionModel score:@[@1, @2, @3]];
+    XCTAssertEqual(3, [scores count]);
+    NSLog(@"scores: %@", scores);
+}
+
 - (void)testScore_nil_variants {
     IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
     @try {
