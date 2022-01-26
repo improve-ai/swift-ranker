@@ -26,6 +26,8 @@
 		B32938EA2613EA930071F78E /* IMPStreamDownloadHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B32938E92613EA930071F78E /* IMPStreamDownloadHandler.m */; };
 		B352915E26453300000274D6 /* IMPDecisionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B352915D26453300000274D6 /* IMPDecisionTest.m */; };
 		B352916426455F3C000274D6 /* IMPSwiftifiedTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B352916326455F3C000274D6 /* IMPSwiftifiedTest.swift */; };
+		B355488A27A0FBF000A6E6C3 /* a_z.json in Resources */ = {isa = PBXBuildFile; fileRef = B355488927A0FBF000A6E6C3 /* a_z.json */; };
+		B355488D27A0FBFB00A6E6C3 /* a_z_model.mlmodel.gz in Resources */ = {isa = PBXBuildFile; fileRef = B355488C27A0FBFB00A6E6C3 /* a_z_model.mlmodel.gz */; };
 		B3675EA725FE2E460040FDBB /* xxhash.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EA325FE2E460040FDBB /* xxhash.c */; };
 		B3675EBA25FE2E900040FDBB /* IMPFeatureEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */; };
 		B3675EBD25FE2EA80040FDBB /* FeatureEncoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B3675EBC25FE2EA80040FDBB /* FeatureEncoderTest.m */; };
@@ -173,6 +175,8 @@
 		B352915D26453300000274D6 /* IMPDecisionTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPDecisionTest.m; sourceTree = "<group>"; };
 		B352916226455F3B000274D6 /* ImproveUnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ImproveUnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		B352916326455F3C000274D6 /* IMPSwiftifiedTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMPSwiftifiedTest.swift; sourceTree = "<group>"; };
+		B355488927A0FBF000A6E6C3 /* a_z.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = a_z.json; sourceTree = "<group>"; };
+		B355488C27A0FBFB00A6E6C3 /* a_z_model.mlmodel.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = a_z_model.mlmodel.gz; sourceTree = "<group>"; };
 		B3675EA125FE2E450040FDBB /* xxhash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxhash.h; sourceTree = "<group>"; };
 		B3675EA325FE2E460040FDBB /* xxhash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xxhash.c; sourceTree = "<group>"; };
 		B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMPFeatureEncoder.m; sourceTree = "<group>"; };
@@ -345,6 +349,7 @@
 		54CB9B2123D987800005BB94 /* ImproveUnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				B355488827A0FB7600A6E6C3 /* A-ZModel */,
 				B3C4124E273E745D00CC7DCD /* ModelTestSuite */,
 				B371835D2734F8E000FE03F1 /* KSUIDTest.m */,
 				B3CB282B272A83620081C29F /* AppGivensProviderTest.m */,
@@ -449,6 +454,15 @@
 				B32938E02612D80F0071F78E /* NSData+GZIP.m */,
 			);
 			path = GZip;
+			sourceTree = "<group>";
+		};
+		B355488827A0FB7600A6E6C3 /* A-ZModel */ = {
+			isa = PBXGroup;
+			children = (
+				B355488C27A0FBFB00A6E6C3 /* a_z_model.mlmodel.gz */,
+				B355488927A0FBF000A6E6C3 /* a_z.json */,
+			);
+			path = "A-ZModel";
 			sourceTree = "<group>";
 		};
 		B3675E9D25FE2C970040FDBB /* XXHash */ = {
@@ -669,6 +683,7 @@
 				B3F51D6D269B590000049F17 /* encode_feature_vector.json in Resources */,
 				B3F51D6C269B590000049F17 /* primitive_dict_big_int_positive.json in Resources */,
 				B3F51D97269B590000049F17 /* int64_big.json in Resources */,
+				B355488A27A0FBF000A6E6C3 /* a_z.json in Resources */,
 				B3F51D5B269B590000049F17 /* npnan.json in Resources */,
 				B3C412C8273E76B300CC7DCD /* model_test_suite.txt in Resources */,
 				B3F51D9B269B590000049F17 /* bool_false.json in Resources */,
@@ -733,6 +748,7 @@
 				B3F51D80269B590000049F17 /* dict_foo_bar.json in Resources */,
 				B3F51D75269B590000049F17 /* primitive_dict_int_0.json in Resources */,
 				B3F51D6B269B590000049F17 /* internal_collisions_03.json in Resources */,
+				B355488D27A0FBFB00A6E6C3 /* a_z_model.mlmodel.gz in Resources */,
 				B3C412E5273E853D00CC7DCD /* 1000_list_of_numeric_variants_20_same_nested_givens_binary_reward in Resources */,
 				B3F51D68269B590000049F17 /* primitive_dict_float_m1.json in Resources */,
 				B3F51D8C269B590000049F17 /* noise_0_string.json in Resources */,

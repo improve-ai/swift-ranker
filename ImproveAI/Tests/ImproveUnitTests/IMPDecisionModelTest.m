@@ -1044,4 +1044,35 @@ extern NSString * const kTrackerURL;
     [NSThread sleepForTimeInterval:2.0f];
 }
 
+- (void)testA2Z_Model {
+    NSError *error;
+    NSURL *modelURL = [[TestUtils bundle] URLForResource:@"a_z_model.mlmodel.gz" withExtension:nil];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"a-z"];
+    [decisionModel load:modelURL error:&error];
+    XCTAssertNil(error);
+    
+    NSURL *jsonURL = [[TestUtils bundle] URLForResource:@"a_z.json" withExtension:nil];
+    NSData *data = [NSData dataWithContentsOfURL:jsonURL];
+    XCTAssertNotNil(data);
+    
+    NSDictionary *root = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    XCTAssertNil(error);
+    
+    NSArray *variants = root[@"test_case"][@"variants"];
+    XCTAssertEqual(26, [variants count]);
+    
+    double noise = [root[@"test_case"][@"noise"] doubleValue];
+    decisionModel.featureEncoder.noise = noise;
+    NSLog(@"noise: %lf", noise);
+    
+    NSArray *expectedScores = root[@"expected_output"][0][@"scores"];
+    XCTAssertEqual(26, [expectedScores count]);
+    
+    NSArray<NSNumber *> *scores = [decisionModel score:variants];
+    NSLog(@"scores: %@", scores);
+    for(int i = 0; i < 26; ++i) {
+        XCTAssertEqualWithAccuracy([expectedScores[i] doubleValue], [scores[i] doubleValue], 0.000002);
+    }
+}
+
 @end
