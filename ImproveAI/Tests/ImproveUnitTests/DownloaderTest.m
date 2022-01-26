@@ -89,7 +89,7 @@ extern NSString * const kRemoteModelURL;
 }
 
 - (void)testDownloadRemoteGzip{
-    NSURL *url = [NSURL URLWithString:kRemoteModelURL];
+    NSURL *url = [NSURL URLWithString:@"https://improveai-mindblown-bible-prod-models.s3.amazonaws.com/models/latest/improveai-messages-2.0.mlmodel.gz"];
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];

@@ -10,6 +10,9 @@
 #import "IMPStreamDownloadHandler.h"
 #import "IMPLogging.h"
 
+#define DEFAULT_INPUT_CAPACITY (1 * 1024 * 1024)
+#define DEFAULT_OUTPUT_CAPACITY (2 * 1024 * 1024)
+
 @interface IMPStreamDownloadHandler()
 
 @end
@@ -26,10 +29,8 @@
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
     if(res.statusCode == 200) {
-        // retrieve gzip file contnet length from http response header fields
-        NSUInteger contentLength = [[res.allHeaderFields objectForKey:@"Content-Length"] intValue];
-        _zipInputData = [NSMutableData dataWithCapacity:contentLength];
-        _zipOutputData = [NSMutableData dataWithCapacity:contentLength*2];
+        _zipInputData = [NSMutableData dataWithCapacity:DEFAULT_INPUT_CAPACITY];
+        _zipOutputData = [NSMutableData dataWithCapacity:DEFAULT_OUTPUT_CAPACITY];
         _stream.next_in = (Bytef *)_zipInputData.bytes;
         _stream.avail_in = 0;
         
@@ -47,6 +48,7 @@
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
     [_zipInputData appendData:data];
+    _stream.next_in = (Bytef *)_zipInputData.bytes + _stream.total_in;
     _stream.avail_in += data.length;
     
     int status = Z_OK;
