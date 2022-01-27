@@ -10,65 +10,102 @@
 #import "IMPStreamDownloadHandler.h"
 #import "IMPLogging.h"
 
-#define DEFAULT_INPUT_CAPACITY (1 * 1024 * 1024)
-#define DEFAULT_OUTPUT_CAPACITY (2 * 1024 * 1024)
-
 @interface IMPStreamDownloadHandler()
 
 @end
 
 @implementation IMPStreamDownloadHandler {
     z_stream _stream;
+    NSFileHandle *_fileHandle;
+    NSURL *_fileURL;
     BOOL _decompressOK;
-    NSMutableData *_zipInputData;
-    NSMutableData *_zipOutputData;
+    BOOL _inflateInitialized;
 }
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
                                  didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
-    if(res.statusCode == 200) {
-        _zipInputData = [NSMutableData dataWithCapacity:DEFAULT_INPUT_CAPACITY];
-        _zipOutputData = [NSMutableData dataWithCapacity:DEFAULT_OUTPUT_CAPACITY];
-        _stream.next_in = (Bytef *)_zipInputData.bytes;
-        _stream.avail_in = 0;
-        
-        if(inflateInit2(&_stream, 47)) { // why 47?
-            [self onDownloadError:@"inflateInit2 err" withErrCode:-400];
-            return ;
-        }
-        completionHandler(NSURLSessionResponseAllow);
-    } else {
-        NSString *msg = [NSString stringWithFormat:@"http statusCode=%ld, expecting 200", res.statusCode];
-        [self onDownloadError:msg withErrCode:-300];
+    if(res.statusCode != 200) {
+        [self onDownloadError:[NSString stringWithFormat:@"HttpStatusCode=%ld", res.statusCode]
+                  withErrCode:-300];
+        completionHandler(NSURLSessionResponseCancel);
+        return ;
     }
+    
+    IMPLog("streaming decompression init...");
+    int ret = inflateInit2(&_stream, 47);
+    if(ret) {
+        [self onDownloadError:[NSString stringWithFormat:@"inflateInit2 returns %d", ret]
+                  withErrCode:-301];
+        completionHandler(NSURLSessionResponseCancel);
+        return ;
+    }
+    _inflateInitialized = YES;
+    
+    NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"ai.improve.tmp.%@.mlmodel", [[NSUUID UUID] UUIDString]]];
+    
+    if(![[NSFileManager defaultManager] createFileAtPath:tempPath contents:nil attributes:nil]) {
+        [self onDownloadError:@"Failed to create temp file for writing"
+                  withErrCode:-301];
+        completionHandler(NSURLSessionResponseCancel);
+        return ;
+    }
+    
+    _fileHandle = [NSFileHandle fileHandleForWritingAtPath:tempPath];
+    if(_fileHandle == nil) {
+        [self onDownloadError:@"Failed to get the FileHandle for writing"
+                  withErrCode:-302];
+        completionHandler(NSURLSessionResponseCancel);
+        return ;
+    }
+    
+    _fileURL = [NSURL fileURLWithPath:tempPath];
+    
+    completionHandler(NSURLSessionResponseAllow);
 }
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
-    [_zipInputData appendData:data];
-    _stream.next_in = (Bytef *)_zipInputData.bytes + _stream.total_in;
+    _stream.next_in = (Bytef *)data.bytes;
     _stream.avail_in += data.length;
     
+    uLong total_out = _stream.total_out;
+    NSMutableData *zipOutputData = [NSMutableData dataWithCapacity:data.length * 2];
     int status = Z_OK;
     do {
-        if(_stream.total_out >= _zipOutputData.length) {
-            _zipOutputData.length += 500 * 1024;
+        if((_stream.total_out - total_out) >= zipOutputData.length) {
+            [zipOutputData increaseLengthBy:50 * 1024];
         }
-        _stream.next_out = (uint8_t *)_zipOutputData.mutableBytes + _stream.total_out;
-        _stream.avail_out = (uInt)(_zipOutputData.length - _stream.total_out);
+        _stream.next_out = (uint8_t *)zipOutputData.mutableBytes + (_stream.total_out - total_out);
+        _stream.avail_out = (uInt)(zipOutputData.length - (_stream.total_out - total_out));
         status = inflate(&_stream, Z_SYNC_FLUSH);
-    } while(status == Z_OK && _stream.total_out >= _zipOutputData.length);
+    } while(status == Z_OK && (_stream.total_out - total_out) >= zipOutputData.length);
+    IMPLog("status=%d, total_out=%lu, data.length= %ld, length=%ld", status, _stream.total_out, data.length, zipOutputData.length);
+    
+    if(status == Z_OK || status == Z_STREAM_END) {
+        zipOutputData.length = _stream.total_out - total_out;
+        @try {
+            [_fileHandle writeData:zipOutputData];
+        } @catch(NSException *e) {
+            IMPErrLog("writeData exception: %@", e);
+            [_fileHandle closeFile];
+            _fileHandle = nil;
+        }
+    }
     
     if (status == Z_STREAM_END) {
+        IMPLog("Reach to stream end");
         _decompressOK = YES;
+        [_fileHandle closeFile];
     }
 }
 
 -(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    if(error && _completion) {
-        inflateEnd(&_stream);
+    if(error) {
+        if(_inflateInitialized) {
+            inflateEnd(&_stream);
+        }
         if(_completion) {
             _completion(nil, error);
             _completion = nil;
@@ -76,41 +113,30 @@
         return ;
     }
     
-    int status = inflateEnd(&_stream);
-    if(status == Z_OK) {
-        if(_decompressOK) {
-            IMPLog("streaming decompression sucessfully");
-            _zipOutputData.length = _stream.total_out;
-            [self saveAndCompile:_zipOutputData withCompletion:_completion];
-        } else {
-            [self onDownloadError:@"decompress err" withErrCode:-200];
-        }
-    } else {
-        [self onDownloadError:@"inflateEnd err" withErrCode:-201];
+    int ret = inflateEnd(&_stream);
+    if(ret != Z_OK) {
+        [self onDownloadError:[NSString stringWithFormat:@"inflateEnd returns %d", ret]
+                  withErrCode:-201];
+        return ;
     }
+    
+    IMPLog("streaming decompression finished, length = %lu", _stream.total_out);
+    if(!_decompressOK) {
+        [self onDownloadError:@"inconsistent stream state"
+                  withErrCode:-202];
+        return ;
+    }
+    
+    IMPLog("start compiling CoreML model...");
+    [self compileModelwithCompletion:_completion];
 }
 
-- (void)saveAndCompile:(NSData *)data withCompletion:(IMPModelDownloaderCompletion)completion {
-    NSError *error = nil;
-    NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"ai.improve.tmp.%@.mlmodel", [[NSUUID UUID] UUIDString]]];
-    
-    IMPLog("Writing to path: %@ ...", tempPath);
-    if (![data writeToFile:tempPath atomically:YES]) {
-        NSString *errMsg = [NSString stringWithFormat:@"Failed to write received data to file. Src URL: %@, Dest path: %@ Size: %ld", self.modelUrl, tempPath, data.length];
-        error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
-                                    code:-100
-                                userInfo:@{NSLocalizedDescriptionKey: errMsg}];
-        IMPLog("Write failed: %@", errMsg);
-        if (completion) {
-            completion(nil, error);
-        }
-        return;
-    }
-
+- (void)compileModelwithCompletion:(IMPModelDownloaderCompletion)completion {
+    NSError *error;
     CFAbsoluteTime startTime = CFAbsoluteTimeGetCurrent();
-    NSURL *compiledUrl = [MLModel compileModelAtURL:[NSURL fileURLWithPath:tempPath] error:&error];
+    NSURL *compiledUrl = [MLModel compileModelAtURL:_fileURL error:&error];
     if(error) {
-        NSString *errMsg = [NSString stringWithFormat:@"Failed to compile: %@", tempPath];
+        NSString *errMsg = [NSString stringWithFormat:@"Failed to compile: %@", _fileURL];
         error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
                                     code:-101
                                 userInfo:@{NSLocalizedDescriptionKey: errMsg}];
