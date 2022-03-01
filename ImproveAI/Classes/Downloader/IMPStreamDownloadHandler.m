@@ -69,7 +69,9 @@
     } while(status == Z_OK && (_stream.total_out - total_out) >= zipOutputData.length);
     //IMPLog("status=%d, total_out=%lu, data.length= %ld, length=%ld", status, _stream.total_out, data.length, zipOutputData.length);
     
-    if(status == Z_OK || status == Z_STREAM_END) {
+    // Note that Z_BUF_ERROR is not fatal, and inflate() can be called again with more input and
+    // more output space to continue decompressing.
+    if(status == Z_OK || status == Z_STREAM_END || status == Z_BUF_ERROR) {
         zipOutputData.length = _stream.total_out - total_out;
         @try {
             [_uncompressedFileHandle writeData:zipOutputData];

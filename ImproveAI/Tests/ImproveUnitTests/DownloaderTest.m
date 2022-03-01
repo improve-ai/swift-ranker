@@ -88,22 +88,32 @@ extern NSString * const kRemoteModelURL;
     [self waitForExpectations:@[expectation] timeout:60.0];
 }
 
+/**
+ * There was a bug in streaming decompression which happens occasionally. It could have been found
+ * earlier if we had done a loop test here.
+ */
 - (void)testDownloadRemoteGzip{
-    NSURL *url = [NSURL URLWithString:@"https://improveai-mindblown-bible-prod-models.s3.amazonaws.com/models/latest/improveai-messages-2.0.mlmodel.gz"];
-    IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
-    
-    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
-        if (error != nil) {
-            XCTFail(@"Downloading error: %@", error);
-        }
-        XCTAssert(compiledModelURL != nil);
-        NSLog(@"Compiled model URL: %@", compiledModelURL);
+    self.continueAfterFailure = NO;
+    int loop = 100;
+    for(int i = 0; i < loop; ++i) {
+        NSLog(@"<<<<<<<<<   %d   >>>>>>>>>>", i);
+    //    NSURL *url = [NSURL URLWithString:@"https://improveai-mindblown-bible-prod-models.s3.amazonaws.com/models/latest/improveai-messages-2.0.mlmodel.gz"];
+        NSURL *url = [NSURL URLWithString:@"http://192.168.1.3:14000/static/improve-ai/messages.mlmodel.gz"];
+        IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
+        
+        XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
+        [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+            if (error != nil) {
+                XCTFail(@"Downloading error: %@", error);
+            }
+            XCTAssert(compiledModelURL != nil);
+            NSLog(@"Compiled model URL: %@", compiledModelURL);
 
-        [expectation fulfill];
+            [expectation fulfill];
 
-    }];
-    [self waitForExpectations:@[expectation] timeout:600.0];
+        }];
+        [self waitForExpectations:@[expectation] timeout:600.0];
+    }
 }
 
 - (void)testDownloadCompiled{
