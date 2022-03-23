@@ -37,7 +37,13 @@
     if (![NSJSONSerialization isValidJSONObject:object]) return description;
 
     NSJSONWritingOptions options = condensed ? 0 : NSJSONWritingPrettyPrinted;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:object options:options error:nil];
+    
+    NSData *data;
+    if (@available(iOS 13.0, *)) {
+        data = [NSJSONSerialization dataWithJSONObject:object options:(options|NSJSONWritingWithoutEscapingSlashes) error:nil];
+    } else {
+        data = [NSJSONSerialization dataWithJSONObject:object options:options error:nil];
+    }
     if (!data) return description;
 
     NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
