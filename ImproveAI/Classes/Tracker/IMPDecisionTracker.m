@@ -241,7 +241,11 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     NSError *err;
     NSData *postData;
     @try {
-        postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+        if (@available(iOS 13.0, *)) {
+            postData = [NSJSONSerialization dataWithJSONObject:body options:NSJSONWritingWithoutEscapingSlashes error:&err];
+        } else {
+            postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+        }
     } @catch (NSException *e) {
         IMPLog("Variants or context not json encodable...This decision won't be tracked.");
         IMPLog("Data serialization error: %@\nbody: %@", e, body);
