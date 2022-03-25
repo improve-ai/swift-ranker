@@ -698,7 +698,7 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testFirst_only_one_argument {
-    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];;
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     id first = [decisionModel first:variants, nil];
     XCTAssertEqualObjects(@"Hello World", first);
@@ -713,6 +713,26 @@ extern NSString * const kTrackerURL;
         return ;
     }
     XCTFail(@"An exception should have been thrown");
+}
+
+- (void)testRandom {
+    int loop = 100000;
+    NSMutableDictionary<NSString *, NSNumber *> *count = [[NSMutableDictionary alloc] init];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    decisionModel.trackURL = nil;
+    for(int i = 0; i < loop; ++i) {
+        id variant = [decisionModel random:@"Hello World", @"Howdy World", @"Hi World", nil];
+        if(count[variant] == nil) {
+            count[variant] = @1;
+        } else {
+            count[variant] = @(count[variant].intValue + 1);
+        }
+    }
+    NSLog(@"%@", count);
+    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 500);
+    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 500);
+    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 500);
+
 }
 
 - (void)testChooseMultiVariate_nil_dictionary {

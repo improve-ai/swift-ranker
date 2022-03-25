@@ -16,6 +16,10 @@ extension DecisionModel {
     func first(_ firstVariant: Any, _ args: CVarArg...) ->Any {
         return first(firstVariant, getVaList(args))
     }
+    
+    func random(_ firstVariant: Any, _ args: CVarArg...) ->Any {
+        return random(firstVariant, getVaList(args))
+    }
 }
 
 // This test file is mainly used to ensure that swiftified api works
@@ -45,8 +49,11 @@ class IMPSwiftifiedTest: XCTestCase {
         let first = decisionModel.first(variants)
         XCTAssertEqual("Hello World", first as! String)
         
-        let randomVariant = decisionModel.chooseRandom(variants)
-        print("randomVariant = \(randomVariant.get())")
+        let randomDecision = decisionModel.chooseRandom(variants)
+        print("randomDecision = \(randomDecision.get())")
+        
+        let randomVariant = decisionModel.random("Hello World", "Howdy World", "Hi World")
+        print("randomVariant = \(randomVariant)")
     }
     
     // Handle exception by converting Errors to Optional Values
