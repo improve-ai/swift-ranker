@@ -31,8 +31,12 @@ class IMPSwiftifiedTest: XCTestCase {
         let decisionModel = DecisionModel("greetings")
         let greeting = try decisionModel.load(self.modelUrl()).chooseFrom(variants).get()
         print("greeting = \(greeting)")
-        let decision = decisionModel.chooseFrom(variants:variants, scores:[0.1, 0.2, 1.0])
+        
+        var decision = decisionModel.chooseFrom(variants:variants, scores:[0.1, 0.2, 1.0])
         XCTAssertEqual("Hi World", decision.get() as! String)
+        
+        decision = decisionModel.chooseFirst(variants)
+        XCTAssertEqual("Hello World", decision.get() as! String)
     }
     
     // Handle exception by converting Errors to Optional Values

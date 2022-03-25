@@ -663,6 +663,14 @@ extern NSString * const kTrackerURL;
     XCTFail(@"An exception should have been thrown");
 }
 
+- (void)testChooseFirst {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    IMPDecision *decision = [decisionModel chooseFirst:variants];
+    XCTAssertNotNil(decision);
+    XCTAssertEqualObjects(@"Hello World", [decision get]);
+}
+
 - (void)testChooseMultiVariate_nil_dictionary {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     @try {

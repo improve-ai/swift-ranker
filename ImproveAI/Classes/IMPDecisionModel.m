@@ -270,6 +270,10 @@ static GivensProvider *_defaultGivensProvider;
     return decision;
 }
 
+- (IMPDecision *)chooseFirst:(NSArray *)variants {
+    return [self chooseFrom:variants scores:[IMPDecisionModel generateDescendingGaussians:[variants count]]];
+}
+
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {
     return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseMultiVariate:variants];
 }
