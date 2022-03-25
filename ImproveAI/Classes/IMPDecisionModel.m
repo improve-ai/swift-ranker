@@ -19,6 +19,20 @@
 #import "AppGivensProvider.h"
 #import "IMPConstants.h"
 
+@interface IMPDecision ()
+
+@property(nonatomic, strong) NSArray *scores;
+
+@property (nonatomic, copy) NSArray *variants;
+
+@property (nonatomic, copy, nullable) NSDictionary *givens;
+
+@property(nonatomic, strong) id best;
+
+- (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
+
+@end
+
 @interface IMPDecisionModel ()
 // Private vars
 
@@ -246,6 +260,16 @@ static GivensProvider *_defaultGivensProvider;
     return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseFrom:variants];
 }
 
+- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores {
+    id best = [IMPDecisionModel topScoringVariant:variants withScores:scores];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:self];
+    decision.variants = variants;
+    decision.best = best;
+    decision.givens = nil;
+    decision.scores = scores;
+    return decision;
+}
+
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {
     return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseMultiVariate:variants];
 }
@@ -359,17 +383,17 @@ static GivensProvider *_defaultGivensProvider;
 // in IMPChooser.score()
 + (id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
 {
+    if(([variants count] != [scores count]) || ([variants count] <= 0)) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants.count must equal scores.count" userInfo:nil];
+    }
     NSUInteger count = variants.count > scores.count ? variants.count : scores.count;
     double bestScore = -DBL_MAX;
     id bestVariant = nil;
     for (NSInteger i = 0; i < count; i++) {
         double score = [scores[i] doubleValue];
-        id variant = variants[i];
-        if (score > bestScore)
-        {
+        if (score > bestScore) {
             bestScore = score;
-            bestVariant = variant;
-//            bestVariant = variants[i];
+            bestVariant = variants[i];;
         }
     }
 

@@ -88,6 +88,8 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
+- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(variants:scores:));
+
 /**
  * This method is an alternative of chooseFrom(). An example here might be more expressive:
  * chooseMutilVariate({"style":["bold", "italic"], "size":[3, 5]})

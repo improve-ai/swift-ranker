@@ -625,6 +625,44 @@ extern NSString * const kTrackerURL;
     XCTFail(@"We should never reach here. An exception should have been thrown.");
 }
 
+- (void)testChooseFromVariantsAndScores {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSArray *scores = @[@-1.0, @0.1, @1.0];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    IMPDecision *decision = [decisionModel chooseFrom:variants scores:scores];
+    XCTAssertNotNil(decision);
+    XCTAssertEqualObjects(@"Hi World", decision.best);
+    XCTAssertEqualObjects(variants, decision.variants);
+    XCTAssertEqualObjects(scores, decision.scores);
+    XCTAssertNil(decision.givens);
+}
+
+- (void)testChooseFromVariantsAndScores_invalid_size {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSArray *scores = @[@-1.0, @0.1];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel chooseFrom:variants scores:scores];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
+- (void)testChooseFromVariantsAndScores_empty_variants {
+    NSArray *variants = @[];
+    NSArray *scores = @[];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel chooseFrom:variants scores:scores];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
 - (void)testChooseMultiVariate_nil_dictionary {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     @try {
