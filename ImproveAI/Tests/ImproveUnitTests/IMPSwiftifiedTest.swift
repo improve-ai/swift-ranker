@@ -12,6 +12,10 @@ extension DecisionModel {
     func which(_ firstVariant: Any, _ args: CVarArg...) ->Any {
         return which(firstVariant, getVaList(args))
     }
+    
+    func first(_ firstVariant: Any, _ args: CVarArg...) ->Any {
+        return first(firstVariant, getVaList(args))
+    }
 }
 
 // This test file is mainly used to ensure that swiftified api works
@@ -37,6 +41,9 @@ class IMPSwiftifiedTest: XCTestCase {
         
         decision = decisionModel.chooseFirst(variants)
         XCTAssertEqual("Hello World", decision.get() as! String)
+        
+        let first = decisionModel.first(variants)
+        XCTAssertEqual("Hello World", first as! String)
     }
     
     // Handle exception by converting Errors to Optional Values

@@ -278,6 +278,37 @@ static GivensProvider *_defaultGivensProvider;
     return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseMultiVariate:variants];
 }
 
+- (id)first:(id)firstVariant, ...
+{
+    va_list args;
+    va_start(args, firstVariant);
+    id variant = [self first:firstVariant args:args];
+    va_end(args);
+    return variant;
+}
+
+- (id)first:(id)firstVariant args:(va_list)args
+{
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+
+    [variants addObject:firstVariant];
+
+    id arg = nil;
+    while((arg = va_arg(args, id))) {
+        [variants addObject:arg];
+    }
+    
+    if([variants count] == 1) {
+        if(![variants[0] isKindOfClass:[NSArray class]]) {
+            NSString *reason = @"If only one argument, it must be an NSArray or an NSDictionary";
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
+        }
+        return [[self chooseFirst:variants[0]] get];
+    }
+    
+    return [[self chooseFirst:variants] get];
+}
+
 - (id)which:(id)firstVariant, ...
 {
     va_list args;

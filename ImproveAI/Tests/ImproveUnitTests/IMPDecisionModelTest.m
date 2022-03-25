@@ -671,6 +671,30 @@ extern NSString * const kTrackerURL;
     XCTAssertEqualObjects(@"Hello World", [decision get]);
 }
 
+- (void)testFirst {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    id first = [decisionModel first:@"Hello World", @"Howdy World", @"Hi World", nil];
+    XCTAssertEqualObjects(@"Hello World", first);
+}
+
+- (void)testFirst_only_one_argument {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    id first = [decisionModel first:variants, nil];
+    XCTAssertEqualObjects(@"Hello World", first);
+}
+
+- (void)testFirst_only_one_argument_illegal {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel first:@"Hello World", nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
 - (void)testChooseMultiVariate_nil_dictionary {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     @try {
