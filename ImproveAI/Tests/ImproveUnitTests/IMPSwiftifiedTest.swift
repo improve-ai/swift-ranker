@@ -44,6 +44,9 @@ class IMPSwiftifiedTest: XCTestCase {
         
         let first = decisionModel.first(variants)
         XCTAssertEqual("Hello World", first as! String)
+        
+        let randomVariant = decisionModel.chooseRandom(variants)
+        print("randomVariant = \(randomVariant.get())")
     }
     
     // Handle exception by converting Errors to Optional Values

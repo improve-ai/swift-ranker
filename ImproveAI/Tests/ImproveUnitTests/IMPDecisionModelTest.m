@@ -664,11 +664,31 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testChooseFirst {
-    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];;
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     IMPDecision *decision = [decisionModel chooseFirst:variants];
     XCTAssertNotNil(decision);
     XCTAssertEqualObjects(@"Hello World", [decision get]);
+}
+
+- (void)testChooseRandom {
+    int loop = 100000 ;
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSMutableDictionary<NSString *, NSNumber *> *count = [[NSMutableDictionary alloc] init];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    decisionModel.trackURL = nil;
+    for(int i = 0; i < loop; ++i) {
+        id variant = [[decisionModel chooseRandom:variants] get];
+        if(count[variant] == nil) {
+            count[variant] = @1;
+        } else {
+            count[variant] = @(count[variant].intValue + 1);
+        }
+    }
+    NSLog(@"%@", count);
+    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 500);
+    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 500);
+    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 500);
 }
 
 - (void)testFirst {

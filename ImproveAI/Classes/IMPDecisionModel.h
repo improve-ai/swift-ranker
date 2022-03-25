@@ -92,6 +92,8 @@ NS_SWIFT_NAME(DecisionModel)
 
 - (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:));
 
+- (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:));
+
 - (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
 - (id)first:(id)firstVariant args:(va_list)args NS_SWIFT_NAME(first(_:_:));

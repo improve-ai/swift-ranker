@@ -211,7 +211,8 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
                          url:trackURL
                        block:^
      (NSObject *result, NSError *error) {
-        if (error == nil) {
+        if (error != nil) {
+            IMPErrLog("POST error: %@", error);
         }
     }];
 }

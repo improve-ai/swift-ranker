@@ -274,6 +274,10 @@ static GivensProvider *_defaultGivensProvider;
     return [self chooseFrom:variants scores:[IMPDecisionModel generateDescendingGaussians:[variants count]]];
 }
 
+- (IMPDecision *)chooseRandom:(NSArray *)variants {
+    return [self chooseFrom:variants scores:[IMPDecisionModel generateRandomScores:[variants count]]];
+}
+
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {
     return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseMultiVariate:variants];
 }
@@ -476,6 +480,14 @@ static GivensProvider *_defaultGivensProvider;
     [arr sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
         return [obj1 doubleValue] < [obj2 doubleValue];
     }];
+    return [arr copy];
+}
+
++ (NSArray *)generateRandomScores:(NSUInteger)count {
+    NSMutableArray *arr = [[NSMutableArray alloc] init];
+    for(int i = 0; i < count; ++i){
+        [arr addObject:[NSNumber numberWithDouble:[IMPUtils gaussianNumber]]];
+    }
     return [arr copy];
 }
 
