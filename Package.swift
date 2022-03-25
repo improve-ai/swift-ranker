@@ -16,7 +16,12 @@ let package = Package(
         .target(
             name: "ImproveAI",
             path: "ImproveAI",
-            exclude: ["Tests"],
+            exclude: [
+                "Tests",
+                "ThirdParty/GZip/LICENSE.md",
+                "ThirdParty/Ksuid/LICENSE",
+                "ThirdParty/XXHash/LICENSE"
+            ],
             publicHeadersPath:"Classes",
             cSettings: [
                 .headerSearchPath("**"),
