@@ -274,10 +274,6 @@ static GivensProvider *_defaultGivensProvider;
     return [self chooseFrom:variants scores:[IMPDecisionModel generateDescendingGaussians:[variants count]]];
 }
 
-- (IMPDecision *)chooseRandom:(NSArray *)variants {
-    return [self chooseFrom:variants scores:[IMPDecisionModel generateRandomScores:[variants count]]];
-}
-
 - (id)first:(id)firstVariant, ...
 {
     va_list args;
@@ -307,6 +303,10 @@ static GivensProvider *_defaultGivensProvider;
     }
     
     return [[self chooseFirst:variants] get];
+}
+
+- (IMPDecision *)chooseRandom:(NSArray *)variants {
+    return [self chooseFrom:variants scores:[IMPDecisionModel generateRandomScores:[variants count]]];
 }
 
 - (id)random:(id)firstVariant, ...
@@ -454,7 +454,7 @@ static GivensProvider *_defaultGivensProvider;
 + (id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
 {
     if(([variants count] != [scores count]) || ([variants count] <= 0)) {
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants.count must equal scores.count" userInfo:nil];
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be nil or empty, and variants.count must equal scores.count" userInfo:nil];
     }
     NSUInteger count = variants.count > scores.count ? variants.count : scores.count;
     double bestScore = -DBL_MAX;
@@ -469,7 +469,6 @@ static GivensProvider *_defaultGivensProvider;
 
     return bestVariant;
 }
-
 
 // If variants.count != scores.count, an NSRangeException exception will be thrown.
 // Case 3 #2 refsort approach: https://stackoverflow.com/a/27309301

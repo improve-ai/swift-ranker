@@ -88,15 +88,35 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
+/**
+ * The chosen variant is the one with the highest score.
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @param scores Scores of the variants.
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants is nil or empty; Thrown if variants.count != scores.count.
+ */
 - (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(variants:scores:));
 
+/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @return An IMPDecision object containing the first variant as the decision
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is nil or empty.
+ */
 - (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:));
 
-- (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:));
-
+/**
+ * This method is a short hand of chooseFirst(variants).get().
+ * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive type arguments are not allowed.
+ * @return Returns the chosen variant.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a non-empty NSArray.
+ */
 - (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
 - (id)first:(id)firstVariant args:(va_list)args NS_SWIFT_NAME(first(_:_:));
+
+- (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:));
 
 - (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
@@ -128,7 +148,7 @@ NS_SWIFT_NAME(DecisionModel)
  * When there are two or more arguments, all the arguments would form an NSArray and be passed to chooseFrom()
  * Primitive type arguments are not allowed.
  * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not an NSArray or NSDictionary.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a non-empty NSArray or NSDictionary.
  */
 - (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 

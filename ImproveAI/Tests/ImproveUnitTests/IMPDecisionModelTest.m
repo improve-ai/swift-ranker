@@ -637,7 +637,7 @@ extern NSString * const kTrackerURL;
     XCTAssertNil(decision.givens);
 }
 
-- (void)testChooseFromVariantsAndScores_invalid_size {
+- (void)testChooseFromVariantsAndScores_size_not_equal {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSArray *scores = @[@-1.0, @0.1];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
@@ -669,6 +669,30 @@ extern NSString * const kTrackerURL;
     IMPDecision *decision = [decisionModel chooseFirst:variants];
     XCTAssertNotNil(decision);
     XCTAssertEqualObjects(@"Hello World", [decision get]);
+}
+
+- (void)testChooseFirst_nil {
+    NSArray *variants = nil;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel chooseFirst:variants];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
+- (void)testChooseFirst_empty {
+    NSArray *variants = @[];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel chooseFirst:variants];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
 }
 
 - (void)testChooseRandom {
