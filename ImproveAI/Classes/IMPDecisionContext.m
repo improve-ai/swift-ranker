@@ -135,16 +135,24 @@
 
     if([variants count] == 1) {
         if([firstVariant isKindOfClass:[NSArray class]]) {
+            if([firstVariant count] <= 0) {
+                NSString *reason = @"If only one argument, it must be a non-empty NSArray or a non-empty NSDictionary";
+                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
+            }
             return [[self chooseFrom:firstVariant] get];
         } else if([firstVariant isKindOfClass:[NSDictionary class]]) {
+            if([firstVariant count] <= 0) {
+                NSString *reason = @"If only one argument, it must be a non-empty NSArray or a non-empty NSDictionary";
+                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
+            }
             return [[self chooseMultiVariate:firstVariant] get];
         } else {
-            NSString *reason = @"If only one argument, it must be an NSArray or an NSDictionary";
+            NSString *reason = @"If only one argument, it must be a non-empty NSArray or a non-empty NSDictionary";
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
         }
-    } else {
-        return [[self chooseFrom:variants] get];
     }
+    
+    return [[self chooseFrom:variants] get];
 }
 
 @end
