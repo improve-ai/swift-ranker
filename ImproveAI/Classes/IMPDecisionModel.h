@@ -108,18 +108,46 @@ NS_SWIFT_NAME(DecisionModel)
 
 /**
  * This method is a short hand of chooseFirst(variants).get().
- * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive type arguments are not allowed.
+ * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive types are not allowed.
  * @return Returns the chosen variant.
  * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a non-empty NSArray.
  */
 - (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
+//    extension DecisionModel {
+//        func first(_ args: CVarArg...) ->Any {
+//            withVaList(args) { va_list in
+//                return first(args.count, va_list)
+//            }
+//        }
+//    }
+//
+//    // Now it can be called like this:
+//    decisionModel.first("hi", "hello")
+/**
+ * Variadic method declaration for Swift. It's recommended to wrap it in an extension method as shown above.
+ * @param n The number of arguments in the va_list
+ * @param args The arguments.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
+ */
 - (id)first:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(first(_:_:));
 
+/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @return A Decision object containing a random variant as the decision
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
+ */
 - (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:));
 
+/**
+ * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive types are not allowed.
+ * @return Returns the chosen variant.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a non-empty NSArray.
+ */
 - (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
+// Variadic method declaration for Swift.
 - (id)random:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(random(_:_:));
 
 /**
@@ -146,12 +174,13 @@ NS_SWIFT_NAME(DecisionModel)
  * When the only argument is an NSArray, it's equivalent to calling chooseFrom(firstVariant).get();
  * When the only argument is an NSDictionary, it's equivalent to calling chooseMultiVariate(firstVariant).get();
  * When there are two or more arguments, all the arguments would form an NSArray and be passed to chooseFrom()
- * Primitive type arguments are not allowed.
+ * Primitive types are not allowed.
  * @return Returns the chosen variant.
  * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a non-empty NSArray or NSDictionary.
  */
 - (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
+// Variadic method declaration for Swift. 
 - (id)which:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(which(_:_:));
 
 /**
