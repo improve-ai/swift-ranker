@@ -9,16 +9,22 @@
 import XCTest
 
 extension DecisionModel {
-    func which(_ firstVariant: Any, _ args: CVarArg...) ->Any {
-        return which(firstVariant, getVaList(args))
+    func which(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return which(args.count, va_list)
+        }
     }
     
-    func first(_ firstVariant: Any, _ args: CVarArg...) ->Any {
-        return first(firstVariant, getVaList(args))
+    func first(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return first(args.count, va_list)
+        }
     }
     
-    func random(_ firstVariant: Any, _ args: CVarArg...) ->Any {
-        return random(firstVariant, getVaList(args))
+    func random(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return random(args.count, va_list)
+        }
     }
 }
 
@@ -46,7 +52,7 @@ class IMPSwiftifiedTest: XCTestCase {
         decision = decisionModel.chooseFirst(variants)
         XCTAssertEqual("Hello World", decision.get() as! String)
         
-        let first = decisionModel.first(variants)
+        let first = decisionModel.first("Hello World", "Howdy World", "Hi World")
         XCTAssertEqual("Hello World", first as! String)
         
         let randomDecision = decisionModel.chooseRandom(variants)

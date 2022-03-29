@@ -715,6 +715,18 @@ extern NSString * const kTrackerURL;
     XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 500);
 }
 
+- (void)testChooseRandom_empty {
+    NSArray *variants = @[];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel chooseRandom:variants];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
 - (void)testFirst {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     id first = [decisionModel first:@"Hello World", @"Howdy World", @"Hi World", nil];
@@ -756,7 +768,6 @@ extern NSString * const kTrackerURL;
     XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 500);
     XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 500);
     XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 500);
-
 }
 
 - (void)testChooseMultiVariate_nil_dictionary {

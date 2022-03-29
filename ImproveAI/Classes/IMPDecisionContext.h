@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
-- (id)which:(id)firstVariant args:(va_list)args NS_SWIFT_NAME(which(_:_:));
+- (id)which:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(which(_:_:));
 
 @end
 

@@ -114,13 +114,13 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
-- (id)first:(id)firstVariant args:(va_list)args NS_SWIFT_NAME(first(_:_:));
+- (id)first:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(first(_:_:));
 
 - (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:));
 
 - (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
-- (id)random:(id)firstVariant args:(va_list)args NS_SWIFT_NAME(random(_:_:));
+- (id)random:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(random(_:_:));
 
 /**
  * This method is an alternative of chooseFrom(). An example here might be more expressive:
@@ -152,7 +152,7 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
-- (id)which:(id)firstVariant args:(va_list)args NS_SWIFT_NAME(which(_:_:));
+- (id)which:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(which(_:_:));
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
