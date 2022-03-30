@@ -1,27 +1,49 @@
 # Improve AI for iOS
 
-Improve AI provides quick AI decisions that get smarter over time. It's like an AI *if/then* statement. Increase your app's revenue, user retention, or any other metric automatically and become a top performing app.
+Improve AI provides quick AI decisions that get smarter over time. It's like an AI *if/then* statement. Increase your app's revenue, user retention, or any other metric automatically.
 
 ## Installation
 
-Improve is available through Swift Package Manager. Add the dependency by adding it to the `dependencies` value of your `Package.swift`.
+* File -> Swift Package Manager -> Add Package Dependency
+* Type in https://github.com/improve-ai/ios-sdk.git when choosing package repo.
+
+## Initialization
 
 ```swift
-dependencies: [
-    .package(url: "https://github.com/improve-ai/ios-sdk.git", .upToNextMajor(from: "6.0.0"))
-]
+import ImproveAI
 ```
-
-### Hello World (for Cowboys)!
-
-What is the best greeting?
 
 ```swift
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-greeting = decisionModel.given({“language”: “cowboy”}).which(“Hello World”, “Howdy World”, “Yo World”)
+    DecisionModel.defaultTrackURL = trackURL // trackUrl is obtained from your gym configuration
+
+    DecisionModel.instances["greetings"].loadAsync(greetingsModelUrl) // greetingsModelUrl is a trained model output by the gym
+
+    return true
+}
 ```
 
-*greeting* should result in *Howdy World* assuming it performs best when *language* is *cowboy*.
+## Usage
+
+Improve AI makes quick AI decisions that get smarter over time. 
+
+The heart of Improve AI is the *which* statement. *which* is like an AI if/then statement.
+```swift
+greeting = DecisionModel.instances["greetings"].which("Hello", "Howdy", "Hola")
+```
+
+*which* makes decisions on-device using a *decision model*. Decision models are easily trained by assigning rewards for positive outcomes.
+
+```swift
+if (success) {
+    DecisionModel.instances["greetings"].addReward(1.0)
+}
+```
+
+Rewards are credited to the most recent decision made by the model. *which* will make the decision that provides the highest expected reward.  When the rewards are business metrics, such as revenue or user retention, the decisions will optimize to automatically improve those metrics over time.
+
+*That's like A/B testing on steroids.*
 
 ### Numbers Too
 
@@ -56,66 +78,98 @@ Improve learns to use the attributes of each key and value in a complex variant 
 
 Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries, arrays, strings, numbers, nulls, and booleans.
 
-## Decision Models
+## Contextual Decisions
 
-A *Decision Model* contains the AI decision logic, analogous to a large number of *if/then* statements.  Decision models are continuously trained by the Improve AI Gym based on previous decisions, so they automatically improve over time.
+Unlike A/B testing or feature flags, Improve AI uses *context* to make the best decision.  On iOS, the following context is automatically included unless the *DecisionModel's* *GivensProvider* is overwritten:
 
-Models are thread-safe and a single model can be used for multiple decisions.
+- $country - two letter code  
+- $lang - two letter language code
+- $tz - numeric GMT offset 
+- $carrier
+- $device - string portion of device model
+- $devicev - device version
+- $os - string portion of OS name
+- $osv - OS version
+- $pixels == screen width x screen height
+- $app - app name
+- $appv - app version
+- $sdkv == Improve AI SDK version
+- $weekday (ISO 8601, monday==1.0, sunday==7.0) plus fractional part of day
+- $time - fractional day since midnight
+- $runtime - fractional days since session start
+- $day - fractional days since born
+- $d - the number of decisions for this model
+- $r - total rewards for this model
+- $r/d - total rewards/decisions
+- $d/day - decisions/$day
 
-### Synchronous Model Loading
+Using the context, on a Spanish speaker's device we expect our *greetings* model to learn to choose *Hola*.
+
+Custom context can also be provided via *given()*:
 
 ```swift
-
-product = try DecisionModel("products").load(modelUrl).which("clutch", "dress", "jacket")
-
+greeting = greetingsModel.given({"language": "cowboy"})
+                         .which("Hello", "Howdy", "Hola")
 ```
 
-Models can be loaded from the app bundle or from https URLs.
+Given the language is *cowboy*, the variant with the highest expected reward should be *Howdy* and the model would learn to make that choice.
 
-### Asynchronous Model Loading
+## Example: Optimizing an Upsell Offer
 
-Asynchronous model loading allows decisions to be made at any time, even before the model is loaded.  If the model isn't yet loaded or fails to load, the first variant will be returned as the decision.
+Improve AI is powerful and flexible.  Variants can be any JSON encodeable data structure including **strings**, **numbers**, **booleans**, **lists**, and **dictionaries**.
+
+For a dungeon crawler game, say the user was purchasing an item using an In App Purchase.  We can use Improve AI to choose an additional product to display as an upsell offer during checkout. With a few lines of code, we can train a model that will learn to optimize the upsell offer given the original product being purchased. 
 
 ```swift
-model = DecisionModel("products") 
-model.loadAsync(modelUrl) { loadedModel, error in
-    if (loadedModel) {
-        product = loadedModel.which("clutch", "dress", "jacket")
-    } else {
-        NSLog("Error loading model: %@", error)
-        
-        // The model isn't loaded, so "clutch" will be returned
-        product = model.which("clutch", "dress", "jacket")
-    }
+product = { "name": "red sword", "price": 4.99 }
+
+upsell = upsellModel.given(product)
+                    .which({ "name": "gold", "quantity": 100, "price": 1.99 },
+                           { "name": "diamonds", "quantity": 10, "price": 2.99 },
+                           { "name": "red scabbard", "price": .99 })
+```
+The product to be purchased is the **red sword**.  Notice that the variants are dictionaries with a mix of string and numeric values.
+
+The rewards in this case might be any additional revenue from the upsell.
+
+```swift
+if (upsellPurchased) {
+    upsellModel.addReward(upsell.price)
 }
 ```
 
-## Tracking & Training Models
+While it is reasonable to hypothesize that the **red scabbord** might be the best upsell offer to pair with the **red sword**, it is still a guess. Any time a guess is made on the value of a variable, instead use Improve AI to decide.
 
-The magic of Improve AI is it's learning process, whereby models continuously improve by training on past decisions. To accomplish this, decisions and events are tracked to your deployment of the Improve AI Gym.
+*Replace guesses with AI decisions.*
 
-### Tracking Decisions
+## Example: Performance Tuning
 
-Set a *DecisionTracker* on the *DecisionModel* to automatically track decisions and enable learning.  A single *DecisionTracker* instance can be shared by multiple models.
+In the 2000s I was writing a lot of video streaming code. The initial motivation for Improve AI came out of my frustrations with attempting to tune video streaming clients across heterogenious networks.
 
-```swift
-DecisionModel.defaultTrackURL = trackURL // trackUrl is obtained from your Gym configuration
-
-// When a new DecisionModel instance is created, it's trackURL is set to DecisionModel.defaultTrackURL
-fontSize = try DecisionModel("fontSizes").load(modelUrl).which(12, 16, 20)
-```
-
-The decision is lazily evaluated and then automatically tracked as being causal upon calling *get()*.
-
-For this reason, wait to call *get()* until the decision will actually be used.
-
-### Tracking Rewards
-
-Events are the mechanism by which decisions are rewarded or penalized.  In most cases these will mirror the normal analytics events that your app tracks and can be integrated with any event tracking singletons in your app.
+I was forced to make guesses on performance sensitive configuration defaults through slow trial and error. My client configuration code maybe looked something like this:
 
 ```swift
-decisionModel.addReward(19.99)
+config = { "bufferSize": 2048,
+           "videoBitrate": 384000 }
 ```
+
+This is the code I wish I could have written:
+
+```swift
+config = configModel.which({"bufferSize": [1024, 2048, 4096, 8192],
+                            "videoBitrate": [256000, 384000, 512000]})
+```
+This example decides multiple variables simultaneously.  Notice that instead of a single list of variants, a dictionary mapping keys to lists of variants is provided to *which*. This multi-variate mode jointly optimizes both variables for the highest expected reward.  
+
+The rewards in this case might be negative to penalize any stalls during video playback.
+```swift
+if (videoStalled) {
+    configModel.addReward(-0.001)
+}
+```
+Improve AI frees us from having to overthink our configuration values during development. We simply give it some reasonable variants and let it learn from real world usage.
+
+Look for places where you're relying on guesses or an executive decision and consider instead directly optimizing for the outcomes you desire.
 
 ## Privacy
   
@@ -123,8 +177,4 @@ It is strongly recommended to never include Personally Identifiable Information 
 
 ## Improve Our World
 
-The mission of Improve AI is to make our corner of the world better. When each of us improve our corner of the world, the whole world becomes better. If your product or work does not make the world better, do not use Improve AI. Otherwise, welcome, I hope you find value in my labor of love. - Justin Chapweske
-
-## License
-
-Improve AI is copyright Mind Blown Apps, LLC. All rights reserved.  May not be used without a license.
+The mission of Improve AI is to make our corner of the world a little bit better each day. When each of us improve our corner of the world, the whole world becomes better. If your product or work does not make the world better, do not use Improve AI. Otherwise, welcome, I hope you find value in my labor of love. - Justin Chapweske
