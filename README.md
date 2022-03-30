@@ -1,6 +1,6 @@
 # Improve AI for iOS
 
-Improve AI provides quick on-device AI decisions that get smarter over time. It's like an AI *if/then* statement. Increase your app's revenue, user retention, or any other metric automatically.
+Improve AI provides quick on-device AI decisions that get smarter over time. It's like an AI *if/then* statement. Replace guesses in your app's configuration with AI decisions to increase your app's revenue, user retention, or any other metric automatically.
 
 ## Installation
 
@@ -16,9 +16,9 @@ import ImproveAI
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-    DecisionModel.defaultTrackURL = trackURL // trackUrl is obtained from your gym configuration
+    DecisionModel.defaultTrackURL = trackURL // trackUrl is obtained from your Improve AI Gym configuration
 
-    DecisionModel.instances["greetings"].loadAsync(greetingsModelUrl) // greetingsModelUrl is a trained model output by the gym
+    DecisionModel.instances["greetings"].loadAsync(greetingsModelUrl) // greetingsModelUrl is a trained model output by the Improve AI Gym
 
     return true
 }
@@ -78,23 +78,23 @@ Improve learns to use the attributes of each key and value in a complex variant 
 
 Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries, arrays, strings, numbers, nulls, and booleans.
 
-## Contextual Decisions
+## Decisions are Contextual
 
-Unlike A/B testing or feature flags, Improve AI uses *context* to make the best decision.  On iOS, the following context is automatically included unless the *DecisionModel's* *GivensProvider* is overwritten:
+Unlike A/B testing or feature flags, Improve AI uses *context* to make the best decision for each user. On iOS, the following context is automatically included:
 
-- $country - two letter code  
+- $country - two letter country code
 - $lang - two letter language code
-- $tz - numeric GMT offset 
-- $carrier
+- $tz - numeric GMT offset
+- $carrier - cellular network
 - $device - string portion of device model
 - $devicev - device version
 - $os - string portion of OS name
 - $osv - OS version
-- $pixels == screen width x screen height
+- $pixels - screen width x screen height
 - $app - app name
 - $appv - app version
-- $sdkv == Improve AI SDK version
-- $weekday (ISO 8601, monday==1.0, sunday==7.0) plus fractional part of day
+- $sdkv - Improve AI SDK version
+- $weekday - (ISO 8601, monday==1.0, sunday==7.0) plus fractional part of day
 - $time - fractional day since midnight
 - $runtime - fractional days since session start
 - $day - fractional days since born
