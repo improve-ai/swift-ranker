@@ -1,6 +1,6 @@
 # Improve AI for iOS
 
-Improve AI provides quick AI decisions that get smarter over time. It's like an AI *if/then* statement. Increase your app's revenue, user retention, or any other metric automatically.
+Improve AI provides quick on-device AI decisions that get smarter over time. It's like an AI *if/then* statement. Increase your app's revenue, user retention, or any other metric automatically.
 
 ## Installation
 
@@ -26,7 +26,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 ## Usage
 
-Improve AI makes quick AI decisions that get smarter over time. 
+Improve AI makes quick on-device AI decisions that get smarter over time. 
 
 The heart of Improve AI is the *which* statement. *which* is like an AI if/then statement.
 ```swift
@@ -175,6 +175,6 @@ Look for places where you're relying on guesses or an executive decision and con
   
 It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is never tracked, persisted, or used as training data.
 
-## Improve Our World
+## Help Improve Our World
 
 The mission of Improve AI is to make our corner of the world a little bit better each day. When each of us improve our corner of the world, the whole world becomes better. If your product or work does not make the world better, do not use Improve AI. Otherwise, welcome, I hope you find value in my labor of love. - Justin Chapweske
