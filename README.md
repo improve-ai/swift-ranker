@@ -126,7 +126,7 @@ product = { "name": "red sword", "price": 4.99 }
 upsell = upsellModel.given(product)
                     .which({ "name": "gold", "quantity": 100, "price": 1.99 },
                            { "name": "diamonds", "quantity": 10, "price": 2.99 },
-                           { "name": "red scabbard", "price": .99 })
+                           { "name": "red scabbard", "price": 0.99 })
 ```
 The product to be purchased is the **red sword**.  Notice that the variants are dictionaries with a mix of string and numeric values.
 
