@@ -64,8 +64,6 @@ extern NSString *const kTrackApiKey;
 
 @interface IMPDecisionModelTest : XCTestCase
 
-@property (strong, nonatomic) NSArray *urlList;
-
 @property (strong, nonatomic) NSURL *modelURL;
 
 @property (strong, nonatomic) NSURL *bundledModelURL;
@@ -352,21 +350,24 @@ extern NSString *const kTrackApiKey;
     XCTAssertNil(error);
 }
 
-- (void)testLoadAsync{
-    for(NSURL *url in self.urlList){
-        XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
-        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@""];
-        [decisionModel loadAsync:url completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
-            if(error){
-                NSLog(@"loadAsync error: %@", error);
-            }
-            XCTAssert([NSThread isMainThread]);
-            XCTAssertNotNil(compiledModel);
-            XCTAssertTrue([compiledModel.modelName length] > 0);
-            [ex fulfill];
-        }];
-        [self waitForExpectations:@[ex] timeout:300];
-    }
+- (void)testLoadAsync {
+    XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    [decisionModel loadAsync:[self modelURL] completion:^(IMPDecisionModel * _Nullable compiledModel, NSError * _Nullable error) {
+        if(error){
+            NSLog(@"loadAsync error: %@", error);
+        }
+        XCTAssertNotNil(compiledModel);
+        XCTAssertTrue([compiledModel.modelName length] > 0);
+        [ex fulfill];
+    }];
+    [self waitForExpectations:@[ex] timeout:300];
+}
+
+- (void)testLoadAsync_nil_completion {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    [decisionModel loadAsync:[self modelURL] completion:nil];
+    [NSThread sleepForTimeInterval:10.0f];
 }
 
 - (void)testLoadSync {

@@ -72,7 +72,7 @@ NS_SWIFT_NAME(DecisionModel)
  * points to a MLModel file, or even a bundled MLModel file. Urls that end
  * with '.gz'  are considered gzip compressed, and will be decompressed automatically.
  */
-- (void)loadAsync:(NSURL *)url completion:(void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler;
+- (void)loadAsync:(NSURL *)url completion:(nullable void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler;
 
 /**
  * @param givens Additional context info that will be used with each of the variants to calculate the score

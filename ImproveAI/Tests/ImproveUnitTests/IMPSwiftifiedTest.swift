@@ -109,6 +109,11 @@ class IMPSwiftifiedTest: XCTestCase {
         waitForExpectations(timeout:15)
     }
     
+    func testLoadAsync_nil_completion() {
+        DecisionModel("greetings").loadAsync(self.modelUrl())
+        sleep(3)
+    }
+    
     func testDecisionModelWithTrackURL() {
         let trackURL = URL(string: "http://improve.ai")!
         let _ = DecisionModel("hello", trackURL, nil);
