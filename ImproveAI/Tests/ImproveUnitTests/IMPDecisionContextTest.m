@@ -86,6 +86,15 @@ extern NSString * const kRemoteModelURL;
     XCTFail(@"An exception should have been thrown.");
 }
 
+- (void)testChooseFirst {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSDictionary *givens = @{@"lang":@"en"};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [[decisionModel given:givens] chooseFirst:variants];
+    XCTAssertEqualObjects(givens, decision.givens);
+    XCTAssertEqualObjects(@"Hello World", [decision get]);
+}
+
 - (void)testScore_nil_variants {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
     IMPDecisionContext *decisionContext = [[IMPDecisionContext alloc] initWithModel:decisionModel andGivens:nil];

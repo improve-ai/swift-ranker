@@ -68,6 +68,13 @@
     return decision;
 }
 
+- (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:))
+{
+    IMPDecision *decision = [self.model chooseFirst:variants];
+    decision.givens = self.givens;
+    return decision;
+}
+
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants
 {
     NSMutableArray *allKeys = [[NSMutableArray alloc] initWithCapacity:[variants count]];
