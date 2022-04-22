@@ -11,6 +11,9 @@ let package = Package(
         .library(
             name: "ImproveAI",
             targets: ["ImproveAI"]),
+        .library(
+            name: "ImproveAISwift",
+            targets: ["ImproveAISwift"]),
     ],
     targets: [
         .target(
@@ -26,6 +29,11 @@ let package = Package(
             cSettings: [
                 .headerSearchPath("**"),
                 .define("IMPROVE_AI_DEBUG", .when(configuration: .debug)),
-            ])
+            ]),
+        .target(
+            name: "ImproveAISwift",
+            dependencies: ["ImproveAI"],
+            path: "ImproveAISwift"
+        )
     ]
 )
