@@ -129,6 +129,11 @@
             [self encodeInternal:obj withSeed:newSeed andNoise:noise forFeatures:features];
         }];
     } else if([node isKindOfClass:[NSArray class]]){
+        static BOOL warningOnceArrayEncoding = NO;
+        if(!warningOnceArrayEncoding) {
+            warningOnceArrayEncoding = YES;
+            IMPLog("Array encoding may change in the near future.");
+        }
         [node enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             unsigned char bytes[8];
             [self to_bytes:idx withBuffer:bytes];

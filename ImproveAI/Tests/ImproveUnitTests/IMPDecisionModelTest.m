@@ -1243,4 +1243,14 @@ extern NSString * const kTrackerURL;
     }
 }
 
+- (void)testWarningOnceArrayEncoding {
+    NSError *error;
+    NSURL *modelURL = [[TestUtils bundle] URLForResource:@"a_z_model.mlmodel.gz" withExtension:nil];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"a-z"];
+    [decisionModel load:modelURL error:&error];
+    XCTAssertNil(error);
+    
+    [[decisionModel chooseFrom:@[@[@1, @2], @[@3, @4]]] get];
+}
+
 @end
