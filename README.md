@@ -4,6 +4,8 @@ Improve AI provides quick on-device AI decisions that get smarter over time. It'
 
 ## Installation
 
+In Xcode:
+
 * File -> Swift Package Manager -> Add Package Dependency
 * Type in https://github.com/improve-ai/ios-sdk.git when choosing package repo.
 
