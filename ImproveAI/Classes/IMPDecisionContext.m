@@ -68,6 +68,18 @@
     return decision;
 }
 
+- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores
+{
+    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
+    id best = [IMPDecisionModel topScoringVariant:variants withScores:scores];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:self.model];
+    decision.variants = variants;
+    decision.best = best;
+    decision.givens = allGivens;
+    decision.scores = scores;
+    return decision;
+}
+
 - (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:))
 {
     IMPDecision *decision = [self.model chooseFirst:variants];

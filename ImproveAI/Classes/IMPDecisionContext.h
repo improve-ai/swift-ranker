@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
 
+- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(_:_:));
+
 /**
  * @see IMPDecisionModel.chooseFirst()
  */

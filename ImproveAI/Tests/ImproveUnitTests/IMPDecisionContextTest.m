@@ -80,10 +80,71 @@ extern NSString * const kRemoteModelURL;
     @try {
         [decisionContext chooseFrom:variants];
     } @catch(NSException *e) {
+        NSLog(@"exception: %@", e);
         XCTAssertEqual(NSInvalidArgumentException, e.name);
         return ;
     }
     XCTFail(@"An exception should have been thrown.");
+}
+
+- (void)testChooseFromVariantsAndScores {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSDictionary *givens = @{@"lang":@"en"};
+    NSArray *scores = @[@0.1, @0.8, @0.4];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    IMPDecision *decision = [[decisionModel given:givens] chooseFrom:variants scores:scores];
+    XCTAssertEqual(20, [decision.givens count]);
+    XCTAssertEqualObjects(@"en", decision.givens[@"lang"]);
+    XCTAssertEqualObjects(@"Howdy World", decision.best);
+}
+
+- (void)testChooseFromVariantsAndScores_nil_givens {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSArray *scores = @[@0.1, @0.8, @0.4];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    IMPDecision *decision = [[decisionModel given:nil] chooseFrom:variants scores:scores];
+    XCTAssertEqual(19, [decision.givens count]);
+    XCTAssertEqualObjects(@"Howdy World", decision.best);
+}
+
+- (void)testChooseFromVariantsAndScores_nil_variants {
+    NSDictionary *givens = @{@"lang":@"en"};
+    NSArray *scores = @[@0.1, @0.8, @0.4];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [[decisionModel given:givens] chooseFrom:nil scores:scores];
+    } @catch(NSException *e) {
+        NSLog(@"%@, %@", e.name, e.reason);
+        return ;
+    }
+    XCTFail("variants can't be nil");
+}
+
+- (void)testChooseFromVariantsAndScores_empty_variants {
+    NSDictionary *givens = @{@"lang":@"en"};
+    NSArray *scores = @[@0.1, @0.8, @0.4];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [[decisionModel given:givens] chooseFrom:@[] scores:scores];
+    } @catch(NSException *e) {
+        NSLog(@"%@, %@", e.name, e.reason);
+        return ;
+    }
+    XCTFail("variants can't be empty");
+}
+
+- (void)testChooseFromVariantsAndScores_invalid_size {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSDictionary *givens = @{@"lang":@"en"};
+    NSArray *scores = @[@0.1, @0.8, @0.4, @.5];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [[decisionModel given:givens] chooseFrom:variants scores:scores];
+    } @catch(NSException *e) {
+        NSLog(@"%@, %@", e.name, e.reason);
+        return ;
+    }
+    XCTFail("variants can't be empty");
 }
 
 - (void)testChooseFirst {
@@ -116,7 +177,7 @@ extern NSString * const kRemoteModelURL;
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
         return ;
     }
-    XCTFail(@"variants can't be nil");
+    XCTFail(@"variants can't be empty");
 }
 
 - (void)testScore_valid {

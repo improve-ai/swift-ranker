@@ -93,6 +93,7 @@ class IMPSwiftifiedTest: XCTestCase {
         let decisionModel = DecisionModel("hello")
         let decisionContext = decisionModel.given(givens)
         decisionContext.chooseFrom(variants)
+        decisionContext.chooseFrom(variants, [0.1, 0.8, 0.4])
         decisionContext.score(variants)
     }
     

@@ -263,17 +263,11 @@ static GivensProvider *_defaultGivensProvider;
 
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseFrom:variants];
+    return [[self given:nil] chooseFrom:variants];
 }
 
 - (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores {
-    id best = [IMPDecisionModel topScoringVariant:variants withScores:scores];
-    IMPDecision *decision = [[IMPDecision alloc] initWithModel:self];
-    decision.variants = variants;
-    decision.best = best;
-    decision.givens = nil;
-    decision.scores = scores;
-    return decision;
+    return [[self given:nil] chooseFrom:variants scores:scores];
 }
 
 - (IMPDecision *)chooseFirst:(NSArray *)variants {
@@ -361,7 +355,7 @@ static GivensProvider *_defaultGivensProvider;
 }
 
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseMultiVariate:variants];
+    return [[self given:nil] chooseMultiVariate:variants];
 }
 
 - (id)which:(id)firstVariant, ...
@@ -373,12 +367,12 @@ static GivensProvider *_defaultGivensProvider;
         [variants addObject:arg];
     }
     va_end(args);
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] whichInternal:variants];
+    return [[self given:nil] whichInternal:variants];
 }
 
 - (id)which:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(which(_:_:))
 {
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] which:n args:args];
+    return [[self given:nil] which:n args:args];
 }
 
 - (IMPDecisionContext *)given:(NSDictionary <NSString *, id>*)givens
