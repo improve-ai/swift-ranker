@@ -82,9 +82,39 @@
 
 - (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:))
 {
+    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
     IMPDecision *decision = [self.model chooseFirst:variants];
-    decision.givens = self.givens;
+    decision.givens = allGivens;
     return decision;
+}
+
+- (id)first:(id)firstVariant, ...
+{
+    va_list args;
+    va_start(args, firstVariant);
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(id arg = firstVariant; arg != nil; arg = va_arg(args, id)) {
+        [variants addObject:arg];
+    }
+    va_end(args);
+    return [self firstInternal:variants];
+}
+
+- (id)first:(NSInteger)n args:(va_list)args
+{
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(int i = 0; i < n; ++i) {
+        [variants addObject:va_arg(args, id)];
+    }
+    return [self firstInternal:variants];
+}
+
+- (id)firstInternal:(NSArray *)variants
+{
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"first() expects at least one variant" userInfo:nil];
+    }
+    return [[self chooseFirst:variants] get];
 }
 
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants

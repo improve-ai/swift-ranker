@@ -11,6 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_NAME(DecisionContext)
 @interface IMPDecisionContext : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -28,6 +29,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @see IMPDecisionModel.chooseFirst()
  */
 - (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:));
+
+/**
+ * @see IMPDecisionModel.which()
+ */
+- (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
+
+- (id)first:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(first(_:_:));
 
 /**
  * @see IMPDecisionModel#chooseMultiVariate()

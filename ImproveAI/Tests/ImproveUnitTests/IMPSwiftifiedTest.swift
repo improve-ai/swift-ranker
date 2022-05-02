@@ -28,6 +28,14 @@ extension DecisionModel {
     }
 }
 
+extension DecisionContext {
+    func first(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return first(args.count, va_list)
+        }
+    }
+}
+
 // This test file is mainly used to ensure that swiftified api works
 class IMPSwiftifiedTest: XCTestCase {
 
@@ -94,6 +102,9 @@ class IMPSwiftifiedTest: XCTestCase {
         let decisionContext = decisionModel.given(givens)
         decisionContext.chooseFrom(variants)
         decisionContext.chooseFrom(variants, [0.1, 0.8, 0.4])
+        decisionContext.chooseFirst(variants)
+        let first = decisionContext.first("Hello World", "Howdy World", "Hi World")
+        XCTAssertEqual("Hello World", first as! String)
         decisionContext.score(variants)
     }
     

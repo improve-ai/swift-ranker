@@ -12,6 +12,10 @@
 
 extern NSString * const kRemoteModelURL;
 
+extern NSString * const kTrackerURL;
+
+extern NSString *const kTrackApiKey;
+
 @interface IMPDecision ()
 
 @property(nonatomic, readonly, nullable) id best;
@@ -34,6 +38,8 @@ extern NSString * const kRemoteModelURL;
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
+    IMPDecisionModel.defaultTrackApiKey = kTrackApiKey;
 }
 
 - (void)tearDown {
@@ -152,8 +158,16 @@ extern NSString * const kRemoteModelURL;
     NSDictionary *givens = @{@"lang":@"en"};
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecision *decision = [[decisionModel given:givens] chooseFirst:variants];
-    XCTAssertEqualObjects(givens, decision.givens);
+    XCTAssertEqualObjects(@"en", decision.givens[@"lang"]);
+    XCTAssertEqual(20, [decision.givens count]);
     XCTAssertEqualObjects(@"Hello World", [decision get]);
+}
+
+- (void)testFirst {
+    NSDictionary *givens = @{@"lang":@"en"};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    id first = [[decisionModel given:givens] first:@"Hello", @"Howdy", @"Hi", nil];
+    XCTAssertEqualObjects(@"Hello", first);
 }
 
 - (void)testScore_nil_variants {
