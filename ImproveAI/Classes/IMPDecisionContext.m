@@ -117,6 +117,13 @@
     return [[self chooseFirst:variants] get];
 }
 
+- (IMPDecision *)chooseRandom:(NSArray *)variants
+{
+    IMPDecision *decision = [self.model chooseRandom:variants];
+    decision.givens = [_model.givensProvider givensForModel:_model givens:_givens];;
+    return decision;
+}
+
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants
 {
     NSMutableArray *allKeys = [[NSMutableArray alloc] initWithCapacity:[variants count]];

@@ -31,11 +31,16 @@ NS_SWIFT_NAME(DecisionContext)
 - (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:));
 
 /**
- * @see IMPDecisionModel.which()
+ * @see IMPDecisionModel.first()
  */
 - (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
 - (id)first:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(first(_:_:));
+
+/**
+ * @see IMPDecisionModel.chooseRandom()
+ */
+- (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:));
 
 /**
  * @see IMPDecisionModel#chooseMultiVariate()

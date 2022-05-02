@@ -105,6 +105,7 @@ class IMPSwiftifiedTest: XCTestCase {
         decisionContext.chooseFirst(variants)
         let first = decisionContext.first("Hello World", "Howdy World", "Hi World")
         XCTAssertEqual("Hello World", first as! String)
+        decisionContext.chooseRandom(variants)
         decisionContext.score(variants)
     }
     
