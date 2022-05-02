@@ -34,6 +34,12 @@ extension DecisionContext {
             return first(args.count, va_list)
         }
     }
+    
+    func random(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return random(args.count, va_list)
+        }
+    }
 }
 
 // This test file is mainly used to ensure that swiftified api works
@@ -106,6 +112,8 @@ class IMPSwiftifiedTest: XCTestCase {
         let first = decisionContext.first("Hello World", "Howdy World", "Hi World")
         XCTAssertEqual("Hello World", first as! String)
         decisionContext.chooseRandom(variants)
+        let random = decisionContext.random("Hello World", "Howdy World", "Hi World")
+        print("random: \(random)")
         decisionContext.score(variants)
     }
     

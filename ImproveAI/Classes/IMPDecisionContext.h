@@ -43,6 +43,13 @@ NS_SWIFT_NAME(DecisionContext)
 - (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:));
 
 /**
+ * @see IMPDecisionModel.random()
+ */
+- (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
+
+- (id)random:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(random(_:_:));
+
+/**
  * @see IMPDecisionModel#chooseMultiVariate()
  */
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultiVariate(_:));

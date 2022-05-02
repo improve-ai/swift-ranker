@@ -170,6 +170,25 @@ extern NSString *const kTrackApiKey;
     XCTAssertEqualObjects(@"Hello", first);
 }
 
+- (void)testFirst_one_argument {
+    NSDictionary *givens = @{@"lang":@"en"};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    id first = [[decisionModel given:givens] first:@[@"Hello", @"Howdy", @"Hi"], nil];
+    XCTAssertEqualObjects(@"Hello", first);
+}
+
+- (void)testFirst_one_argument_not_array {
+    NSDictionary *givens = @{@"lang":@"en"};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [[decisionModel given:givens] first:@"Hello", nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"If only one argument, it must be an NSArray.", e.reason);
+        return ;
+    }
+    XCTFail("An execption should have been thrown.");
+}
+
 - (void)testChooseRandom {
     int loop = 1000;
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
@@ -188,6 +207,55 @@ extern NSString *const kTrackApiKey;
     XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 30);
     XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 30);
     XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 30);
+}
+
+- (void)testRandom {
+    int loop = 1000;
+    NSMutableDictionary<NSString *, NSNumber *> *count = [[NSMutableDictionary alloc] init];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    decisionModel.trackURL = nil;
+    for(int i = 0; i < loop; ++i) {
+        id variant = [[decisionModel given:nil] random:@"Hello World", @"Howdy World", @"Hi World", nil];
+        if(count[variant] == nil) {
+            count[variant] = @1;
+        } else {
+            count[variant] = @(count[variant].intValue + 1);
+        }
+    }
+    NSLog(@"%@", count);
+    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 30);
+}
+
+- (void)testRandom_one_argument {
+    int loop = 1000;
+    NSMutableDictionary<NSString *, NSNumber *> *count = [[NSMutableDictionary alloc] init];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    decisionModel.trackURL = nil;
+    for(int i = 0; i < loop; ++i) {
+        id variant = [[decisionModel given:nil] random:@[@"Hello World", @"Howdy World", @"Hi World"], nil];
+        if(count[variant] == nil) {
+            count[variant] = @1;
+        } else {
+            count[variant] = @(count[variant].intValue + 1);
+        }
+    }
+    NSLog(@"%@", count);
+    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 30);
+}
+
+- (void)testRandom_one_argument_not_array {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [[decisionModel given:nil] random:@"Hello World", nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"If only one argument, it must be an NSArray.", e.reason);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
 }
 
 - (void)testScore_nil_variants {

@@ -303,7 +303,7 @@ static GivensProvider *_defaultGivensProvider;
 {
     if([variants count] == 1) {
         if(![variants[0] isKindOfClass:[NSArray class]]) {
-            NSString *reason = @"If only one argument, it must be an NSArray or an NSDictionary";
+            NSString *reason = @"If only one argument, it must be an NSArray";
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
         }
         return [[self chooseFirst:variants[0]] get];
@@ -345,7 +345,7 @@ static GivensProvider *_defaultGivensProvider;
 {
     if([variants count] == 1) {
         if(![variants[0] isKindOfClass:[NSArray class]]) {
-            NSString *reason = @"If only one argument, it must be an NSArray or an NSDictionary";
+            NSString *reason = @"If only one argument, it must be an NSArray.";
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
         }
         return [[self chooseRandom:variants[0]] get];

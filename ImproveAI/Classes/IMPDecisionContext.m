@@ -114,6 +114,15 @@
     if([variants count] <= 0) {
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"first() expects at least one variant" userInfo:nil];
     }
+    
+    if([variants count] == 1) {
+        if(![variants[0] isKindOfClass:[NSArray class]]) {
+            NSString *reason = @"If only one argument, it must be an NSArray.";
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
+        }
+        return [[self chooseFirst:variants[0]] get];
+    }
+    
     return [[self chooseFirst:variants] get];
 }
 
@@ -122,6 +131,40 @@
     IMPDecision *decision = [self.model chooseRandom:variants];
     decision.givens = [_model.givensProvider givensForModel:_model givens:_givens];;
     return decision;
+}
+
+- (id)random:(id)firstVariant, ...
+{
+    va_list args;
+    va_start(args, firstVariant);
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(id arg = firstVariant; arg != nil; arg = va_arg(args, id)) {
+        [variants addObject:arg];
+    }
+    va_end(args);
+    return [self randomInternal:variants];
+}
+
+- (id)random:(NSInteger)n args:(va_list)args
+{
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(int i = 0; i < n; ++i) {
+        [variants addObject:va_arg(args, id)];
+    }
+    return [self randomInternal:variants];
+}
+
+- (id)randomInternal:(NSArray *)variants
+{
+    if([variants count] == 1) {
+        if(![variants[0] isKindOfClass:[NSArray class]]) {
+            NSString *reason = @"If only one argument, it must be an NSArray.";
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
+        }
+        return [[self chooseRandom:variants[0]] get];
+    }
+    
+    return [[self chooseRandom:variants] get];
 }
 
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants

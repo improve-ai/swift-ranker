@@ -753,7 +753,7 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testRandom {
-    int loop = 100000;
+    int loop = 1000;
     NSMutableDictionary<NSString *, NSNumber *> *count = [[NSMutableDictionary alloc] init];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     decisionModel.trackURL = nil;
@@ -766,9 +766,39 @@ extern NSString * const kTrackerURL;
         }
     }
     NSLog(@"%@", count);
-    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 500);
-    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 500);
-    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 500);
+    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 30);
+}
+
+- (void)testRandom_one_argument {
+    int loop = 1000;
+    NSMutableDictionary<NSString *, NSNumber *> *count = [[NSMutableDictionary alloc] init];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    decisionModel.trackURL = nil;
+    for(int i = 0; i < loop; ++i) {
+        id variant = [decisionModel random:@[@"Hello World", @"Howdy World", @"Hi World"], nil];
+        if(count[variant] == nil) {
+            count[variant] = @1;
+        } else {
+            count[variant] = @(count[variant].intValue + 1);
+        }
+    }
+    NSLog(@"%@", count);
+    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 30);
+}
+
+- (void)testRandom_one_argument_not_array {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel random:@"Hello World", nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"If only one argument, it must be an NSArray.", e.reason);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
 }
 
 - (void)testChooseMultiVariate_nil_dictionary {
