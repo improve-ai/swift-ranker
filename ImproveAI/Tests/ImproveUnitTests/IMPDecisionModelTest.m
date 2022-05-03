@@ -635,7 +635,7 @@ extern NSString * const kTrackerURL;
     XCTAssertEqualObjects(@"Hi World", decision.best);
     XCTAssertEqualObjects(variants, decision.variants);
     XCTAssertEqualObjects(scores, decision.scores);
-    XCTAssertNil(decision.givens);
+    XCTAssertEqual(19, [decision.givens count]);
 }
 
 - (void)testChooseFromVariantsAndScores_size_not_equal {
@@ -697,7 +697,7 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testChooseRandom {
-    int loop = 100000 ;
+    int loop = 1000;
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSMutableDictionary<NSString *, NSNumber *> *count = [[NSMutableDictionary alloc] init];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
@@ -711,9 +711,9 @@ extern NSString * const kTrackerURL;
         }
     }
     NSLog(@"%@", count);
-    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 500);
-    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 500);
-    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 500);
+    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 30);
 }
 
 - (void)testChooseRandom_empty {

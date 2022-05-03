@@ -16,7 +16,7 @@ NSString * const kTrackerURL = @"https://gh8hd0ee47.execute-api.us-east-1.amazon
 
 NSString * const kTrackApiKey = @"api-key";
 
-NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.mlmodel.gz";
+NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/songs-2.0.mlmodel.gz";
 
 @interface IMPDecisionModel ()
 

@@ -97,8 +97,7 @@ extern NSString * const kRemoteModelURL;
     int loop = 100;
     for(int i = 0; i < loop; ++i) {
         NSLog(@"<<<<<<<<<   %d   >>>>>>>>>>", i);
-    //    NSURL *url = [NSURL URLWithString:@"https://improveai-mindblown-bible-prod-models.s3.amazonaws.com/models/latest/improveai-messages-2.0.mlmodel.gz"];
-        NSURL *url = [NSURL URLWithString:@"http://192.168.1.3:14000/static/improve-ai/messages.mlmodel.gz"];
+        NSURL *url = [NSURL URLWithString:kRemoteModelURL];
         IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
         
         XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
@@ -144,32 +143,21 @@ extern NSString * const kRemoteModelURL;
     NSLog(@"cache capacity: %lu, %lu", [[NSURLCache sharedURLCache] diskCapacity],
           [[NSURLCache sharedURLCache] memoryCapacity]);
     
-    int loop = 1;
-    __block int done = 0;
-    double sleepInterval = 1.0f;
-    
-    XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
+    int loop = 100;
     for (int i = 0; i < loop; i++) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 6 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            NSURL *url = [NSURL URLWithString:@"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.mlmodel.gz"];
-            IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
-            [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
-                if (error != nil) {
-                    XCTFail(@"Downloading error: %@", error);
-                }
-                XCTAssert(compiledModelURL != nil);
-                done++;
-                
-                if(done == loop){
-                    [expectation fulfill];
-                }
-                
-                NSLog(@"%d done, Compiled model URL: %@", done, compiledModelURL);
-            }];
-        });
-        [NSThread sleepForTimeInterval:sleepInterval];
+        XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
+        IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:[NSURL URLWithString:kRemoteModelURL]];
+        [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+            if (error != nil) {
+                XCTFail(@"Downloading error: %@", error);
+            }
+            XCTAssert(compiledModelURL != nil);
+            
+                [expectation fulfill];
+            NSLog(@"%d done, Compiled model URL: %@", i, compiledModelURL);
+        }];
+        [self waitForExpectations:@[expectation] timeout:300.0];
     }
-    [self waitForExpectations:@[expectation] timeout:300.0];
 }
 
 @end

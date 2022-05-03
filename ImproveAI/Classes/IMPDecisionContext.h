@@ -16,8 +16,6 @@ NS_SWIFT_NAME(DecisionContext)
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithModel:(IMPDecisionModel *)model andGivens:(nullable NSDictionary *)givens;
-
 /**
  * @see IMPDecisionModel.chooseFrom()
  */
