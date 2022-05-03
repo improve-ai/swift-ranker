@@ -582,9 +582,10 @@ extern NSString *const kTrackApiKey;
     [decisionModel load:modelURL error:&err];
     XCTAssertNotNil(decisionModel);
     XCTAssertNil(err);
-    NSString *greeting = [[[decisionModel given:context] chooseFrom:variants] get];
-    IMPLog("url=%@, greeting=%@", modelURL, greeting);
-    XCTAssertNotNil(greeting);
+    IMPDecision *decision = [[decisionModel given:context] chooseFrom:variants];
+    IMPLog("url=%@, greeting=%@", modelURL, [decision get]);
+    XCTAssertNotNil([decision get]);
+    XCTAssertEqual(20, [decision.givens count]);
 }
 
 extern NSString * const kTrackerURL;
@@ -670,6 +671,7 @@ extern NSString * const kTrackerURL;
     IMPDecision *decision = [decisionModel chooseFirst:variants];
     XCTAssertNotNil(decision);
     XCTAssertEqualObjects(@"Hello World", [decision get]);
+    XCTAssertEqual(19, [decision.givens count]);
 }
 
 - (void)testChooseFirst_nil {
@@ -703,7 +705,9 @@ extern NSString * const kTrackerURL;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     decisionModel.trackURL = nil;
     for(int i = 0; i < loop; ++i) {
-        id variant = [[decisionModel chooseRandom:variants] get];
+        IMPDecision *decision = [decisionModel chooseRandom:variants];
+        id variant = [decision get];
+        XCTAssertEqual(19, [decision.givens count]);
         if(count[variant] == nil) {
             count[variant] = @1;
         } else {
@@ -722,7 +726,7 @@ extern NSString * const kTrackerURL;
     @try {
         [decisionModel chooseRandom:variants];
     } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        XCTAssertEqualObjects(@"variants can't be nil or empty.", e.reason);
         return ;
     }
     XCTFail(@"An exception should have been thrown");
@@ -732,6 +736,17 @@ extern NSString * const kTrackerURL;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     id first = [decisionModel first:@"Hello World", @"Howdy World", @"Hi World", nil];
     XCTAssertEqualObjects(@"Hello World", first);
+}
+
+- (void)testFirst_no_argument {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel first:nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"first() expects at least one argument.", e.reason);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
 }
 
 - (void)testFirst_only_one_argument {
@@ -769,6 +784,17 @@ extern NSString * const kTrackerURL;
     XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 30);
     XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 30);
     XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 30);
+}
+
+- (void)testRandom_no_argument {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel random:nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"random() expects at least one argument.", e.reason);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
 }
 
 - (void)testRandom_one_argument {
@@ -829,6 +855,7 @@ extern NSString * const kTrackerURL;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     IMPDecision *decision = [decisionModel chooseMultiVariate:variants];
     XCTAssertEqual(2, [decision.variants count]);
+    XCTAssertEqual(19, [decision.givens count]);
     NSLog(@"combinations: %@", decision.variants);
     NSArray *expected = @[
         @{@"font":@"Italic"} ,@{@"font":@"Bold"}
@@ -868,6 +895,22 @@ extern NSString * const kTrackerURL;
         @{@"font":@"Bold", @"color":@"#ffffff", @"size": @3}
     ];
     XCTAssertTrue([expected isEqualToArray:decision.variants]);
+}
+
+- (void)testWhich {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    [decisionModel which:@"Hi", @"Hello", @"Hey", nil];
+}
+
+- (void)testWhich_no_argument {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel which:nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"which() expects at least one argument.", e.reason);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
 }
 
 // pass only one variant to which() and the variant is not an array

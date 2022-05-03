@@ -25,6 +25,10 @@
 
 - (id)whichInternal:(NSArray *)variants;
 
+- (id)firstInternal:(NSArray *)variants;
+
+- (id)randomInternal:(NSArray *)variants;
+
 @end
 
 @interface IMPDecision ()
@@ -285,38 +289,17 @@ static GivensProvider *_defaultGivensProvider;
         [variants addObject:arg];
     }
     va_end(args);
-    return [self firstInternal:variants];
+    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] firstInternal:variants];
 }
 
 - (id)first:(NSInteger)n args:(va_list)args
 {
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(int i = 0; i < n; ++i) {
-        [variants addObject:va_arg(args, id)];
-    }
-    if([variants count] <= 0) {
-        NSString *reason =  @"first() takes at least one argument.";
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-    }
-    return [self firstInternal:variants];
-}
-
-- (id)firstInternal:(NSArray *)variants
-{
-    if([variants count] == 1) {
-        if(![variants[0] isKindOfClass:[NSArray class]]) {
-            NSString *reason = @"If only one argument, it must be an NSArray";
-            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-        }
-        return [[self chooseFirst:variants[0]] get];
-    }
-    
-    return [[self chooseFirst:variants] get];
+    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] first:n args:args];
 }
 
 - (IMPDecision *)chooseRandom:(NSArray *)variants {
     if([variants count] <= 0) {
-        NSString *reason = @"variants can't be nil or empty";
+        NSString *reason = @"variants can't be nil or empty.";
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     }
     return [self chooseFrom:variants scores:[IMPDecisionModel generateRandomScores:[variants count]]];
@@ -331,29 +314,12 @@ static GivensProvider *_defaultGivensProvider;
         [variants addObject:arg];
     }
     va_end(args);
-    return [self randomInternal:variants];
+    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] randomInternal:variants];
 }
 
 - (id)random:(NSInteger)n args:(va_list)args
 {
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(int i = 0; i < n; ++i) {
-        [variants addObject:va_arg(args, id)];
-    }
-    return [self randomInternal:variants];
-}
-
-- (id)randomInternal:(NSArray *)variants
-{
-    if([variants count] == 1) {
-        if(![variants[0] isKindOfClass:[NSArray class]]) {
-            NSString *reason = @"If only one argument, it must be an NSArray.";
-            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-        }
-        return [[self chooseRandom:variants[0]] get];
-    }
-    
-    return [[self chooseRandom:variants] get];
+    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] random:n args:args];
 }
 
 - (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {

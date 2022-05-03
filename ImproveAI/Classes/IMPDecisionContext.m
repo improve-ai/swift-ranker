@@ -112,7 +112,7 @@
 - (id)firstInternal:(NSArray *)variants
 {
     if([variants count] <= 0) {
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"first() expects at least one variant" userInfo:nil];
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"first() expects at least one argument." userInfo:nil];
     }
     
     if([variants count] == 1) {
@@ -156,6 +156,9 @@
 
 - (id)randomInternal:(NSArray *)variants
 {
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"random() expects at least one argument." userInfo:nil];
+    }
     if([variants count] == 1) {
         if(![variants[0] isKindOfClass:[NSArray class]]) {
             NSString *reason = @"If only one argument, it must be an NSArray.";
@@ -235,6 +238,10 @@
 
 - (id)whichInternal:(NSArray *)variants
 {
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"which() expects at least one argument." userInfo:nil];
+    }
+    
     if([variants count] == 1) {
         id firstVariant = variants[0];
         if([firstVariant isKindOfClass:[NSArray class]]) {
