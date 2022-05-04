@@ -77,7 +77,6 @@ extern NSString *const kTrackApiKey;
 }
 
 - (void)testChooseFrom_nil_givens {
-    NSDictionary *givens = @{@"lang":@"en"};
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecisionContext *decisionContext = [decisionModel given:nil];
     IMPDecision *decision = [decisionContext chooseFrom:[self variants]];
@@ -94,7 +93,8 @@ extern NSString *const kTrackApiKey;
     @try {
         [decisionContext chooseFrom:variants];
     } @catch(NSException *e) {
-        XCTAssertEqual(NSInvalidArgumentException, e.name);
+        NSLog(@"%@", e);
+        XCTAssertEqualObjects(@"variants can't be nil or empty.", e.reason);
         return ;
     }
     XCTFail(@"An exception should have been thrown.");
@@ -109,7 +109,7 @@ extern NSString *const kTrackApiKey;
         [decisionContext chooseFrom:variants];
     } @catch(NSException *e) {
         NSLog(@"exception: %@", e);
-        XCTAssertEqual(NSInvalidArgumentException, e.name);
+        XCTAssertEqualObjects(@"variants can't be nil or empty.", e.reason);
         return ;
     }
     XCTFail(@"An exception should have been thrown.");

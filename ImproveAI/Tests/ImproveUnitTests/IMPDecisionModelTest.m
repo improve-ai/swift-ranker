@@ -17,6 +17,8 @@
 #import "IMPConstants.h"
 #import "AppGivensProvider.h"
 
+NSString * const kReasonVariantsNonEmpty = @"variants can't be nil or empty.";
+
 extern NSString * const kRemoteModelURL;
 
 extern NSString *const kTrackApiKey;
@@ -646,6 +648,7 @@ extern NSString * const kTrackerURL;
     @try {
         [decisionModel chooseFrom:variants scores:scores];
     } @catch(NSException *e) {
+        NSLog(@"%@", e);
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
         return ;
     }
@@ -659,6 +662,7 @@ extern NSString * const kTrackerURL;
     @try {
         [decisionModel chooseFrom:variants scores:scores];
     } @catch(NSException *e) {
+        NSLog(@"%@", e);
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
         return ;
     }
@@ -681,6 +685,7 @@ extern NSString * const kTrackerURL;
         [decisionModel chooseFirst:variants];
     } @catch(NSException *e) {
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        XCTAssertEqualObjects(kReasonVariantsNonEmpty, e.reason);
         return ;
     }
     XCTFail(@"An exception should have been thrown");
@@ -693,6 +698,7 @@ extern NSString * const kTrackerURL;
         [decisionModel chooseFirst:variants];
     } @catch(NSException *e) {
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        XCTAssertEqualObjects(kReasonVariantsNonEmpty, e.reason);
         return ;
     }
     XCTFail(@"An exception should have been thrown");
@@ -947,6 +953,8 @@ extern NSString * const kTrackerURL;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     id best = [decisionModel which:@{@"style":@[@"bold", @"italic"], @"size":@[@3, @5]}, nil];
     NSLog(@"best is %@", best);
+    NSDictionary *dict = @{@"size": @3, @"style": @"bold"};
+    XCTAssertEqualObjects(dict, best);
 }
 
 - (void)testWhich_1_argument_empty_dictionary {
@@ -954,6 +962,7 @@ extern NSString * const kTrackerURL;
     @try {
         [decisionModel which:@{}, nil];
     } @catch(NSException *e) {
+        NSLog(@"%@", e);
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
         return ;
     }
@@ -1221,7 +1230,7 @@ extern NSString * const kTrackerURL;
         for(int j = 0; j < [scores count]; ++j) {
             XCTAssertEqualWithAccuracy([expectedScores[j] doubleValue],
                                        [scores[j] doubleValue],
-                                       pow(2, -18));
+                                       pow(2, -19));
         }
     } else {
         for(int i = 0; i < [givens count]; ++i) {

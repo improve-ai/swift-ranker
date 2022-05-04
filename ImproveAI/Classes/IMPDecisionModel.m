@@ -395,7 +395,7 @@ static GivensProvider *_defaultGivensProvider;
     // MLModel is not thread safe, synchronize
     @synchronized (self) {
         if ([variants count] <= 0) {
-            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be empty or nil" userInfo:nil];
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be nil or empty." userInfo:nil];
         }
 #ifdef IMPROVE_AI_DEBUG
         IMPLog("givens: %@", [IMPJSONUtils jsonStringOrDescriptionOf:allGivens]);
