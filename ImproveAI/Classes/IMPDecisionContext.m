@@ -30,6 +30,8 @@
 
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
++ (NSArray *)generateDescendingGaussians:(NSUInteger) count;
+
 @end
 
 @interface IMPDecisionContext ()
@@ -82,10 +84,11 @@
 
 - (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:))
 {
-    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
-    IMPDecision *decision = [self.model chooseFirst:variants];
-    decision.givens = allGivens;
-    return decision;
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be nil or empty." userInfo:nil];
+    }
+    NSArray *scores = [IMPDecisionModel generateDescendingGaussians:[variants count]];
+    return [self chooseFrom:variants scores:scores];
 }
 
 - (id)first:(id)firstVariant, ...

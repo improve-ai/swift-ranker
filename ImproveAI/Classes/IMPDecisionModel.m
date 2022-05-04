@@ -226,7 +226,8 @@ static GivensProvider *_defaultGivensProvider;
     }
 }
 
-- (instancetype)load:(NSURL *)url error:(NSError **)error {
+- (instancetype)load:(NSURL *)url error:(NSError **)error
+{
     __block NSError *blockError = nil;
     
     dispatch_group_t group = dispatch_group_create();
@@ -267,17 +268,24 @@ static GivensProvider *_defaultGivensProvider;
     }];
 }
 
+- (IMPDecisionContext *)given:(NSDictionary <NSString *, id>*)givens
+{
+    return [[IMPDecisionContext alloc] initWithModel:self andGivens:givens];
+}
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseFrom:variants];
+    return [[self given:nil] chooseFrom:variants];
 }
 
-- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores {
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseFrom:variants scores:scores];
+- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores
+{
+    return [[self given:nil] chooseFrom:variants scores:scores];
 }
 
-- (IMPDecision *)chooseFirst:(NSArray *)variants {
-    return [self chooseFrom:variants scores:[IMPDecisionModel generateDescendingGaussians:[variants count]]];
+- (IMPDecision *)chooseFirst:(NSArray *)variants
+{
+    return [[self given:nil] chooseFirst:variants];
 }
 
 - (id)first:(id)firstVariant, ...
@@ -289,15 +297,16 @@ static GivensProvider *_defaultGivensProvider;
         [variants addObject:arg];
     }
     va_end(args);
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] firstInternal:variants];
+    return [[self given:nil] firstInternal:variants];
 }
 
 - (id)first:(NSInteger)n args:(va_list)args
 {
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] first:n args:args];
+    return [[self given:nil] first:n args:args];
 }
 
-- (IMPDecision *)chooseRandom:(NSArray *)variants {
+- (IMPDecision *)chooseRandom:(NSArray *)variants
+{
     if([variants count] <= 0) {
         NSString *reason = @"variants can't be nil or empty.";
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
@@ -314,16 +323,17 @@ static GivensProvider *_defaultGivensProvider;
         [variants addObject:arg];
     }
     va_end(args);
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] randomInternal:variants];
+    return [[self given:nil] randomInternal:variants];
 }
 
 - (id)random:(NSInteger)n args:(va_list)args
 {
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] random:n args:args];
+    return [[self given:nil] random:n args:args];
 }
 
-- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants {
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] chooseMultiVariate:variants];
+- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants
+{
+    return [[self given:nil] chooseMultiVariate:variants];
 }
 
 - (id)which:(id)firstVariant, ...
@@ -335,17 +345,12 @@ static GivensProvider *_defaultGivensProvider;
         [variants addObject:arg];
     }
     va_end(args);
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] whichInternal:variants];
+    return [[self given:nil] whichInternal:variants];
 }
 
 - (id)which:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(which(_:_:))
 {
-    return [[[IMPDecisionContext alloc] initWithModel:self andGivens:nil] which:n args:args];
-}
-
-- (IMPDecisionContext *)given:(NSDictionary <NSString *, id>*)givens
-{
-    return [[IMPDecisionContext alloc] initWithModel:self andGivens:givens];
+    return [[self given:nil] which:n args:args];
 }
 
 - (void)addReward:(double) reward
@@ -358,7 +363,8 @@ static GivensProvider *_defaultGivensProvider;
 }
 
 // Add reward for a specific tracked decision
-- (void)addReward:(double)reward decision:(NSString *)decisionId {
+- (void)addReward:(double)reward decision:(NSString *)decisionId
+{
     IMPDecisionTracker *tracker = self.tracker;
     if(tracker == nil) {
         @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
@@ -487,7 +493,8 @@ static GivensProvider *_defaultGivensProvider;
 // Generate n = variants.count random (double) gaussian numbers
 // Sort the numbers descending and return the sorted list
 // The median value of the list is expected to have a score near zero
-+ (NSArray *)generateDescendingGaussians:(NSUInteger) count {
++ (NSArray *)generateDescendingGaussians:(NSUInteger) count
+{
     NSMutableArray *arr = [[NSMutableArray alloc] init];
     for(int i = 0; i < count; ++i){
         [arr addObject:[NSNumber numberWithDouble:[IMPUtils gaussianNumber]]];

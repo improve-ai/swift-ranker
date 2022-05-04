@@ -181,6 +181,28 @@ extern NSString *const kTrackApiKey;
     XCTAssertEqualObjects(@"Hello World", [decision get]);
 }
 
+- (void)testChooseFirst_nil_variants {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    @try {
+        [[decisionModel given:self.givens] chooseFirst:nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"variants can't be nil or empty.", e.reason);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
+- (void)testChooseFirst_empty_variants {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    @try {
+        [[decisionModel given:self.givens] chooseFirst:@[]];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"variants can't be nil or empty.", e.reason);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
 - (void)testFirst {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     id first = [[decisionModel given:self.givens] first:@"Hello", @"Howdy", @"Hi", nil];

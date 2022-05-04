@@ -78,7 +78,7 @@ NS_SWIFT_NAME(DecisionModel)
  * @param givens Additional context info that will be used with each of the variants to calculate the score
  * @return A IMPDecision object to be lazily evaluated
  */
-- (IMPDecisionContext *)given:(NSDictionary <NSString *, id>*)givens NS_SWIFT_NAME(given(_:));
+- (IMPDecisionContext *)given:(nullable NSDictionary <NSString *, id>*)givens NS_SWIFT_NAME(given(_:));
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
