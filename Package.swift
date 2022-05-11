@@ -33,7 +33,9 @@ let package = Package(
         .target(
             name: "ImproveAISwift",
             dependencies: ["ImproveAI"],
-            path: "ImproveAISwift"
-        )
+            path: "ImproveAISwift"),
+        .testTarget(
+            name: "ImproveAISwiftTests",
+            dependencies: ["ImproveAISwift"])
     ]
 )

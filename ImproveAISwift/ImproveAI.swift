@@ -5,21 +5,41 @@ extension DecisionModel {
         return DecisionModel.instances[modelName]
     }
     
-    public func chooseFrom<T : Codable>(variants: [T]) -> Decision {
-        let encoder = JSONEncoder()
-        let encodedVariants = variants.map ({ (variant) -> Dictionary<String, Any> in
-            let data = try? encoder.encode(variant)
-            return try! JSONSerialization.jsonObject(with: data!, options: .mutableContainers) as! Dictionary<String, Any>
-        })
-        return chooseFrom(encodedVariants)
+    public func which(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return which(args.count, va_list)
+        }
+    }
+    
+    public func first(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return first(args.count, va_list)
+        }
+    }
+    
+    public func random(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return random(args.count, va_list)
+        }
     }
 }
 
-extension Decision {
-    public func get<T: Codable>() -> T {
-        let decoder = JSONDecoder.init()
-        let chosenVariant = get()
-        let data = try? JSONSerialization.data(withJSONObject: chosenVariant, options: .prettyPrinted)
-        return try! decoder.decode(T.self, from: data!)
+extension DecisionContext {
+    public func which(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return which(args.count, va_list)
+        }
+    }
+    
+    public func first(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return first(args.count, va_list)
+        }
+    }
+    
+    public func random(_ args: CVarArg...) ->Any {
+        withVaList(args) { va_list in
+            return random(args.count, va_list)
+        }
     }
 }
