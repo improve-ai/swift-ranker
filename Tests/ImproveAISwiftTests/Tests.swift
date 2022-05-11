@@ -68,7 +68,7 @@ class Tests: XCTestCase {
     }
     
     func testDecisionModel_chooseFromVariantsAndScores() {
-        let greeting = model().chooseFrom(variants: variants(), scores: [0.1, 0.2, 1.0]).get()
+        let greeting = model().chooseFrom(variants(), [0.1, 0.2, 1.0]).get()
         XCTAssertEqual("Hi World", greeting as! String)
     }
     

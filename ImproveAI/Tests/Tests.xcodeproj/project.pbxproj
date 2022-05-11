@@ -25,7 +25,6 @@
 		B32938E12612D80F0071F78E /* NSData+GZIP.m in Sources */ = {isa = PBXBuildFile; fileRef = B32938E02612D80F0071F78E /* NSData+GZIP.m */; };
 		B32938EA2613EA930071F78E /* IMPStreamDownloadHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B32938E92613EA930071F78E /* IMPStreamDownloadHandler.m */; };
 		B352915E26453300000274D6 /* IMPDecisionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B352915D26453300000274D6 /* IMPDecisionTest.m */; };
-		B352916426455F3C000274D6 /* IMPSwiftifiedTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B352916326455F3C000274D6 /* IMPSwiftifiedTest.swift */; };
 		B355488A27A0FBF000A6E6C3 /* a_z.json in Resources */ = {isa = PBXBuildFile; fileRef = B355488927A0FBF000A6E6C3 /* a_z.json */; };
 		B355488D27A0FBFB00A6E6C3 /* a_z_model.mlmodel.gz in Resources */ = {isa = PBXBuildFile; fileRef = B355488C27A0FBFB00A6E6C3 /* a_z_model.mlmodel.gz */; };
 		B3675EA725FE2E460040FDBB /* xxhash.c in Sources */ = {isa = PBXBuildFile; fileRef = B3675EA325FE2E460040FDBB /* xxhash.c */; };
@@ -174,7 +173,6 @@
 		B32938E92613EA930071F78E /* IMPStreamDownloadHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPStreamDownloadHandler.m; sourceTree = "<group>"; };
 		B352915D26453300000274D6 /* IMPDecisionTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPDecisionTest.m; sourceTree = "<group>"; };
 		B352916226455F3B000274D6 /* ImproveUnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ImproveUnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
-		B352916326455F3C000274D6 /* IMPSwiftifiedTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMPSwiftifiedTest.swift; sourceTree = "<group>"; };
 		B355488927A0FBF000A6E6C3 /* a_z.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = a_z.json; sourceTree = "<group>"; };
 		B355488C27A0FBFB00A6E6C3 /* a_z_model.mlmodel.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = a_z_model.mlmodel.gz; sourceTree = "<group>"; };
 		B3675EA125FE2E450040FDBB /* xxhash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxhash.h; sourceTree = "<group>"; };
@@ -369,7 +367,6 @@
 				B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */,
 				54CB9B2423D987800005BB94 /* Info.plist */,
 				B352915D26453300000274D6 /* IMPDecisionTest.m */,
-				B352916326455F3C000274D6 /* IMPSwiftifiedTest.swift */,
 				B352916226455F3B000274D6 /* ImproveUnitTests-Bridging-Header.h */,
 				B3052C25279163EF0069FC51 /* IMPDecisionContextTest.m */,
 			);
@@ -789,7 +786,6 @@
 				B371835E2734F8E000FE03F1 /* KSUIDTest.m in Sources */,
 				54394F2925407690009D1CF1 /* IMPDecisionTracker.m in Sources */,
 				B3F34C572727ECE0006636D8 /* ModelDictionary.m in Sources */,
-				B352916426455F3C000274D6 /* IMPSwiftifiedTest.swift in Sources */,
 				B3052C23279142810069FC51 /* IMPDecisionContext.m in Sources */,
 				54394F99254AA752009D1CF1 /* IMPDecisionTrackerTest.m in Sources */,
 				B3052C26279163EF0069FC51 /* IMPDecisionContextTest.m in Sources */,

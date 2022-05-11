@@ -96,7 +96,7 @@ NS_SWIFT_NAME(DecisionModel)
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants is nil or empty; Thrown if variants.count != scores.count.
  */
-- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(variants:scores:));
+- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(_:_:));
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
@@ -114,16 +114,6 @@ NS_SWIFT_NAME(DecisionModel)
  */
 - (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
-//    extension DecisionModel {
-//        func first(_ args: CVarArg...) ->Any {
-//            withVaList(args) { va_list in
-//                return first(args.count, va_list)
-//            }
-//        }
-//    }
-//
-//    // Now it can be called like this:
-//    decisionModel.first("hi", "hello")
 /**
  * Variadic method declaration for Swift. It's recommended to wrap it in an extension method as shown above.
  * @param n The number of arguments in the va_list
