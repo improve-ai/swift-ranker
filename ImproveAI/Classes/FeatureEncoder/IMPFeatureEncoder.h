@@ -4,6 +4,7 @@
 //
 //  Created by PanHongxi on 3/10/21.
 //
+#import <CoreML/CoreML.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,8 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithModelSeed:(uint64_t)modelSeed andFeatureNames:(NSSet<NSString *> *)featureNames;
 
-- (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
-                                      given:(nullable NSDictionary *)context;
+- (NSArray<id<MLFeatureProvider>> *)encodeVariants:(NSArray *)variants given:(nullable NSDictionary *)context;
 @end
 
 NS_ASSUME_NONNULL_END

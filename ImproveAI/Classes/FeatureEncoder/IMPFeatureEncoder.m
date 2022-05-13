@@ -48,7 +48,7 @@
     return self;
 }
 
-- (NSArray<NSDictionary *> *)encodeVariants:(NSArray<NSDictionary*> *)variants
+- (NSArray<id<MLFeatureProvider>> *)encodeVariants:(NSArray *)variants
                                       given:(nullable NSDictionary *)context {
     double noise = isnan(self.noise) ? ((double)arc4random() / UINT32_MAX) : self.noise;
 //    NSLog(@"score#: noise = %lf", noise);
