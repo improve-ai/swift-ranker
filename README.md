@@ -1,4 +1,4 @@
-# Easy AI Personalization and Optimization for iOS
+# AI Personalization and Optimization for iOS
 
 Improve AI provides quick on-device AI decisions that get smarter over time. It's like an AI *if/then* statement. Replace guesses in your app's configuration with AI decisions to increase your app's revenue, user retention, or any other metric automatically.
 
