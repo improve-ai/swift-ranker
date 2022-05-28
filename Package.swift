@@ -13,7 +13,7 @@ let package = Package(
             targets: ["ImproveAI"]),
         .library(
             name: "ImproveAISwift",
-            targets: ["ImproveAISwift"]),
+            targets: ["ImproveAI", "ImproveAISwift"]),
     ],
     targets: [
         .target(
@@ -25,7 +25,7 @@ let package = Package(
                 "ThirdParty/Ksuid/LICENSE",
                 "ThirdParty/XXHash/LICENSE"
             ],
-            publicHeadersPath:"Classes",
+            publicHeadersPath:"include",
             cSettings: [
                 .headerSearchPath("**"),
                 .define("IMPROVE_AI_DEBUG", .when(configuration: .debug)),

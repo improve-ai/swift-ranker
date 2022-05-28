@@ -411,20 +411,16 @@
 		54CB9B3223D988F10005BB94 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B3928B22284208E00075F4D7 /* Public */,
 				B3F34C5D27294863006636D8 /* Provider */,
 				E7D156A3271CABAA002A9FCD /* Tracker */,
 				B3675EB725FE2E690040FDBB /* FeatureEncoder */,
 				54CB9B3623D988F10005BB94 /* Utils */,
 				549EE77D23EF3D040040D880 /* Downloader */,
-				54394F1F253DB815009D1CF1 /* IMPDecision.h */,
 				54394F20253DB815009D1CF1 /* IMPDecision.m */,
-				54394F232540767F009D1CF1 /* IMPDecisionModel.h */,
 				54394F242540767F009D1CF1 /* IMPDecisionModel.m */,
-				B3052C212791427F0069FC51 /* IMPDecisionContext.h */,
 				B3052C222791427F0069FC51 /* IMPDecisionContext.m */,
-				B3F34C5E27294924006636D8 /* IMPGivensProvider.h */,
 				B3F34C6527294D73006636D8 /* IMPGivensProvider.m */,
-				B3F34C592727ECFA006636D8 /* IMPModelDictionary.h */,
 				B3F34C562727ECE0006636D8 /* IMPModelDictionary.m */,
 			);
 			name = Classes;
@@ -480,6 +476,18 @@
 				B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */,
 			);
 			path = FeatureEncoder;
+			sourceTree = "<group>";
+		};
+		B3928B22284208E00075F4D7 /* Public */ = {
+			isa = PBXGroup;
+			children = (
+				54394F1F253DB815009D1CF1 /* IMPDecision.h */,
+				54394F232540767F009D1CF1 /* IMPDecisionModel.h */,
+				B3052C212791427F0069FC51 /* IMPDecisionContext.h */,
+				B3F34C5E27294924006636D8 /* IMPGivensProvider.h */,
+				B3F34C592727ECFA006636D8 /* IMPModelDictionary.h */,
+			);
+			path = Public;
 			sourceTree = "<group>";
 		};
 		B3C4124E273E745D00CC7DCD /* ModelTestSuite */ = {
