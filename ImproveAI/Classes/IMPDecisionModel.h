@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreML/CoreML.h>
 #import "Utils/ModelDictionary.h"
-#import "Provider/IMPGivensProvider.h"
+#import "IMPGivensProvider.h"
 
 @class IMPDecisionContext;
 @class IMPDecision;

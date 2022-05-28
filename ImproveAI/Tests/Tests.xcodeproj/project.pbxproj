@@ -422,6 +422,8 @@
 				54394F242540767F009D1CF1 /* IMPDecisionModel.m */,
 				B3052C212791427F0069FC51 /* IMPDecisionContext.h */,
 				B3052C222791427F0069FC51 /* IMPDecisionContext.m */,
+				B3F34C5E27294924006636D8 /* IMPGivensProvider.h */,
+				B3F34C6527294D73006636D8 /* IMPGivensProvider.m */,
 			);
 			name = Classes;
 			path = ../Classes;
@@ -597,8 +599,6 @@
 		B3F34C5D27294863006636D8 /* Provider */ = {
 			isa = PBXGroup;
 			children = (
-				B3F34C5E27294924006636D8 /* IMPGivensProvider.h */,
-				B3F34C6527294D73006636D8 /* IMPGivensProvider.m */,
 				B3F34C6027294A5D006636D8 /* AppGivensProvider.h */,
 				B3F34C6127294A5D006636D8 /* AppGivensProvider.m */,
 			);
