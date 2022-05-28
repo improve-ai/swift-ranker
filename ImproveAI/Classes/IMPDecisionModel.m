@@ -69,7 +69,7 @@ static NSString * _defaultTrackApiKey;
 
 static ModelDictionary *_instances;
 
-static GivensProvider *_defaultGivensProvider;
+static IMPGivensProvider *_defaultGivensProvider;
 
 + (NSURL *)defaultTrackURL
 {
@@ -99,7 +99,7 @@ static GivensProvider *_defaultGivensProvider;
     return _instances;
 }
 
-+ (GivensProvider *)defaultGivensProvider
++ (IMPGivensProvider *)defaultGivensProvider
 {
     return [AppGivensProvider shared];
 }
@@ -133,14 +133,14 @@ static GivensProvider *_defaultGivensProvider;
 }
 
 // TODO: If givensProvider is set as nil explicitly, should the default givens provider be used anyway?
-- (GivensProvider *)givensProvider
+- (IMPGivensProvider *)givensProvider
 {
     @synchronized (self) {
         return _givensProvider ? _givensProvider : IMPDecisionModel.defaultGivensProvider;
     }
 }
 
-- (void)setGivensProvider:(GivensProvider *)givensProvider {
+- (void)setGivensProvider:(IMPGivensProvider *)givensProvider {
     @synchronized (self) {
         _givensProvider = givensProvider;
     }
@@ -375,7 +375,7 @@ static GivensProvider *_defaultGivensProvider;
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
 {
     NSDictionary *givens = nil;
-    GivensProvider *givensProvider = self.givensProvider;
+    IMPGivensProvider *givensProvider = self.givensProvider;
     if(givensProvider != nil) {
         givens = [givensProvider givensForModel:self givens:nil];
     }

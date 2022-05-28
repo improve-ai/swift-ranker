@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreML/CoreML.h>
 #import "Utils/ModelDictionary.h"
-#import "Provider/GivensProvider.h"
+#import "Provider/IMPGivensProvider.h"
 
 @class IMPDecisionContext;
 @class IMPDecision;
@@ -25,7 +25,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property(class, readonly) ModelDictionary *instances;
 
-@property (class, readonly) GivensProvider *defaultGivensProvider;
+@property (class, readonly) IMPGivensProvider *defaultGivensProvider;
 
 @property(atomic, strong, nullable) NSURL *trackURL;
 
@@ -35,7 +35,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property(nonatomic, readonly, copy) NSString *modelName;
 
-@property(atomic, strong) GivensProvider *givensProvider;
+@property(atomic, strong) IMPGivensProvider *givensProvider;
 
 - (instancetype)init NS_UNAVAILABLE;
 

@@ -56,7 +56,7 @@ extern NSString *const kTrackApiKey;
 
 @end
 
-@interface TestGivensProvider : GivensProvider
+@interface TestGivensProvider : IMPGivensProvider
 
 @end
 
