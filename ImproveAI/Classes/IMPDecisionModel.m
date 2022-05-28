@@ -67,7 +67,7 @@ static NSURL * _defaultTrackURL;
 
 static NSString * _defaultTrackApiKey;
 
-static ModelDictionary *_instances;
+static IMPModelDictionary *_instances;
 
 static IMPGivensProvider *_defaultGivensProvider;
 
@@ -90,11 +90,11 @@ static IMPGivensProvider *_defaultGivensProvider;
     _defaultTrackApiKey = defaultTrackApiKey;
 }
 
-+ (ModelDictionary *)instances
++ (IMPModelDictionary *)instances
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        _instances = [[ModelDictionary alloc] init];
+        _instances = [[IMPModelDictionary alloc] init];
     });
     return _instances;
 }

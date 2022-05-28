@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreML/CoreML.h>
-#import "Utils/ModelDictionary.h"
+#import "Utils/IMPModelDictionary.h"
 #import "IMPGivensProvider.h"
 
 @class IMPDecisionContext;
@@ -23,7 +23,7 @@ NS_SWIFT_NAME(DecisionModel)
 
 @property(class) NSString *defaultTrackApiKey;
 
-@property(class, readonly) ModelDictionary *instances;
+@property(class, readonly) IMPModelDictionary *instances;
 
 @property (class, readonly) IMPGivensProvider *defaultGivensProvider;
 

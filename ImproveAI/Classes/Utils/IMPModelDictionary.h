@@ -1,5 +1,5 @@
 //
-//  ModelDictionary.h
+//  IMPModelDictionary.h
 //  Tests
 //
 //  Created by PanHongxi on 10/26/21.
@@ -12,7 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ModelDictionary : NSObject
+@interface IMPModelDictionary : NSObject
 
 /**
  * Models are automatically created using the provided name, for example DecisionModel.instances[‘greetings’] always

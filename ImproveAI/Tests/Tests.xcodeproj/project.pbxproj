@@ -53,7 +53,7 @@
 		B3F34BD1271EB0D1006636D8 /* TestModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BCF271EAE06006636D8 /* TestModel.dat */; };
 		B3F34BD5271EB2D7006636D8 /* InvalidModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD3271EB236006636D8 /* InvalidModel.dat */; };
 		B3F34BD8271EB53B006636D8 /* TestModel.mlmodel.gz in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */; };
-		B3F34C572727ECE0006636D8 /* ModelDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F34C562727ECE0006636D8 /* ModelDictionary.m */; };
+		B3F34C572727ECE0006636D8 /* IMPModelDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F34C562727ECE0006636D8 /* IMPModelDictionary.m */; };
 		B3F34C6227294A5D006636D8 /* AppGivensProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F34C6127294A5D006636D8 /* AppGivensProvider.m */; };
 		B3F34C6627294D73006636D8 /* IMPGivensProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F34C6527294D73006636D8 /* IMPGivensProvider.m */; };
 		B3F51D53269B590000049F17 /* nested_list.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D08269B58F200049F17 /* nested_list.json */; };
@@ -208,8 +208,8 @@
 		B3F34BCF271EAE06006636D8 /* TestModel.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestModel.dat; sourceTree = "<group>"; };
 		B3F34BD3271EB236006636D8 /* InvalidModel.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = InvalidModel.dat; sourceTree = "<group>"; };
 		B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = TestModel.mlmodel.gz; sourceTree = "<group>"; };
-		B3F34C562727ECE0006636D8 /* ModelDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModelDictionary.m; sourceTree = "<group>"; };
-		B3F34C592727ECFA006636D8 /* ModelDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelDictionary.h; sourceTree = "<group>"; };
+		B3F34C562727ECE0006636D8 /* IMPModelDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPModelDictionary.m; sourceTree = "<group>"; };
+		B3F34C592727ECFA006636D8 /* IMPModelDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPModelDictionary.h; sourceTree = "<group>"; };
 		B3F34C5E27294924006636D8 /* IMPGivensProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPGivensProvider.h; sourceTree = "<group>"; };
 		B3F34C6027294A5D006636D8 /* AppGivensProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppGivensProvider.h; sourceTree = "<group>"; };
 		B3F34C6127294A5D006636D8 /* AppGivensProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppGivensProvider.m; sourceTree = "<group>"; };
@@ -440,8 +440,8 @@
 				B3213C8426099B3800052770 /* IMPUtils.m */,
 				B36C84CD2674614800D0801B /* IMPConstants.h */,
 				B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */,
-				B3F34C592727ECFA006636D8 /* ModelDictionary.h */,
-				B3F34C562727ECE0006636D8 /* ModelDictionary.m */,
+				B3F34C592727ECFA006636D8 /* IMPModelDictionary.h */,
+				B3F34C562727ECE0006636D8 /* IMPModelDictionary.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -785,7 +785,7 @@
 				B3CB282C272A83620081C29F /* AppGivensProviderTest.m in Sources */,
 				B371835E2734F8E000FE03F1 /* KSUIDTest.m in Sources */,
 				54394F2925407690009D1CF1 /* IMPDecisionTracker.m in Sources */,
-				B3F34C572727ECE0006636D8 /* ModelDictionary.m in Sources */,
+				B3F34C572727ECE0006636D8 /* IMPModelDictionary.m in Sources */,
 				B3052C23279142810069FC51 /* IMPDecisionContext.m in Sources */,
 				54394F99254AA752009D1CF1 /* IMPDecisionTrackerTest.m in Sources */,
 				B3052C26279163EF0069FC51 /* IMPDecisionContextTest.m in Sources */,

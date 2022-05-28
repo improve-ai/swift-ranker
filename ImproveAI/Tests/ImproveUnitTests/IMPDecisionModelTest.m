@@ -72,7 +72,7 @@ extern NSString *const kTrackApiKey;
 
 @end
 
-@interface ModelDictionary ()
+@interface IMPModelDictionary ()
 
 - (NSUInteger)count;
 
