@@ -424,6 +424,8 @@
 				B3052C222791427F0069FC51 /* IMPDecisionContext.m */,
 				B3F34C5E27294924006636D8 /* IMPGivensProvider.h */,
 				B3F34C6527294D73006636D8 /* IMPGivensProvider.m */,
+				B3F34C592727ECFA006636D8 /* IMPModelDictionary.h */,
+				B3F34C562727ECE0006636D8 /* IMPModelDictionary.m */,
 			);
 			name = Classes;
 			path = ../Classes;
@@ -440,8 +442,6 @@
 				B3213C8426099B3800052770 /* IMPUtils.m */,
 				B36C84CD2674614800D0801B /* IMPConstants.h */,
 				B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */,
-				B3F34C592727ECFA006636D8 /* IMPModelDictionary.h */,
-				B3F34C562727ECE0006636D8 /* IMPModelDictionary.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
