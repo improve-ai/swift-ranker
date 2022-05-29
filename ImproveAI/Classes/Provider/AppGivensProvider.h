@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "GivensProvider.h"
+#import "IMPGivensProvider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface AppGivensProvider : GivensProvider
+@interface AppGivensProvider : IMPGivensProvider
 
 + (instancetype)shared;
 

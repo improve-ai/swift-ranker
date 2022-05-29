@@ -1,21 +1,21 @@
 //
-//  ModelDictionary.m
+//  IMPModelDictionary.m
 //  ImproveUnitTests
 //
 //  Created by PanHongxi on 10/26/21.
 //  Copyright © 2021 Mind Blown Apps, LLC. All rights reserved.
 //
 
-#import "ModelDictionary.h"
+#import "IMPModelDictionary.h"
 #import "IMPDecisionModel.h"
 
-@interface ModelDictionary()
+@interface IMPModelDictionary()
 
 @property (strong, nonatomic) NSMutableDictionary<NSString *, IMPDecisionModel *> *models;
 
 @end
 
-@implementation ModelDictionary
+@implementation IMPModelDictionary
 
 - (instancetype)init {
     if(self = [super init]) {

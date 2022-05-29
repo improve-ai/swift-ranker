@@ -56,7 +56,7 @@ extern NSString *const kTrackApiKey;
 
 @end
 
-@interface TestGivensProvider : GivensProvider
+@interface TestGivensProvider : IMPGivensProvider
 
 @end
 
@@ -72,7 +72,7 @@ extern NSString *const kTrackApiKey;
 
 @end
 
-@interface ModelDictionary ()
+@interface IMPModelDictionary ()
 
 - (NSUInteger)count;
 

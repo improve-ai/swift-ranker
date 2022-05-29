@@ -6,9 +6,9 @@
 //  Copyright © 2021 Mind Blown Apps, LLC. All rights reserved.
 //
 
-#import "GivensProvider.h"
+#import "IMPGivensProvider.h"
 
-@implementation GivensProvider
+@implementation IMPGivensProvider
 
 - (NSDictionary<NSString *, id> *)givensForModel:(IMPDecisionModel *)decisionModel givens:(NSDictionary *)givens {
     return @{};

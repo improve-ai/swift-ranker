@@ -1,0 +1,5 @@
+module ImproveAI {
+    umbrella header "ImproveAI/ImproveAI.h"
+    export *
+    module * { export * }
+}
