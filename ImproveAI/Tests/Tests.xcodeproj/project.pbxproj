@@ -33,6 +33,7 @@
 		B371835A2734F51800FE03F1 /* NSString+KSUID.m in Sources */ = {isa = PBXBuildFile; fileRef = B37183592734F51800FE03F1 /* NSString+KSUID.m */; };
 		B371835E2734F8E000FE03F1 /* KSUIDTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B371835D2734F8E000FE03F1 /* KSUIDTest.m */; };
 		B37E1335262EDF5E0042B761 /* IMPStreamDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */; };
+		B38D664728487C2700AFA725 /* version_6_0.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = B38D664628487C2700AFA725 /* version_6_0.mlmodel */; };
 		B3C412C8273E76B300CC7DCD /* model_test_suite.txt in Resources */ = {isa = PBXBuildFile; fileRef = B3C412C7273E76B200CC7DCD /* model_test_suite.txt */; };
 		B3C412D3273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412D2273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward */; };
 		B3C412D8273E84F500CC7DCD /* 0_and_nan in Resources */ = {isa = PBXBuildFile; fileRef = B3C412D7273E84F500CC7DCD /* 0_and_nan */; };
@@ -186,6 +187,7 @@
 		B371835D2734F8E000FE03F1 /* KSUIDTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KSUIDTest.m; sourceTree = "<group>"; };
 		B37E1333262EDF5D0042B761 /* IMPStreamDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPStreamDownloadManager.h; sourceTree = "<group>"; };
 		B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPStreamDownloadManager.m; sourceTree = "<group>"; };
+		B38D664628487C2700AFA725 /* version_6_0.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = version_6_0.mlmodel; sourceTree = "<group>"; };
 		B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPConstants.m; sourceTree = "<group>"; };
 		B3C412C7273E76B200CC7DCD /* model_test_suite.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = model_test_suite.txt; sourceTree = "<group>"; };
 		B3C412D2273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward; sourceTree = "<group>"; };
@@ -347,6 +349,7 @@
 		54CB9B2123D987800005BB94 /* ImproveUnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				B38D664528487C0400AFA725 /* resources */,
 				B355488827A0FB7600A6E6C3 /* A-ZModel */,
 				B3C4124E273E745D00CC7DCD /* ModelTestSuite */,
 				B371835D2734F8E000FE03F1 /* KSUIDTest.m */,
@@ -480,6 +483,14 @@
 				B3675EB825FE2E900040FDBB /* IMPFeatureEncoder.m */,
 			);
 			path = FeatureEncoder;
+			sourceTree = "<group>";
+		};
+		B38D664528487C0400AFA725 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				B38D664628487C2700AFA725 /* version_6_0.mlmodel */,
+			);
+			path = resources;
 			sourceTree = "<group>";
 		};
 		B3C4124E273E745D00CC7DCD /* ModelTestSuite */ = {
@@ -807,6 +818,7 @@
 				B3E850FB2733DDF6002F02CF /* ksuid.c in Sources */,
 				B3E850F72733DAAC002F02CF /* base62.c in Sources */,
 				5496CE5A23EC7CE7004E96C5 /* NSArray+Random.m in Sources */,
+				B38D664728487C2700AFA725 /* version_6_0.mlmodel in Sources */,
 				B3F34C6227294A5D006636D8 /* AppGivensProvider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

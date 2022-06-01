@@ -203,6 +203,12 @@ static IMPGivensProvider *_defaultGivensProvider;
         }
         NSDictionary * creatorDefined = model.modelDescription.metadata[MLModelCreatorDefinedKey];
         
+        NSString *versionString = creatorDefined[@"ai.improve.version"];
+        if(![self canParseVersion:versionString]) {
+            NSString *reason = [NSString stringWithFormat:@"Major version of ImproveAI SDK(%@) and extracted model version(%@) don't match!", kIMPVersion, versionString];
+            @throw [NSException exceptionWithName:@"InvalidModelVersion" reason:reason userInfo:nil];
+        }
+        
         NSString *modelName = creatorDefined[@"ai.improve.model.name"];
         if([modelName length] <= 0) {
             IMPErrLog("Invalid Improve model: modelName is nil or empty");
@@ -261,7 +267,13 @@ static IMPGivensProvider *_defaultGivensProvider;
                 return;
             }
             
-            self.model = model;
+            @try {
+                self.model = model;
+            } @catch(NSException *e) {
+                NSError *error = [NSError errorWithDomain:@"ai.improve.IMPDecisionModel" code:-100 userInfo:@{NSLocalizedDescriptionKey:e.reason}];
+                if(handler) handler(nil, error);
+                return;
+            }
             
             if(handler) handler(self, nil);
         });
@@ -516,6 +528,15 @@ static IMPGivensProvider *_defaultGivensProvider;
 - (BOOL)isValidModelName:(NSString *)modelName {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", @"^[a-zA-Z0-9][\\w\\-.]{0,63}$"];
     return [predicate evaluateWithObject:modelName];
+}
+
+- (BOOL)canParseVersion:(NSString *)versionString {
+    if(versionString == nil) {
+        return YES;
+    }
+    NSArray<NSString *> *array = [kIMPVersion componentsSeparatedByString:@"."];
+    NSString *prefix = [NSString stringWithFormat:@"%@.", array[0]];
+    return [versionString hasPrefix:prefix] || [versionString isEqualToString:array[0]];
 }
 
 @end

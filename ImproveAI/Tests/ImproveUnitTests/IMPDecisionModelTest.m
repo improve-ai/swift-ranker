@@ -54,6 +54,8 @@ extern NSString *const kTrackApiKey;
 
 - (void)setEnableTieBreaker:(BOOL)enableTieBreaker;
 
+- (BOOL)canParseVersion:(NSString *)versionString;
+
 @end
 
 @interface TestGivensProvider : IMPGivensProvider
@@ -455,6 +457,35 @@ extern NSString *const kTrackApiKey;
         [ex fulfill];
     });
     [self waitForExpectations:@[ex] timeout:30];
+}
+
+- (void)testLoadAsync_major_version_not_match {
+    NSURL *modelURL = [[TestUtils bundle] URLForResource:@"version_6_0"
+                                            withExtension:@"mlmodelc"];
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
+    [decisionModel loadAsync:modelURL completion:^(IMPDecisionModel * _Nullable loadedModel, NSError * _Nullable error) {
+        XCTAssertNil(loadedModel);
+        XCTAssertNotNil(error);
+        NSLog(@"%@", error);
+        [ex fulfill];
+    }];
+    [self waitForExpectations:@[ex] timeout:3];
+}
+
+- (void)testCanParseModelVersion {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    XCTAssertTrue([decisionModel canParseVersion:nil]);
+    XCTAssertFalse([decisionModel canParseVersion:@""]);
+    XCTAssertTrue([decisionModel canParseVersion:@"7"]);
+    XCTAssertTrue([decisionModel canParseVersion:@"7.0"]);
+    XCTAssertTrue([decisionModel canParseVersion:@"7.0.1"]);
+    XCTAssertFalse([decisionModel canParseVersion:@" 7.0.1"]);
+    XCTAssertFalse([decisionModel canParseVersion:@"8"]);
+    XCTAssertFalse([decisionModel canParseVersion:@"8.0"]);
+    XCTAssertFalse([decisionModel canParseVersion:@"8.0.1"]);
+    XCTAssertFalse([decisionModel canParseVersion:@"abc"]);
+    XCTAssertFalse([decisionModel canParseVersion:@".7"]);
 }
 
 - (void)testDescendingGaussians {
