@@ -1,4 +1,4 @@
-import ImproveAI
+@_exported import ImproveAICore
 
 extension DecisionModel {
     public static subscript(modelName: String) -> DecisionModel {

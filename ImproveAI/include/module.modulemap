@@ -1,4 +1,4 @@
-module ImproveAI {
+module ImproveAICore {
     umbrella header "ImproveAI/ImproveAI.h"
     export *
     module * { export * }

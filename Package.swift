@@ -10,14 +10,11 @@ let package = Package(
     products: [
         .library(
             name: "ImproveAI",
-            targets: ["ImproveAI"]),
-        .library(
-            name: "ImproveAISwift",
-            targets: ["ImproveAI", "ImproveAISwift"]),
+            targets: ["ImproveAICore", "ImproveAI"]),
     ],
     targets: [
         .target(
-            name: "ImproveAI",
+            name: "ImproveAICore",
             path: "ImproveAI",
             exclude: [
                 "Tests",
@@ -31,11 +28,11 @@ let package = Package(
                 .define("IMPROVE_AI_DEBUG", .when(configuration: .debug)),
             ]),
         .target(
-            name: "ImproveAISwift",
-            dependencies: ["ImproveAI"],
+            name: "ImproveAI",
+            dependencies: ["ImproveAICore"],
             path: "ImproveAISwift"),
         .testTarget(
             name: "ImproveAISwiftTests",
-            dependencies: ["ImproveAISwift"])
+            dependencies: ["ImproveAI"])
     ]
 )
