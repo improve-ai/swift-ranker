@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a title="  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html"> Docs</a> (57% documented)</p>
+        <p class="header-right"><a href="https://github.com/improve-ai/ios-sdk"><img src="img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html"> Reference</a>
+        <img id="carat" src="img/carat.png" alt=""/>
+          Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Classes/IMPDecision.html">IMPDecision</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/IMPDecisionContext.html">IMPDecisionContext</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/IMPDecisionModel.html">IMPDecisionModel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/IMPGivensProvider.html">IMPGivensProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/IMPModelDictionary.html">IMPModelDictionary</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Extensions/DecisionContext.html">DecisionContext</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/DecisionModel.html">DecisionModel</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            
+            <h1 id='ai-personalization-and-optimization-for-ios' class='heading'>AI Personalization and Optimization for iOS</h1>
+
+<p>Improve AI provides quick on-device AI decisions that get smarter over time. It&rsquo;s like an AI <em>if/then</em> statement. Replace guesses in your app&rsquo;s configuration with AI decisions to increase your app&rsquo;s revenue, user retention, or any other metric automatically.</p>
+<h2 id='installation' class='heading'>Installation</h2>
+
+<p>In Xcode:</p>
+
+<ul>
+<li>File -&gt; Swift Package Manager -&gt; Add Package Dependency</li>
+<li>Type in <a href="https://github.com/improve-ai/ios-sdk.git">https://github.com/improve-ai/ios-sdk.git</a> when choosing package repo.</li>
+</ul>
+<h2 id='initialization' class='heading'>Initialization</h2>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">ImproveAI</span>
+<span class="kd">import</span> <span class="kt">ImproveAISwift</span>
+</code></pre>
+<pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">application</span><span class="p">(</span><span class="n">_</span> <span class="nv">application</span><span class="p">:</span> <span class="kt">UIApplication</span><span class="p">,</span> <span class="n">didFinishLaunchingWithOptions</span> <span class="nv">launchOptions</span><span class="p">:</span> <span class="p">[</span><span class="kt">UIApplication</span><span class="o">.</span><span class="kt">LaunchOptionsKey</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]?)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span> <span class="p">{</span>
+
+    <span class="kt">DecisionModel</span><span class="o">.</span><span class="n">defaultTrackURL</span> <span class="o">=</span> <span class="n">trackURL</span> <span class="c1">// trackUrl is obtained from your Improve AI Gym configuration</span>
+
+    <span class="kt">DecisionModel</span><span class="p">[</span><span class="s">"greetings"</span><span class="p">]</span><span class="o">.</span><span class="nf">loadAsync</span><span class="p">(</span><span class="n">greetingsModelUrl</span><span class="p">)</span> <span class="c1">// greetingsModelUrl is a trained model output by the Improve AI Gym</span>
+
+    <span class="k">return</span> <span class="kc">true</span>
+<span class="p">}</span>
+</code></pre>
+<h2 id='usage' class='heading'>Usage</h2>
+
+<p>Improve AI makes quick on-device AI decisions that get smarter over time. </p>
+
+<p>The heart of Improve AI is the <em>which</em> statement. <em>which</em> is like an AI if/then statement.</p>
+<pre class="highlight swift"><code><span class="n">greeting</span> <span class="o">=</span> <span class="kt">DecisionModel</span><span class="p">[</span><span class="s">"greetings"</span><span class="p">]</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="s">"Hello"</span><span class="p">,</span> <span class="s">"Howdy"</span><span class="p">,</span> <span class="s">"Hola"</span><span class="p">)</span>
+</code></pre>
+
+<p><em>which</em> makes decisions on-device using a <em>decision model</em>. Decision models are easily trained by assigning rewards for positive outcomes.</p>
+<pre class="highlight swift"><code><span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">DecisionModel</span><span class="p">[</span><span class="s">"greetings"</span><span class="p">]</span><span class="o">.</span><span class="nf">addReward</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>Rewards are credited to the most recent decision made by the model. <em>which</em> will make the decision that provides the highest expected reward.  When the rewards are business metrics, such as revenue or user retention, the decisions will optimize to automatically improve those metrics over time.</p>
+
+<p><em>That&rsquo;s like A/B testing on steroids.</em></p>
+<h3 id='numbers-too' class='heading'>Numbers Too</h3>
+
+<p>What discount should we offer?</p>
+<pre class="highlight swift"><code>
+<span class="n">discount</span> <span class="o">=</span> <span class="n">discountModel</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
+
+</code></pre>
+<h3 id='booleans' class='heading'>Booleans</h3>
+
+<p>Dynamically enable feature flags for best performance&hellip;</p>
+<pre class="highlight plaintext"><code>featureFlag = decisionModel.given(deviceAttributes).which(true, false)
+</code></pre>
+<h3 id='complex-objects' class='heading'>Complex Objects</h3>
+<pre class="highlight swift"><code><span class="n">themeVariants</span> <span class="o">=</span> <span class="p">[</span> <span class="p">{</span> <span class="s">"textColor"</span><span class="p">:</span> <span class="s">"#000000"</span><span class="p">,</span> <span class="s">"backgroundColor"</span><span class="p">:</span> <span class="s">"#ffffff"</span> <span class="p">},</span>
+                  <span class="p">{</span> <span class="s">"textColor"</span><span class="p">:</span> <span class="s">"#F0F0F0"</span><span class="p">,</span> <span class="s">"backgroundColor"</span><span class="p">:</span> <span class="s">"#aaaaaa"</span> <span class="p">}</span> <span class="p">]</span>
+
+<span class="n">theme</span> <span class="o">=</span> <span class="n">themeModel</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="n">themeVariants</span><span class="p">)</span>
+
+</code></pre>
+
+<p>When a single Array argument is passed to which, it is treated as a list of variants.</p>
+
+<p>Improve learns to use the attributes of each key and value in a complex variant to make the optimal decision.</p>
+
+<p>Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries, arrays, strings, numbers, nulls, and booleans.</p>
+<h2 id='decisions-are-contextual' class='heading'>Decisions are Contextual</h2>
+
+<p>Unlike A/B testing or feature flags, Improve AI uses <em>context</em> to make the best decision for each user. On iOS, the following context is automatically included:</p>
+
+<ul>
+<li>$country - two letter country code</li>
+<li>$lang - two letter language code</li>
+<li>$tz - numeric GMT offset</li>
+<li>$carrier - cellular network</li>
+<li>$device - string portion of device model</li>
+<li>$devicev - device version</li>
+<li>$os - string portion of OS name</li>
+<li>$osv - OS version</li>
+<li>$pixels - screen width x screen height</li>
+<li>$app - app name</li>
+<li>$appv - app version</li>
+<li>$sdkv - Improve AI SDK version</li>
+<li>$weekday - (ISO 8601, monday==1.0, sunday==7.0) plus fractional part of day</li>
+<li>$time - fractional day since midnight</li>
+<li>$runtime - fractional days since session start</li>
+<li>$day - fractional days since born</li>
+<li>$d - the number of decisions for this model</li>
+<li>$r - total rewards for this model</li>
+<li>$r/d - total rewards/decisions</li>
+<li>$d/day - decisions/$day</li>
+</ul>
+
+<p>Using the context, on a Spanish speaker&rsquo;s device we expect our <em>greetings</em> model to learn to choose <em>Hola</em>.</p>
+
+<p>Custom context can also be provided via <em>given()</em>:</p>
+<pre class="highlight swift"><code><span class="n">greeting</span> <span class="o">=</span> <span class="n">greetingsModel</span><span class="o">.</span><span class="nf">given</span><span class="p">({</span><span class="s">"language"</span><span class="p">:</span> <span class="s">"cowboy"</span><span class="p">})</span>
+                         <span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="s">"Hello"</span><span class="p">,</span> <span class="s">"Howdy"</span><span class="p">,</span> <span class="s">"Hola"</span><span class="p">)</span>
+</code></pre>
+
+<p>Given the language is <em>cowboy</em>, the variant with the highest expected reward should be <em>Howdy</em> and the model would learn to make that choice.</p>
+<h2 id='example-optimizing-an-upsell-offer' class='heading'>Example: Optimizing an Upsell Offer</h2>
+
+<p>Improve AI is powerful and flexible.  Variants can be any JSON encodeable data structure including <strong>strings</strong>, <strong>numbers</strong>, <strong>booleans</strong>, <strong>lists</strong>, and <strong>dictionaries</strong>.</p>
+
+<p>For a dungeon crawler game, say the user was purchasing an item using an In App Purchase.  We can use Improve AI to choose an additional product to display as an upsell offer during checkout. With a few lines of code, we can train a model that will learn to optimize the upsell offer given the original product being purchased. </p>
+<pre class="highlight swift"><code><span class="n">product</span> <span class="o">=</span> <span class="p">{</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"red sword"</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">4.99</span> <span class="p">}</span>
+
+<span class="n">upsell</span> <span class="o">=</span> <span class="n">upsellModel</span><span class="o">.</span><span class="nf">given</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+                    <span class="o">.</span><span class="nf">which</span><span class="p">({</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"gold"</span><span class="p">,</span> <span class="s">"quantity"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">1.99</span> <span class="p">},</span>
+                           <span class="p">{</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"diamonds"</span><span class="p">,</span> <span class="s">"quantity"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">2.99</span> <span class="p">},</span>
+                           <span class="p">{</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"red scabbard"</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">0.99</span> <span class="p">})</span>
+</code></pre>
+
+<p>The product to be purchased is the <strong>red sword</strong>.  Notice that the variants are dictionaries with a mix of string and numeric values.</p>
+
+<p>The rewards in this case might be any additional revenue from the upsell.</p>
+<pre class="highlight swift"><code><span class="k">if</span> <span class="p">(</span><span class="n">upsellPurchased</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">upsellModel</span><span class="o">.</span><span class="nf">addReward</span><span class="p">(</span><span class="n">upsell</span><span class="o">.</span><span class="n">price</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>While it is reasonable to hypothesize that the <strong>red scabbord</strong> might be the best upsell offer to pair with the <strong>red sword</strong>, it is still a guess. Any time a guess is made on the value of a variable, instead use Improve AI to decide.</p>
+
+<p><em>Replace guesses with AI decisions.</em></p>
+<h2 id='example-performance-tuning' class='heading'>Example: Performance Tuning</h2>
+
+<p>In the 2000s I was writing a lot of video streaming code. The initial motivation for Improve AI came out of my frustrations with attempting to tune video streaming clients across heterogenious networks.</p>
+
+<p>I was forced to make guesses on performance sensitive configuration defaults through slow trial and error. My client configuration code maybe looked something like this:</p>
+<pre class="highlight swift"><code><span class="n">config</span> <span class="o">=</span> <span class="p">{</span> <span class="s">"bufferSize"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+           <span class="s">"videoBitrate"</span><span class="p">:</span> <span class="mi">384000</span> <span class="p">}</span>
+</code></pre>
+
+<p>This is the code I wish I could have written:</p>
+<pre class="highlight swift"><code><span class="n">config</span> <span class="o">=</span> <span class="n">configModel</span><span class="o">.</span><span class="nf">which</span><span class="p">({</span><span class="s">"bufferSize"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">2048</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">8192</span><span class="p">],</span>
+                            <span class="s">"videoBitrate"</span><span class="p">:</span> <span class="p">[</span><span class="mi">256000</span><span class="p">,</span> <span class="mi">384000</span><span class="p">,</span> <span class="mi">512000</span><span class="p">]})</span>
+</code></pre>
+
+<p>This example decides multiple variables simultaneously.  Notice that instead of a single list of variants, a dictionary mapping keys to lists of variants is provided to <em>which</em>. This multi-variate mode jointly optimizes both variables for the highest expected reward.  </p>
+
+<p>The rewards in this case might be negative to penalize any stalls during video playback.</p>
+<pre class="highlight swift"><code><span class="k">if</span> <span class="p">(</span><span class="n">videoStalled</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">configModel</span><span class="o">.</span><span class="nf">addReward</span><span class="p">(</span><span class="o">-</span><span class="mf">0.001</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>Improve AI frees us from having to overthink our configuration values during development. We simply give it some reasonable variants and let it learn from real world usage.</p>
+
+<p>Look for places where you&rsquo;re relying on guesses or an executive decision and consider instead directly optimizing for the outcomes you desire.</p>
+<h2 id='privacy' class='heading'>Privacy</h2>
+
+<p>It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is never tracked, persisted, or used as training data.</p>
+<h2 id='help-improve-our-world' class='heading'>Help Improve Our World</h2>
+
+<p>The mission of Improve AI is to make our corner of the world a little bit better each day. When each of us improve our corner of the world, the whole world becomes better. If your product or work does not make the world better, do not use Improve AI. Otherwise, welcome, I hope you find value in my labor of love. - Justin Chapweske</p>
+
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2022 <a class="link" href="https://improve.ai" target="_blank" rel="external noopener">ImproveAI</a>. All rights reserved. (Last updated: 2022-06-28)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

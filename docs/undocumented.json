@@ -1,0 +1,166 @@
+{
+  "warnings": [
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecision.h",
+      "line": 13,
+      "symbol": "IMPDecision",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecision.h",
+      "line": 15,
+      "symbol": "IMPDecision.-init",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionContext.h",
+      "line": 15,
+      "symbol": "IMPDecisionContext",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionContext.h",
+      "line": 17,
+      "symbol": "IMPDecisionContext.-init",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionContext.h",
+      "line": 24,
+      "symbol": "IMPDecisionContext.-chooseFrom:scores:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionContext.h",
+      "line": 36,
+      "symbol": "IMPDecisionContext.-first:args:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionContext.h",
+      "line": 48,
+      "symbol": "IMPDecisionContext.-random:args:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionContext.h",
+      "line": 68,
+      "symbol": "IMPDecisionContext.-which:args:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 20,
+      "symbol": "IMPDecisionModel",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 22,
+      "symbol": "IMPDecisionModel.defaultTrackURL",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 24,
+      "symbol": "IMPDecisionModel.defaultTrackApiKey",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 26,
+      "symbol": "IMPDecisionModel.instances",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 28,
+      "symbol": "IMPDecisionModel.defaultGivensProvider",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 30,
+      "symbol": "IMPDecisionModel.trackURL",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 32,
+      "symbol": "IMPDecisionModel.trackApiKey",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 34,
+      "symbol": "IMPDecisionModel.model",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 36,
+      "symbol": "IMPDecisionModel.modelName",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 38,
+      "symbol": "IMPDecisionModel.givensProvider",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 40,
+      "symbol": "IMPDecisionModel.-init",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 141,
+      "symbol": "IMPDecisionModel.-random:args:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPDecisionModel.h",
+      "line": 174,
+      "symbol": "IMPDecisionModel.-which:args:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPGivensProvider.h",
+      "line": 15,
+      "symbol": "IMPGivensProvider",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "ImproveAI/include/ImproveAI/IMPModelDictionary.h",
+      "line": 15,
+      "symbol": "IMPModelDictionary",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/phx/workspace/ios/improve-ai"
+}
