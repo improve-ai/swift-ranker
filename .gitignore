@@ -16,3 +16,4 @@ __pycache__/
 # SwiftPM
 .build
 .swiftpm
+Package.resolved

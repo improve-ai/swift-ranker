@@ -12,6 +12,9 @@ let package = Package(
             name: "ImproveAI",
             targets: ["ImproveAICore", "ImproveAI"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/Flight-School/AnyCodable", .upToNextMajor(from: "0.6.5")),
+    ],
     targets: [
         .target(
             name: "ImproveAICore",
@@ -33,6 +36,6 @@ let package = Package(
             path: "ImproveAISwift"),
         .testTarget(
             name: "ImproveAISwiftTests",
-            dependencies: ["ImproveAI"])
+            dependencies: ["ImproveAI", .product(name: "AnyCodable", package: "AnyCodable")])
     ]
 )
