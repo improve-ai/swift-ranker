@@ -367,7 +367,7 @@ extension __PlistEncoder : SingleValueEncodingContainer {
 
     public func encodeNil() throws {
         assertCanEncodeNewValue()
-        self.storage.push(container: _plistNullNSString)
+        self.storage.push(container: _plistNSNull)
     }
 
     public func encode(_ value: Bool) throws {
@@ -585,6 +585,7 @@ fileprivate class __PlistReferencingEncoder : __PlistEncoder {
 // Since plists do not support null values by default, we will encode them as "$null".
 fileprivate let _plistNull = "$null"
 fileprivate let _plistNullNSString = NSString(string: _plistNull)
+fileprivate let _plistNSNull = NSNull()
 
 //===----------------------------------------------------------------------===//
 // Shared Key Types
