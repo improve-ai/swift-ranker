@@ -21,7 +21,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
     DecisionModel.defaultTrackURL = trackURL // trackUrl is obtained from your Improve AI Gym configuration
 
-    DecisionModel.instances["greetings"].loadAsync(greetingsModelUrl) // greetingsModelUrl is a trained model output by the Improve AI Gym
+    DecisionModel["greetings"].loadAsync(greetingsModelUrl) // greetingsModelUrl is a trained model output by the Improve AI Gym
 
     return true
 }
@@ -33,14 +33,14 @@ Improve AI makes quick on-device AI decisions that get smarter over time.
 
 The heart of Improve AI is the *which* statement. *which* is like an AI if/then statement.
 ```swift
-greeting = DecisionModel.instances["greetings"].which("Hello", "Howdy", "Hola")
+greeting = DecisionModel["greetings"].which("Hello", "Howdy", "Hola")
 ```
 
 *which* makes decisions on-device using a *decision model*. Decision models are easily trained by assigning rewards for positive outcomes.
 
 ```swift
 if (success) {
-    DecisionModel.instances["greetings"].addReward(1.0)
+    DecisionModel["greetings"].addReward(1.0)
 }
 ```
 
