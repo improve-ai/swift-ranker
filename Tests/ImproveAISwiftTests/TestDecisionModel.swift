@@ -17,6 +17,17 @@ struct Theme : Encodable{
     var padding: Int? = nil
 }
 
+struct Config: Encodable {
+    let os: String
+    let version: Int
+    let model: Model
+    
+    struct Model: Encodable {
+        let name: String
+        let size: Int
+    }
+}
+
 class Tests: XCTestCase {
 
     override func setUpWithError() throws {
@@ -67,6 +78,16 @@ class Tests: XCTestCase {
         decisionModel.loadAsync(modelUrl())
         sleep(10)
         XCTAssertNotNil(decisionModel.model)
+    }
+    
+    func testGiven_encodable() throws {
+        let givens: [String: Any] = ["os": "iOS", "version": 14, "model": Config.Model(name: "x", size: 12)]
+        let themes = [
+            Theme(fontSize: 12, primaryColor: "#000000"),
+            Theme(fontSize: 13, primaryColor: "#f0f0f0"),
+            Theme(fontSize: 14, primaryColor: "#ffffff")]
+        let theme = try model().load(modelUrl()).given(givens).chooseFrom(themes).get()
+        debugPrint("theme: ", theme)
     }
 
     func testScore() throws {

@@ -51,8 +51,9 @@ public struct DecisionModel {
         self.decisionModel.loadAsync(url, completion: handler)
     }
     
-    public func given(_ givens: [String : Any]?) -> DecisionContext {
-        return DecisionContext(decisionContext: self.decisionModel.given(givens))
+    public func given(_ givens: [String : Any]?) throws -> DecisionContext {
+        let encodedGivens = try PListEncoder().encode(givens?.mapValues{AnyEncodable($0)}) as! [String:Any]
+        return DecisionContext(decisionContext: self.decisionModel.given(encodedGivens))
     }
     
     public func score<T : Encodable>(_ variants:[T]) throws -> [Double] {
