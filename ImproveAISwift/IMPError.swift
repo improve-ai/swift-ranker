@@ -10,4 +10,6 @@ import Foundation
 public enum IMPError: Error {
     /// variants can't be empty
     case emptyVariants
+    /// type Date, Data, URL  are not supported
+    case typeNotSupported
 }

@@ -32,7 +32,7 @@ let package = Package(
             ]),
         .target(
             name: "ImproveAI",
-            dependencies: ["ImproveAICore"],
+            dependencies: ["ImproveAICore", .product(name: "AnyCodable", package: "AnyCodable")],
             path: "ImproveAISwift"),
         .testTarget(
             name: "ImproveAISwiftTests",

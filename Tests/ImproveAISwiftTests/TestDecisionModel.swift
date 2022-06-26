@@ -89,7 +89,7 @@ class Tests: XCTestCase {
         let theme = try model().load(modelUrl()).given(givens).chooseFrom(themes).get()
         debugPrint("theme: ", theme)
     }
-
+    
     func testScore() throws {
         let scores:[Double] = try model().load(modelUrl()).score(variants())
         XCTAssertEqual(3, scores.count)
@@ -195,5 +195,45 @@ class Tests: XCTestCase {
         let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
         let theme = try model().chooseMultiVariate(variants).get()
         print("theme: \(theme)")
+    }
+    
+    func testChooseMultiVariates_typeNotSupported() throws {
+        let variants = ["beg": Date(), "end": Date()]
+        do {
+            let _ = try model().chooseMultiVariate(variants)
+        } catch IMPError.typeNotSupported {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
+    
+    func testTypeNotSupported_date() throws {
+        let variants = [Date(), Date()]
+        do {
+            let _ = try model().chooseFrom(variants)
+        } catch IMPError.typeNotSupported {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
+    
+    func testTypeNotSupported_url() throws {
+        let variants = [URL(string: "http://example.com"), URL(string: "http://example.com")]
+        do {
+            let _ = try model().chooseFrom(variants)
+        } catch IMPError.typeNotSupported {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
+    
+    func testTypeNotSupported_data() throws {
+        let variants = ["hello".data(using: .utf8)]
+        do {
+            let _ = try model().chooseFrom(variants)
+        } catch IMPError.typeNotSupported {
+            return
+        }
+        XCTFail(shouldThrowError)
     }
 }

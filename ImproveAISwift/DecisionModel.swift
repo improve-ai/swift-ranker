@@ -52,7 +52,7 @@ public struct DecisionModel {
     }
     
     public func given(_ givens: [String : Any]?) throws -> DecisionContext {
-        let encodedGivens = try PListEncoder().encode(givens?.mapValues{AnyEncodable($0)}) as! [String:Any]
+        let encodedGivens = try PListEncoder().encode(givens?.mapValues{AnyEncodable($0)}) as? [String:Any]
         return DecisionContext(decisionContext: self.decisionModel.given(encodedGivens))
     }
     
