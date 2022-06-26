@@ -48,13 +48,6 @@ public struct DecisionContext {
         return try self.chooseRandom(variants).get()
     }
 
-    public func which<T : Encodable>(_ variants: T...) throws -> T {
-        if variants.count <= 0 {
-            throw IMPError.emptyVariants
-        }
-        return try chooseFrom(variants).get()
-    }
-    
     public func which<T: Encodable>(_ variants: [T]) throws -> T {
         if variants.count <= 0 {
             throw IMPError.emptyVariants
@@ -70,21 +63,21 @@ public struct DecisionContext {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
-        var categories: [[AnyCodable]] = []
+        var categories: [[AnyEncodable]] = []
         var keys: [String] = []
         for (k, v) in variants {
             if let x = v as? [Any] {
-                categories.append(x.map{AnyCodable($0)})
+                categories.append(x.map{AnyEncodable($0)})
             } else {
-                categories.append([AnyCodable(v)])
+                categories.append([AnyEncodable(v)])
             }
             keys.append(k)
         }
 
-        var combinations: [[String:AnyCodable]] = []
+        var combinations: [[String:AnyEncodable]] = []
         for i in 0..<categories.count {
             let category = categories[i]
-            var newCombinations:[[String:AnyCodable]] = []
+            var newCombinations:[[String:AnyEncodable]] = []
             for m in 0..<category.count {
                 if combinations.count == 0 {
                     newCombinations.append([keys[i]:category[m]])
