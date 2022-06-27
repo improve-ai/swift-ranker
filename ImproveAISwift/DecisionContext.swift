@@ -16,11 +16,17 @@ public struct DecisionContext {
     }
     
     public func score<T : Encodable>(_ variants: [T]) throws -> [Double] {
+        if variants.isEmpty {
+            throw IMPError.emptyVariants
+        }
         let encodedVariants = try PListEncoder().encode(variants) as! [Any]
         return self.decisionContext.score(encodedVariants).map{ $0.doubleValue }
     }
     
     public func chooseFrom<T : Encodable>(_ variants: [T]) throws -> Decision<T> {
+        if variants.isEmpty {
+            throw IMPError.emptyVariants
+        }
         let encodedVariants = try PListEncoder().encode(variants) as! [Any]
         return Decision(self.decisionContext.chooseFrom(encodedVariants), variants)
     }
@@ -31,6 +37,9 @@ public struct DecisionContext {
     }
 
     public func chooseFirst<T : Encodable>(_ variants: [T]) throws -> Decision<T> {
+        if variants.isEmpty {
+            throw IMPError.emptyVariants
+        }
         let encodedVariants = try PListEncoder().encode(variants) as! [Any]
         return Decision(self.decisionContext.chooseFirst(encodedVariants), variants)
     }
@@ -40,6 +49,9 @@ public struct DecisionContext {
     }
 
     public func chooseRandom<T : Encodable>(_ variants: [T]) throws -> Decision<T> {
+        if variants.isEmpty {
+            throw IMPError.emptyVariants
+        }
         let encodedVariants = try PListEncoder().encode(variants) as! [Any]
         return Decision(self.decisionContext.chooseRandom(encodedVariants), variants)
     }
@@ -49,7 +61,7 @@ public struct DecisionContext {
     }
 
     public func which<T: Encodable>(_ variants: [T]) throws -> T {
-        if variants.count <= 0 {
+        if variants.isEmpty {
             throw IMPError.emptyVariants
         }
         return try chooseFrom(variants).get()

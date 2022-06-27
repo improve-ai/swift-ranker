@@ -36,6 +36,6 @@ let package = Package(
             path: "ImproveAISwift"),
         .testTarget(
             name: "ImproveAISwiftTests",
-            dependencies: ["ImproveAI", .product(name: "AnyCodable", package: "AnyCodable")])
+            dependencies: ["ImproveAI"])
     ]
 )

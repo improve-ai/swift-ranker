@@ -6,7 +6,6 @@
 //
 import XCTest
 import ImproveAI
-import AnyCodable
 
 let shouldThrowError = "An error should have been thrown."
 
@@ -28,7 +27,7 @@ struct Config: Encodable {
     }
 }
 
-class Tests: XCTestCase {
+class TestDecisionModel: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -43,11 +42,15 @@ class Tests: XCTestCase {
         return URL(string:"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/songs-2.0.mlmodel.gz")!
     }
     
-    func variants() ->Array<String> {
+    func variants() -> [String] {
         return ["Hello World", "Howdy World", "Hi World"]
     }
     
-    func givens() ->Dictionary<String, String> {
+    func emptyVariants() -> [String] {
+        return []
+    }
+    
+    func givens() -> [String : String] {
         return ["lang":"Cowboy"]
     }
     
@@ -95,10 +98,28 @@ class Tests: XCTestCase {
         XCTAssertEqual(3, scores.count)
         print("scores: \(scores)")
     }
+    
+    func testScore_empty() throws {
+        do {
+            let _ = try model().load(modelUrl()).score(emptyVariants())
+        } catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
 
     func testChooseFrom_not_loaded() throws {
         let greeting: String = try model().chooseFrom(variants()).get()
         XCTAssertEqual("Hello World", greeting)
+    }
+    
+    func testChooseFrom_empty() throws {
+        do {
+            let _ = try model().load(modelUrl()).chooseFrom(emptyVariants())
+        } catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
     }
     
     func testChooseFrom() throws {
@@ -118,8 +139,11 @@ class Tests: XCTestCase {
     }
     
     func testWhich_variadic() throws {
-        let greeting = try model().load(modelUrl()).which("Hello World", "Howdy World", "Hi World")
+        let decisionModel = try model().load(modelUrl())
+        let greeting = try decisionModel.which("Hello World", "Howdy World", "Hi World")
         print("which greeting: \(greeting)")
+        let size = try decisionModel.which(1, 2, 3)
+        print("which size: \(size)")
     }
     
     func testWhich_variadic_empty() throws {
@@ -165,25 +189,61 @@ class Tests: XCTestCase {
         }
         XCTFail(shouldThrowError)
     }
-
+    
     func testChooseFirst() throws {
         let greeting: String = try model().chooseFirst(variants()).get()
         XCTAssertEqual("Hello World", greeting)
+    }
+    
+    func testChooseFirst_empty() throws {
+        do {
+            let _ = try model().chooseFirst(emptyVariants()).get()
+        } catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
     }
 
     func testFirst() throws {
         let greeting: String = try model().first("Hello World", "Howdy World", "Hi World")
         XCTAssertEqual("Hello World", greeting)
     }
+    
+    func testFirst_empty() throws {
+        do {
+            let _: String = try model().first()
+        }  catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
 
     func testChooseRandom() throws {
         let greeting = try model().chooseRandom(variants())
         print("random greeting: \(greeting)")
     }
+    
+    func testChooseRandom_empty() throws {
+        do {
+            let _: String = try model().chooseRandom(emptyVariants()).get()
+        }  catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
 
     func testRandom() throws {
         let greeting = try model().random("Hello World", "Howdy World", "Hi World")
         print("random greeting: \(greeting)")
+    }
+    
+    func testRandom_empty() throws {
+        do {
+            let _: String = try model().random()
+        }  catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
     }
 
     func testMultiton() throws {
@@ -200,7 +260,7 @@ class Tests: XCTestCase {
     func testChooseMultiVariates_original_type() throws {
         let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "width":1080, "p1":[Person(name: "Tom", age: 12)], "p2": Person(name: "Jerry", age: 20, address: "dc")]
         let chosen = try model().load(modelUrl()).chooseMultiVariate(variants).get() as! [String:Any]
-        let p1 = chosen["p1"] as! Person
+        let _ = chosen["p1"] as! Person
         debugPrint("chosen: ", chosen)
     }
     
