@@ -11,7 +11,6 @@
 @import Security;
 
 static NSString * const kModelKey = @"model";
-static NSString * const kTimestampKey = @"timestamp";
 static NSString * const kMessageIdKey = @"message_id";
 static NSString * const kTypeKey = @"type";
 static NSString * const kVariantKey = @"variant";
@@ -219,9 +218,6 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 
 /**
  Sends POST HTTP request to the sepcified url.
-
- Body values for kTimestampKey and kMessageIdKey are added autmatically. You can override them
- providing values in the body.
  */
 - (void) postImproveRequest:(NSDictionary *) bodyValues url:(NSURL *) url block:(void (^)(NSObject *, NSError *)) block
 {
@@ -230,26 +226,18 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     if(self.trackApiKey) {
         [headers setObject:self.trackApiKey forKey:kTrackApiKeyHeader];
     }
-
-    NSString *dateStr = [self timestampFromDate:[NSDate date]];
-
-    NSMutableDictionary *body = [@{
-        kTimestampKey: dateStr
-    } mutableCopy];
-    [body addEntriesFromDictionary:bodyValues];
-    
     
     NSError *err;
     NSData *postData;
     @try {
         if (@available(iOS 13.0, *)) {
-            postData = [NSJSONSerialization dataWithJSONObject:body options:NSJSONWritingWithoutEscapingSlashes error:&err];
+            postData = [NSJSONSerialization dataWithJSONObject:bodyValues options:NSJSONWritingWithoutEscapingSlashes error:&err];
         } else {
-            postData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+            postData = [NSJSONSerialization dataWithJSONObject:bodyValues options:0 error:&err];
         }
     } @catch (NSException *e) {
         IMPLog("Variants or context not json encodable...This decision won't be tracked.");
-        IMPLog("Data serialization error: %@\nbody: %@", e, body);
+        IMPLog("Data serialization error: %@\nbody: %@", e, bodyValues);
         err = [NSError errorWithDomain:@"ai.improve.IMPDecisionTracker" code:-100 userInfo:@{NSLocalizedDescriptionKey:e.reason}];
         block(nil, err);
         return ;
@@ -303,20 +291,6 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
         }
     }];
     [dataTask resume];
-}
-
-/// Example: 2020-02-03T03:16:36.073Z
-- (NSString *)timestampFromDate:(NSDate *)date
-{
-    NSISO8601DateFormatOptions options = (NSISO8601DateFormatWithInternetDateTime
-                                          | NSISO8601DateFormatWithFractionalSeconds
-                                          | NSISO8601DateFormatWithTimeZone);
-
-    NSString *dateStr = [NSISO8601DateFormatter stringFromDate:date
-                                                      timeZone:[NSTimeZone localTimeZone]
-                                                 formatOptions:options];
-
-    return dateStr;
 }
 
 - (nullable NSString *)createAndPersistDecisionIdForModel:(NSString *)modelName {
