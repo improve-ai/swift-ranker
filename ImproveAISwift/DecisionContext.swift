@@ -92,8 +92,11 @@ public struct DecisionContext {
             combinations = newCombinations
         }
         
-        let encodedVariants = try PListEncoder().encode(combinations) as! [Any]
-        
-        return Decision(self.decisionContext.chooseFrom(encodedVariants), nil)
+        let encodedVariants = try PListEncoder().encode(combinations) as! [[String:Any]]
+        return Decision(self.decisionContext.chooseFrom(encodedVariants), combinations.map({
+            $0.mapValues({ (v: AnyEncodable) in
+                v.value
+            })
+        }))
     }
 }

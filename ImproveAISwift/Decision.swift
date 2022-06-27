@@ -9,31 +9,23 @@ import ImproveAICore
 public struct Decision<T> {
     internal var decision: IMPDecision
     
-    internal var variants: [T]?
+    internal var variants: [T]
     
-    internal init(_ decision: IMPDecision, _ variants: [T]?=nil) {
+    internal init(_ decision: IMPDecision, _ variants: [T]) {
         self.decision = decision
         self.variants = variants
     }
     
     public func get() throws -> T {
-        if let variants = self.variants {
-            let encodedVariant = self.decision.get()
-            let index = (self.decision.variants as NSArray).indexOfObjectIdentical(to: encodedVariant)
-            return variants[index]
-        } else {
-            return self.decision.get() as! T
-        }
+        let encodedVariant = self.decision.get()
+        let index = (self.decision.variants as NSArray).indexOfObjectIdentical(to: encodedVariant)
+        return variants[index]
     }
     
     public func peek() throws -> Any {
-        if let variants = self.variants {
-            let encodedVariant = self.decision.peek()
-            let index = (self.decision.variants as NSArray).indexOfObjectIdentical(to: encodedVariant)
-            return variants[index]
-        } else {
-            return self.decision.get()
-        }
+        let encodedVariant = self.decision.peek()
+        let index = (self.decision.variants as NSArray).indexOfObjectIdentical(to: encodedVariant)
+        return variants[index]
     }
     
     public func addReward(_ reward: Double) {

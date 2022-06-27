@@ -197,6 +197,13 @@ class Tests: XCTestCase {
         print("theme: \(theme)")
     }
     
+    func testChooseMultiVariates_original_type() throws {
+        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "width":1080, "p1":[Person(name: "Tom", age: 12)], "p2": Person(name: "Jerry", age: 20, address: "dc")]
+        let chosen = try model().load(modelUrl()).chooseMultiVariate(variants).get() as! [String:Any]
+        let p1 = chosen["p1"] as! Person
+        debugPrint("chosen: ", chosen)
+    }
+    
     func testChooseMultiVariates_typeNotSupported() throws {
         let variants = ["beg": Date(), "end": Date()]
         do {
