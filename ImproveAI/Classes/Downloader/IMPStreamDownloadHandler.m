@@ -46,7 +46,6 @@
         completionHandler(NSURLSessionResponseCancel);
         return ;
     }
-    IMPLog("streaming decompression initialized...");
     
     completionHandler(NSURLSessionResponseAllow);
 }
@@ -76,7 +75,6 @@
         @try {
             [_uncompressedFileHandle writeData:zipOutputData];
             if(status == Z_STREAM_END) {
-                IMPLog("Reach stream end");
                 _uncompressOK = YES;
                 [_uncompressedFileHandle closeFile];
             }
@@ -105,14 +103,12 @@
         return ;
     }
     
-    IMPLog("streaming decompression finished, length = %lu", _stream.total_out);
     if(!_uncompressOK) {
         [self onDownloadError:@"inconsistent stream state"
                   withErrCode:-202];
         return ;
     }
     
-    IMPLog("start compiling CoreML model...");
     [self compileModelwithCompletion:_completion];
 }
 
@@ -146,7 +142,9 @@
         }
         return ;
     }
-    IMPLog("Compile time: %f ms", (CFAbsoluteTimeGetCurrent() - startTime) * 1000.0);
+    
+    
+    IMPLog("model: %@ compile time: %f ms", self.modelUrl.lastPathComponent, (CFAbsoluteTimeGetCurrent() - startTime) * 1000.0);
     
     if(completion) {
         completion(compiledUrl, error);
@@ -161,10 +159,6 @@
         _completion(nil, error);
         _completion = nil;
     }
-}
-
-- (void)dealloc {
-    IMPLog("IMPStreamDownloadHandler dealloc called...");
 }
 
 @end
