@@ -190,6 +190,25 @@ class TestDecisionModel: XCTestCase {
         XCTFail(shouldThrowError)
     }
     
+    func testWhich_heterogeneous() throws {
+        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
+        let theme = try model().which(variants)
+        XCTAssertTrue(type(of: theme) == [String : Any].self)
+        print("theme: \(theme)")
+    }
+    
+    func testWhich_homogeneous() throws {
+        let variants = ["style":["normal", "bold"], "color":["red", "black"]]
+        let theme: [String: String] = try model().which(variants)
+        XCTAssertTrue(type(of: theme) == [String : String].self)
+        debugPrint(theme)
+        
+        let persons = ["p": [Person(name: "Tom", age: 20, address: "DC"), Person(name: "Jerry", age: 20, address: "CD")]]
+        let person = try model().which(persons)
+        XCTAssertTrue(type(of: person) == [String : Person].self)
+        debugPrint(person)
+    }
+    
     func testChooseFirst() throws {
         let greeting: String = try model().chooseFirst(variants()).get()
         XCTAssertEqual("Hello World", greeting)
@@ -251,15 +270,28 @@ class TestDecisionModel: XCTestCase {
         XCTAssertEqual("hi", greeting)
     }
     
-    func testChooseMultiVariates() throws {
+    func testChooseMultiVariates_heterogenous() throws {
         let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
         let theme = try model().chooseMultiVariate(variants).get()
+        XCTAssertTrue(type(of: theme) == [String : Any].self)
         print("theme: \(theme)")
+    }
+    
+    func testChooseMultiVariate_homogeneous() throws {
+        let variants = ["style":["normal", "bold"], "color":["red", "black"]]
+        let theme = try model().chooseMultiVariate(variants).get()
+        XCTAssertTrue(type(of: theme) == [String : String].self)
+        debugPrint("theme:", theme)
+        
+        let persons = ["p": [Person(name: "Tom", age: 20, address: "DC"), Person(name: "Jerry", age: 20, address: "CD")]]
+        let person = try model().chooseMultiVariate(persons).get()
+        XCTAssertTrue(type(of: person) == [String : Person].self)
+        debugPrint("person: ", person)
     }
     
     func testChooseMultiVariates_original_type() throws {
         let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "width":1080, "p1":[Person(name: "Tom", age: 12)], "p2": Person(name: "Jerry", age: 20, address: "dc")]
-        let chosen = try model().load(modelUrl()).chooseMultiVariate(variants).get() as! [String:Any]
+        let chosen = try model().load(modelUrl()).chooseMultiVariate(variants).get()
         let _ = chosen["p1"] as! Person
         debugPrint("chosen: ", chosen)
     }

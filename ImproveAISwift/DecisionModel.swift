@@ -92,11 +92,21 @@ public struct DecisionModel {
         return try given(nil).which(variants)
     }
     
-    public func which(_ variants: [String: Any]) throws -> Any {
+    public func which<T : Encodable>(_ variants: [String: [T]]) throws -> [String : T] {
         return try given(nil).which(variants)
     }
     
-    public func chooseMultiVariate(_ variants: [String : Any]) throws -> Decision<Any> {
+    public func which(_ variants: [String: Any]) throws -> [String : Any] {
+        return try given(nil).which(variants)
+    }
+    
+    // Homogeneous variants, like ["style": ["bold", "normal"], "color": ["red", "white"]]
+    public func chooseMultiVariate<T : Encodable>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
+        return try given(nil).chooseMultiVariate(variants)
+    }
+    
+    // Heterogeneous variants, like ["style": ["bold", "normal"], "fontSize":[12, 13], "width": 1080]
+    public func chooseMultiVariate(_ variants: [String : Any]) throws -> Decision<[String : Any]> {
         return try given(nil).chooseMultiVariate(variants)
     }
 }
