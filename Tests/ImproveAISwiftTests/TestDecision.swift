@@ -34,7 +34,6 @@ class TestDecision: XCTestCase {
     func model() -> DecisionModel {
         return DecisionModel(modelName: "greetings")
     }
-
     
     func testDecision_get() throws {
         let greeting: String = try model().chooseFrom(variants()).get()
@@ -42,8 +41,8 @@ class TestDecision: XCTestCase {
     }
 
     func testDecision_peek() throws {
-        let greeting = try model().chooseFrom(variants()).peek()
-        XCTAssertEqual("Hello World", greeting as! String)
+        let greeting: String = try model().chooseFrom(variants()).peek()
+        XCTAssertTrue(greeting == variants()[0])
     }
 
     func testDecision_addReward() throws {
@@ -51,5 +50,4 @@ class TestDecision: XCTestCase {
         let _ = try decision.get()
         decision.addReward(0.1)
     }
-
 }

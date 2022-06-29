@@ -22,7 +22,7 @@ public struct Decision<T> {
         return variants[index]
     }
     
-    public func peek() throws -> Any {
+    public func peek() throws -> T {
         let encodedVariant = self.decision.peek()
         let index = (self.decision.variants as NSArray).indexOfObjectIdentical(to: encodedVariant)
         return variants[index]
