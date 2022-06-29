@@ -6,7 +6,23 @@
 //
 
 import ImproveAICore
-import AnyCodable
+
+extension Encodable {
+  fileprivate func encode(to container: inout SingleValueEncodingContainer) throws {
+    try container.encode(self)
+  }
+}
+
+struct AnyEncodable : Encodable {
+  var value: Encodable
+  init(_ value: Encodable) {
+    self.value = value
+  }
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try value.encode(to: &container)
+  }
+}
 
 public struct DecisionContext {
     internal var decisionContext: IMPDecisionContext
@@ -71,7 +87,7 @@ public struct DecisionContext {
         return try chooseMultiVariate(variants).get()
     }
     
-    public func which(_ variants: [String: Any]) throws -> [String : Any] {
+    public func which(_ variants: [String: Encodable]) throws -> [String : Any] {
         return try chooseMultiVariate(variants).get()
     }
     
@@ -112,14 +128,14 @@ public struct DecisionContext {
         }))
     }
     
-    public func chooseMultiVariate(_ variants: [String : Any]) throws -> Decision<[String: Any]> {
+    public func chooseMultiVariate(_ variants: [String : Encodable]) throws -> Decision<[String: Encodable]> {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
         var categories: [[AnyEncodable]] = []
         var keys: [String] = []
         for (k, v) in variants {
-            if let x = v as? [Any] {
+            if let x = v as? [Encodable] {
                 categories.append(x.map{AnyEncodable($0)})
             } else {
                 categories.append([AnyEncodable(v)])

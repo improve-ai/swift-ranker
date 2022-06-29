@@ -84,7 +84,7 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testGiven_encodable() throws {
-        let givens: [String: Any] = ["os": "iOS", "version": 14, "model": Config.Model(name: "x", size: 12)]
+        let givens: [String: Encodable] = ["os": "iOS", "version": 14, "model": Config.Model(name: "x", size: 12)]
         let themes = [
             Theme(fontSize: 12, primaryColor: "#000000"),
             Theme(fontSize: 13, primaryColor: "#f0f0f0"),
@@ -175,14 +175,14 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testWhich_dictionary() throws {
-        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
+        let variants:[String:Encodable] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
         let chosen = try loadedModel().which(variants)
         debugPrint("chosen: ", chosen)
     }
     
     func testWhich_dictionary_empty() throws {
         do {
-            let variants:[String:Any] = [:]
+            let variants:[String:Encodable] = [:]
             let _ = try loadedModel().which(variants)
         } catch IMPError.emptyVariants {
             return
@@ -191,7 +191,7 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testWhich_heterogeneous() throws {
-        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
+        let variants:[String:Encodable] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
         let theme: [String:Any] = try model().which(variants)
         print("theme: \(theme)")
     }
@@ -268,8 +268,8 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testChooseMultiVariates_heterogenous() throws {
-        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
-        let theme: [String:Any] = try model().chooseMultiVariate(variants).get()
+        let variants:[String:Encodable] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
+        let theme: [String:Encodable] = try model().chooseMultiVariate(variants).get()
         print("theme: \(theme)")
     }
     
@@ -284,7 +284,7 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testChooseMultiVariates_original_type() throws {
-        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "width":1080, "p1":[Person(name: "Tom", age: 12)], "p2": Person(name: "Jerry", age: 20, address: "dc")]
+        let variants:[String:Encodable] = ["style":["normal", "bold"], "size":[12, 13], "width":1080, "p1":[Person(name: "Tom", age: 12)], "p2": Person(name: "Jerry", age: 20, address: "dc")]
         let chosen = try model().load(modelUrl()).chooseMultiVariate(variants).get()
         let _ = chosen["p1"] as! Person
         debugPrint("chosen: ", chosen)

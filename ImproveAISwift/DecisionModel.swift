@@ -1,5 +1,4 @@
 import ImproveAICore
-import AnyCodable
 
 public struct DecisionModel {
     internal var decisionModel: IMPDecisionModel
@@ -51,7 +50,7 @@ public struct DecisionModel {
         self.decisionModel.loadAsync(url, completion: handler)
     }
     
-    public func given(_ givens: [String : Any]?) throws -> DecisionContext {
+    public func given(_ givens: [String : Encodable]?) throws -> DecisionContext {
         let encodedGivens = try PListEncoder().encode(givens?.mapValues{AnyEncodable($0)}) as? [String:Any]
         return DecisionContext(decisionContext: self.decisionModel.given(encodedGivens))
     }
@@ -96,7 +95,7 @@ public struct DecisionModel {
         return try given(nil).which(variants)
     }
     
-    public func which(_ variants: [String: Any]) throws -> [String : Any] {
+    public func which(_ variants: [String: Encodable]) throws -> [String : Any] {
         return try given(nil).which(variants)
     }
     
@@ -106,7 +105,7 @@ public struct DecisionModel {
     }
     
     // Heterogeneous variants, like ["style": ["bold", "normal"], "fontSize":[12, 13], "width": 1080]
-    public func chooseMultiVariate(_ variants: [String : Any]) throws -> Decision<[String : Any]> {
+    public func chooseMultiVariate(_ variants: [String : Encodable]) throws -> Decision<[String : Encodable]> {
         return try given(nil).chooseMultiVariate(variants)
     }
 }
