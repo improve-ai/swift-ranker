@@ -69,9 +69,9 @@ featureFlag = decisionModel.given(deviceAttributes).which(true, false)
 ### Complex Objects
 
 ```swift
-themeVariants = [ { "textColor": "#000000", "backgroundColor": "#ffffff" },
-                  { "textColor": "#F0F0F0", "backgroundColor": "#aaaaaa" } ]
-                            
+themeVariants = [ [ "textColor": "#000000", "backgroundColor": "#ffffff" ],
+                  [ "textColor": "#F0F0F0", "backgroundColor": "#aaaaaa" ] ]
+
 theme = themeModel.which(themeVariants)
 
 ```
@@ -111,7 +111,7 @@ Using the context, on a Spanish speaker's device we expect our *greetings* model
 Custom context can also be provided via *given()*:
 
 ```swift
-greeting = greetingsModel.given({"language": "cowboy"})
+greeting = greetingsModel.given(["language": "cowboy"])
                          .which("Hello", "Howdy", "Hola")
 ```
 
@@ -127,9 +127,9 @@ For a dungeon crawler game, say the user was purchasing an item using an In App 
 product = { "name": "red sword", "price": 4.99 }
 
 upsell = upsellModel.given(product)
-                    .which({ "name": "gold", "quantity": 100, "price": 1.99 },
-                           { "name": "diamonds", "quantity": 10, "price": 2.99 },
-                           { "name": "red scabbard", "price": 0.99 })
+                    .which([ "name": "gold", "quantity": 100, "price": 1.99 ],
+                           [ "name": "diamonds", "quantity": 10, "price": 2.99 ],
+                           [ "name": "red scabbard", "price": 0.99 ])
 ```
 The product to be purchased is the **red sword**.  Notice that the variants are dictionaries with a mix of string and numeric values.
 
@@ -152,15 +152,15 @@ In the 2000s I was writing a lot of video streaming code. The initial motivation
 I was forced to make guesses on performance sensitive configuration defaults through slow trial and error. My client configuration code maybe looked something like this:
 
 ```swift
-config = { "bufferSize": 2048,
-           "videoBitrate": 384000 }
+config = [ "bufferSize": 2048,
+           "videoBitrate": 384000 ]
 ```
 
 This is the code I wish I could have written:
 
 ```swift
-config = configModel.which({"bufferSize": [1024, 2048, 4096, 8192],
-                            "videoBitrate": [256000, 384000, 512000]})
+config = configModel.which(["bufferSize": [1024, 2048, 4096, 8192],
+                            "videoBitrate": [256000, 384000, 512000]])
 ```
 This example decides multiple variables simultaneously.  Notice that instead of a single list of variants, a dictionary mapping keys to lists of variants is provided to *which*. This multi-variate mode jointly optimizes both variables for the highest expected reward.  
 
