@@ -107,6 +107,11 @@ class TestDecisionModel: XCTestCase {
         }
         XCTFail(shouldThrowError)
     }
+    
+    func testScore_optionals() throws {
+        let scores = try loadedModel().score(["Hi", nil, nil])
+        debugPrint("scores: ", scores)
+    }
 
     func testChooseFrom_not_loaded() throws {
         let greeting: String = try model().chooseFrom(variants()).get()
@@ -204,6 +209,12 @@ class TestDecisionModel: XCTestCase {
         let persons = ["p": [Person(name: "Tom", age: 20, address: "DC"), Person(name: "Jerry", age: 20, address: "CD")]]
         let person: [String:Person] = try model().which(persons)
         debugPrint(person)
+    }
+    
+    func testWhich_optionals() throws {
+        let variants:[String:Encodable] = ["style":["normal", "bold", nil], "size":[12, 13, nil], "p": [Person(name: "Tom", age: 12), nil]]
+        let chosen = try loadedModel().which(variants)
+        debugPrint("chosen: ", chosen)
     }
     
     func testChooseFirst() throws {
