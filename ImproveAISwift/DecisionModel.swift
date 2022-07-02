@@ -51,6 +51,9 @@ public struct DecisionModel {
     }
     
     public func given(_ givens: [String : Encodable]?) throws -> DecisionContext {
+        if givens == nil {
+            return DecisionContext(decisionContext: self.decisionModel.given(nil))
+        }
         let encodedGivens = try PListEncoder().encode(givens?.mapValues{AnyEncodable($0)}) as? [String:Any]
         return DecisionContext(decisionContext: self.decisionModel.given(encodedGivens))
     }

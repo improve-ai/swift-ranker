@@ -13,6 +13,18 @@
 //@_implementationOnly import CoreFoundation
 import Foundation
 
+fileprivate protocol _Optional {
+    var isNil: Bool { get }
+}
+
+extension Optional: _Optional {
+    var isNil: Bool { return self == nil }
+}
+
+func isNil (_ input: Any) -> Bool {
+    return (input as? _Optional)?.isNil ?? false
+}
+
 //===----------------------------------------------------------------------===//
 // Plist Encoder
 //===----------------------------------------------------------------------===//
@@ -58,6 +70,9 @@ open class PListEncoder {
     /// - throws: `EncodingError.invalidValue` if a non-conforming floating-point value is encountered during encoding, and the encoding strategy is `.throw`.
     /// - throws: An error if any value throws an error during encoding.
     open func encode<Value : Encodable>(_ value: Value) throws -> Any {
+      if isNil(value) {
+        return _plistNSNull
+      }
       return try encodeToTopLevelContainer(value)
     }
 
@@ -233,7 +248,7 @@ fileprivate struct _PlistKeyedEncodingContainer<K : CodingKey> : KeyedEncodingCo
 
     // MARK: - KeyedEncodingContainerProtocol Methods
 
-    public mutating func encodeNil(forKey key: Key)               throws { self.container[key.stringValue] = _plistNullNSString }
+    public mutating func encodeNil(forKey key: Key)               throws { }
     public mutating func encode(_ value: Bool, forKey key: Key)   throws { self.container[key.stringValue] = self.encoder.box(value) }
     public mutating func encode(_ value: Int, forKey key: Key)    throws { self.container[key.stringValue] = self.encoder.box(value) }
     public mutating func encode(_ value: Int8, forKey key: Key)   throws { self.container[key.stringValue] = self.encoder.box(value) }
@@ -250,9 +265,11 @@ fileprivate struct _PlistKeyedEncodingContainer<K : CodingKey> : KeyedEncodingCo
     public mutating func encode(_ value: Double, forKey key: Key) throws { self.container[key.stringValue] = self.encoder.box(value) }
 
     public mutating func encode<T : Encodable>(_ value: T, forKey key: Key) throws {
-        self.encoder.codingPath.append(key)
-        defer { self.encoder.codingPath.removeLast() }
-        self.container[key.stringValue] = try self.encoder.box(value)
+        if !isNil(value) {
+            self.encoder.codingPath.append(key)
+            defer { self.encoder.codingPath.removeLast() }
+            self.container[key.stringValue] = try self.encoder.box(value)
+        }
     }
 
     public mutating func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> {
@@ -312,7 +329,7 @@ fileprivate struct _PlistUnkeyedEncodingContainer : UnkeyedEncodingContainer {
 
     // MARK: - UnkeyedEncodingContainer Methods
 
-    public mutating func encodeNil()             throws { self.container.add(_plistNullNSString) }
+    public mutating func encodeNil()             throws { }
     public mutating func encode(_ value: Bool)   throws { self.container.add(self.encoder.box(value)) }
     public mutating func encode(_ value: Int)    throws { self.container.add(self.encoder.box(value)) }
     public mutating func encode(_ value: Int8)   throws { self.container.add(self.encoder.box(value)) }
@@ -329,9 +346,11 @@ fileprivate struct _PlistUnkeyedEncodingContainer : UnkeyedEncodingContainer {
     public mutating func encode(_ value: String) throws { self.container.add(self.encoder.box(value)) }
 
     public mutating func encode<T : Encodable>(_ value: T) throws {
-        self.encoder.codingPath.append(_PlistKey(index: self.count))
-        defer { self.encoder.codingPath.removeLast() }
-        self.container.add(try self.encoder.box(value))
+        if !isNil(value) {
+            self.encoder.codingPath.append(_PlistKey(index: self.count))
+            defer { self.encoder.codingPath.removeLast() }
+            self.container.add(try self.encoder.box(value))
+        }
     }
 
     public mutating func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> {
@@ -586,8 +605,6 @@ fileprivate class __PlistReferencingEncoder : __PlistEncoder {
 //===----------------------------------------------------------------------===//
 
 // Since plists do not support null values by default, we will encode them as "$null".
-fileprivate let _plistNull = "$null"
-fileprivate let _plistNullNSString = NSString(string: _plistNull)
 fileprivate let _plistNSNull = NSNull()
 
 //===----------------------------------------------------------------------===//
