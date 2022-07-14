@@ -57,6 +57,9 @@ class TestDecisionContext: XCTestCase {
     func testFirst() throws {
         let greeting: String = try model().given(givens()).first("Hello World", "Howdy World", "Hi World")
         XCTAssertEqual("Hello World", greeting)
+        
+        let upsell = try model().given(nil).first(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
+        debugPrint("upsell: ", upsell)
     }
 
     func testChooseRandom() throws {
@@ -67,5 +70,9 @@ class TestDecisionContext: XCTestCase {
     func testRandom() throws {
         let greeting = try model().random("Hello World", "Howdy World", "Hi World")
         print("random greeting: \(greeting)")
+        
+        let upsell = try model().given(nil).random(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
+        debugPrint("upsell: ", upsell)
+
     }
 }

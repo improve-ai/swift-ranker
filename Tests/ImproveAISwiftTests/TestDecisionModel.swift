@@ -136,8 +136,11 @@ class TestDecisionModel: XCTestCase {
         ]
         let theme:Theme = try decisionModel.chooseFrom(themes).get()
         debugPrint(theme)
+        
+        let num = try decisionModel.chooseFrom([NSNumber(value: 2), NSNumber(value:true)]).get()
+        debugPrint("num: \(num)")
     }
-
+    
     func testChooseFromVariantsAndScores() throws {
         let greeting: String = try model().chooseFrom(variants(), [0.1, 0.2, 1.0]).get()
         XCTAssertEqual("Hi World", greeting)
@@ -149,6 +152,9 @@ class TestDecisionModel: XCTestCase {
         print("which greeting: \(greeting)")
         let size = try decisionModel.which(1, 2, 3)
         print("which size: \(size)")
+        
+        let upsell = try loadedModel().which(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
+        debugPrint("upsell: ", upsell)
     }
     
     func testWhich_variadic_empty() throws {
@@ -167,6 +173,12 @@ class TestDecisionModel: XCTestCase {
             Theme(fontSize: 14, primaryColor: "#ffffff")]
         let theme: Theme = try model().load(modelUrl()).which(themes)
         print("which greeting: \(theme)")
+        
+        let upsell = try loadedModel().which([
+            ["name": "gold", "quantity": 100, "price": 1.99],
+            ["name": "diamonds", "quantity": 10, "price": 2.99],
+            ["name": "red scabbard", "price": 0.99]])
+        debugPrint("upsell: ", upsell)
     }
     
     func testWhich_list_empty() throws {
@@ -180,14 +192,14 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testWhich_dictionary() throws {
-        let variants:[String:Encodable] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
+        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
         let chosen = try loadedModel().which(variants)
         debugPrint("chosen: ", chosen)
     }
     
     func testWhich_dictionary_empty() throws {
         do {
-            let variants:[String:Encodable] = [:]
+            let variants:[String:Any] = [String:Any]()
             let _ = try loadedModel().which(variants)
         } catch IMPError.emptyVariants {
             return
@@ -209,6 +221,9 @@ class TestDecisionModel: XCTestCase {
         let persons = ["p": [Person(name: "Tom", age: 20, address: "DC"), Person(name: "Jerry", age: 20, address: "CD")]]
         let person: [String:Person] = try model().which(persons)
         debugPrint(person)
+        let upsells = ["p":[["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "q": [["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "m":[1, 2, 3]]
+        let upsell = try model().which(upsells)
+        debugPrint("upsell: ", upsell)
     }
     
     func testWhich_optionals() throws {
@@ -234,6 +249,9 @@ class TestDecisionModel: XCTestCase {
     func testFirst() throws {
         let greeting: String = try model().first("Hello World", "Howdy World", "Hi World")
         XCTAssertEqual("Hello World", greeting)
+        
+        let upsell = try model().first(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
+        debugPrint("upsell: ", upsell)
     }
     
     func testFirst_empty() throws {
@@ -262,6 +280,9 @@ class TestDecisionModel: XCTestCase {
     func testRandom() throws {
         let greeting = try model().random("Hello World", "Howdy World", "Hi World")
         print("random greeting: \(greeting)")
+        
+        let upsell = try model().random(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
+        debugPrint("upsell: ", upsell)
     }
     
     func testRandom_empty() throws {
@@ -279,8 +300,8 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testChooseMultiVariates_heterogenous() throws {
-        let variants:[String:Encodable] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
-        let theme: [String:Encodable] = try model().chooseMultiVariate(variants).get()
+        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
+        let theme: [String:Any] = try model().chooseMultiVariate(variants).get()
         print("theme: \(theme)")
     }
     

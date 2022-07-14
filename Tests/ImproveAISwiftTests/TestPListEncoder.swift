@@ -8,23 +8,6 @@
 import XCTest
 import ImproveAI
 
-extension Encodable {
-  fileprivate func encode(to container: inout SingleValueEncodingContainer) throws {
-    try container.encode(self)
-  }
-}
-
-struct AnyEncodable : Encodable {
-  var value: Encodable
-  init(_ value: Encodable) {
-    self.value = value
-  }
-  func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try value.encode(to: &container)
-  }
-}
-
 struct Person: Codable {
     var name: String
     var age: Int?

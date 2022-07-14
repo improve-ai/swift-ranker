@@ -6,23 +6,7 @@
 //
 
 import ImproveAICore
-
-extension Encodable {
-  fileprivate func encode(to container: inout SingleValueEncodingContainer) throws {
-    try container.encode(self)
-  }
-}
-
-struct AnyEncodable : Encodable {
-  var value: Encodable
-  init(_ value: Encodable) {
-    self.value = value
-  }
-  func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try value.encode(to: &container)
-  }
-}
+import AnyCodable
 
 public struct DecisionContext {
     internal var decisionContext: IMPDecisionContext
@@ -31,67 +15,67 @@ public struct DecisionContext {
         self.decisionContext = decisionContext
     }
     
-    public func score<T : Encodable>(_ variants: [T]) throws -> [Double] {
+    public func score<T>(_ variants: [T]) throws -> [Double] {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
-        let encodedVariants = try PListEncoder().encode(variants) as! [Any]
+        let encodedVariants = try PListEncoder().encode(variants.map{ AnyEncodable($0) }) as! [Any]
         return self.decisionContext.score(encodedVariants).map{ $0.doubleValue }
     }
     
-    public func chooseFrom<T : Encodable>(_ variants: [T]) throws -> Decision<T> {
+    public func chooseFrom<T>(_ variants: [T]) throws -> Decision<T> {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
-        let encodedVariants = try PListEncoder().encode(variants) as! [Any]
+        let encodedVariants = try PListEncoder().encode(variants.map{ AnyEncodable($0) }) as! [Any]
         return Decision(self.decisionContext.chooseFrom(encodedVariants), variants)
     }
     
-    public func chooseFrom<T : Encodable>(_ variants: [T], _ scores: [Double]) throws -> Decision<T> {
-        let encodedVariants = try PListEncoder().encode(variants) as! [Any]
+    public func chooseFrom<T>(_ variants: [T], _ scores: [Double]) throws -> Decision<T> {
+        let encodedVariants = try PListEncoder().encode(variants.map{ AnyEncodable($0) }) as! [Any]
         return Decision(self.decisionContext.chooseFrom(encodedVariants, scores.map{NSNumber(value: $0)}), variants)
     }
 
-    public func chooseFirst<T : Encodable>(_ variants: [T]) throws -> Decision<T> {
+    public func chooseFirst<T>(_ variants: [T]) throws -> Decision<T> {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
-        let encodedVariants = try PListEncoder().encode(variants) as! [Any]
+        let encodedVariants = try PListEncoder().encode(variants.map{ AnyEncodable($0) }) as! [Any]
         return Decision(self.decisionContext.chooseFirst(encodedVariants), variants)
     }
     
-    public func first<T : Encodable>(_ variants: T...) throws -> T {
-        return try self.chooseFirst(variants).get()
+    public func first<T>(_ variants: T...) throws -> T {
+        return try chooseFirst(variants).get()
     }
 
-    public func chooseRandom<T : Encodable>(_ variants: [T]) throws -> Decision<T> {
+    public func chooseRandom<T>(_ variants: [T]) throws -> Decision<T> {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
-        let encodedVariants = try PListEncoder().encode(variants) as! [Any]
+        let encodedVariants = try PListEncoder().encode(variants.map{ AnyEncodable($0) }) as! [Any]
         return Decision(self.decisionContext.chooseRandom(encodedVariants), variants)
     }
     
-    public func random<T : Encodable>(_ variants: T...) throws -> T {
+    public func random<T>(_ variants: T...) throws -> T {
         return try self.chooseRandom(variants).get()
     }
-
-    public func which<T: Encodable>(_ variants: [T]) throws -> T {
+    
+    public func which<T>(_ variants: [T]) throws -> T {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
         return try chooseFrom(variants).get()
     }
     
-    public func which<T : Encodable>(_ variants: [String: [T]]) throws -> [String : T] {
+    public func which<T>(_ variants: [String : [T]]) throws -> [String : T] {
         return try chooseMultiVariate(variants).get()
     }
     
-    public func which(_ variants: [String: Encodable]) throws -> [String : Any] {
+    public func which(_ variants: [String : Any]) throws -> [String : Any] {
         return try chooseMultiVariate(variants).get()
     }
-    
-    public func chooseMultiVariate<T : Encodable>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
+
+    public func chooseMultiVariate<T>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
@@ -128,7 +112,7 @@ public struct DecisionContext {
         }))
     }
     
-    public func chooseMultiVariate(_ variants: [String : Encodable]) throws -> Decision<[String: Encodable]> {
+    public func chooseMultiVariate(_ variants: [String : Any]) throws -> Decision<[String: Any]> {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
