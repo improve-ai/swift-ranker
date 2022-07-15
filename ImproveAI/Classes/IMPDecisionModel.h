@@ -16,7 +16,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_SWIFT_NAME(DecisionModel)
 @interface IMPDecisionModel : NSObject
 
 @property(class) NSURL *defaultTrackURL;

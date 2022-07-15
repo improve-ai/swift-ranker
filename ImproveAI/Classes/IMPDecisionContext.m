@@ -14,7 +14,7 @@
 
 @property(nonatomic, strong) NSArray *scores;
 
-@property (nonatomic, copy) NSArray *variants;
+@property (nonatomic, copy, readwrite) NSArray *variants;
 
 @property (nonatomic, copy, nullable) NSDictionary *givens;
 

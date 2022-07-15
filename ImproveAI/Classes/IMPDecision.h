@@ -9,8 +9,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_SWIFT_NAME(Decision)
 @interface IMPDecision : NSObject
+
+@property (nonatomic, copy, readonly) NSArray *variants;
 
 - (instancetype)init NS_UNAVAILABLE;
 

@@ -36,7 +36,7 @@
 
 @property (nonatomic, strong) IMPDecisionModel *model;
 
-@property (nonatomic, copy) NSArray *variants;
+@property (nonatomic, copy, readwrite) NSArray *variants;
 
 @property (nonatomic, copy, nullable) NSDictionary *givens;
 
