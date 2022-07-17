@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
  * This method is a short hand of chooseFirst(variants).get().
  * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive types are not allowed.
  * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a non-empty NSArray.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
  */
 - (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
@@ -132,7 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive types are not allowed.
  * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a non-empty NSArray.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
  */
 - (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
@@ -141,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This method is an alternative of chooseFrom(). An example here might be more expressive:
- * chooseMutilVariate({"style":["bold", "italic"], "size":[3, 5]})
+ * optimize({"style":["bold", "italic"], "size":[3, 5]})
  *       is equivalent to
  * chooseFrom([
  *      {"style":"bold", "size":3},
@@ -151,26 +151,22 @@ NS_ASSUME_NONNULL_BEGIN
  * ])
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
  * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
- * So chooseMultiVariate({"style":["bold", "italic"], "size":3}) is equivalent to chooseMultiVariate({"style":["bold", "italic"], "size":[3]})
+ * So optimize({"style":["bold", "italic"], "size":3}) is equivalent to optimize({"style":["bold", "italic"], "size":[3]})
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
-- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultiVariate(_:));
+- (IMPDecision *)optimize:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(optimize(_:));
 
 /**
  * This method is a short hand of chooseFrom(variants).get().
  * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray or an NSDictionary.
  * When the only argument is an NSArray, it's equivalent to calling chooseFrom(firstVariant).get();
- * When the only argument is an NSDictionary, it's equivalent to calling chooseMultiVariate(firstVariant).get();
  * When there are two or more arguments, all the arguments would form an NSArray and be passed to chooseFrom()
  * Primitive types are not allowed.
  * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a non-empty NSArray or NSDictionary.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
  */
 - (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
-
-// Variadic method declaration for Swift. 
-- (id)which:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(which(_:_:));
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,

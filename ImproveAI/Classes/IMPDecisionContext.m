@@ -173,7 +173,7 @@
     return [[self chooseRandom:variants] get];
 }
 
-- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants
+- (IMPDecision *)optimize:(NSDictionary<NSString *, id> *)variants
 {
     NSMutableArray *allKeys = [[NSMutableArray alloc] initWithCapacity:[variants count]];
     
@@ -230,15 +230,6 @@
     return [self whichInternal:variants];
 }
 
-- (id)which:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(which(_:_:))
-{
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(int i = 0; i < n; ++i) {
-        [variants addObject:va_arg(args, id)];
-    }
-    return [self whichInternal:variants];
-}
-
 - (id)whichInternal:(NSArray *)variants
 {
     if([variants count] <= 0) {
@@ -247,22 +238,11 @@
     
     if([variants count] == 1) {
         id firstVariant = variants[0];
-        if([firstVariant isKindOfClass:[NSArray class]]) {
-            if([firstVariant count] <= 0) {
-                NSString *reason = @"If only one argument, it must be a non-empty NSArray or a non-empty NSDictionary";
-                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-            }
+        if([firstVariant isKindOfClass:[NSArray class]] && [firstVariant count] > 0) {
             return [[self chooseFrom:firstVariant] get];
-        } else if([firstVariant isKindOfClass:[NSDictionary class]]) {
-            if([firstVariant count] <= 0) {
-                NSString *reason = @"If only one argument, it must be a non-empty NSArray or a non-empty NSDictionary";
-                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-            }
-            return [[self chooseMultiVariate:firstVariant] get];
-        } else {
-            NSString *reason = @"If only one argument, it must be a non-empty NSArray or a non-empty NSDictionary";
-            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
         }
+        NSString *reason = @"If only one argument, it must be a nonempty NSArray.";
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     }
     return [[self chooseFrom:variants] get];
 }

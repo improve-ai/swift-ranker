@@ -342,6 +342,17 @@ extern NSString *const kTrackApiKey;
     XCTAssertNotNil(best);
 }
 
+- (void)testWhich_1_argument_dictionary {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
+    @try {
+        [decisionContext which:@{@"style":@[@"bold", @"italic"], @"size":@[@3, @5]}, nil];
+    } @catch(NSException *e) {
+        return;
+    }
+    XCTFail(@"An exception should have been thrown");
+}
+
 - (void)testWhich_empty_dict {
     NSError *error;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
@@ -376,7 +387,7 @@ extern NSString *const kTrackApiKey;
     XCTFail(@"An exception should have been thrown");
 }
 
-- (void)testChooseMultiVariate {
+- (void)testOptimize {
     NSError *error;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
     decisionModel = [decisionModel load:self.modelURL error:&error];
@@ -386,10 +397,10 @@ extern NSString *const kTrackApiKey;
     NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]};
     
     IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
-    [decisionContext chooseMultiVariate:variants];
+    [decisionContext optimize:variants];
 }
 
-- (void)testChooseMultiVariate_nil_variants {
+- (void)testOptimize_nil_variants {
     NSError *error;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
     decisionModel = [decisionModel load:self.modelURL error:&error];
@@ -398,7 +409,7 @@ extern NSString *const kTrackApiKey;
     
     IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
     @try {
-        [decisionContext chooseMultiVariate:nil];
+        [decisionContext optimize:nil];
     } @catch(NSException *e) {
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
         return ;
@@ -406,7 +417,7 @@ extern NSString *const kTrackApiKey;
     XCTFail(@"An exception should have been thrown.");
 }
 
-- (void)testChooseMultiVariate_empty_variants {
+- (void)testOptimize_empty_variants {
     NSError *error;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
     decisionModel = [decisionModel load:self.modelURL error:&error];
@@ -415,7 +426,7 @@ extern NSString *const kTrackApiKey;
     
     IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
     @try {
-        [decisionContext chooseMultiVariate:@{}];
+        [decisionContext optimize:@{}];
     } @catch(NSException *e) {
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
         return ;

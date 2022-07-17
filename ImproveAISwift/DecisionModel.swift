@@ -104,12 +104,12 @@ public struct DecisionModel {
     }
     
     // Homogeneous variants, like ["style": ["bold", "normal"], "color": ["red", "white"]]
-    public func chooseMultiVariate<T>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
-        return try given(nil).chooseMultiVariate(variants)
+    public func optimize<T>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
+        return try given(nil).optimize(variants)
     }
     
 //    // Heterogeneous variants, like ["style": ["bold", "normal"], "fontSize":[12, 13], "width": 1080]
-    public func chooseMultiVariate(_ variants: [String : Any]) throws -> Decision<[String : Any]> {
-        return try given(nil).chooseMultiVariate(variants)
+    public func optimize(_ variants: [String : Any]) throws -> Decision<[String : Any]> {
+        return try given(nil).optimize(variants)
     }
 }

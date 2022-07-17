@@ -299,33 +299,33 @@ class TestDecisionModel: XCTestCase {
         XCTAssertEqual("hi", greeting)
     }
     
-    func testChooseMultiVariates_heterogenous() throws {
+    func testOptimize_heterogenous() throws {
         let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
-        let theme: [String:Any] = try model().chooseMultiVariate(variants).get()
+        let theme: [String:Any] = try model().optimize(variants).get()
         print("theme: \(theme)")
     }
     
-    func testChooseMultiVariate_homogeneous() throws {
+    func testOptimize_homogeneous() throws {
         let variants = ["style":["normal", "bold"], "color":["red", "black"]]
-        let theme:[String:String] = try model().chooseMultiVariate(variants).get()
+        let theme:[String:String] = try model().optimize(variants).get()
         debugPrint("theme:", theme)
         
         let persons = ["p": [Person(name: "Tom", age: 20, address: "DC"), Person(name: "Jerry", age: 20, address: "CD")]]
-        let person: [String:Person] = try model().chooseMultiVariate(persons).get()
+        let person: [String:Person] = try model().optimize(persons).get()
         debugPrint("person: ", person)
     }
     
-    func testChooseMultiVariates_original_type() throws {
+    func testOptimize_original_type() throws {
         let variants:[String:Encodable] = ["style":["normal", "bold"], "size":[12, 13], "width":1080, "p1":[Person(name: "Tom", age: 12)], "p2": Person(name: "Jerry", age: 20, address: "dc")]
-        let chosen = try model().load(modelUrl()).chooseMultiVariate(variants).get()
+        let chosen = try model().load(modelUrl()).optimize(variants).get()
         let _ = chosen["p1"] as! Person
         debugPrint("chosen: ", chosen)
     }
     
-    func testChooseMultiVariates_typeNotSupported() throws {
+    func testOptimize_typeNotSupported() throws {
         let variants = ["beg": Date(), "end": Date()]
         do {
-            let _ = try model().chooseMultiVariate(variants)
+            let _ = try model().optimize(variants)
         } catch IMPError.typeNotSupported {
             return
         }

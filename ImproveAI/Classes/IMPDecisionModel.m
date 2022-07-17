@@ -343,9 +343,9 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[self given:nil] random:n args:args];
 }
 
-- (IMPDecision *)chooseMultiVariate:(NSDictionary<NSString *, id> *)variants
+- (IMPDecision *)optimize:(NSDictionary<NSString *, id> *)variants
 {
-    return [[self given:nil] chooseMultiVariate:variants];
+    return [[self given:nil] optimize:variants];
 }
 
 - (id)which:(id)firstVariant, ...
@@ -358,11 +358,6 @@ static IMPGivensProvider *_defaultGivensProvider;
     }
     va_end(args);
     return [[self given:nil] whichInternal:variants];
-}
-
-- (id)which:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(which(_:_:))
-{
-    return [[self given:nil] which:n args:args];
 }
 
 - (void)addReward:(double) reward
