@@ -60,6 +60,10 @@ public struct DecisionContext {
         return try self.chooseRandom(variants).get()
     }
     
+    public func which<T>(_ variants: T...) throws -> T {
+        return try which(variants)
+    }
+    
     public func which<T>(_ variants: [T]) throws -> T {
         if variants.isEmpty {
             throw IMPError.emptyVariants
@@ -67,14 +71,6 @@ public struct DecisionContext {
         return try chooseFrom(variants).get()
     }
     
-    public func which<T>(_ variants: [String : [T]]) throws -> [String : T] {
-        return try optimize(variants).get()
-    }
-    
-    public func which(_ variants: [String : Any]) throws -> [String : Any] {
-        return try optimize(variants).get()
-    }
-
     public func optimize<T>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
         if variants.isEmpty {
             throw IMPError.emptyVariants

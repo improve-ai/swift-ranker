@@ -95,14 +95,6 @@ public struct DecisionModel {
         return try given(nil).which(variants)
     }
     
-    public func which<T>(_ variants: [String : [T]]) throws -> [String : T] {
-        return try given(nil).which(variants)
-    }
-    
-    public func which(_ variants: [String : Any]) throws -> [String : Any] {
-        return try given(nil).which(variants)
-    }
-    
     // Homogeneous variants, like ["style": ["bold", "normal"], "color": ["red", "white"]]
     public func optimize<T>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
         return try given(nil).optimize(variants)

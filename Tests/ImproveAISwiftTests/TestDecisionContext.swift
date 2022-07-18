@@ -73,6 +73,10 @@ class TestDecisionContext: XCTestCase {
         
         let upsell = try model().given(nil).random(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
         debugPrint("upsell: ", upsell)
-
+    }
+    
+    func testWhich_variadic() throws {
+        let greeting = try model().given(nil).which("Hello World", "Howdy World", "Hi World")
+        print("greeting: \(greeting)")
     }
 }

@@ -197,33 +197,10 @@ class TestDecisionModel: XCTestCase {
         debugPrint("chosen: ", chosen)
     }
     
-    func testWhich_dictionary_empty() throws {
-        do {
-            let variants:[String:Any] = [String:Any]()
-            let _ = try loadedModel().which(variants)
-        } catch IMPError.emptyVariants {
-            return
-        }
-        XCTFail(shouldThrowError)
-    }
-    
     func testWhich_heterogeneous() throws {
         let variants:[String:Encodable] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
         let theme: [String:Any] = try model().which(variants)
         print("theme: \(theme)")
-    }
-    
-    func testWhich_homogeneous() throws {
-        let variants = ["style":["normal", "bold"], "color":["red", "black"]]
-        let theme: [String: String] = try model().which(variants)
-        debugPrint(theme)
-        
-        let persons = ["p": [Person(name: "Tom", age: 20, address: "DC"), Person(name: "Jerry", age: 20, address: "CD")]]
-        let person: [String:Person] = try model().which(persons)
-        debugPrint(person)
-        let upsells = ["p":[["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "q": [["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "m":[1, 2, 3]]
-        let upsell = try model().which(upsells)
-        debugPrint("upsell: ", upsell)
     }
     
     func testWhich_optionals() throws {
@@ -299,6 +276,11 @@ class TestDecisionModel: XCTestCase {
         XCTAssertEqual("hi", greeting)
     }
     
+    func testOptimize_dictionary_empty() throws {
+        let variants:[String:Any] = [String:Any]()
+        let _ = try loadedModel().which(variants)
+    }
+    
     func testOptimize_heterogenous() throws {
         let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
         let theme: [String:Any] = try model().optimize(variants).get()
@@ -307,12 +289,15 @@ class TestDecisionModel: XCTestCase {
     
     func testOptimize_homogeneous() throws {
         let variants = ["style":["normal", "bold"], "color":["red", "black"]]
-        let theme:[String:String] = try model().optimize(variants).get()
-        debugPrint("theme:", theme)
+        let theme: [String: String] = try model().optimize(variants).get()
+        debugPrint(theme)
         
         let persons = ["p": [Person(name: "Tom", age: 20, address: "DC"), Person(name: "Jerry", age: 20, address: "CD")]]
         let person: [String:Person] = try model().optimize(persons).get()
-        debugPrint("person: ", person)
+        debugPrint(person)
+        let upsells = ["p":[["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "q": [["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "m":[1, 2, 3]]
+        let upsell = try model().which(upsells)
+        debugPrint("upsell: ", upsell)
     }
     
     func testOptimize_original_type() throws {
