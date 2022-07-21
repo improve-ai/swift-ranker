@@ -47,9 +47,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)random:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(random(_:_:));
 
 /**
+ * @see IMPDecisionModel#chooseMultivariate()
+ */
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:));
+
+/**
  * @see IMPDecisionModel#optimize()
  */
-- (IMPDecision *)optimize:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(optimize(_:));
+- (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(optimize(_:));
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,

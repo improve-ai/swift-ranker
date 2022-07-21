@@ -173,7 +173,7 @@
     return [[self chooseRandom:variants] get];
 }
 
-- (IMPDecision *)optimize:(NSDictionary<NSString *, id> *)variants
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants
 {
     NSMutableArray *allKeys = [[NSMutableArray alloc] initWithCapacity:[variants count]];
     
@@ -211,6 +211,10 @@
     return [self chooseFrom:combinations];
 }
 
+- (id)optimize:(NSDictionary<NSString *, id> *)variants
+{
+    return [[self chooseMultivariate:variants] get];
+}
 
 - (NSArray<NSNumber *> *)score:(NSArray *)variants
 {

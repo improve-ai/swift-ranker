@@ -141,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This method is an alternative of chooseFrom(). An example here might be more expressive:
- * optimize({"style":["bold", "italic"], "size":[3, 5]})
+ * chooseMultivariate({"style":["bold", "italic"], "size":[3, 5]})
  *       is equivalent to
  * chooseFrom([
  *      {"style":"bold", "size":3},
@@ -151,11 +151,21 @@ NS_ASSUME_NONNULL_BEGIN
  * ])
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
  * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
- * So optimize({"style":["bold", "italic"], "size":3}) is equivalent to optimize({"style":["bold", "italic"], "size":[3]})
+ * So chooseMultivariate({"style":["bold", "italic"], "size":3}) is equivalent to chooseMultivariate({"style":["bold", "italic"], "size":[3]})
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
-- (IMPDecision *)optimize:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(optimize(_:));
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:));
+
+/**
+ * This method is a short hand of chooseMultivariate(variants).get().
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
+ * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
+ * So optimize({"style":["bold", "italic"], "size":3}) is equivalent to optimize({"style":["bold", "italic"], "size":[3]})
+ * @return Returns the chosen variant
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
+ */
+- (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(optimize(_:));
 
 /**
  * This method is a short hand of chooseFrom(variants).get().

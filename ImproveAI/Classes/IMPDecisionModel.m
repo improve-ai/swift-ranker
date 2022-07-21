@@ -343,9 +343,14 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[self given:nil] random:n args:args];
 }
 
-- (IMPDecision *)optimize:(NSDictionary<NSString *, id> *)variants
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants
 {
-    return [[self given:nil] optimize:variants];
+    return [[self given:nil] chooseMultivariate:variants];
+}
+
+- (id)optimize:(NSDictionary<NSString *, id> *)variants
+{
+    return [[self chooseMultivariate:variants] get];
 }
 
 - (id)which:(id)firstVariant, ...

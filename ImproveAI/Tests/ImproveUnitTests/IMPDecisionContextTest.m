@@ -281,9 +281,9 @@ extern NSString *const kTrackApiKey;
         }
     }
     NSLog(@"%@", count);
-    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 30);
-    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 30);
-    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 30);
+    XCTAssertEqualWithAccuracy([count[@"Hello World"] intValue], loop/3, 50);
+    XCTAssertEqualWithAccuracy([count[@"Howdy World"] intValue], loop/3, 50);
+    XCTAssertEqualWithAccuracy([count[@"Hi World"] intValue], loop/3, 50);
 }
 
 - (void)testRandom_one_argument_not_array {
@@ -387,6 +387,54 @@ extern NSString *const kTrackApiKey;
     XCTFail(@"An exception should have been thrown");
 }
 
+- (void)testChooseMultivariate {
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    decisionModel = [decisionModel load:self.modelURL error:&error];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(error);
+    
+    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]};
+    
+    IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
+    IMPDecision *decision = [decisionContext chooseMultivariate:variants];
+    NSLog(@"chosen: %@", [decision get]);
+}
+
+- (void)testChooseMultivariate_nil_variants {
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    decisionModel = [decisionModel load:self.modelURL error:&error];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(error);
+    
+    IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
+    @try {
+        [decisionContext chooseMultivariate:nil];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
+}
+
+- (void)testChooseMultivariate_empty_variants {
+    NSError *error;
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
+    decisionModel = [decisionModel load:self.modelURL error:&error];
+    XCTAssertNotNil(decisionModel);
+    XCTAssertNil(error);
+    
+    IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
+    @try {
+        [decisionContext chooseMultivariate:@{}];
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        return ;
+    }
+    XCTFail(@"An exception should have been thrown.");
+}
+
 - (void)testOptimize {
     NSError *error;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
@@ -397,41 +445,11 @@ extern NSString *const kTrackApiKey;
     NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]};
     
     IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
-    [decisionContext optimize:variants];
-}
-
-- (void)testOptimize_nil_variants {
-    NSError *error;
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    decisionModel = [decisionModel load:self.modelURL error:&error];
-    XCTAssertNotNil(decisionModel);
-    XCTAssertNil(error);
-    
-    IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
-    @try {
-        [decisionContext optimize:nil];
-    } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
-    }
-    XCTFail(@"An exception should have been thrown.");
-}
-
-- (void)testOptimize_empty_variants {
-    NSError *error;
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    decisionModel = [decisionModel load:self.modelURL error:&error];
-    XCTAssertNotNil(decisionModel);
-    XCTAssertNil(error);
-    
-    IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
-    @try {
-        [decisionContext optimize:@{}];
-    } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
-    }
-    XCTFail(@"An exception should have been thrown.");
+    NSDictionary *chosen = [decisionContext optimize:variants];
+    NSLog(@"chosen: %@", chosen);
+    XCTAssertEqual(2, [chosen count]);
+    XCTAssertNotNil(chosen[@"font"]);
+    XCTAssertNotNil(chosen[@"color"]);
 }
 
 @end
