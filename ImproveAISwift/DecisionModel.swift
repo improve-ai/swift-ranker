@@ -112,4 +112,14 @@ public struct DecisionModel {
     public func optimize(_ variants: [String : Any]) throws -> [String : Any] {
         return try given(nil).optimize(variants)
     }
+    
+    /// Add rewards for the most recent Decision for this model name
+    public func addReward(_ reward: Double) {
+        decisionModel.addReward(reward)
+    }
+    
+    /// Add reward for the provided decision_id
+    public func addReward(_ reward: Double, _ decisionId: String) {
+        decisionModel.addReward(reward, decisionId)
+    }
 }

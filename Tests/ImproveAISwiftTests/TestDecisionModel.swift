@@ -360,4 +360,12 @@ class TestDecisionModel: XCTestCase {
         }
         XCTFail(shouldThrowError)
     }
+    
+    func testAddReward() {
+        model().addReward(0.1)
+    }
+    
+    func testAddRewardForDecision() {
+        model().addReward(0.1, "abcd")
+    }
 }

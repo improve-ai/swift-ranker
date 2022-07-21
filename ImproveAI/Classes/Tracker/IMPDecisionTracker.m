@@ -181,6 +181,11 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     }
     
+    if([decisionId length] <= 0) {
+        NSString *reason = @"decisionId can't be nil or empty";
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
+    }
+    
     NSString *ksuid = [NSString ksuidString];
     if(ksuid == nil) {
         IMPErrLog("failed to generate ksuid");

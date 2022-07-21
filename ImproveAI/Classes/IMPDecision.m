@@ -15,8 +15,6 @@
 
 @property (strong, atomic) IMPDecisionTracker *tracker;
 
-- (void)addReward:(double)reward decision:(NSString *)decisionId;
-
 @end
 
 // Package private methods

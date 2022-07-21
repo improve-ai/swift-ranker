@@ -192,8 +192,17 @@ NS_ASSUME_NONNULL_BEGIN
  * If no previous Decision is found, the reward will be ignored.
  * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
  * @throws NSInvalidArgumentException Thrown if reward is NaN or +-Infinity
+ * @throws IllegalStateException Thrown if trackURL is nil
  */
 - (void)addReward:(double) reward;
+
+/**
+ * Adds reward for the provided decisionId.
+ * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
+ * @throws NSInvalidArgumentException Thrown if reward is NaN or +-Infinity
+ * @throws IllegalStateException Thrown if trackURL is nil
+ */
+- (void)addReward:(double)reward decision:(NSString *)decisionId NS_SWIFT_NAME(addReward(_:_:));
 
 /**
  * @warning This method is likely to be changed in the future. Try not to use it in your code.

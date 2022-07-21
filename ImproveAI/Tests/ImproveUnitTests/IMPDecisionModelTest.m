@@ -1302,13 +1302,11 @@ extern NSString * const kTrackerURL;
     return YES;
 }
 
-- (void)testAddReward_valid {
-//    XCTestExpectation *ex = [[XCTestExpectation alloc] initWithDescription:@"Waiting for model creation"];
+- (void)testAddReward {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
     [[decisionModel chooseFrom:variants] get];
     [decisionModel addReward:0.1];
-//    [self waitForExpectations:@[ex] timeout:300];
 }
 
 - (void)testAddReward_nil_trackURL {
@@ -1320,6 +1318,31 @@ extern NSString * const kTrackerURL;
         return ;
     }
     XCTFail(@"trackURL can't be nil when calling DecisionModel.addReward()");
+}
+
+- (void)testAddRewardForDecision {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    [decisionModel addReward:0.1 decision:@"abc"];
+}
+
+- (void)testAddRewardForDecision_empty_decisionId {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    @try {
+        [decisionModel addReward:0.1 decision:@""];
+    } @catch(NSException *e) {
+        return ;
+    }
+    XCTFail(@"decisionId can't be empty");
+}
+
+- (void)testAddRewardForDecision_nil_decisionId {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    @try {
+        [decisionModel addReward:0.1 decision:nil];
+    } @catch(NSException *e) {
+        return ;
+    }
+    XCTFail(@"decisionId can't be nil");
 }
 
 - (void)testGivensProvider_thread_safe {
