@@ -71,7 +71,7 @@ public struct DecisionContext {
         return try chooseFrom(variants).get()
     }
     
-    public func optimize<T>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
+    public func chooseMultivariate<T>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
@@ -108,7 +108,7 @@ public struct DecisionContext {
         }))
     }
     
-    public func optimize(_ variants: [String : Any]) throws -> Decision<[String: Any]> {
+    public func chooseMultivariate(_ variants: [String : Any]) throws -> Decision<[String: Any]> {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
@@ -147,5 +147,13 @@ public struct DecisionContext {
                 v.value
             })
         }))
+    }
+    
+    public func optimize<T>(_ variants: [String : [T]]) throws -> [String : T] {
+        return try chooseMultivariate(variants).get()
+    }
+    
+    public func optimize(_ variants: [String : Any]) throws -> [String: Any] {
+        return try chooseMultivariate(variants).get()
     }
 }

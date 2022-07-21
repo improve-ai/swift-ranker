@@ -276,38 +276,43 @@ class TestDecisionModel: XCTestCase {
         XCTAssertEqual("hi", greeting)
     }
     
-    func testOptimize_dictionary_empty() throws {
-        let variants:[String:Any] = [String:Any]()
-        let _ = try loadedModel().which(variants)
+    func testChooseMultivariate_dictionary_empty() throws {
+        let variants:[String:Any] = [:]
+        do {
+            let _ = try loadedModel().chooseMultivariate(variants)
+        } catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
     }
     
-    func testOptimize_heterogenous() throws {
+    func testChooseMultivaraite_heterogenous() throws {
         let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13], "color":["#ffffff"], "width":1080]
-        let theme: [String:Any] = try model().optimize(variants).get()
+        let theme: [String:Any] = try model().chooseMultivariate(variants).get()
         print("theme: \(theme)")
     }
     
-    func testOptimize_homogeneous() throws {
+    func testChooseMultivariate_homogeneous() throws {
         let variants = ["style":["normal", "bold"], "color":["red", "black"]]
-        let theme: [String: String] = try model().optimize(variants).get()
+        let theme: [String: String] = try model().chooseMultivariate(variants).get()
         debugPrint(theme)
         
         let persons = ["p": [Person(name: "Tom", age: 20, address: "DC"), Person(name: "Jerry", age: 20, address: "CD")]]
-        let person: [String:Person] = try model().optimize(persons).get()
+        let person: [String:Person] = try model().chooseMultivariate(persons).get()
         debugPrint(person)
         let upsells = ["p":[["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "q": [["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "m":[1, 2, 3]]
         let upsell = try model().which(upsells)
         debugPrint("upsell: ", upsell)
     }
     
-    func testOptimize_original_type() throws {
+    func testChooseMultivariate_original_type() throws {
         let variants:[String:Encodable] = ["style":["normal", "bold"], "size":[12, 13], "width":1080, "p1":[Person(name: "Tom", age: 12)], "p2": Person(name: "Jerry", age: 20, address: "dc")]
-        let chosen = try model().load(modelUrl()).optimize(variants).get()
+        let chosen = try model().load(modelUrl()).chooseMultivariate(variants).get()
         let _ = chosen["p1"] as! Person
         debugPrint("chosen: ", chosen)
     }
     
-    func testOptimize_typeNotSupported() throws {
+    func testChooseMultivariate_typeNotSupported() throws {
         let variants = ["beg": Date(), "end": Date()]
         do {
             let _ = try model().optimize(variants)
@@ -315,6 +320,15 @@ class TestDecisionModel: XCTestCase {
             return
         }
         XCTFail(shouldThrowError)
+    }
+    
+    func testOptimize() throws {
+        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13]]
+        let theme: [String:Any] = try model().optimize(variants)
+        debugPrint("theme: \(theme)")
+        XCTAssertEqual(2, theme.count)
+        XCTAssertNotNil(theme["style"])
+        XCTAssertNotNil(theme["size"])
     }
     
     func testTypeNotSupported_date() throws {

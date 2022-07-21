@@ -79,4 +79,23 @@ class TestDecisionContext: XCTestCase {
         let greeting = try model().given(nil).which("Hello World", "Howdy World", "Hi World")
         print("greeting: \(greeting)")
     }
+    
+    func testChooseMultivariate() throws {
+        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13]]
+        let decision = try model().given(nil).chooseMultivariate(variants)
+        let theme = decision.get()
+        debugPrint("theme: \(theme)")
+        XCTAssertEqual(2, theme.count)
+        XCTAssertNotNil(theme["style"])
+        XCTAssertNotNil(theme["size"])
+    }
+    
+    func testOptimize() throws {
+        let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13]]
+        let theme: [String:Any] = try model().given(nil).optimize(variants)
+        debugPrint("theme: \(theme)")
+        XCTAssertEqual(2, theme.count)
+        XCTAssertNotNil(theme["style"])
+        XCTAssertNotNil(theme["size"])
+    }
 }

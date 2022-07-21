@@ -16,13 +16,13 @@ public struct Decision<T> {
         self.variants = variants
     }
     
-    public func get() throws -> T {
+    public func get() -> T {
         let encodedVariant = self.decision.get()
         let index = (self.decision.variants as NSArray).indexOfObjectIdentical(to: encodedVariant)
         return variants[index]
     }
     
-    public func peek() throws -> T {
+    public func peek() -> T {
         let encodedVariant = self.decision.peek()
         let index = (self.decision.variants as NSArray).indexOfObjectIdentical(to: encodedVariant)
         return variants[index]

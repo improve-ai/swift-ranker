@@ -47,7 +47,7 @@ class TestDecision: XCTestCase {
 
     func testDecision_addReward() throws {
         let decision = try model().chooseFrom(variants())
-        let _ = try decision.get()
+        let _ = decision.get()
         decision.addReward(0.1)
     }
 }
