@@ -74,24 +74,44 @@ public struct DecisionModel {
     public func chooseFirst<T>(_ variants: [T]) throws -> Decision<T> {
         return try given(nil).chooseFirst(variants)
     }
+    
+    public func first<T>(_ variants: [T]) throws -> T {
+        return try given(nil).first(variants)
+    }
  
     public func first<T>(_ variants: T...) throws -> T {
-        return try chooseFirst(variants).get()
+        return try given(nil).first(variants)
+    }
+    
+    public func first(_ variants: Any...) throws -> Any {
+        return try given(nil).first(variants)
     }
     
     public func chooseRandom<T>(_ variants: [T]) throws -> Decision<T> {
-        return try given(nil).chooseRandom(variants);
+        return try given(nil).chooseRandom(variants)
+    }
+    
+    public func random<T>(_ variants: [T]) throws -> T {
+        return try given(nil).random(variants)
     }
     
     public func random<T>(_ variants: T...) throws -> T {
-        return try chooseRandom(variants).get()
+        return try given(nil).random(variants)
+    }
+    
+    public func random(_ variants: Any...) throws -> Any {
+        return try given(nil).random(variants)
+    }
+    
+    public func which<T>(_ variants: [T]) throws -> T {
+        return try given(nil).which(variants)
     }
     
     public func which<T>(_ variants: T...) throws -> T {
         return try given(nil).which(variants)
     }
     
-    public func which<T>(_ variants: [T]) throws -> T {
+    public func which(_ variants: Any...) throws -> Any {
         return try given(nil).which(variants)
     }
     

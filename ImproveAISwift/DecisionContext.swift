@@ -44,7 +44,15 @@ public struct DecisionContext {
         return Decision(self.decisionContext.chooseFirst(encodedVariants), variants)
     }
     
+    public func first<T>(_ variants: [T]) throws -> T {
+        return try chooseFirst(variants).get()
+    }
+    
     public func first<T>(_ variants: T...) throws -> T {
+        return try chooseFirst(variants).get()
+    }
+    
+    public func first(_ variants: Any...) throws -> Any {
         return try chooseFirst(variants).get()
     }
 
@@ -56,8 +64,20 @@ public struct DecisionContext {
         return Decision(self.decisionContext.chooseRandom(encodedVariants), variants)
     }
     
+    public func random<T>(_ variants: [T]) throws -> T {
+        return try chooseRandom(variants).get()
+    }
+    
     public func random<T>(_ variants: T...) throws -> T {
-        return try self.chooseRandom(variants).get()
+        return try chooseRandom(variants).get()
+    }
+    
+    public func random(_ variants: Any...) throws -> Any {
+        return try chooseRandom(variants).get()
+    }
+    
+    public func which(_ variants: Any...) throws -> Any {
+        return try which(variants)
     }
     
     public func which<T>(_ variants: T...) throws -> T {

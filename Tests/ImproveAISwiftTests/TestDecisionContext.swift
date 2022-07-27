@@ -54,12 +54,56 @@ class TestDecisionContext: XCTestCase {
         XCTAssertEqual("Hello World", greeting)
     }
 
-    func testFirst() throws {
+    func testFirstVariadic() throws {
         let greeting: String = try model().given(givens()).first("Hello World", "Howdy World", "Hi World")
         XCTAssertEqual("Hello World", greeting)
         
-        let upsell = try model().given(nil).first(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
+        let upsell = try model().given(givens()).first(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
         debugPrint("upsell: ", upsell)
+    }
+    
+    func testFirstVariadic_empty() throws {
+        do {
+            let _: String = try model().given(givens()).first()
+        }  catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
+    
+    func testFirstVariadic_mixed_types() throws {
+        let chosen = try model().given(givens()).first("hi", 1, false, 1.2)
+        debugPrint("chosen: \(chosen)")
+        XCTAssertEqual("hi", chosen as! String)
+    }
+    
+    func testFirstList() throws {
+        let themes = [
+            Theme(fontSize: 12, primaryColor: "#000000"),
+            Theme(fontSize: 13, primaryColor: "#f0f0f0"),
+            Theme(fontSize: 14, primaryColor: "#ffffff")]
+        let theme: Theme = try model().given(givens()).first(themes)
+        print("theme: \(theme)")
+        XCTAssertEqual(12, theme.fontSize)
+        XCTAssertEqual("#000000", theme.primaryColor)
+        XCTAssertNil(theme.secondaryColor)
+        XCTAssertNil(theme.padding)
+        
+        let upsell: [String : Any] = try model().given(givens()).first([
+            ["name": "gold", "quantity": 100, "price": 1.99],
+            ["name": "diamonds", "quantity": 10, "price": 2.99],
+            ["name": "red scabbard", "price": 0.99]])
+        debugPrint("upsell: ", upsell)
+    }
+    
+    func testFirstList_empty() throws {
+        do {
+            let themes:[Theme] = []
+            let _: Theme = try model().load(modelUrl()).first(themes)
+        } catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
     }
 
     func testChooseRandom() throws {
@@ -67,17 +111,95 @@ class TestDecisionContext: XCTestCase {
         print("random greeting: \(greeting)")
     }
 
-    func testRandom() throws {
-        let greeting = try model().random("Hello World", "Howdy World", "Hi World")
+    func testRandomVariadic() throws {
+        let greeting: String = try model().random("Hello World", "Howdy World", "Hi World")
         print("random greeting: \(greeting)")
         
-        let upsell = try model().given(nil).random(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
+        let upsell: [String : Any] = try model().given(nil).random(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
         debugPrint("upsell: ", upsell)
     }
     
-    func testWhich_variadic() throws {
-        let greeting = try model().given(nil).which("Hello World", "Howdy World", "Hi World")
+    func testRandomVariadic_empty() throws {
+        do {
+            let _: String = try model().given(givens()).random()
+        }  catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
+    
+    func testRandomVariadic_mixed_types() throws {
+        let chosen = try model().given(givens()).random("hi", 1, false, 1.2)
+        debugPrint("chosen: \(chosen)")
+    }
+    
+    func testRandomList() throws {
+        let themes = [
+            Theme(fontSize: 12, primaryColor: "#000000"),
+            Theme(fontSize: 13, primaryColor: "#f0f0f0"),
+            Theme(fontSize: 14, primaryColor: "#ffffff")]
+        let theme: Theme = try model().given(givens()).random(themes)
+        print("theme: \(theme)")
+        
+        let upsell: [String : Any] = try model().given(givens()).random([
+            ["name": "gold", "quantity": 100, "price": 1.99],
+            ["name": "diamonds", "quantity": 10, "price": 2.99],
+            ["name": "red scabbard", "price": 0.99]])
+        debugPrint("upsell: ", upsell)
+    }
+    
+    func testRandomList_empty() throws {
+        do {
+            let themes:[Theme] = []
+            let _: Theme = try model().load(modelUrl()).random(themes)
+        } catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
+    
+    func testWhichVariadic() throws {
+        let greeting: String = try model().given(givens()).which("Hello World", "Howdy World", "Hi World")
         print("greeting: \(greeting)")
+    }
+    
+    func testWhichVariadic_empty() throws {
+        do {
+            let _: String = try model().given(givens()).which()
+        } catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
+    
+    func testWhichVariadic_mixed_types() throws {
+        let chosen = try model().given(givens()).which(1, "hi", false)
+        debugPrint("chosen: \(chosen)")
+    }
+    
+    func testWhichList() throws {
+        let themes = [
+            Theme(fontSize: 12, primaryColor: "#000000"),
+            Theme(fontSize: 13, primaryColor: "#f0f0f0"),
+            Theme(fontSize: 14, primaryColor: "#ffffff")]
+        let theme: Theme = try model().given(givens()).which(themes)
+        print("theme: \(theme)")
+        
+        let upsell = try model().given(givens()).which([
+            ["name": "gold", "quantity": 100, "price": 1.99],
+            ["name": "diamonds", "quantity": 10, "price": 2.99],
+            ["name": "red scabbard", "price": 0.99]])
+        debugPrint("upsell: ", upsell)
+    }
+    
+    func testWhichList_empty() throws {
+        do {
+            let themes:[Theme] = []
+            let _: Theme = try model().load(modelUrl()).which(themes)
+        } catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
     }
     
     func testChooseMultivariate() throws {
