@@ -562,7 +562,7 @@ extern NSString *const kTrackApiKey;
 }
 
 - (void)testScore_consistent_encoding {
-    int loop = 10;
+    int loop = 3;
     for(int i = 0; i < loop; ++i) {
         NSArray *variant = @[@1.0, @2];
         NSDictionary *givens = @{
@@ -1337,8 +1337,52 @@ extern NSString * const kTrackerURL;
 
 - (void)testAddRewardForDecision_nil_decisionId {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    NSString *decisionId = nil;
     @try {
-        [decisionModel addReward:0.1 decision:nil];
+        [decisionModel addReward:0.1 decision:decisionId];
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+        return ;
+    }
+    XCTFail(@"decisionId can't be nil");
+}
+
+- (void)testAddRewardForDecision_nil_trackURL {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    decisionModel.trackURL = nil;
+    @try {
+        [decisionModel addReward:0.1 decision:@"decision_id"];
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+        return ;
+    }
+    XCTFail(@"decisionId can't be nil");
+}
+
+- (void)testAddRewardForDecision_positive_infinity {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    @try {
+        [decisionModel addReward:INFINITY decision:@"decision_id"];
+    } @catch(NSException *e) {
+        return ;
+    }
+    XCTFail(@"decisionId can't be nil");
+}
+
+- (void)testAddRewardForDecision_negative_infinity {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    @try {
+        [decisionModel addReward:-INFINITY decision:@"decision_id"];
+    } @catch(NSException *e) {
+        return ;
+    }
+    XCTFail(@"decisionId can't be nil");
+}
+
+- (void)testAddRewardForDecision_nan {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greeting"];
+    @try {
+        [decisionModel addReward:NAN decision:@"decision_id"];
     } @catch(NSException *e) {
         return ;
     }

@@ -99,6 +99,16 @@ extern NSString * const kTrackerURL;
     XCTAssertEqualWithAccuracy(oldTotalRewardOfModel+0.1, newTotalRewardOfModel, 0.000001);
 }
 
+- (void)testAddRewardForDecision {
+    NSString *modelName = @"greeting";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    double oldTotalReward = [[AppGivensProvider shared] rewardOfModel:modelName];
+    [decisionModel addReward:0.1 decision:@"abc"];
+    double newTotalReward = [[AppGivensProvider shared] rewardOfModel:modelName];
+    NSLog(@"reward: %lf, %lf", oldTotalReward, newTotalReward);
+    XCTAssertEqualWithAccuracy(oldTotalReward + 0.1, newTotalReward, 0.00000000001);
+}
+
 extern NSString *const kLanguageKey;
 - (void)testOverlappingKeys {
     NSDictionary *givens = @{
