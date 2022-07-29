@@ -92,14 +92,17 @@ public struct DecisionContext {
     }
     
     public func chooseMultivariate<T>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
-        if variants.isEmpty {
-            throw IMPError.emptyVariants
-        }
         var categories: [[AnyEncodable]] = []
         var keys: [String] = []
         for (k, v) in variants {
-            categories.append(v.map{ AnyEncodable($0) })
-            keys.append(k)
+            if !v.isEmpty {
+                categories.append(v.map{ AnyEncodable($0) })
+                keys.append(k)
+            }
+        }
+        
+        if categories.isEmpty {
+            throw IMPError.emptyVariants
         }
 
         var combinations: [[String:AnyEncodable]] = []
@@ -129,18 +132,22 @@ public struct DecisionContext {
     }
     
     public func chooseMultivariate(_ variants: [String : Any]) throws -> Decision<[String: Any]> {
-        if variants.isEmpty {
-            throw IMPError.emptyVariants
-        }
         var categories: [[AnyEncodable]] = []
         var keys: [String] = []
         for (k, v) in variants {
-            if let x = v as? [Encodable] {
-                categories.append(x.map{AnyEncodable($0)})
+            if let v = v as? [Any] {
+                if !v.isEmpty {
+                    categories.append(v.map{ AnyEncodable($0) })
+                    keys.append(k)
+                }
             } else {
                 categories.append([AnyEncodable(v)])
+                keys.append(k)
             }
-            keys.append(k)
+        }
+        
+        if categories.isEmpty {
+            throw IMPError.emptyVariants
         }
 
         var combinations: [[String:AnyEncodable]] = []

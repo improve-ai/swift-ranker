@@ -383,6 +383,28 @@ class TestDecisionModel: XCTestCase {
         XCTAssertNotNil(theme["size"])
     }
     
+    func testOptimize_empty_member() throws {
+        let variants: [String:Any] = ["style":["normal", "bold"], "size":[], "color":["red", "blue"]]
+        let theme = try model().optimize(variants)
+        debugPrint("theme: \(theme)")
+        XCTAssertEqual(2, theme.count)
+        XCTAssertNotNil(theme["style"])
+        XCTAssertNotNil(theme["color"])
+        XCTAssertNil(theme["size"])
+        
+        var chosen = try model().optimize(["style":["normal", "bold"], "size":[], "color":["red", "blue"]])
+        XCTAssertEqual(2, chosen.count)
+        XCTAssertNotNil(chosen["style"])
+        XCTAssertNotNil(chosen["color"])
+        XCTAssertNil(chosen["size"])
+        
+        do {
+            chosen = try model().optimize(["style":[]])
+            XCTFail(shouldThrowError)
+        } catch IMPError.emptyVariants {
+        }
+    }
+    
     func testTypeNotSupported_date() throws {
         let variants = [Date(), Date()]
         do {

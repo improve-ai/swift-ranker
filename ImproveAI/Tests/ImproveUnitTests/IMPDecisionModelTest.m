@@ -188,8 +188,10 @@ extern NSString *const kTrackApiKey;
 
 // modelName can be nil
 - (void)testModelName_Nil {
+    NSString *modelName = nil;
     @try {
-        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:nil];
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+        NSLog(@"%@", decisionModel);
     } @catch(id exception) {
         NSLog(@"modelName can't be nil");
         return ;
@@ -935,7 +937,7 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testOptimize {
-    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]};
+    NSDictionary *variants = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[]};
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     NSDictionary *chosen = [decisionModel optimize:variants];
     NSLog(@"chosen: %@", chosen);
@@ -944,6 +946,15 @@ extern NSString * const kTrackerURL;
     XCTAssertNotNil(chosen[@"color"]);
 }
 
+- (void)testOptimize_empty_member {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel optimize:@{@"font":@[]}];
+        XCTFail("An exception should have been thrown");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
+}
 
 - (void)testWhich {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];

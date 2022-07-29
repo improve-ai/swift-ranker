@@ -181,12 +181,13 @@
     [variants enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         if(![obj isKindOfClass:[NSArray class]]) {
             [categories addObject:@[obj]];
+            [allKeys addObject:key];
         } else {
-            [categories addObject:obj];
+            if([obj count] > 0) {
+                [categories addObject:obj];
+                [allKeys addObject:key];
+            }
         }
-        // I'm not sure whether the order of keys in [variants allKeys] and the enumeration
-        // here is the same, so I'm adding the keys to a new array here anyway for safety.
-        [allKeys addObject:key];
     }];
     
     NSMutableArray<NSDictionary *> *combinations = [[NSMutableArray alloc] init];
