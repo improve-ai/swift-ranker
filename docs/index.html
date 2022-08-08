@@ -4,7 +4,7 @@
     <title>  Reference</title>
     <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="css/highlight.css" />
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <script src="js/jquery.min.js" defer></script>
     <script src="js/jazzy.js" defer></script>
     
@@ -13,64 +13,76 @@
     <script src="js/jazzy.search.js" defer></script>
   </head>
   <body>
+
+
     <a title="  Reference"></a>
-    <header>
-      <div class="content-wrapper">
-        <p><a href="index.html"> Docs</a> (57% documented)</p>
-        <p class="header-right"><a href="https://github.com/improve-ai/ios-sdk"><img src="img/gh.png" alt="GitHub"/>View on GitHub</a></p>
-        <div class="header-right">
-          <form role="search" action="search.json">
-            <input type="text" placeholder="Search documentation" data-typeahead>
-          </form>
-        </div>
-      </div>
-    </header>
-    <div class="content-wrapper">
-      <p id="breadcrumbs">
-        <a href="index.html"> Reference</a>
-        <img id="carat" src="img/carat.png" alt=""/>
-          Reference
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="index.html">
+           Docs
+        </a>
+         (100% documented)
       </p>
-    </div>
+    
+      <div class="header-col--secondary">
+        <form role="search" action="search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
+      </div>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/improve-ai/ios-sdk">
+            <img class="header-icon" src="img/gh.png" alt="GitHub"/>
+            View on GitHub
+          </a>
+        </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="dash-feed://https%3A%2F%2Fimprove-ai.github.io%2Fios-sdk%2Fdocsets%2F.xml">
+            <img class="header-icon" src="img/dash.png" alt="Dash"/>
+            Install in Dash
+          </a>
+        </p>
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="index.html"> Reference</a>
+      <img class="carat" src="img/carat.png" alt=""/>
+        Reference
+    </p>
+
     <div class="content-wrapper">
-      <nav class="sidebar">
+      <nav class="navigation">
         <ul class="nav-groups">
           <li class="nav-group-name">
-            <a href="Classes.html">Classes</a>
+            <a class="nav-group-name-link" href="Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="Classes/IMPDecision.html">IMPDecision</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="Classes/IMPDecisionContext.html">IMPDecisionContext</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="Classes/IMPDecisionModel.html">IMPDecisionModel</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="Classes/IMPGivensProvider.html">IMPGivensProvider</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="Classes/IMPModelDictionary.html">IMPModelDictionary</a>
+                <a class="nav-group-task-link" href="Enums/IMPError.html">IMPError</a>
               </li>
             </ul>
           </li>
           <li class="nav-group-name">
-            <a href="Extensions.html">Extensions</a>
+            <a class="nav-group-name-link" href="Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="Extensions/DecisionContext.html">DecisionContext</a>
+                <a class="nav-group-task-link" href="Structs/Decision.html">Decision</a>
               </li>
               <li class="nav-group-task">
-                <a href="Extensions/DecisionModel.html">DecisionModel</a>
+                <a class="nav-group-task-link" href="Structs/DecisionContext.html">DecisionContext</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/DecisionModel.html">DecisionModel</a>
               </li>
             </ul>
           </li>
         </ul>
       </nav>
       <article class="main-content">
-        <section>
-          <section class="section">
+
+        <section class="section">
+          <div class="section-content top-matter">
             
             <h1 id='ai-personalization-and-optimization-for-ios' class='heading'>AI Personalization and Optimization for iOS</h1>
 
@@ -126,8 +138,8 @@
 <pre class="highlight plaintext"><code>featureFlag = decisionModel.given(deviceAttributes).which(true, false)
 </code></pre>
 <h3 id='complex-objects' class='heading'>Complex Objects</h3>
-<pre class="highlight swift"><code><span class="n">themeVariants</span> <span class="o">=</span> <span class="p">[</span> <span class="p">{</span> <span class="s">"textColor"</span><span class="p">:</span> <span class="s">"#000000"</span><span class="p">,</span> <span class="s">"backgroundColor"</span><span class="p">:</span> <span class="s">"#ffffff"</span> <span class="p">},</span>
-                  <span class="p">{</span> <span class="s">"textColor"</span><span class="p">:</span> <span class="s">"#F0F0F0"</span><span class="p">,</span> <span class="s">"backgroundColor"</span><span class="p">:</span> <span class="s">"#aaaaaa"</span> <span class="p">}</span> <span class="p">]</span>
+<pre class="highlight swift"><code><span class="n">themeVariants</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span> <span class="s">"textColor"</span><span class="p">:</span> <span class="s">"#000000"</span><span class="p">,</span> <span class="s">"backgroundColor"</span><span class="p">:</span> <span class="s">"#ffffff"</span> <span class="p">],</span>
+                  <span class="p">[</span> <span class="s">"textColor"</span><span class="p">:</span> <span class="s">"#F0F0F0"</span><span class="p">,</span> <span class="s">"backgroundColor"</span><span class="p">:</span> <span class="s">"#aaaaaa"</span> <span class="p">]</span> <span class="p">]</span>
 
 <span class="n">theme</span> <span class="o">=</span> <span class="n">themeModel</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="n">themeVariants</span><span class="p">)</span>
 
@@ -168,7 +180,7 @@
 <p>Using the context, on a Spanish speaker&rsquo;s device we expect our <em>greetings</em> model to learn to choose <em>Hola</em>.</p>
 
 <p>Custom context can also be provided via <em>given()</em>:</p>
-<pre class="highlight swift"><code><span class="n">greeting</span> <span class="o">=</span> <span class="n">greetingsModel</span><span class="o">.</span><span class="nf">given</span><span class="p">({</span><span class="s">"language"</span><span class="p">:</span> <span class="s">"cowboy"</span><span class="p">})</span>
+<pre class="highlight swift"><code><span class="n">greeting</span> <span class="o">=</span> <span class="n">greetingsModel</span><span class="o">.</span><span class="nf">given</span><span class="p">([</span><span class="s">"language"</span><span class="p">:</span> <span class="s">"cowboy"</span><span class="p">])</span>
                          <span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="s">"Hello"</span><span class="p">,</span> <span class="s">"Howdy"</span><span class="p">,</span> <span class="s">"Hola"</span><span class="p">)</span>
 </code></pre>
 
@@ -181,9 +193,9 @@
 <pre class="highlight swift"><code><span class="n">product</span> <span class="o">=</span> <span class="p">{</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"red sword"</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">4.99</span> <span class="p">}</span>
 
 <span class="n">upsell</span> <span class="o">=</span> <span class="n">upsellModel</span><span class="o">.</span><span class="nf">given</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
-                    <span class="o">.</span><span class="nf">which</span><span class="p">({</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"gold"</span><span class="p">,</span> <span class="s">"quantity"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">1.99</span> <span class="p">},</span>
-                           <span class="p">{</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"diamonds"</span><span class="p">,</span> <span class="s">"quantity"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">2.99</span> <span class="p">},</span>
-                           <span class="p">{</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"red scabbard"</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">0.99</span> <span class="p">})</span>
+                    <span class="o">.</span><span class="nf">which</span><span class="p">([</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"gold"</span><span class="p">,</span> <span class="s">"quantity"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">1.99</span> <span class="p">],</span>
+                           <span class="p">[</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"diamonds"</span><span class="p">,</span> <span class="s">"quantity"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">2.99</span> <span class="p">],</span>
+                           <span class="p">[</span> <span class="s">"name"</span><span class="p">:</span> <span class="s">"red scabbard"</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">0.99</span> <span class="p">])</span>
 </code></pre>
 
 <p>The product to be purchased is the <strong>red sword</strong>.  Notice that the variants are dictionaries with a mix of string and numeric values.</p>
@@ -202,13 +214,13 @@
 <p>In the 2000s I was writing a lot of video streaming code. The initial motivation for Improve AI came out of my frustrations with attempting to tune video streaming clients across heterogenious networks.</p>
 
 <p>I was forced to make guesses on performance sensitive configuration defaults through slow trial and error. My client configuration code maybe looked something like this:</p>
-<pre class="highlight swift"><code><span class="n">config</span> <span class="o">=</span> <span class="p">{</span> <span class="s">"bufferSize"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
-           <span class="s">"videoBitrate"</span><span class="p">:</span> <span class="mi">384000</span> <span class="p">}</span>
+<pre class="highlight swift"><code><span class="n">config</span> <span class="o">=</span> <span class="p">[</span> <span class="s">"bufferSize"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+           <span class="s">"videoBitrate"</span><span class="p">:</span> <span class="mi">384000</span> <span class="p">]</span>
 </code></pre>
 
 <p>This is the code I wish I could have written:</p>
-<pre class="highlight swift"><code><span class="n">config</span> <span class="o">=</span> <span class="n">configModel</span><span class="o">.</span><span class="nf">which</span><span class="p">({</span><span class="s">"bufferSize"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">2048</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">8192</span><span class="p">],</span>
-                            <span class="s">"videoBitrate"</span><span class="p">:</span> <span class="p">[</span><span class="mi">256000</span><span class="p">,</span> <span class="mi">384000</span><span class="p">,</span> <span class="mi">512000</span><span class="p">]})</span>
+<pre class="highlight swift"><code><span class="n">config</span> <span class="o">=</span> <span class="n">configModel</span><span class="o">.</span><span class="nf">which</span><span class="p">([</span><span class="s">"bufferSize"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">2048</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">8192</span><span class="p">],</span>
+                            <span class="s">"videoBitrate"</span><span class="p">:</span> <span class="p">[</span><span class="mi">256000</span><span class="p">,</span> <span class="mi">384000</span><span class="p">,</span> <span class="mi">512000</span><span class="p">]])</span>
 </code></pre>
 
 <p>This example decides multiple variables simultaneously.  Notice that instead of a single list of variants, a dictionary mapping keys to lists of variants is provided to <em>which</em>. This multi-variate mode jointly optimizes both variables for the highest expected reward.  </p>
@@ -229,13 +241,15 @@
 
 <p>The mission of Improve AI is to make our corner of the world a little bit better each day. When each of us improve our corner of the world, the whole world becomes better. If your product or work does not make the world better, do not use Improve AI. Otherwise, welcome, I hope you find value in my labor of love. - Justin Chapweske</p>
 
-          </section>
+          </div>
         </section>
-        <section id="footer">
-          <p>&copy; 2022 <a class="link" href="https://improve.ai" target="_blank" rel="external noopener">ImproveAI</a>. All rights reserved. (Last updated: 2022-06-28)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
-        </section>
+
+
       </article>
     </div>
+    <section class="footer">
+      <p>&copy; 2022 <a class="link" href="https://improve.ai" target="_blank" rel="external noopener">ImproveAI</a>. All rights reserved. (Last updated: 2022-08-08)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+    </section>
   </body>
 </html>

@@ -1,0 +1,16 @@
+swift_build_tool: "xcodebuild"
+
+build_tool_arguments:
+  - "-scheme"
+  - "ImproveAI"
+  - "-destination"
+  - "platform=iOS Simulator,OS=15.5,name=iPhone 12"
+  - "-sdk"
+  - "iphonesimulator"
+
+exclude: "ImproveAISwift/internal/*"
+author: ImproveAI
+author_url: https://improve.ai
+github_url: https://github.com/improve-ai/ios-sdk
+root_url: https://improve-ai.github.io/ios-sdk/
+theme: fullwidth

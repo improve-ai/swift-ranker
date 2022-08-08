@@ -35,7 +35,7 @@ func isNil (_ input: Any) -> Bool {
 // be used in the new runtime. _TtC10Foundation20_PropertyListEncoder
 // is the mangled name for Foundation._PropertyListEncoder.
 // @_objcRuntimeName(_TtC10Foundation20_PropertyListEncoder)
-open class PListEncoder {
+internal class PListEncoder {
 
     // MARK: - Options
 

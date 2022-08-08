@@ -17,8 +17,7 @@
     <a title="Extensions  Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="index.html"> Docs</a> (57% documented)</p>
-        <p class="header-right"><a href="https://github.com/improve-ai/ios-sdk"><img src="img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <p><a href="index.html"> Docs</a> (100% documented)</p>
         <div class="header-right">
           <form role="search" action="search.json">
             <input type="text" placeholder="Search documentation" data-typeahead>
@@ -40,19 +39,15 @@
             <a href="Classes.html">Classes</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="Classes/IMPDecision.html">IMPDecision</a>
+                <a href="Classes/PListEncoder.html">PListEncoder</a>
               </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="Classes/IMPDecisionContext.html">IMPDecisionContext</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="Classes/IMPDecisionModel.html">IMPDecisionModel</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="Classes/IMPGivensProvider.html">IMPGivensProvider</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="Classes/IMPModelDictionary.html">IMPModelDictionary</a>
+                <a href="Enums/IMPError.html">IMPError</a>
               </li>
             </ul>
           </li>
@@ -60,10 +55,24 @@
             <a href="Extensions.html">Extensions</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="Extensions/DecisionContext.html">DecisionContext</a>
+                <a href="Extensions/AnyEncodable.html">AnyEncodable</a>
               </li>
               <li class="nav-group-task">
-                <a href="Extensions/DecisionModel.html">DecisionModel</a>
+                <a href="Extensions/__PlistEncoder.html">__PlistEncoder</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/Decision.html">Decision</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/DecisionContext.html">DecisionContext</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/DecisionModel.html">DecisionModel</a>
               </li>
             </ul>
           </li>
@@ -78,13 +87,22 @@
           </section>
           <section class="section task-group-section">
             <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Encodable"></a>
+                <a name="//apple_ref/swift/Section/Encodable" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Encodable"></a>
+                  <h3 class="section-name"><span>Encodable</span>
+</h3>
+                </div>
+              </div>
               <ul>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/"></a>
-                    <a name="//apple_ref/swift/Extension/DecisionModel" class="dashAnchor"></a>
-                    <a class="token" href="#/">DecisionModel</a>
+                    <a name="/s:9ImproveAI12AnyEncodableV"></a>
+                    <a name="//apple_ref/swift/Extension/AnyEncodable" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI12AnyEncodableV">AnyEncodable</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -93,17 +111,49 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         
-                        <a href="Extensions/DecisionModel.html" class="slightly-smaller">See more</a>
+                        <a href="Extensions/AnyEncodable.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">Equatable</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">CustomStringConvertible</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">CustomDebugStringConvertible</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">ExpressibleByNilLiteral</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">ExpressibleByBooleanLiteral</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">ExpressibleByIntegerLiteral</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">ExpressibleByFloatLiteral</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">ExpressibleByStringLiteral</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">ExpressibleByStringInterpolation</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">ExpressibleByArrayLiteral</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">ExpressibleByDictionaryLiteral</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">AnyEncodable</span><span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Encoding%20Containers"></a>
+                <a name="//apple_ref/swift/Section/Encoding Containers" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Encoding%20Containers"></a>
+                  <h3 class="section-name"><span>Encoding Containers</span>
+</h3>
+                </div>
+              </div>
+              <ul>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/"></a>
-                    <a name="//apple_ref/swift/Extension/DecisionContext" class="dashAnchor"></a>
-                    <a class="token" href="#/">DecisionContext</a>
+                    <a name="/s:9ImproveAI14__PlistEncoder33_DB8FBDA1761C55A0B13EC3FA6F5FAC21LLC"></a>
+                    <a name="//apple_ref/swift/Extension/__PlistEncoder" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI14__PlistEncoder33_DB8FBDA1761C55A0B13EC3FA6F5FAC21LLC">__PlistEncoder</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -112,7 +162,15 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         
-                        <a href="Extensions/DecisionContext.html" class="slightly-smaller">See more</a>
+                        <a href="Extensions/__PlistEncoder.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">extension</span> <span class="nv">__PlistEncoder</span> <span class="p">:</span> <span class="kt">SingleValueEncodingContainer</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -122,7 +180,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2022 <a class="link" href="https://improve.ai" target="_blank" rel="external noopener">ImproveAI</a>. All rights reserved. (Last updated: 2022-06-28)</p>
+          <p>&copy; 2022 <a class="link" href="" target="_blank" rel="external noopener"></a>. All rights reserved. (Last updated: 2022-08-08)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>

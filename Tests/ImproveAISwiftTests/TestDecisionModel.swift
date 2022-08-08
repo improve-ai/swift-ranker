@@ -27,6 +27,19 @@ struct Config: Encodable {
     }
 }
 
+struct Person: Codable {
+    var name: String
+    var age: Int?
+    var address: String?
+    var nilValue: String?
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(age, forKey: .age)
+    }
+}
+
 class TestDecisionModel: XCTestCase {
 
     override func setUpWithError() throws {
