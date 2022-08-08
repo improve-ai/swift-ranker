@@ -1,5 +1,4 @@
 import ImproveAICore
-import AnyCodable
 
 public struct DecisionModel {
     internal var decisionModel: IMPDecisionModel
