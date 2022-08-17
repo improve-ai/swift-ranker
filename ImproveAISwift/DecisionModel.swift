@@ -1,6 +1,6 @@
 import ImproveAICore
 
-public struct DecisionModel {
+public class DecisionModel {
     internal var decisionModel: IMPDecisionModel
     
     internal init(_ decisionModel: IMPDecisionModel) {
@@ -46,8 +46,20 @@ public struct DecisionModel {
         return self
     }
     
-    public func loadAsync(_ url: URL, completion handler: ((IMPDecisionModel?, Error?) -> Void)? = nil) {
-        self.decisionModel.loadAsync(url, completion: handler)
+    public func loadAsync(_ url: URL, completion handler: ((DecisionModel?, Error?) -> Void)? = nil) {
+        decisionModel.loadAsync(url) { decisionModel, error in
+            if error == nil {
+                self.decisionModel = decisionModel!
+            }
+            
+            if let handler = handler {
+                if error == nil {
+                    handler(self, nil)
+                } else {
+                    handler(nil, error)
+                }
+            }
+        }
     }
     
     public func given(_ givens: [String : Any]?) throws -> DecisionContext {

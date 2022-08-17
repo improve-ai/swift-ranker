@@ -84,11 +84,12 @@ class TestDecisionModel: XCTestCase {
         model().loadAsync(modelUrl()) { decisionModel, error in
             XCTAssertNil(error)
             XCTAssertNotNil(decisionModel)
+            XCTAssertTrue(decisionModel! is DecisionModel)
             expectation.fulfill()
         }
         waitForExpectations(timeout: 10)
     }
-
+    
     func testLoadAsync_nil_completion() {
         let decisionModel = model()
         decisionModel.loadAsync(modelUrl())
