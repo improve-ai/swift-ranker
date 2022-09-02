@@ -285,6 +285,21 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[IMPDecisionContext alloc] initWithModel:self andGivens:givens];
 }
 
+- (IMPDecision *)decide:(NSArray *)variants
+{
+    return [self decide:variants ordered:false];
+}
+
+- (IMPDecision *)decide:(NSArray *)variants ordered:(BOOL)ordered
+{
+    return [[self given:nil] decide:variants ordered:ordered];
+}
+
+- (IMPDecision *)decide:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores
+{
+    return [[self given:nil] decide:variants scores:scores];
+}
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [[self given:nil] chooseFrom:variants];
@@ -319,11 +334,7 @@ static IMPGivensProvider *_defaultGivensProvider;
 
 - (IMPDecision *)chooseRandom:(NSArray *)variants
 {
-    if([variants count] <= 0) {
-        NSString *reason = @"variants can't be nil or empty.";
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-    }
-    return [self chooseFrom:variants scores:[IMPDecisionModel generateRandomScores:[variants count]]];
+    return [[self given:nil] chooseRandom:variants];
 }
 
 - (id)random:(id)firstVariant, ...
@@ -451,7 +462,6 @@ static IMPGivensProvider *_defaultGivensProvider;
     }
 }
 
-
 // in case of tie, the lowest index wins. Ties should be very rare due to small random noise added to scores
 // in IMPChooser.score()
 + (id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
@@ -473,16 +483,13 @@ static IMPGivensProvider *_defaultGivensProvider;
     return bestVariant;
 }
 
-// If variants.count != scores.count, an NSRangeException exception will be thrown.
 // Case 3 #2 refsort approach: https://stackoverflow.com/a/27309301
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
 {
-    NSUInteger size;
-    if(variants.count > scores.count) {
-        size = variants.count;
-    } else {
-        size = scores.count;
+    if(([variants count] != [scores count]) || ([variants count] <= 0)) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be nil or empty, and variants.count must equal scores.count" userInfo:nil];
     }
+    NSUInteger size = [variants count];
     NSMutableArray<NSNumber *> *indices = [[NSMutableArray alloc] initWithCapacity:size];
     for(NSUInteger i = 0; i < size; ++i){
         indices[i] = [NSNumber numberWithInteger:i];

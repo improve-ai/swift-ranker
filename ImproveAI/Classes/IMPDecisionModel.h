@@ -80,6 +80,34 @@ NS_ASSUME_NONNULL_BEGIN
 - (IMPDecisionContext *)given:(nullable NSDictionary <NSString *, id>*)givens NS_SWIFT_NAME(given(_:));
 
 /**
+ * Equivalent to decide(variants, ordered=false).
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
+ */
+- (IMPDecision *)decide:(NSArray *)variants NS_SWIFT_NAME(decide(_:));
+
+/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @param ordered True means the variants are already in order with the best variant at the first position.
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
+ */
+- (IMPDecision *)decide:(NSArray *)variants ordered:(BOOL)ordered NS_SWIFT_NAME(decide(_:_:));
+
+/**
+ * The chosen variant is the one with the highest score.
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @param scores Scores of the variants.
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants is nil or empty; Thrown if variants.count != scores.count.
+ */
+- (IMPDecision *)decide:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(decide(_:_:));
+
+/**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
  * @return An IMPDecision object.

@@ -62,23 +62,11 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     return ((double)arc4random() / UINT32_MAX) <= 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
-/**
- * Since Decision.get() throwns an exception if variants is nil or empty, we can assume here that
- * bestVariant won't be nil and variants.count > 0
- * @param bestVariant won't be nil or empty.
- * @param variants can't be nil or empty
- */
-- (nullable NSString *)track:(id)bestVariant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp
+- (nullable NSString *)track:(NSArray *)rankedVariants given:(NSDictionary *)givens modelName:(NSString *)modelName
 {
-    if ([modelName length] <= 0) {
-        IMPErrLog("Improve.track error modelName is empty or nil");
-        return nil;
-    }
+    BOOL trackRunnersUp = [self shouldTrackRunnersUp:[rankedVariants count]];
     
-    if(bestVariant != nil && [variants indexOfObject:bestVariant] == NSNotFound) {
-        IMPErrLog("bestVariant must be included in variants");
-        return nil;
-    }
+    id bestVariant = rankedVariants[0];
     
     // create and persist decisionId
     NSString *decisionId = [self createAndPersistDecisionIdForModel:modelName];
@@ -95,19 +83,19 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     
     [self setBestVariant:bestVariant dict:body];
     
-    [self setCount:variants dict:body];
+    [self setCount:rankedVariants dict:body];
 
     if (givens) {
         body[kGivensKey] = givens;
     }
     
     NSArray *runnersUp;
-    if (variantsRankedAndTrackRunnersUp) {
-        runnersUp = [self topRunnersUp:variants];
+    if (trackRunnersUp) {
+        runnersUp = [self topRunnersUp:rankedVariants];
         body[kRunnersUpKey] = runnersUp;
     }
 
-    id sampleVariant = [self sampleVariantOf:variants runnersUpCount:runnersUp.count ranked:variantsRankedAndTrackRunnersUp bestVariant:bestVariant];
+    id sampleVariant = [self sampleVariantOf:rankedVariants runnersUpCount:runnersUp.count];
     if(sampleVariant) {
         body[kSampleKey] = sampleVariant;
     }
@@ -118,9 +106,8 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 }
 
 /**
- * @param variants all variants
+ * @param rankedVariants Ranked variants.
  * @param runnersUpCount number of runners_up variants
- * @param ranked Yes when variants is ranked with the first variant being the best; otherwise, the best variant
  * could be any one of the variants
  * If there are no runners up, then sample is a random sample from variants with just best excluded.
  * If there are runners up, then sample is a random sample from variants with best and runners up excluded.
@@ -128,30 +115,14 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
  * If there are no remaining variants after best and runners up, then there is no sample.
  * @return nil when there's no sample variant
  */
-- (id)sampleVariantOf:(NSArray *)variants runnersUpCount:(NSUInteger)runnersUpCount ranked:(BOOL)ranked bestVariant:(id)bestVariant {
-    if(bestVariant == nil) {
-        return nil;
-    }
-    
-    NSUInteger samplesCount = variants.count - runnersUpCount - 1;
+- (id)sampleVariantOf:(NSArray *)rankedVariants runnersUpCount:(NSUInteger)runnersUpCount {
+    NSUInteger samplesCount = rankedVariants.count - runnersUpCount - 1;
     if(samplesCount <= 0) {
         return nil;
     }
     
-    if(ranked) {
-        NSRange range = NSMakeRange(runnersUpCount+1, samplesCount);
-        NSArray *samples = [variants subarrayWithRange:range];
-        return samples.randomObject;
-    } else {
-        // variants is not ranked and there is no runners-up
-        NSUInteger indexOfBestVariant = [variants indexOfObject:bestVariant];
-        while (true) {
-            NSUInteger randomIdx = arc4random_uniform((uint32_t)variants.count);
-            if(randomIdx != indexOfBestVariant) {
-                return [variants objectAtIndex:randomIdx];
-            }
-        }
-    }
+    NSUInteger randomIdx = arc4random_uniform((uint32_t)samplesCount) + runnersUpCount + 1;
+    return rankedVariants[randomIdx];
 }
 
 - (void)setBestVariant:(id)bestVariant dict:(NSMutableDictionary *)body {

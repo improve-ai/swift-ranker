@@ -16,11 +16,30 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Get the chosen variant and track the decision. The decision would be tracked only once.
- * @return Returns the chosen variant memoized.
- * @throws IMPIllegalStateException Thrown if called before chooseFrom()
+ * Equivalent to get(trackOnce=True)
  */
 - (id)get;
+
+/**
+ * Get the chosen variant and track the decision.
+ * @param trackOnce If true, the decision would be tracked only once no matter how many times
+ * get()/ranked() is called; otherwise, the decision would not be tracked.
+ * @return Returns the chosen variant.
+ */
+- (id)get:(BOOL)trackOnce;
+
+/**
+ * Equivalent to ranked(trackOnce=True)
+ */
+- (NSArray *)ranked;
+
+/**
+ * Get the ranked variants and track the decision.
+ * @param trackOnce If true, the decision would be tracked only once no matter how many times
+ * get()/ranked() is called; otherwise, the decision would not be tracked.
+ * @return Returns the ranked variants.
+ */
+- (NSArray *)ranked:(BOOL)trackOnce;
 
 /**
  * Same as get() except that peek won't track the decision.

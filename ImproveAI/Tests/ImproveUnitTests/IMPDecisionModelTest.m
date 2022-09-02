@@ -30,6 +30,8 @@ extern NSString *const kTrackApiKey;
 
 @property (nonatomic, copy) NSArray *variants;
 
+@property (nonatomic, copy) NSArray *rankedVariants;
+
 @property(nonatomic, strong) NSArray *scores;
 
 @property(nonatomic, strong) NSDictionary *givens;
@@ -108,6 +110,19 @@ extern NSString *const kTrackApiKey;
                                                 withExtension:@"mlmodelc"];
     }
     return _bundledModelURL;
+}
+
+- (nullable IMPDecisionModel *)loadedModel {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    return [decisionModel load:[NSURL URLWithString:kRemoteModelURL] error:nil];
+}
+
+- (IMPDecisionModel *)unloadedModel {
+    return [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+}
+
+- (NSArray *)variants {
+    return @[@"Hello World", @"Howdy World", @"Hi World"];
 }
 
 - (void)testInit {
@@ -524,7 +539,8 @@ extern NSString *const kTrackApiKey;
 - (void)testScore_nil_variants {
     IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
     @try {
-        [model score:nil];
+        NSArray *variants = nil;
+        [model score:variants];
     } @catch(NSException *e) {
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
         return ;
@@ -606,6 +622,115 @@ extern NSString *const kTrackApiKey;
     }
 }
 
+- (void)testDecide {
+    IMPDecisionModel *decisionModel = [self loadedModel];
+    XCTAssertNotNil(decisionModel);
+    
+    NSArray *variants = [self variants];
+    IMPDecision *decision = [decisionModel decide:variants];
+    XCTAssertEqual([variants count], [decision.rankedVariants count]);
+}
+
+- (void)testDecide_invalid_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    
+    // nil variants
+    @try {
+        NSArray *variants = nil;
+        [decisionModel decide:variants];
+        XCTFail(@"variants can't be nil");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+    
+    // empty variants
+    @try {
+        NSArray *variants = @[];
+        [decisionModel decide:variants];
+        XCTFail(@"variants can't be empty");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+}
+
+- (void)testDecide_ordered_true {
+    IMPDecisionModel *decisionModel = [self loadedModel];
+    XCTAssertNotNil(decisionModel);
+    
+    NSArray *variants = [self variants];
+    
+    for (int i = 0; i < 10; ++i) {
+        IMPDecision *decision = [decisionModel decide:variants ordered:YES];
+        XCTAssertEqual([variants count], [decision.rankedVariants count]);
+        for(int j = 0; j < [variants count]; ++j) {
+            XCTAssertEqualObjects(variants[j], decision.rankedVariants[j]);
+        }
+    }
+}
+
+- (void)testDecide_ordered_invalid_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    
+    // nil variants
+    @try {
+        NSArray *variants = nil;
+        [decisionModel decide:variants ordered:YES];
+        XCTFail(@"variants can't be nil");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+    
+    // empty variants
+    @try {
+        NSArray *variants = @[];
+        [decisionModel decide:variants ordered:YES];
+        XCTFail(@"variants can't be empty");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+}
+
+- (void)testDecideVariantsAndScores {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSArray *scores = @[@2.1, @1.1, @3.1];
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    IMPDecision *decision = [decisionModel decide:variants scores:scores];
+    XCTAssertEqualObjects(@"Hi World", decision.rankedVariants[0]);
+    XCTAssertEqualObjects(@"Hello World", decision.rankedVariants[1]);
+    XCTAssertEqualObjects(@"Howdy World", decision.rankedVariants[2]);
+}
+
+- (void)testDecideVariantsAndScores_invalid_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    
+    @try {
+        NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+        NSArray *scores = @[@2.1, @1.1];
+        [decisionModel decide:variants scores:scores];
+        XCTFail(@"variants size must be equal to scores size");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+    
+    @try {
+        NSArray *variants = @[];
+        NSArray *scores = @[];
+        [decisionModel decide:variants scores:scores];
+        XCTFail(@"variants and scores can't be empty");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+    
+    @try {
+        NSArray *variants = @[];
+        NSArray *scores = nil;
+        [decisionModel decide:variants scores:scores];
+        XCTFail(@"variants and scores can't be nil");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+}
+
 - (void)testChooseFrom {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     NSDictionary *context = @{@"language": @"cowboy"};
@@ -668,7 +793,7 @@ extern NSString * const kTrackerURL;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     IMPDecision *decision = [decisionModel chooseFrom:variants scores:scores];
     XCTAssertNotNil(decision);
-    XCTAssertEqualObjects(@"Hi World", decision.best);
+    XCTAssertEqualObjects(@"Hi World", [decision get]);
     XCTAssertEqualObjects(variants, decision.variants);
     XCTAssertEqualObjects(scores, decision.scores);
     XCTAssertEqual(19, [decision.givens count]);
@@ -869,7 +994,8 @@ extern NSString * const kTrackerURL;
 - (void)testChooseMultivariate_nil_dictionary {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     @try {
-        [decisionModel chooseMultivariate:nil];
+        NSDictionary *variants = nil;
+        [decisionModel chooseMultivariate:variants];
     } @catch(NSException *e) {
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
         return ;

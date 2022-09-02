@@ -22,7 +22,8 @@
 
 - (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount;
 
-- (nullable NSString *)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp;
+- (nullable NSString *)track:(NSArray *)rankedVariants given:(NSDictionary *)givens modelName:(NSString *)modelName;
+
 @end
 
 //Package priveate properties
@@ -38,7 +39,7 @@
 
 @property (nonatomic, copy, nullable) NSDictionary *givens;
 
-@property (nonatomic, strong) id best;
+@property (nonatomic, strong) NSArray *rankedVariants;
 
 /**
  * A decision should be tracked only once when calling get(). A boolean here may
@@ -52,41 +53,45 @@
 
 @implementation IMPDecision
 
-- (instancetype)initWithModel:(IMPDecisionModel *)model
+- (instancetype)initWithModel:(IMPDecisionModel *)model rankedVariants:(NSArray *)rankedVariants givens:(NSDictionary *)givens
 {
     if(self = [super init]) {
         _model = model;
+        _rankedVariants = rankedVariants;
+        _givens = givens;
     }
     return self;
 }
 
 - (id)peek
 {
-    return _best;
+    return _rankedVariants[0];
 }
 
 - (id)get
 {
-    @synchronized (self) {
-        // No matter how many times get() is called, we only call track for once.
-        if(_tracked == 0) {
-            IMPDecisionTracker *tracker = _model.tracker;
-            if (tracker) {
-                if ([tracker shouldTrackRunnersUp:_variants.count]) {
-                    // the more variants there are, the less frequently this is called
-                    NSArray *rankedVariants = [IMPDecisionModel rank:_variants withScores:_scores];
-                    _id = [tracker track:_best variants:rankedVariants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
-                } else {
-                    // faster and more common path, avoids array sort
-                    _id = [tracker track:_best variants:_variants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
-                }
-                _tracked++;
-            } else {
-                IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
-            }
-        }
+    return [self get:YES];
+}
+
+- (id)get:(BOOL)trackOnce
+{
+    if (trackOnce) {
+        [self trackOnce];
     }
-    return _best;
+    return _rankedVariants[0];
+}
+
+- (NSArray *)ranked
+{
+    return [self ranked:YES];
+}
+
+- (NSArray *)ranked:(BOOL)trackOnce
+{
+    if (trackOnce) {
+        [self trackOnce];
+    }
+    return _rankedVariants;
 }
 
 - (void)addReward:(double)reward
@@ -95,6 +100,22 @@
         @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"_id can't be nil. Make sure that addReward() is called after get(); and trackURL is set in the DecisionModel." userInfo:nil];
     }
     [self.model addReward:reward decision:_id];
+}
+
+- (void)trackOnce
+{
+    @synchronized (self) {
+        // No matter how many times get() is called, we only call track for once.
+        if(_tracked == 0) {
+            IMPDecisionTracker *tracker = _model.tracker;
+            if (tracker) {
+                _id = [tracker track:_rankedVariants given:_givens modelName:_model.modelName];
+                _tracked++;
+            } else {
+                IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
+            }
+        }
+    }
 }
 
 @end

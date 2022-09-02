@@ -16,6 +16,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
+ * @see IMPDecisionModel.decide()
+ */
+- (IMPDecision *)decide:(NSArray *)variants NS_SWIFT_NAME(decide(_:));
+
+/**
+ * @see IMPDecisionModel.decide()
+ */
+- (IMPDecision *)decide:(NSArray *)variants ordered:(BOOL)ordered NS_SWIFT_NAME(decide(_:_:));
+
+/**
+ * @see IMPDecisionModel.decide()
+ */
+- (IMPDecision *)decide:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(decide(_:_:));
+
+/**
  * @see IMPDecisionModel.chooseFrom()
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));

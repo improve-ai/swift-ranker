@@ -16,11 +16,7 @@
 
 @property (nonatomic, copy, readwrite) NSArray *variants;
 
-@property (nonatomic, copy, nullable) NSDictionary *givens;
-
-@property(nonatomic, strong) id best;
-
-- (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
+- (instancetype)initWithModel:(IMPDecisionModel *)model rankedVariants:(NSArray *)rankedVariants givens:(NSDictionary *)givens;
 
 @end
 
@@ -31,6 +27,8 @@
 + (nullable id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
 + (NSArray *)generateDescendingGaussians:(NSUInteger) count;
+
++ (NSArray *)generateRandomScores:(NSUInteger)count;
 
 @end
 
@@ -53,33 +51,54 @@
     return self;
 }
 
-- (IMPDecision *)chooseFrom:(NSArray *)variants
+- (IMPDecision *)decide:(NSArray *)variants
 {
+    return [self decide:variants ordered:false];
+}
+
+- (IMPDecision *)decide:(NSArray *)variants ordered:(BOOL)ordered
+{
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be nil or empty." userInfo:nil];
+    }
+    
     NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
     
-    NSArray *scores = [_model scoreInternal:variants allGivens:allGivens];
+    NSArray *scores;
+    NSArray *rankedVariants;
+    if (ordered) {
+        scores = [IMPDecisionModel generateDescendingGaussians:[variants count]];
+        rankedVariants = variants;
+    } else {
+        scores = [_model scoreInternal:variants allGivens:allGivens];
+        rankedVariants = [IMPDecisionModel rank:variants withScores:scores];
+    }
     
-    id best = [IMPDecisionModel topScoringVariant:variants withScores:scores];
-    
-    IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model rankedVariants:rankedVariants givens:allGivens];
     decision.variants = variants;
-    decision.best = best;
-    decision.givens = allGivens;
     decision.scores = scores;
     
     return decision;
 }
 
-- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores
+- (IMPDecision *)decide:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores
 {
     NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
-    id best = [IMPDecisionModel topScoringVariant:variants withScores:scores];
-    IMPDecision *decision = [[IMPDecision alloc] initWithModel:self.model];
+    id rankedVariants = [IMPDecisionModel rank:variants withScores:scores];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model rankedVariants:rankedVariants givens:allGivens];
     decision.variants = variants;
-    decision.best = best;
-    decision.givens = allGivens;
     decision.scores = scores;
     return decision;
+}
+
+- (IMPDecision *)chooseFrom:(NSArray *)variants
+{
+    return [self decide:variants];
+}
+
+- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores
+{
+    return [self decide:variants scores:scores];
 }
 
 - (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:))
@@ -131,9 +150,11 @@
 
 - (IMPDecision *)chooseRandom:(NSArray *)variants
 {
-    IMPDecision *decision = [self.model chooseRandom:variants];
-    decision.givens = [_model.givensProvider givensForModel:_model givens:_givens];;
-    return decision;
+    if([variants count] <= 0) {
+        NSString *reason = @"variants can't be nil or empty.";
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
+    }
+    return [self decide:variants scores:[IMPDecisionModel generateRandomScores:[variants count]]];
 }
 
 - (id)random:(id)firstVariant, ...
