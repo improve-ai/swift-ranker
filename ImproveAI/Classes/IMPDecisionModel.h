@@ -108,6 +108,22 @@ NS_ASSUME_NONNULL_BEGIN
 - (IMPDecision *)decide:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(decide(_:_:));
 
 /**
+ * Variadic version of which(NSArray *variants)
+ * @param firstVariant A variant can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
+ * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
+ * @return Returns the chosen variant.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
+ */
+- (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
+
+/**
+ * This method is a short hand of decide(variants).get()
+ * @param variants A variant can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
+ * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
+ */
+- (id)whichFrom:(NSArray *)variants NS_SWIFT_NAME(whichFrom(_:));
+
+/**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
  * @return An IMPDecision object.
@@ -194,17 +210,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
 - (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(optimize(_:));
-
-/**
- * This method is a short hand of chooseFrom(variants).get().
- * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray or an NSDictionary.
- * When the only argument is an NSArray, it's equivalent to calling chooseFrom(firstVariant).get();
- * When there are two or more arguments, all the arguments would form an NSArray and be passed to chooseFrom()
- * Primitive types are not allowed.
- * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
- */
-- (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,

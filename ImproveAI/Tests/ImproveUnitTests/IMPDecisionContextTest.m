@@ -20,8 +20,6 @@ extern NSString *const kTrackApiKey;
 
 @property(nonatomic, readonly, nullable) id best;
 
-@property(nonatomic, strong) NSArray *scores;
-
 @property(nonatomic, copy) NSArray *rankedVariants;
 
 @property(nonatomic, strong) NSDictionary *givens;
@@ -150,8 +148,6 @@ extern NSString *const kTrackApiKey;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecisionContext *decisionContext = [decisionModel given:givens];
     IMPDecision *decision = [decisionContext chooseFrom:[self variants]];
-    XCTAssertNotNil(decision.best);
-    XCTAssertNotNil(decision.scores);
     XCTAssertEqual(20, [decision.givens count]);
 }
 
@@ -159,8 +155,6 @@ extern NSString *const kTrackApiKey;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecisionContext *decisionContext = [decisionModel given:nil];
     IMPDecision *decision = [decisionContext chooseFrom:[self variants]];
-    XCTAssertNotNil(decision.best);
-    XCTAssertNotNil(decision.scores);
     XCTAssertEqual(19, [decision.givens count]);
 }
 
@@ -202,7 +196,7 @@ extern NSString *const kTrackApiKey;
     IMPDecision *decision = [[decisionModel given:givens] chooseFrom:variants scores:scores];
     XCTAssertEqual(20, [decision.givens count]);
     XCTAssertEqualObjects(@"en", decision.givens[@"lang"]);
-    XCTAssertEqualObjects(@"Howdy World", decision.best);
+    XCTAssertEqualObjects(@"Howdy World", [decision get]);
 }
 
 - (void)testChooseFromVariantsAndScores_nil_givens {
@@ -211,7 +205,7 @@ extern NSString *const kTrackApiKey;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     IMPDecision *decision = [[decisionModel given:self.givens] chooseFrom:variants scores:scores];
     XCTAssertEqual(20, [decision.givens count]);
-    XCTAssertEqualObjects(@"Howdy World", decision.best);
+    XCTAssertEqualObjects(@"Howdy World", [decision get]);
 }
 
 - (void)testChooseFromVariantsAndScores_nil_variants {
@@ -413,60 +407,65 @@ extern NSString *const kTrackApiKey;
 }
 
 - (void)testWhich {
-    NSError *error;
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    decisionModel = [decisionModel load:self.modelURL error:&error];
-    XCTAssertNotNil(decisionModel);
-    XCTAssertNil(error);
+    IMPDecisionContext *decisionContext = [[self unloadedModel] given:self.givens];
     
-    IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
-    id best = [decisionContext which:@"Hello World", @"Howdy World", @"Hi World", nil];
-    XCTAssertNotNil(best);
+    id chosen = [decisionContext which:@"Hi", @"Hello", @"Hey", nil];
+    XCTAssertEqualObjects(@"Hi", chosen);
+    
+    chosen = [decisionContext which:@"Hello", nil];
+    XCTAssertEqualObjects(@"Hello", chosen);
+    
+    NSArray *array = @[@1, @2, @3];
+    chosen = [decisionContext which:array, nil];
+    XCTAssertEqualObjects(array, chosen);
+    
+    NSArray *emptyArray = @[];
+    chosen = [decisionContext which:emptyArray, nil];
+    XCTAssertEqualObjects(@[], chosen);
+    
+    NSDictionary *dict = @{@"color":@"#ffffff"};
+    chosen = [decisionContext which:dict, nil];
+    XCTAssertEqualObjects(dict, chosen);
+    
+    NSDictionary *emptyDict = @{};
+    chosen = [decisionContext which:emptyDict, nil];
+    XCTAssertEqualObjects(emptyDict, chosen);
 }
 
-- (void)testWhich_1_argument_dictionary {
+- (void)testWhich_no_argument {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
     @try {
-        [decisionContext which:@{@"style":@[@"bold", @"italic"], @"size":@[@3, @5]}, nil];
+        [[decisionModel given:nil] which:nil];
     } @catch(NSException *e) {
-        return;
-    }
-    XCTFail(@"An exception should have been thrown");
-}
-
-- (void)testWhich_empty_dict {
-    NSError *error;
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    decisionModel = [decisionModel load:self.modelURL error:&error];
-    XCTAssertNotNil(decisionModel);
-    XCTAssertNil(error);
-    
-    IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
-    @try {
-        [decisionContext which:@{}, nil];
-    } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+        NSLog(@"%@", e);
         return ;
     }
     XCTFail(@"An exception should have been thrown");
 }
 
-- (void)testWhich_empty_array {
-    NSError *error;
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
-    decisionModel = [decisionModel load:self.modelURL error:&error];
-    XCTAssertNotNil(decisionModel);
-    XCTAssertNil(error);
-    
-    IMPDecisionContext *decisionContext = [decisionModel given:self.givens];
+- (void)testWhichFrom {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    NSString *chosen = [[decisionModel given:nil] whichFrom:[self variants]];
+    XCTAssertEqualObjects(@"Hello World", chosen);
+}
+
+- (void)testWhichFrom_nil_empty_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
     @try {
-        [decisionContext which:@[], nil];
+        NSArray *variants = nil;
+        [[decisionModel given:nil] whichFrom:variants];
+        XCTFail(@"variants can't be nil");
     } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
+        NSLog(@"%@", e);
     }
-    XCTFail(@"An exception should have been thrown");
+    
+    @try {
+        NSArray *variants = @[];
+        [[decisionModel given:nil] whichFrom:variants];
+        XCTFail(@"variants can't be empty");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
 }
 
 - (void)testChooseMultivariate {

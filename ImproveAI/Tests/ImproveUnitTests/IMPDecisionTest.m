@@ -29,8 +29,6 @@
 
 @property (nonatomic, strong, readonly) NSString *id;
 
-@property(nonatomic, readonly, nullable) id best;
-
 @property(nonatomic, strong) NSArray *scores;
 
 @property(nonatomic, strong) NSDictionary *allGivens;

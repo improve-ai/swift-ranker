@@ -64,19 +64,16 @@
     
     NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
     
-    NSArray *scores;
     NSArray *rankedVariants;
     if (ordered) {
-        scores = [IMPDecisionModel generateDescendingGaussians:[variants count]];
         rankedVariants = variants;
     } else {
-        scores = [_model scoreInternal:variants allGivens:allGivens];
+        NSArray<NSNumber *> *scores = [_model scoreInternal:variants allGivens:allGivens];
         rankedVariants = [IMPDecisionModel rank:variants withScores:scores];
     }
     
     IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model rankedVariants:rankedVariants givens:allGivens];
     decision.variants = variants;
-    decision.scores = scores;
     
     return decision;
 }
@@ -87,8 +84,29 @@
     id rankedVariants = [IMPDecisionModel rank:variants withScores:scores];
     IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model rankedVariants:rankedVariants givens:allGivens];
     decision.variants = variants;
-    decision.scores = scores;
     return decision;
+}
+
+- (id)which:(id)firstVariant, ...
+{
+    va_list args;
+    va_start(args, firstVariant);
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(id arg = firstVariant; arg != nil; arg = va_arg(args, id)) {
+        [variants addObject:arg];
+    }
+    va_end(args);
+    
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"which() expects at least one argument." userInfo:nil];
+    }
+    
+    return [self whichFrom:variants];
+}
+
+- (id)whichFrom:(NSArray *)variants
+{
+    return [[self decide:variants] get];
 }
 
 - (IMPDecision *)chooseFrom:(NSArray *)variants
@@ -242,35 +260,6 @@
 {
     NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
     return [_model scoreInternal:variants allGivens:allGivens];
-}
-
-- (id)which:(id)firstVariant, ...
-{
-    va_list args;
-    va_start(args, firstVariant);
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(id arg = firstVariant; arg != nil; arg = va_arg(args, id)) {
-        [variants addObject:arg];
-    }
-    va_end(args);
-    return [self whichInternal:variants];
-}
-
-- (id)whichInternal:(NSArray *)variants
-{
-    if([variants count] <= 0) {
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"which() expects at least one argument." userInfo:nil];
-    }
-    
-    if([variants count] == 1) {
-        id firstVariant = variants[0];
-        if([firstVariant isKindOfClass:[NSArray class]] && [firstVariant count] > 0) {
-            return [[self chooseFrom:firstVariant] get];
-        }
-        NSString *reason = @"If only one argument, it must be a nonempty NSArray.";
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-    }
-    return [[self chooseFrom:variants] get];
 }
 
 @end

@@ -31,8 +31,6 @@
 
 @property (nonatomic, strong, readonly) NSString *id;
 
-@property(nonatomic, strong) NSArray *scores;
-
 @property (nonatomic, strong) IMPDecisionModel *model;
 
 @property (nonatomic, copy, readwrite) NSArray *variants;

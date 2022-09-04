@@ -26,8 +26,6 @@ extern NSString *const kTrackApiKey;
 // Package private properties
 @interface IMPDecision ()
 
-@property(nonatomic, readonly, nullable) id best;
-
 @property (nonatomic, copy) NSArray *variants;
 
 @property (nonatomic, copy) NSArray *rankedVariants;
@@ -1084,7 +1082,27 @@ extern NSString * const kTrackerURL;
 
 - (void)testWhich {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    [decisionModel which:@"Hi", @"Hello", @"Hey", nil];
+    id chosen = [decisionModel which:@"Hi", @"Hello", @"Hey", nil];
+    XCTAssertEqualObjects(@"Hi", chosen);
+    
+    chosen = [decisionModel which:@"Hello", nil];
+    XCTAssertEqualObjects(@"Hello", chosen);
+    
+    NSArray *array = @[@1, @2, @3];
+    chosen = [decisionModel which:array, nil];
+    XCTAssertEqualObjects(array, chosen);
+    
+    NSArray *emptyArray = @[];
+    chosen = [decisionModel which:emptyArray, nil];
+    XCTAssertEqualObjects(@[], chosen);
+    
+    NSDictionary *dict = @{@"color":@"#ffffff"};
+    chosen = [decisionModel which:dict, nil];
+    XCTAssertEqualObjects(dict, chosen);
+    
+    NSDictionary *emptyDict = @{};
+    chosen = [decisionModel which:emptyDict, nil];
+    XCTAssertEqualObjects(emptyDict, chosen);
 }
 
 - (void)testWhich_no_argument {
@@ -1092,71 +1110,35 @@ extern NSString * const kTrackerURL;
     @try {
         [decisionModel which:nil];
     } @catch(NSException *e) {
-        XCTAssertEqualObjects(@"which() expects at least one argument.", e.reason);
+        NSLog(@"%@", e);
         return ;
     }
     XCTFail(@"An exception should have been thrown");
 }
 
-// pass only one variant to which() and the variant is not an array
-- (void)testWhich_1_argument_non_array {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    @try {
-        id best = [decisionModel which:@1, nil];
-        NSLog(@"best is %@", best);
-    } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
-    }
-    XCTFail(@"An exception should have been thrown");
+- (void)testWhichFrom {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    NSString *chosen = [decisionModel whichFrom:[self variants]];
+    XCTAssertEqualObjects(@"Hello World", chosen);
 }
 
-- (void)testWhich_1_argument_array {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    id best = [decisionModel which:@[@1, @2, @3], nil];
-    NSLog(@"best is %@", best);
-}
-
-- (void)testWhich_1_argument_empty_array {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+- (void)testWhichFrom_nil_empty_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
     @try {
-        [decisionModel which:@[], nil];
-    } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
-    }
-    XCTFail(@"An exception should have been thrown");
-}
-
-- (void)testWhich_1_argument_dictionary {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    @try {
-        [decisionModel which:@{@"style":@[@"bold", @"italic"], @"size":@[@3, @5]}, nil];
-    } @catch(NSException *e) {
-        return;
-    }
-    XCTFail(@"An exception should have been thrown");
-}
-
-- (void)testWhich_1_argument_empty_dictionary {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    @try {
-        [decisionModel which:@{}, nil];
+        NSArray *variants = nil;
+        [decisionModel whichFrom:variants];
+        XCTFail(@"variants can't be nil");
     } @catch(NSException *e) {
         NSLog(@"%@", e);
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
     }
-    XCTFail(@"An exception should have been thrown");
-}
-
-- (void)testWhich_multiple_arguments {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    id best = [decisionModel which:@"Hi", @"Hello", @"Hey", nil];
-    NSLog(@"best is %@", best);
     
-    best = [decisionModel which:@[@"Hi", @"Hello", @"Hey"], @"Hi~", nil];
-    NSLog(@"best is %@", best);
+    @try {
+        NSArray *variants = @[];
+        [decisionModel whichFrom:variants];
+        XCTFail(@"variants can't be empty");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
 }
 
 - (void)testRank{

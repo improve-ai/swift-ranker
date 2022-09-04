@@ -23,8 +23,6 @@
 
 - (instancetype)initWithModel:(IMPDecisionModel *)model andGivens:(nullable NSDictionary *)givens;
 
-- (id)whichInternal:(NSArray *)variants;
-
 - (id)firstInternal:(NSArray *)variants;
 
 - (id)randomInternal:(NSArray *)variants;
@@ -300,6 +298,26 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[self given:nil] decide:variants scores:scores];
 }
 
+- (id)which:(id)firstVariant, ...
+{
+    va_list args;
+    va_start(args, firstVariant);
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(id arg = firstVariant; arg != nil; arg = va_arg(args, id)) {
+        [variants addObject:arg];
+    }
+    va_end(args);
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"which() expects at least one argument." userInfo:nil];
+    }
+    return [self whichFrom:variants];
+}
+
+- (id)whichFrom:(NSArray *)variants
+{
+    return [[self given:nil] whichFrom:variants];
+}
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [[self given:nil] chooseFrom:variants];
@@ -362,18 +380,6 @@ static IMPGivensProvider *_defaultGivensProvider;
 - (id)optimize:(NSDictionary<NSString *, id> *)variants
 {
     return [[self chooseMultivariate:variants] get];
-}
-
-- (id)which:(id)firstVariant, ...
-{
-    va_list args;
-    va_start(args, firstVariant);
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(id arg = firstVariant; arg != nil; arg = va_arg(args, id)) {
-        [variants addObject:arg];
-    }
-    va_end(args);
-    return [[self given:nil] whichInternal:variants];
 }
 
 - (void)addReward:(double) reward

@@ -31,6 +31,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (IMPDecision *)decide:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(decide(_:_:));
 
 /**
+ * @see IMPDecisionModel.which()
+ */
+- (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
+
+/**
+ * @see IMPDecisionModel.whichFrom()
+ */
+- (id)whichFrom:(NSArray *)variants NS_SWIFT_NAME(whichFrom(_:));
+
+/**
  * @see IMPDecisionModel.chooseFrom()
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
@@ -78,11 +88,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return scores of the variants
  */
 - (NSArray<NSNumber *> *)score:(NSArray *)variants NS_SWIFT_NAME(score(_:));
-
-/**
- * @see IMPDecisionModel.which()
- */
-- (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end
 
