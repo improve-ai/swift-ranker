@@ -41,6 +41,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)whichFrom:(NSArray *)variants NS_SWIFT_NAME(whichFrom(_:));
 
 /**
+ * @see IMPDecisionModel.rank()
+ */
+- (NSArray *)rank:(NSArray *)variants NS_SWIFT_NAME(rank(_:));
+
+/**
  * @see IMPDecisionModel.chooseFrom()
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));

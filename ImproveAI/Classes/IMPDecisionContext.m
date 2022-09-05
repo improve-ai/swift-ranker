@@ -109,6 +109,11 @@
     return [[self decide:variants] get];
 }
 
+- (NSArray *)rank:(NSArray *)variants
+{
+    return [[self decide:variants] ranked];
+}
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [self decide:variants];

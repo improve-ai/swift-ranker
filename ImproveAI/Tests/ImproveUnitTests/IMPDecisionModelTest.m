@@ -1141,7 +1141,17 @@ extern NSString * const kTrackerURL;
     }
 }
 
-- (void)testRank{
+- (void)testRank {
+    NSArray *variants = [self variants];
+    IMPDecisionModel *decisionModel = [self loadedModel];
+    NSArray *rankedVariants = [decisionModel rank:variants];
+    XCTAssertEqual([variants count], [rankedVariants count]);
+    for(int i = 0; i < [variants count]; ++i) {
+        XCTAssertTrue([rankedVariants containsObject:variants[i]]);
+    }
+}
+
+- (void)testRankWithScores {
     NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
     NSMutableArray *scores = [[NSMutableArray alloc] init];
     int size = 10;
@@ -1175,46 +1185,35 @@ extern NSString * const kTrackerURL;
     }
 }
 
-- (void)testRank_larger_variants_size {
-    NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
-    NSMutableArray *scores = [[NSMutableArray alloc] init];
-    int size = 10;
-    
-    for(NSUInteger i = 0; i < size; ++i){
-        variants[i] = [NSNumber numberWithInteger:i];
-        scores[i] = [NSNumber numberWithDouble:i/100000.0];
-    }
-    variants[size] = [NSNumber numberWithInt:size];
-    
+- (void)testRankWithScores_illegal_arguments {
     @try {
-        NSArray<NSNumber *> *result = [IMPDecisionModel rank:variants withScores:scores];
-        NSLog(@"ranked size = %lu", result.count);
+        [IMPDecisionModel rank:@[@"Hi", @"Hello"] withScores:@[@1.0]];
+        XCTFail(@"variants number and scores number must be equal.");
     } @catch (NSException *e) {
         NSLog(@"name=%@, reason=%@", e.name, e.reason);
-        return ;
     }
-    XCTFail(@"An exception should have been thrown, we should not have reached here.");
-}
-
-- (void)testRank_larger_scores_size {
-    NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
-    NSMutableArray *scores = [[NSMutableArray alloc] init];
-    int size = 10;
-    
-    for(NSUInteger i = 0; i < size; ++i){
-        variants[i] = [NSNumber numberWithInteger:i];
-        scores[i] = [NSNumber numberWithDouble:i/100000.0];
-    }
-    scores[size] = [NSNumber numberWithDouble:size/100000.0];
     
     @try {
-        NSArray<NSNumber *> *result = [IMPDecisionModel rank:variants withScores:scores];
-        NSLog(@"ranked size = %lu", result.count);
+        [IMPDecisionModel rank:@[@"Hi", @"Hello"] withScores:@[@1.0, @2.0, @3.0]];
+        XCTFail(@"variants number and scores number must be equal.");
     } @catch (NSException *e) {
         NSLog(@"name=%@, reason=%@", e.name, e.reason);
-        return ;
     }
-    XCTFail(@"An exception should have been thrown, we should not have reached here.");
+    
+    @try {
+        [IMPDecisionModel rank:@[] withScores:@[]];
+        XCTFail(@"variants and socres can't be nil or empty");
+    } @catch (NSException *e) {
+        NSLog(@"name=%@, reason=%@", e.name, e.reason);
+    }
+    
+    @try {
+        NSArray *variants = nil;
+        [IMPDecisionModel rank:@[@"Hi", @"Hello"] withScores:variants];
+        XCTFail(@"variants and scores can't be nil or empty.");
+    } @catch (NSException *e) {
+        NSLog(@"name=%@, reason=%@", e.name, e.reason);
+    }
 }
 
 - (void)testTopScoringVariant{

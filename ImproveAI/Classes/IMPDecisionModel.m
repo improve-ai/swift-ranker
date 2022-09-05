@@ -318,6 +318,11 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[self given:nil] whichFrom:variants];
 }
 
+- (NSArray *)rank:(NSArray *)variants
+{
+    return [[self given:nil] rank:variants];
+}
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [[self given:nil] chooseFrom:variants];
@@ -492,9 +497,14 @@ static IMPGivensProvider *_defaultGivensProvider;
 // Case 3 #2 refsort approach: https://stackoverflow.com/a/27309301
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
 {
-    if(([variants count] != [scores count]) || ([variants count] <= 0)) {
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be nil or empty, and variants.count must equal scores.count" userInfo:nil];
+    if([variants count] <= 0 || [scores count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants and scores can't be nil or empty" userInfo:nil];
     }
+    
+    if([variants count] != [scores count]) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants.count must equal scores.count" userInfo:nil];
+    }
+    
     NSUInteger size = [variants count];
     NSMutableArray<NSNumber *> *indices = [[NSMutableArray alloc] initWithCapacity:size];
     for(NSUInteger i = 0; i < size; ++i){

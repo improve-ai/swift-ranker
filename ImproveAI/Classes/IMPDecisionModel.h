@@ -112,16 +112,24 @@ NS_ASSUME_NONNULL_BEGIN
  * @param firstVariant A variant can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
  * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
  * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
  */
 - (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
 /**
  * This method is a short hand of decide(variants).get()
  * @param variants A variant can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
- * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
+ * @return The chosen variant.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
  */
 - (id)whichFrom:(NSArray *)variants NS_SWIFT_NAME(whichFrom(_:));
+
+/**
+ * @param variants A variant can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @return Ranked variants starting with the best.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
+ */
+- (NSArray *)rank:(NSArray *)variants NS_SWIFT_NAME(rank(_:));
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,

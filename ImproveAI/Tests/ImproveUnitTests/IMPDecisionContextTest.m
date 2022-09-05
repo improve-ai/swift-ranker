@@ -468,6 +468,16 @@ extern NSString *const kTrackApiKey;
     }
 }
 
+- (void)testRank {
+    NSArray *variants = [self variants];
+    IMPDecisionModel *decisionModel = [self loadedModel];
+    NSArray *rankedVariants = [[decisionModel given:nil] rank:variants];
+    XCTAssertEqual([variants count], [rankedVariants count]);
+    for(int i = 0; i < [variants count]; ++i) {
+        XCTAssertTrue([rankedVariants containsObject:variants[i]]);
+    }
+}
+
 - (void)testChooseMultivariate {
     NSError *error;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
