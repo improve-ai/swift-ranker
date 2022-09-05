@@ -793,7 +793,6 @@ extern NSString * const kTrackerURL;
     XCTAssertNotNil(decision);
     XCTAssertEqualObjects(@"Hi World", [decision get]);
     XCTAssertEqualObjects(variants, decision.variants);
-    XCTAssertEqualObjects(scores, decision.scores);
     XCTAssertEqual(19, [decision.givens count]);
 }
 
@@ -1149,6 +1148,83 @@ extern NSString * const kTrackerURL;
     for(int i = 0; i < [variants count]; ++i) {
         XCTAssertTrue([rankedVariants containsObject:variants[i]]);
     }
+}
+
+- (void)testFullFactorialVariants_nil_dictionary {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        NSDictionary *variants = nil;
+        [decisionModel fullFactorialVariants:variants];
+        XCTFail(@"variantMap can't be nil");
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+    }
+}
+
+- (void)testFullFactorialVariants_empty_dictionary {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel fullFactorialVariants:@{}];
+        XCTFail(@"variantMap can't be empty");
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+    }
+}
+
+- (void)testFullFactorialVariants_1_variate {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    NSArray *variants = [decisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"]}];
+    XCTAssertEqual(2, [variants count]);
+    NSArray *expected = @[
+        @{@"font":@"Italic"} ,@{@"font":@"Bold"}
+    ];
+    NSLog(@"variants: %@", variants);
+    XCTAssertEqualObjects(expected, variants);
+}
+
+- (void)testFullFactorialVariants_2_variates {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    NSArray *variants = [decisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]}];
+    NSArray *expected = @[
+        @{@"font":@"Italic", @"color":@"#000000"},
+        @{@"font":@"Bold", @"color":@"#000000"},
+        @{@"font":@"Italic", @"color":@"#ffffff"},
+        @{@"font":@"Bold", @"color":@"#ffffff"}
+    ];
+    NSLog(@"variants: %@", variants);
+    XCTAssertEqualObjects(expected, variants);
+}
+
+- (void)testFullFactorialVariants_3_variates {
+    NSDictionary *variantMap = @{
+        @"font":@[@"Italic", @"Bold"],
+        @"color":@[@"#000000", @"#ffffff"],
+        @"size":@3
+    };
+
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    NSArray *variants = [decisionModel fullFactorialVariants:variantMap];
+    NSArray *expected = @[
+        @{@"font":@"Italic", @"color":@"#000000", @"size": @3},
+        @{@"font":@"Bold", @"color":@"#000000", @"size": @3},
+        @{@"font":@"Italic", @"color":@"#ffffff", @"size": @3},
+        @{@"font":@"Bold", @"color":@"#ffffff", @"size": @3}
+    ];
+    NSLog(@"variants: %@", variants);
+    XCTAssertEqualObjects(expected, variants);
+}
+
+- (void)testFullFactorialVariants_empty_array {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    NSArray *variants = [decisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[]}];
+    NSArray *expected = @[
+        @{@"font":@"Italic", @"color":@"#000000"},
+        @{@"font":@"Bold", @"color":@"#000000"},
+        @{@"font":@"Italic", @"color":@"#ffffff"},
+        @{@"font":@"Bold", @"color":@"#ffffff"}
+    ];
+    NSLog(@"variants: %@", variants);
+    XCTAssertEqualObjects(expected, variants);
 }
 
 - (void)testRankWithScores {

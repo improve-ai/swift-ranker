@@ -114,6 +114,11 @@
     return [[self decide:variants] ranked];
 }
 
+- (id)optimize:(NSDictionary<NSString *, id> *)variantMap
+{
+    return [self whichFrom:[self.model fullFactorialVariants:variantMap]];
+}
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [self decide:variants];
@@ -254,11 +259,6 @@
     IMPLog("Choosing from %ld combinations", [combinations count]);
     
     return [self chooseFrom:combinations];
-}
-
-- (id)optimize:(NSDictionary<NSString *, id> *)variants
-{
-    return [[self chooseMultivariate:variants] get];
 }
 
 - (NSArray<NSNumber *> *)score:(NSArray *)variants

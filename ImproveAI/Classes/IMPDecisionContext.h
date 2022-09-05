@@ -46,6 +46,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *)rank:(NSArray *)variants NS_SWIFT_NAME(rank(_:));
 
 /**
+ * @see IMPDecisionModel#optimize()
+ */
+- (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variantMap NS_SWIFT_NAME(optimize(_:));
+
+/**
  * @see IMPDecisionModel.chooseFrom()
  */
 - (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
@@ -80,11 +85,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @see IMPDecisionModel#chooseMultivariate()
  */
 - (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:));
-
-/**
- * @see IMPDecisionModel#optimize()
- */
-- (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(optimize(_:));
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,

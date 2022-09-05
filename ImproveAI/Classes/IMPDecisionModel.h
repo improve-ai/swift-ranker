@@ -132,6 +132,33 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *)rank:(NSArray *)variants NS_SWIFT_NAME(rank(_:));
 
 /**
+ * This method is a short hand of chooseMultivariate(variants).get().
+ * @param variantMap The value of the variantMap are expected to be lists of any JSON encodeable data structure of arbitrary complexity.
+ * If they are not lists, they are automatically wrapped as a list containing a single item.
+ * So optimize({"style":["bold", "italic"], "size":3}) is equivalent to optimize({"style":["bold", "italic"], "size":[3]})
+ * @return Returns the chosen variant
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is nil or empty.
+ */
+- (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variantMap NS_SWIFT_NAME(optimize(_:));
+
+/**
+ * An example here might be more expressive:
+ * fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5]}) returns
+ * [
+ *     {"style":"bold", "size":3},
+ *     {"style":"italic", "size":3},
+ *     {"style":"bold", "size":5},
+ *     {"style":"italic", "size":5},
+ * ]
+ * @param variantMap The values of the variant map are expected to be lists of any JSON encodeable data structure of arbitrary complexity.
+ * If they are not lists, they are automatically wrapped as a list containing a single item.
+ * So fullFactorialVariants({"style":["bold", "italic"], "size":3}) is equivalent to fullFactorialVariants({"style":["bold", "italic"], "size":[3]})
+ * @return Returns the full factorial combinations of key and values specified by the input variant map.
+ * @throws NSInvalidArgumentException Thrown if variantMap is nil or empty.
+ */
+- (NSArray *)fullFactorialVariants:(NSDictionary *)variantMap NS_SWIFT_NAME(fullFactorialVariants(_:));
+
+/**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
  * @return An IMPDecision object.
@@ -208,16 +235,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
 - (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:));
-
-/**
- * This method is a short hand of chooseMultivariate(variants).get().
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
- * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
- * So optimize({"style":["bold", "italic"], "size":3}) is equivalent to optimize({"style":["bold", "italic"], "size":[3]})
- * @return Returns the chosen variant
- * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
- */
-- (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(optimize(_:));
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,

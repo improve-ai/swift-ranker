@@ -31,8 +31,6 @@
 
 @interface IMPDecision ()
 
-@property(nonatomic, strong) NSArray *scores;
-
 //@property (nonatomic, copy) NSArray *variants;
 
 @property (nonatomic, copy, nullable) NSDictionary *givens;
@@ -323,6 +321,54 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[self given:nil] rank:variants];
 }
 
+- (id)optimize:(NSDictionary<NSString *, id> *)variantMap
+{
+    return [[self given:nil] optimize:variantMap];
+}
+
+- (NSArray *)fullFactorialVariants:(NSDictionary *)variantMap
+{
+    if([variantMap count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variantMap can't be nil or empty." userInfo:nil];
+    }
+    
+    NSMutableArray *keys = [[NSMutableArray alloc] initWithCapacity:[variantMap count]];
+    
+    NSMutableArray *categories = [NSMutableArray arrayWithCapacity:[variantMap count]];
+    [variantMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if(![obj isKindOfClass:[NSArray class]]) {
+            [categories addObject:@[obj]];
+            [keys addObject:key];
+        } else {
+            // ignore empty array values
+            if([obj count] > 0) {
+                [categories addObject:obj];
+                [keys addObject:key];
+            }
+        }
+    }];
+    
+    NSMutableArray<NSDictionary *> *combinations = [[NSMutableArray alloc] init];
+    for(int i = 0; i < [categories count]; ++i) {
+        NSArray *category = categories[i];
+        NSMutableArray<NSDictionary *> *newCombinations = [[NSMutableArray alloc] init];
+        for(int m = 0; m < [category count]; ++m) {
+            if([combinations count] == 0) {
+                [newCombinations addObject:@{keys[i]:category[m]}];
+            } else {
+                for(int n = 0; n < [combinations count]; ++n) {
+                    NSMutableDictionary *newVariant = [combinations[n] mutableCopy];
+                    [newVariant setObject:category[m] forKey:keys[i]];
+                    [newCombinations addObject:newVariant];
+                }
+            }
+        }
+        combinations = newCombinations;
+    }
+    
+    return combinations;
+}
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [[self given:nil] chooseFrom:variants];
@@ -380,11 +426,6 @@ static IMPGivensProvider *_defaultGivensProvider;
 - (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants
 {
     return [[self given:nil] chooseMultivariate:variants];
-}
-
-- (id)optimize:(NSDictionary<NSString *, id> *)variants
-{
-    return [[self chooseMultivariate:variants] get];
 }
 
 - (void)addReward:(double) reward
