@@ -113,6 +113,24 @@ class TestDecisionModel: XCTestCase {
         print("scores: \(scores)")
     }
     
+    func testDecide_ordered() throws {
+        let decisionModel = try loadedModel()
+        for _ in 1...5 {
+            let chosen = try decisionModel.decide(["Hi", "Hello", "Hey"], true).get()
+            XCTAssertEqual("Hi", chosen)
+        }
+    }
+    
+    func testDecide_not_ordered() throws {
+        let chosen = try loadedModel().decide(["Hi", "Hello", "Hey"], false).get()
+        print("chosen: \(chosen)")
+        
+        for _ in 1...5 {
+            let chosen = try model().decide(["Hi", "Hello", "Hey"], false).get()
+            XCTAssertEqual("Hi", chosen)
+        }
+    }
+    
     func testScore_empty() throws {
         do {
             let _ = try model().load(modelUrl()).score(emptyVariants())
@@ -169,13 +187,13 @@ class TestDecisionModel: XCTestCase {
         let size: Int = try decisionModel.which(1, 2, 3)
         print("which size: \(size)")
         
-        let upsell: [String : Any] = try loadedModel().which(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
+        let upsell = try loadedModel().which(["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99])
         debugPrint("upsell: ", upsell)
     }
     
     func testWhichVariadic_empty() throws {
         do {
-            let _: String = try model().load(modelUrl()).which()
+            let _: String = try model().which()
         } catch IMPError.emptyVariants {
             return
         }
@@ -183,31 +201,48 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testWhichVariadic_mixed_types() throws {
-        let decisionModel = try model().load(modelUrl())
-        
-        let chosen = try decisionModel.which(1, "hi", false)
+        let chosen = try model().which(1, "hi", false)
         debugPrint("chosen: \(chosen)")
     }
     
-    func testWhichList() throws {
+    func testRank() throws {
+        let variants = ["Hi", "Hello", "Hey"]
+        let ranked = try loadedModel().rank(variants)
+        XCTAssertEqual(variants.count, ranked.count)
+        debugPrint("ranked: \(ranked)")
+    }
+
+    
+    func testRank_any() throws {
+        let variants: [Any] = ["Hi", "Hello", "Hey", 3]
+        let ranked = try loadedModel().rank(variants)
+        XCTAssertEqual(variants.count, ranked.count)
+        debugPrint("ranked: \(ranked)")
+    }
+    
+    func testWhichFrom() throws {
+        let decisionModel = try loadedModel()
         let themes = [
             Theme(fontSize: 12, primaryColor: "#000000"),
             Theme(fontSize: 13, primaryColor: "#f0f0f0"),
             Theme(fontSize: 14, primaryColor: "#ffffff")]
-        let theme: Theme = try model().load(modelUrl()).which(themes)
+        let theme: Theme = try decisionModel.whichFrom(themes)
         print("theme: \(theme)")
         
-        let upsell = try loadedModel().which([
+        let upsell = try decisionModel.whichFrom([
             ["name": "gold", "quantity": 100, "price": 1.99],
             ["name": "diamonds", "quantity": 10, "price": 2.99],
             ["name": "red scabbard", "price": 0.99]])
         debugPrint("upsell: ", upsell)
+        
+        let chosen = try decisionModel.whichFrom(["Hello", 1, true])
+        debugPrint("chosen: \(chosen)")
     }
     
-    func testWhichList_empty() throws {
+    func testWhichFrom_empty() throws {
         do {
             let themes:[Theme] = []
-            let _: Theme = try model().load(modelUrl()).which(themes)
+            let _: Theme = try loadedModel().whichFrom(themes)
         } catch IMPError.emptyVariants {
             return
         }
@@ -342,6 +377,33 @@ class TestDecisionModel: XCTestCase {
         XCTAssertEqual("hi", greeting)
     }
     
+    func testFullFactorialVariants() throws {
+        let variantMap = ["style":["normal", "bold"], "color":["white", "black"]]
+        let variants: [[String : String]] = try model().fullFactorialVariants(variantMap) as! [[String : String]]
+        XCTAssertEqual(4, variants.count)
+        variants.forEach {
+            XCTAssertNotNil($0["style"])
+            XCTAssertNotNil($0["color"])
+        }
+    }
+    
+    func testFullFactorialVariants_empty_dict() throws {
+        let variantMap:[String:Any] = [:]
+        do {
+            let _ = try model().fullFactorialVariants(variantMap)
+        } catch IMPError.emptyVariants {
+            return
+        }
+        XCTFail(shouldThrowError)
+    }
+    
+    func testFullFactorialVariants_heterogenous() throws {
+        let variantMap:[String:Any] = ["style":["normal", "bold"], "size":[12, 13, 14], "color":["#ffffff"], "width":1080]
+        let variants: [[String:Any]] = try model().fullFactorialVariants(variantMap)
+        debugPrint("variants: \(variants)")
+        XCTAssertEqual(6, variants.count)
+    }
+    
     func testChooseMultivariate_dictionary_empty() throws {
         let variants:[String:Any] = [:]
         do {
@@ -360,11 +422,11 @@ class TestDecisionModel: XCTestCase {
     
     func testChooseMultivariate_homogeneous() throws {
         let variants = ["style":["normal", "bold"], "color":["red", "black"]]
-        let theme: [String: String] = try model().chooseMultivariate(variants).get()
+        let theme = try model().chooseMultivariate(variants).get()
         debugPrint(theme)
         
         let persons = ["p": [Person(name: "Tom", age: 20, address: "DC"), Person(name: "Jerry", age: 20, address: "CD")]]
-        let person: [String:Person] = try model().chooseMultivariate(persons).get()
+        let person = try model().chooseMultivariate(persons).get()
         debugPrint(person)
         let upsells = ["p":[["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "q": [["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "m":[1, 2, 3]]
         let upsell = try model().which(upsells)
@@ -397,6 +459,15 @@ class TestDecisionModel: XCTestCase {
         XCTAssertNotNil(theme["size"])
     }
     
+    func testOptimize_empty() throws {
+        let variantMap:[String:Any] = [:]
+        do {
+            _ = try model().optimize(variantMap)
+            XCTFail(shouldThrowError)
+        } catch IMPError.emptyVariants {
+        }
+    }
+    
     func testOptimize_empty_member() throws {
         let variants: [String:Any] = ["style":["normal", "bold"], "size":[], "color":["red", "blue"]]
         let theme = try model().optimize(variants)
@@ -417,6 +488,12 @@ class TestDecisionModel: XCTestCase {
             XCTFail(shouldThrowError)
         } catch IMPError.emptyVariants {
         }
+    }
+    
+    func testOptimize_heterogeneous() throws {
+        let upsells = ["p":[["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "q": [["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "m":[1, 2, 3]]
+        let upsell = try model().optimize(upsells)
+        debugPrint("upsell: ", upsell)
     }
     
     func testTypeNotSupported_date() throws {

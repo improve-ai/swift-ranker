@@ -35,9 +35,24 @@ class TestDecision: XCTestCase {
         return DecisionModel(modelName: "greetings")
     }
     
-    func testDecision_get() throws {
+    func testGet() throws {
         let greeting: String = try model().chooseFrom(variants()).get()
         XCTAssertEqual("Hello World", greeting)
+    }
+    
+    func testGet_trackOnce_false() throws {
+        let greeting: String = try model().chooseFrom(variants()).get(false)
+        XCTAssertEqual("Hello World", greeting)
+    }
+    
+    func testRanked() throws {
+        let rankedVariants = try model().decide(variants()).ranked()
+        XCTAssertEqual(variants().count, rankedVariants.count)
+    }
+    
+    func testRanked_trackOnce_false() throws {
+        let rankedVariants = try model().decide(variants()).ranked(false)
+        XCTAssertEqual(variants().count, rankedVariants.count)
     }
 
     func testDecision_peek() throws {

@@ -34,9 +34,31 @@ class TestDecisionContext: XCTestCase {
         return DecisionModel(modelName: "greetings")
     }
     
+    func loadedModel() throws -> DecisionModel {
+        return try model().load(modelUrl())
+    }
+    
     func testScore() throws {
         let scores:[Double] = try model().load(modelUrl()).given(givens()).score(variants())
         print("scores: \(scores)")
+    }
+    
+    func testDecide_ordered() throws {
+        let decisionModel = try loadedModel()
+        for _ in 1...5 {
+            let chosen = try decisionModel.given(givens()).decide(["Hi", "Hello", "Hey"], true).get()
+            XCTAssertEqual("Hi", chosen)
+        }
+    }
+    
+    func testDecide_not_ordered() throws {
+        let chosen = try loadedModel().given(givens()).decide(["Hi", "Hello", "Hey"], false).get()
+        print("chosen: \(chosen)")
+        
+        for _ in 1...5 {
+            let chosen = try model().given(givens()).decide(["Hi", "Hello", "Hey"], false).get()
+            XCTAssertEqual("Hi", chosen)
+        }
     }
 
     func testChooseFrom() throws {
@@ -151,7 +173,7 @@ class TestDecisionContext: XCTestCase {
     func testRandomList_empty() throws {
         do {
             let themes:[Theme] = []
-            let _: Theme = try model().load(modelUrl()).random(themes)
+            let _: Theme = try model().given(givens()).random(themes)
         } catch IMPError.emptyVariants {
             return
         }
@@ -177,12 +199,12 @@ class TestDecisionContext: XCTestCase {
         debugPrint("chosen: \(chosen)")
     }
     
-    func testWhichList() throws {
+    func testWhichFrom() throws {
         let themes = [
             Theme(fontSize: 12, primaryColor: "#000000"),
             Theme(fontSize: 13, primaryColor: "#f0f0f0"),
             Theme(fontSize: 14, primaryColor: "#ffffff")]
-        let theme: Theme = try model().given(givens()).which(themes)
+        let theme: Theme = try loadedModel().given(givens()).whichFrom(themes)
         print("theme: \(theme)")
         
         let upsell = try model().given(givens()).which([
@@ -192,15 +214,31 @@ class TestDecisionContext: XCTestCase {
         debugPrint("upsell: ", upsell)
     }
     
-    func testWhichList_empty() throws {
+    func testWhichFrom_empty() throws {
         do {
             let themes:[Theme] = []
-            let _: Theme = try model().load(modelUrl()).which(themes)
+            let _: Theme = try model().given(givens()).whichFrom(themes)
         } catch IMPError.emptyVariants {
             return
         }
         XCTFail(shouldThrowError)
     }
+    
+    func testRank() throws {
+        let variants = ["Hi", "Hello", "Hey"]
+        let ranked = try loadedModel().given(givens()).rank(variants)
+        XCTAssertEqual(variants.count, ranked.count)
+        debugPrint("ranked: \(ranked)")
+    }
+
+    
+    func testRank_any() throws {
+        let variants: [Any] = ["Hi", "Hello", "Hey", 3]
+        let ranked = try loadedModel().given(givens()).rank(variants)
+        XCTAssertEqual(variants.count, ranked.count)
+        debugPrint("ranked: \(ranked)")
+    }
+
     
     func testChooseMultivariate() throws {
         let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13]]

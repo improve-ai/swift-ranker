@@ -64,84 +64,81 @@ public class DecisionModel {
     
     public func given(_ givens: [String : Any]?) throws -> DecisionContext {
         if givens == nil {
-            return DecisionContext(decisionContext: self.decisionModel.given(nil))
+            return DecisionContext(decisionContext: self.decisionModel.given(nil), decisionModel: self)
         }
         let encodedGivens = try PListEncoder().encode(givens?.mapValues{AnyEncodable($0)}) as? [String:Any]
-        return DecisionContext(decisionContext: self.decisionModel.given(encodedGivens))
+        return DecisionContext(decisionContext: self.decisionModel.given(encodedGivens), decisionModel: self)
     }
     
     public func score<T>(_ variants:[T]) throws -> [Double] {
         return try given(nil).score(variants)
     }
     
-    public func chooseFrom<T>(_ variants: [T]) throws -> Decision<T> {
-        return try given(nil).chooseFrom(variants)
+    public func decide<T>(_ variants:[T], _ ordered:Bool = false) throws -> Decision<T> {
+        return try given(nil).decide(variants, ordered)
     }
     
-    public func chooseFrom<T>(_ variants: [T], _ scores: [Double]) throws -> Decision<T> {
-        return try given(nil).chooseFrom(variants, scores)
-    }
-    
-    public func chooseFirst<T>(_ variants: [T]) throws -> Decision<T> {
-        return try given(nil).chooseFirst(variants)
-    }
-    
-    public func first<T>(_ variants: [T]) throws -> T {
-        return try given(nil).first(variants)
-    }
- 
-    public func first<T>(_ variants: T...) throws -> T {
-        return try given(nil).first(variants)
-    }
-    
-    public func first(_ variants: Any...) throws -> Any {
-        return try given(nil).first(variants)
-    }
-    
-    public func chooseRandom<T>(_ variants: [T]) throws -> Decision<T> {
-        return try given(nil).chooseRandom(variants)
-    }
-    
-    public func random<T>(_ variants: [T]) throws -> T {
-        return try given(nil).random(variants)
-    }
-    
-    public func random<T>(_ variants: T...) throws -> T {
-        return try given(nil).random(variants)
-    }
-    
-    public func random(_ variants: Any...) throws -> Any {
-        return try given(nil).random(variants)
-    }
-    
-    public func which<T>(_ variants: [T]) throws -> T {
-        return try given(nil).which(variants)
+    public func decide<T>(_ variants:[T], _ scores:[Double]) throws -> Decision<T> {
+        return try given(nil).decide(variants, scores)
     }
     
     public func which<T>(_ variants: T...) throws -> T {
-        return try given(nil).which(variants)
+        return try whichFrom(variants)
     }
     
     public func which(_ variants: Any...) throws -> Any {
-        return try given(nil).which(variants)
+        return try whichFrom(variants)
     }
     
-    // Homogeneous variants, like ["style": ["bold", "normal"], "color": ["red", "white"]]
-    public func chooseMultivariate<T>(_ variants: [String : [T]]) throws -> Decision<[String : T]> {
-        return try given(nil).chooseMultivariate(variants)
+    public func whichFrom<T>(_ variants: [T]) throws -> T {
+        return try given(nil).whichFrom(variants)
     }
     
-//    // Heterogeneous variants, like ["style": ["bold", "normal"], "fontSize":[12, 13], "width": 1080]
-    public func chooseMultivariate(_ variants: [String : Any]) throws -> Decision<[String : Any]> {
-        return try given(nil).chooseMultivariate(variants)
+    public func rank<T>(_ variants: [T]) throws -> [T] {
+        return try given(nil).rank(variants)
     }
     
-    public func optimize<T>(_ variants: [String : [T]]) throws -> [String : T] {
-        return try given(nil).optimize(variants)
+    public func optimize(_ variantMap: [String : Any]) throws -> [String : Any] {
+        return try given(nil).optimize(variantMap)
     }
+    
+    public func fullFactorialVariants(_ variantMap: [String:Any]) throws -> [[String : Any]] {
+        var categories: [[Any]] = []
+        var keys: [String] = []
+        for (k, v) in variantMap {
+            if let v = v as? [Any] {
+                if !v.isEmpty {
+                    categories.append(v)
+                    keys.append(k)
+                }
+            } else {
+                categories.append([v])
+                keys.append(k)
+            }
+        }
+        
+        if categories.isEmpty {
+            throw IMPError.emptyVariants
+        }
 
-    public func optimize(_ variants: [String : Any]) throws -> [String : Any] {
-        return try given(nil).optimize(variants)
+        var combinations: [[String : Any]] = []
+        for i in 0..<categories.count {
+            let category = categories[i]
+            var newCombinations:[[String : Any]] = []
+            for m in 0..<category.count {
+                if combinations.count == 0 {
+                    newCombinations.append([keys[i]:category[m]])
+                } else {
+                    for n in 0..<combinations.count {
+                        var newVariant = combinations[n]
+                        newVariant[keys[i]] = category[m]
+                        newCombinations.append(newVariant)
+                    }
+                }
+            }
+            combinations = newCombinations
+        }
+        return combinations
     }
     
     /// Add rewards for the most recent Decision for this model name
@@ -152,5 +149,62 @@ public class DecisionModel {
     /// Add reward for the provided decision_id
     public func addReward(_ reward: Double, _ decisionId: String) {
         decisionModel.addReward(reward, decisionId)
+    }
+    
+    // MARK: Deprecated, remove in 8.0
+    
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func chooseFrom<T>(_ variants: [T]) throws -> Decision<T> {
+        return try given(nil).chooseFrom(variants)
+    }
+    
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func chooseFrom<T>(_ variants: [T], _ scores: [Double]) throws -> Decision<T> {
+        return try given(nil).chooseFrom(variants, scores)
+    }
+    
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func chooseFirst<T>(_ variants: [T]) throws -> Decision<T> {
+        return try given(nil).chooseFirst(variants)
+    }
+    
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func first<T>(_ variants: [T]) throws -> T {
+        return try given(nil).first(variants)
+    }
+ 
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func first<T>(_ variants: T...) throws -> T {
+        return try given(nil).first(variants)
+    }
+    
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func first(_ variants: Any...) throws -> Any {
+        return try given(nil).first(variants)
+    }
+    
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func chooseRandom<T>(_ variants: [T]) throws -> Decision<T> {
+        return try given(nil).chooseRandom(variants)
+    }
+    
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func random<T>(_ variants: [T]) throws -> T {
+        return try given(nil).random(variants)
+    }
+    
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func random<T>(_ variants: T...) throws -> T {
+        return try given(nil).random(variants)
+    }
+    
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func random(_ variants: Any...) throws -> Any {
+        return try given(nil).random(variants)
+    }
+    
+    @available(*, deprecated, message: "Remove in 8.0")
+    public func chooseMultivariate(_ variants: [String : Any]) throws -> Decision<[String : Any]> {
+        return try given(nil).chooseMultivariate(variants)
     }
 }
