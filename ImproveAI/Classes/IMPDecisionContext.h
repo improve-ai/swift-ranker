@@ -16,6 +16,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
+ * @return scores of the variants
+ */
+- (NSArray<NSNumber *> *)score:(NSArray *)variants NS_SWIFT_NAME(score(_:));
+
+/**
  * @see IMPDecisionModel.decide()
  */
 - (IMPDecision *)decide:(NSArray *)variants NS_SWIFT_NAME(decide(_:));
@@ -50,49 +58,43 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variantMap NS_SWIFT_NAME(optimize(_:));
 
+#pragma mark - Deprecated, remove in 8.0
+
 /**
  * @see IMPDecisionModel.chooseFrom()
  */
-- (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
+- (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
-- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(_:_:));
+- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(_:_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * @see IMPDecisionModel.chooseFirst()
  */
-- (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:));
+- (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * @see IMPDecisionModel.first()
  */
-- (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
-- (id)first:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(first(_:_:));
+- (id)first:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(first(_:_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * @see IMPDecisionModel.chooseRandom()
  */
-- (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:));
+- (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * @see IMPDecisionModel.random()
  */
-- (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
-- (id)random:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(random(_:_:));
+- (id)random:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(random(_:_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * @see IMPDecisionModel#chooseMultivariate()
  */
-- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:));
-
-/**
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
- *  arrays, strings, numbers, nulls, and booleans.
- * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
- * @return scores of the variants
- */
-- (NSArray<NSNumber *> *)score:(NSArray *)variants NS_SWIFT_NAME(score(_:));
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 @end
 

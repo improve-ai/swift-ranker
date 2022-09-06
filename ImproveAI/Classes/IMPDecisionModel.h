@@ -80,6 +80,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (IMPDecisionContext *)given:(nullable NSDictionary <NSString *, id>*)givens NS_SWIFT_NAME(given(_:));
 
 /**
+ * Let the model give a score for each of the variants.
+ * @param variants A variant can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
+ * @return scores of the variants
+ */
+- (NSArray<NSNumber *> *)score:(NSArray *)variants;
+
+/**
  * Equivalent to decide(variants, ordered=false).
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
@@ -159,12 +168,32 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *)fullFactorialVariants:(NSDictionary *)variantMap NS_SWIFT_NAME(fullFactorialVariants(_:));
 
 /**
+ * Adds the reward value to the most recent Decision for this model name for this installation. The most recent Decision
+ * can be from a different DecisionModel instance or a previous session as long as they have the same model name.
+ * If no previous Decision is found, the reward will be ignored.
+ * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
+ * @throws NSInvalidArgumentException Thrown if reward is NaN or +-Infinity
+ * @throws IllegalStateException Thrown if trackURL is nil
+ */
+- (void)addReward:(double) reward;
+
+/**
+ * Adds reward for the provided decisionId.
+ * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
+ * @throws NSInvalidArgumentException Thrown if reward is NaN or +-Infinity
+ * @throws IllegalStateException Thrown if trackURL is nil
+ */
+- (void)addReward:(double)reward decision:(NSString *)decisionId NS_SWIFT_NAME(addReward(_:_:));
+
+#pragma mark - Deprecated, remove in 8.0
+
+/**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
-- (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
+- (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * The chosen variant is the one with the highest score.
@@ -174,7 +203,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants is nil or empty; Thrown if variants.count != scores.count.
  */
-- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(_:_:));
+- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(_:_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
@@ -182,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return An IMPDecision object containing the first variant as the decision
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is nil or empty.
  */
-- (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:));
+- (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * This method is a short hand of chooseFirst(variants).get().
@@ -190,7 +219,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return Returns the chosen variant.
  * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
  */
-- (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * Variadic method declaration for Swift. It's recommended to wrap it in an extension method as shown above.
@@ -206,14 +235,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A Decision object containing a random variant as the decision
  * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
  */
-- (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:));
+- (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive types are not allowed.
  * @return Returns the chosen variant.
  * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
  */
-- (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 // Variadic method declaration for Swift.
 - (id)random:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(random(_:_:));
@@ -234,39 +263,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
-- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:));
-
-/**
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
- *  arrays, strings, numbers, nulls, and booleans.
- * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
- * @return scores of the variants
- */
-- (NSArray<NSNumber *> *)score:(NSArray *)variants;
-
-/**
- * Adds the reward value to the most recent Decision for this model name for this installation. The most recent Decision
- * can be from a different DecisionModel instance or a previous session as long as they have the same model name.
- * If no previous Decision is found, the reward will be ignored.
- * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
- * @throws NSInvalidArgumentException Thrown if reward is NaN or +-Infinity
- * @throws IllegalStateException Thrown if trackURL is nil
- */
-- (void)addReward:(double) reward;
-
-/**
- * Adds reward for the provided decisionId.
- * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
- * @throws NSInvalidArgumentException Thrown if reward is NaN or +-Infinity
- * @throws IllegalStateException Thrown if trackURL is nil
- */
-- (void)addReward:(double)reward decision:(NSString *)decisionId NS_SWIFT_NAME(addReward(_:_:));
-
-/**
- * @warning This method is likely to be changed in the future. Try not to use it in your code.
- * @return a list of the variants ranked from best to worst by scores
- */
-+ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 @end
 

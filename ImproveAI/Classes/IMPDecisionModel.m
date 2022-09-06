@@ -281,6 +281,16 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[IMPDecisionContext alloc] initWithModel:self andGivens:givens];
 }
 
+- (NSArray <NSNumber *>*)score:(NSArray *)variants
+{
+    NSDictionary *givens = nil;
+    IMPGivensProvider *givensProvider = self.givensProvider;
+    if(givensProvider != nil) {
+        givens = [givensProvider givensForModel:self givens:nil];
+    }
+    return [self scoreInternal:variants allGivens:givens];
+}
+
 - (IMPDecision *)decide:(NSArray *)variants
 {
     return [self decide:variants ordered:false];
@@ -369,6 +379,27 @@ static IMPGivensProvider *_defaultGivensProvider;
     return combinations;
 }
 
+- (void)addReward:(double) reward
+{
+    IMPDecisionTracker *tracker = self.tracker;
+    if(tracker == nil) {
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
+    }
+    [tracker addReward:reward forModel:self.modelName];
+}
+
+// Add reward for a specific tracked decision
+- (void)addReward:(double)reward decision:(NSString *)decisionId
+{
+    IMPDecisionTracker *tracker = self.tracker;
+    if(tracker == nil) {
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
+    }
+    [tracker addReward:reward forModel:self.modelName decision:decisionId];
+}
+
+#pragma mark - Deprecated, remove in 8.0
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [[self given:nil] chooseFrom:variants];
@@ -426,35 +457,6 @@ static IMPGivensProvider *_defaultGivensProvider;
 - (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants
 {
     return [[self given:nil] chooseMultivariate:variants];
-}
-
-- (void)addReward:(double) reward
-{
-    IMPDecisionTracker *tracker = self.tracker;
-    if(tracker == nil) {
-        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
-    }
-    [tracker addReward:reward forModel:self.modelName];
-}
-
-// Add reward for a specific tracked decision
-- (void)addReward:(double)reward decision:(NSString *)decisionId
-{
-    IMPDecisionTracker *tracker = self.tracker;
-    if(tracker == nil) {
-        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
-    }
-    [tracker addReward:reward forModel:self.modelName decision:decisionId];
-}
-
-- (NSArray <NSNumber *>*)score:(NSArray *)variants
-{
-    NSDictionary *givens = nil;
-    IMPGivensProvider *givensProvider = self.givensProvider;
-    if(givensProvider != nil) {
-        givens = [givensProvider givensForModel:self givens:nil];
-    }
-    return [self scoreInternal:variants allGivens:givens];
 }
 
 /**

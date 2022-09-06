@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return Returns the chosen variant memoized.
  * @throws IMPIllegalStateException Thrown if called before chooseFrom()
  */
-- (id)peek;
+- (id)peek DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * Add rewards that only apply to this specific decision. Must be called after get().

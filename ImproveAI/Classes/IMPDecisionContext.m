@@ -30,6 +30,8 @@
 
 + (NSArray *)generateRandomScores:(NSUInteger)count;
 
++ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+
 @end
 
 @interface IMPDecisionContext ()
@@ -49,6 +51,12 @@
         _givens = givens;
     }
     return self;
+}
+
+- (NSArray<NSNumber *> *)score:(NSArray *)variants
+{
+    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
+    return [_model scoreInternal:variants allGivens:allGivens];
 }
 
 - (IMPDecision *)decide:(NSArray *)variants
@@ -118,6 +126,8 @@
 {
     return [self whichFrom:[self.model fullFactorialVariants:variantMap]];
 }
+
+#pragma mark - Deprecated, remove in 8.0.
 
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
@@ -259,12 +269,6 @@
     IMPLog("Choosing from %ld combinations", [combinations count]);
     
     return [self chooseFrom:combinations];
-}
-
-- (NSArray<NSNumber *> *)score:(NSArray *)variants
-{
-    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
-    return [_model scoreInternal:variants allGivens:allGivens];
 }
 
 @end

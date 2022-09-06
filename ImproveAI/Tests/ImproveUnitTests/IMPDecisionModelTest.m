@@ -731,8 +731,6 @@ extern NSString *const kTrackApiKey;
 
 - (void)testChooseFrom {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
-    NSDictionary *context = @{@"language": @"cowboy"};
-    
     NSURL *modelURL = [NSURL URLWithString:kRemoteModelURL];
     
     NSError *err;
@@ -740,10 +738,10 @@ extern NSString *const kTrackApiKey;
     [decisionModel load:modelURL error:&err];
     XCTAssertNotNil(decisionModel);
     XCTAssertNil(err);
-    IMPDecision *decision = [[decisionModel given:context] chooseFrom:variants];
+    IMPDecision *decision = [decisionModel chooseFrom:variants];
     IMPLog("url=%@, greeting=%@", modelURL, [decision get]);
     XCTAssertNotNil([decision get]);
-    XCTAssertEqual(20, [decision.givens count]);
+    XCTAssertEqual(19, [decision.givens count]);
 }
 
 extern NSString * const kTrackerURL;
