@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>DecisionContext Structure Reference</title>
+    <title>DecisionModel Class Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset="utf-8">
@@ -14,9 +14,9 @@
   </head>
   <body>
 
-    <a name="//apple_ref/swift/Struct/DecisionContext" class="dashAnchor"></a>
+    <a name="//apple_ref/swift/Class/DecisionModel" class="dashAnchor"></a>
 
-    <a title="DecisionContext Structure Reference"></a>
+    <a title="DecisionModel Class Reference"></a>
 
     <header class="header">
       <p class="header-col header-col--primary">
@@ -50,7 +50,7 @@
     <p class="breadcrumbs">
       <a class="breadcrumb" href="../index.html"> Reference</a>
       <img class="carat" src="../img/carat.png" alt=""/>
-      DecisionContext Structure Reference
+      DecisionModel Class Reference
     </p>
 
     <div class="content-wrapper">
@@ -89,11 +89,11 @@
 
         <section class="section">
           <div class="section-content top-matter">
-            <h1>DecisionContext</h1>
+            <h1>DecisionModel</h1>
               <div class="declaration">
                 <div class="language">
                   
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">DecisionContext</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">DecisionModel</span></code></pre>
 
                 </div>
               </div>
@@ -108,9 +108,243 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV5scoreySaySdGSayxGKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC9modelNameACSS_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(modelName:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC9modelNameACSS_tcfc">init(modelName:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">modelName</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC9modelName8trackURL0G6ApiKeyACSS_10Foundation0H0VSgSSSgtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(modelName:trackURL:trackApiKey:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC9modelName8trackURL0G6ApiKeyACSS_10Foundation0H0VSgSSSgtcfc">init(modelName:<wbr>trackURL:<wbr>trackApiKey:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">modelName</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">trackURL</span><span class="p">:</span> <span class="kt">URL</span><span class="p">?,</span> <span class="nv">trackApiKey</span><span class="p">:</span> <span class="kt">String</span><span class="p">?)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC5modelSo7MLModelCvp"></a>
+                    <a name="//apple_ref/swift/Property/model" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC5modelSo7MLModelCvp">model</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">model</span><span class="p">:</span> <span class="kt">MLModel</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC15defaultTrackURL10Foundation0G0VvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/defaultTrackURL" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC15defaultTrackURL10Foundation0G0VvpZ">defaultTrackURL</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">defaultTrackURL</span><span class="p">:</span> <span class="kt">URL</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC18defaultTrackApiKeySSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/defaultTrackApiKey" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC18defaultTrackApiKeySSvpZ">defaultTrackApiKey</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">defaultTrackApiKey</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelCyACSScipZ"></a>
+                    <a name="//apple_ref/swift/Method/subscript(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelCyACSScipZ">subscript(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="nf">subscript</span><span class="p">(</span><span class="nv">modelName</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">DecisionModel</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC4loadyACXD10Foundation3URLVKF"></a>
+                    <a name="//apple_ref/swift/Method/load(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC4loadyACXD10Foundation3URLVKF">load(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">load</span><span class="p">(</span><span class="n">_</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="k">Self</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC9loadAsync_10completiony10Foundation3URLV_yACSg_s5Error_pSgtcSgtF"></a>
+                    <a name="//apple_ref/swift/Method/loadAsync(_:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC9loadAsync_10completiony10Foundation3URLV_yACSg_s5Error_pSgtcSgtF">loadAsync(_:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">loadAsync</span><span class="p">(</span><span class="n">_</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">,</span> <span class="n">completion</span> <span class="nv">handler</span><span class="p">:</span> <span class="p">((</span><span class="kt">DecisionModel</span><span class="p">?,</span> <span class="kt">Error</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC5givenyAA0C7ContextVSDySSypGSgKF"></a>
+                    <a name="//apple_ref/swift/Method/given(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC5givenyAA0C7ContextVSDySSypGSgKF">given(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">given</span><span class="p">(</span><span class="n">_</span> <span class="nv">givens</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">]?)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/DecisionContext.html">DecisionContext</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC5scoreySaySdGSayxGKlF"></a>
                     <a name="//apple_ref/swift/Method/score(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV5scoreySaySdGSayxGKlF">score(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC5scoreySaySdGSayxGKlF">score(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -134,9 +368,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV10chooseFromyAA0C0VyxGSayxGKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC10chooseFromyAA0C0VyxGSayxGKlF"></a>
                     <a name="//apple_ref/swift/Method/chooseFrom(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV10chooseFromyAA0C0VyxGSayxGKlF">chooseFrom(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC10chooseFromyAA0C0VyxGSayxGKlF">chooseFrom(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -160,9 +394,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV10chooseFromyAA0C0VyxGSayxG_SaySdGtKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC10chooseFromyAA0C0VyxGSayxG_SaySdGtKlF"></a>
                     <a name="//apple_ref/swift/Method/chooseFrom(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV10chooseFromyAA0C0VyxGSayxG_SaySdGtKlF">chooseFrom(_:<wbr>_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC10chooseFromyAA0C0VyxGSayxG_SaySdGtKlF">chooseFrom(_:<wbr>_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -186,9 +420,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV11chooseFirstyAA0C0VyxGSayxGKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC11chooseFirstyAA0C0VyxGSayxGKlF"></a>
                     <a name="//apple_ref/swift/Method/chooseFirst(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV11chooseFirstyAA0C0VyxGSayxGKlF">chooseFirst(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC11chooseFirstyAA0C0VyxGSayxGKlF">chooseFirst(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -212,9 +446,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV5firstyxSayxGKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC5firstyxSayxGKlF"></a>
                     <a name="//apple_ref/swift/Method/first(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV5firstyxSayxGKlF">first(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC5firstyxSayxGKlF">first(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -238,9 +472,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV5firstyxxd_tKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC5firstyxxd_tKlF"></a>
                     <a name="//apple_ref/swift/Method/first(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV5firstyxxd_tKlF">first(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC5firstyxxd_tKlF">first(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -264,9 +498,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV5firstyypypd_tKF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC5firstyypypd_tKF"></a>
                     <a name="//apple_ref/swift/Method/first(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV5firstyypypd_tKF">first(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC5firstyypypd_tKF">first(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -290,9 +524,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV12chooseRandomyAA0C0VyxGSayxGKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC12chooseRandomyAA0C0VyxGSayxGKlF"></a>
                     <a name="//apple_ref/swift/Method/chooseRandom(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV12chooseRandomyAA0C0VyxGSayxGKlF">chooseRandom(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC12chooseRandomyAA0C0VyxGSayxGKlF">chooseRandom(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -316,9 +550,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV6randomyxSayxGKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC6randomyxSayxGKlF"></a>
                     <a name="//apple_ref/swift/Method/random(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV6randomyxSayxGKlF">random(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC6randomyxSayxGKlF">random(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -342,9 +576,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV6randomyxxd_tKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC6randomyxxd_tKlF"></a>
                     <a name="//apple_ref/swift/Method/random(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV6randomyxxd_tKlF">random(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC6randomyxxd_tKlF">random(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -368,9 +602,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV6randomyypypd_tKF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC6randomyypypd_tKF"></a>
                     <a name="//apple_ref/swift/Method/random(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV6randomyypypd_tKF">random(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC6randomyypypd_tKF">random(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -394,61 +628,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV5whichyypypd_tKF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC5whichyxSayxGKlF"></a>
                     <a name="//apple_ref/swift/Method/which(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV5whichyypypd_tKF">which(_:<wbr>)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">which</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="kt">Any</span><span class="o">...</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Any</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9ImproveAI15DecisionContextV5whichyxxd_tKlF"></a>
-                    <a name="//apple_ref/swift/Method/which(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV5whichyxxd_tKlF">which(_:<wbr>)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">which</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="kt">T</span><span class="o">...</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9ImproveAI15DecisionContextV5whichyxSayxGKlF"></a>
-                    <a name="//apple_ref/swift/Method/which(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV5whichyxSayxGKlF">which(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC5whichyxSayxGKlF">which(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -472,9 +654,61 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV18chooseMultivariateyAA0C0VySDySSxGGSDySSSayxGGKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC5whichyxxd_tKlF"></a>
+                    <a name="//apple_ref/swift/Method/which(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC5whichyxxd_tKlF">which(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">which</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="kt">T</span><span class="o">...</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC5whichyypypd_tKF"></a>
+                    <a name="//apple_ref/swift/Method/which(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC5whichyypypd_tKF">which(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">which</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="kt">Any</span><span class="o">...</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Any</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC18chooseMultivariateyAA0C0VySDySSxGGSDySSSayxGGKlF"></a>
                     <a name="//apple_ref/swift/Method/chooseMultivariate(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV18chooseMultivariateyAA0C0VySDySSxGGSDySSSayxGGKlF">chooseMultivariate(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC18chooseMultivariateyAA0C0VySDySSxGGSDySSSayxGGKlF">chooseMultivariate(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -498,9 +732,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV18chooseMultivariateyAA0C0VySDySSypGGAGKF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC18chooseMultivariateyAA0C0VySDySSypGGAGKF"></a>
                     <a name="//apple_ref/swift/Method/chooseMultivariate(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV18chooseMultivariateyAA0C0VySDySSypGGAGKF">chooseMultivariate(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC18chooseMultivariateyAA0C0VySDySSypGGAGKF">chooseMultivariate(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -524,9 +758,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV8optimizeySDySSxGSDySSSayxGGKlF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC8optimizeySDySSxGSDySSSayxGGKlF"></a>
                     <a name="//apple_ref/swift/Method/optimize(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV8optimizeySDySSxGSDySSSayxGGKlF">optimize(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC8optimizeySDySSxGSDySSSayxGGKlF">optimize(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -550,9 +784,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9ImproveAI15DecisionContextV8optimizeySDySSypGAEKF"></a>
+                    <a name="/s:9ImproveAI13DecisionModelC8optimizeySDySSypGAEKF"></a>
                     <a name="//apple_ref/swift/Method/optimize(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9ImproveAI15DecisionContextV8optimizeySDySSypGAEKF">optimize(_:<wbr>)</a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC8optimizeySDySSypGAEKF">optimize(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -567,6 +801,60 @@
                         <div class="language">
                           <p class="aside-title">Swift</p>
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">optimize</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">])</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC9addRewardyySdF"></a>
+                    <a name="//apple_ref/swift/Method/addReward(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC9addRewardyySdF">addReward(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Add rewards for the most recent Decision for this model name</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">addReward</span><span class="p">(</span><span class="n">_</span> <span class="nv">reward</span><span class="p">:</span> <span class="kt">Double</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13DecisionModelC9addRewardyySd_SStF"></a>
+                    <a name="//apple_ref/swift/Method/addReward(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13DecisionModelC9addRewardyySd_SStF">addReward(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Add reward for the provided decision_id</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">addReward</span><span class="p">(</span><span class="n">_</span> <span class="nv">reward</span><span class="p">:</span> <span class="kt">Double</span><span class="p">,</span> <span class="n">_</span> <span class="nv">decisionId</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
