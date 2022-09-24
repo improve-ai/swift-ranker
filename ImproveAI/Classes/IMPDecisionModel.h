@@ -222,14 +222,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
- * Variadic method declaration for Swift. It's recommended to wrap it in an extension method as shown above.
- * @param n The number of arguments in the va_list
- * @param args The arguments.
- * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
- */
-- (id)first:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(first(_:_:));
-
-/**
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
  * @return A Decision object containing a random variant as the decision
@@ -243,9 +235,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
  */
 - (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
-
-// Variadic method declaration for Swift.
-- (id)random:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(random(_:_:));
 
 /**
  * This method is an alternative of chooseFrom(). An example here might be more expressive:

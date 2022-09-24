@@ -169,15 +169,6 @@
     return [self firstInternal:variants];
 }
 
-- (id)first:(NSInteger)n args:(va_list)args
-{
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(int i = 0; i < n; ++i) {
-        [variants addObject:va_arg(args, id)];
-    }
-    return [self firstInternal:variants];
-}
-
 - (id)firstInternal:(NSArray *)variants
 {
     if([variants count] <= 0) {
@@ -213,15 +204,6 @@
         [variants addObject:arg];
     }
     va_end(args);
-    return [self randomInternal:variants];
-}
-
-- (id)random:(NSInteger)n args:(va_list)args
-{
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(int i = 0; i < n; ++i) {
-        [variants addObject:va_arg(args, id)];
-    }
     return [self randomInternal:variants];
 }
 

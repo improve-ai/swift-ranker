@@ -77,8 +77,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
-- (id)first:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(first(_:_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
-
 /**
  * @see IMPDecisionModel.chooseRandom()
  */
@@ -88,8 +86,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @see IMPDecisionModel.random()
  */
 - (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
-
-- (id)random:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(random(_:_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
  * @see IMPDecisionModel#chooseMultivariate()

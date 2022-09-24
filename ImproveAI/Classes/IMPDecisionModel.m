@@ -427,11 +427,6 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[self given:nil] firstInternal:variants];
 }
 
-- (id)first:(NSInteger)n args:(va_list)args
-{
-    return [[self given:nil] first:n args:args];
-}
-
 - (IMPDecision *)chooseRandom:(NSArray *)variants
 {
     return [[self given:nil] chooseRandom:variants];
@@ -447,11 +442,6 @@ static IMPGivensProvider *_defaultGivensProvider;
     }
     va_end(args);
     return [[self given:nil] randomInternal:variants];
-}
-
-- (id)random:(NSInteger)n args:(va_list)args
-{
-    return [[self given:nil] random:n args:args];
 }
 
 - (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants
