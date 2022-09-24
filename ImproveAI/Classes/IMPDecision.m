@@ -39,14 +39,6 @@
 
 @property (nonatomic, strong) NSArray *rankedVariants;
 
-/**
- * A decision should be tracked only once when calling get(). A boolean here may
- * be more appropriate in the first glance. But I find it hard to unit test
- * that it's tracked only once with a boolean value in multi-thread mode. So I'm
- * using an int here with 0 as 'untracked', and anything else as 'tracked'.
- */
-@property(nonatomic, readonly) int tracked;
-
 @end
 
 @implementation IMPDecision
@@ -61,59 +53,48 @@
     return self;
 }
 
-- (id)peek
-{
-    return _rankedVariants[0];
-}
-
 - (id)get
 {
-    return [self get:YES];
-}
-
-- (id)get:(BOOL)trackOnce
-{
-    if (trackOnce) {
-        [self trackOnce];
-    }
     return _rankedVariants[0];
 }
 
 - (NSArray *)ranked
 {
-    return [self ranked:YES];
+    return _rankedVariants;
 }
 
-- (NSArray *)ranked:(BOOL)trackOnce
+- (NSString *)track
 {
-    if (trackOnce) {
-        [self trackOnce];
+    @synchronized (self) {
+        if(_id != nil) {
+            @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"the decision is already tracked!" userInfo:nil];
+        }
+        
+        IMPDecisionTracker *tracker = _model.tracker;
+        if (tracker == nil) {
+            @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL of the underlying DecisionModel is nil!" userInfo:nil];
+        }
+        
+        _id = [tracker track:_rankedVariants given:_givens modelName:_model.modelName];
+        
+        return _id;
     }
-    return _rankedVariants;
+}
+
+// For which(), whichFrom(), rank() and optimize().
+- (void)trackWith:(IMPDecisionTracker *)tracker
+{
+    if(tracker != nil) {
+        [tracker track:_rankedVariants given:_givens modelName:_model.modelName];
+    }
 }
 
 - (void)addReward:(double)reward
 {
     if(_id == nil) {
-        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"_id can't be nil. Make sure that addReward() is called after get(); and trackURL is set in the DecisionModel." userInfo:nil];
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"addReward() can't be called before track()." userInfo:nil];
     }
     [self.model addReward:reward decision:_id];
-}
-
-- (void)trackOnce
-{
-    @synchronized (self) {
-        // No matter how many times get() is called, we only call track for once.
-        if(_tracked == 0) {
-            IMPDecisionTracker *tracker = _model.tracker;
-            if (tracker) {
-                _id = [tracker track:_rankedVariants given:_givens modelName:_model.modelName];
-                _tracked++;
-            } else {
-                IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
-            }
-        }
-    }
 }
 
 @end

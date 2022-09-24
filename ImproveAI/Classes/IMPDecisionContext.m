@@ -8,6 +8,7 @@
 
 #import "IMPDecisionContext.h"
 #import "IMPDecisionModel.h"
+#import "Tracker/IMPDecisionTracker.h"
 #import "IMPLogging.h"
 
 @interface IMPDecision ()
@@ -18,9 +19,13 @@
 
 - (instancetype)initWithModel:(IMPDecisionModel *)model rankedVariants:(NSArray *)rankedVariants givens:(NSDictionary *)givens;
 
+- (void)trackWith:(IMPDecisionTracker *)tracker;
+
 @end
 
 @interface IMPDecisionModel ()
+
+@property (strong, atomic) IMPDecisionTracker *tracker;
 
 - (NSArray<NSNumber *> *)scoreInternal:(NSArray *)variants allGivens:(nullable NSDictionary <NSString *, id>*)givens;
 
@@ -114,12 +119,16 @@
 
 - (id)whichFrom:(NSArray *)variants
 {
-    return [[self decide:variants] get];
+    IMPDecision *decision = [self decide:variants];
+    [decision trackWith:_model.tracker];
+    return [decision get];
 }
 
 - (NSArray *)rank:(NSArray *)variants
 {
-    return [[self decide:variants] ranked];
+    IMPDecision *decision = [self decide:variants];
+    [decision trackWith:_model.tracker];
+    return [decision ranked];
 }
 
 - (id)optimize:(NSDictionary<NSString *, id> *)variantMap

@@ -135,7 +135,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 
 - (void)addReward:(double)reward forModel:(NSString *)modelName
 {
-    NSString *decisionId = [self lastDecisionIdOfModel:modelName];
+    NSString *decisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
     if(decisionId == nil) {
         IMPErrLog("last decisionId is nil, can't add reward for model(%@)", modelName);
         return ;
@@ -279,7 +279,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     return ksuid;
 }
 
-- (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName {
++ (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName {
     NSString *key = [NSString stringWithFormat:kLastDecisionIdKey, modelName];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     return [defaults objectForKey:key];

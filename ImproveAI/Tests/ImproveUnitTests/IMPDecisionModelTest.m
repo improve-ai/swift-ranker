@@ -82,6 +82,12 @@ extern NSString *const kTrackApiKey;
 
 @end
 
+@interface IMPDecisionTracker ()
+
++ (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName;
+
+@end
+
 @implementation IMPDecisionModelTest
 
 - (void)setUp {
@@ -1077,6 +1083,52 @@ extern NSString * const kTrackerURL;
     }
 }
 
+- (void)testOptimize_nil_variantMap {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        NSDictionary *variantMap = nil;
+        [decisionModel optimize:variantMap];
+        XCTFail("variantMap can't be nil");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
+}
+
+- (void)testOptimize_empty_variantMap {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel optimize:@{@"font":@[]}];
+        XCTFail("variantMap can't be empty");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
+}
+
+// decision is tracked when calling which().
+- (void)testOptimize_track {
+    NSString *modelName = @"greetings";
+    NSDictionary *variantMap = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[]};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel optimize:variantMap];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testOptimize_nil_trackURL {
+    NSString *modelName = @"greetings";
+    NSDictionary *variantMap = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[]};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel optimize:variantMap];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
+}
+
 - (void)testWhich {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     id chosen = [decisionModel which:@"Hi", @"Hello", @"Hey", nil];
@@ -1113,13 +1165,36 @@ extern NSString * const kTrackerURL;
     XCTFail(@"An exception should have been thrown");
 }
 
+// decision is tracked when calling which().
+- (void)testWhich_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel which:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testWhich_nil_trackURL {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel which:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
+}
+
 - (void)testWhichFrom {
     IMPDecisionModel *decisionModel = [self unloadedModel];
     NSString *chosen = [decisionModel whichFrom:[self variants]];
     XCTAssertEqualObjects(@"Hello World", chosen);
 }
 
-- (void)testWhichFrom_nil_empty_variants {
+- (void)testWhichFrom_nil_variants {
     IMPDecisionModel *decisionModel = [self unloadedModel];
     @try {
         NSArray *variants = nil;
@@ -1128,7 +1203,10 @@ extern NSString * const kTrackerURL;
     } @catch(NSException *e) {
         NSLog(@"%@", e);
     }
-    
+}
+
+- (void)testWhichFrom_empty_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
     @try {
         NSArray *variants = @[];
         [decisionModel whichFrom:variants];
@@ -1136,6 +1214,29 @@ extern NSString * const kTrackerURL;
     } @catch(NSException *e) {
         NSLog(@"%@", e);
     }
+}
+
+// decision is tracked when calling which().
+- (void)testWhichFrom_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel whichFrom:@[@"hi", @"hello", @"hey"]];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testWhichFrom_nil_trackURL {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel whichFrom:@[@"hi", @"hello", @"hey"]];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
 }
 
 - (void)testRank {
@@ -1146,6 +1247,51 @@ extern NSString * const kTrackerURL;
     for(int i = 0; i < [variants count]; ++i) {
         XCTAssertTrue([rankedVariants containsObject:variants[i]]);
     }
+}
+
+- (void)testRank_nil_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    @try {
+        NSArray *variants = nil;
+        [decisionModel rank:variants];
+        XCTFail(@"variants can't be nil");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
+}
+
+- (void)testRank_empty_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    @try {
+        NSArray *variants = @[];
+        [decisionModel whichFrom:variants];
+        XCTFail(@"variants can't be empty");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
+}
+
+// decision is tracked when calling which().
+- (void)testRank_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel rank:@[@"hi", @"hello", @"hey"]];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testRank_nil_trackURL {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel rank:@[@"hi", @"hello", @"hey"]];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
 }
 
 - (void)testFullFactorialVariants_nil_dictionary {

@@ -56,12 +56,6 @@
     return @[@"Hello World", @"Howdy World", @"Hi World"];
 }
 
-- (void)testPeek {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    id best = [[decisionModel chooseFrom:[self variants]] peek];
-    XCTAssertNotNil(best);
-}
-
 - (void)testGet_track_only_once {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     XCTAssertNotNil(decisionModel.tracker);
