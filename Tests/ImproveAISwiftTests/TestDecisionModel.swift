@@ -178,7 +178,7 @@ class TestDecisionModel: XCTestCase {
         XCTAssertEqual("Hi World", greeting)
     }
     
-    func testWhichVariadic() throws {
+    func testWhich() throws {
         let decisionModel = try model().load(modelUrl())
         
         let greeting: String = try decisionModel.which("Hello World", "Howdy World", "Hi World")
@@ -191,7 +191,7 @@ class TestDecisionModel: XCTestCase {
         debugPrint("upsell: ", upsell)
     }
     
-    func testWhichVariadic_empty() throws {
+    func testWhich_empty() throws {
         do {
             let _: String = try model().which()
         } catch IMPError.emptyVariants {
@@ -200,9 +200,14 @@ class TestDecisionModel: XCTestCase {
         XCTFail(shouldThrowError)
     }
     
-    func testWhichVariadic_mixed_types() throws {
+    func testWhich_mixed_types() throws {
         let chosen = try model().which(1, "hi", false)
         debugPrint("chosen: \(chosen)")
+    }
+    
+    func testWhich_nil_variant() throws {
+        let chosen = try model().which(nil, "hi", "hello")
+        XCTAssertNil(chosen)
     }
     
     func testRank() throws {
