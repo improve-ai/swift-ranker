@@ -33,8 +33,6 @@
 
 @property(nonatomic, strong) NSDictionary *allGivens;
 
-@property (nonatomic, readonly) int tracked;
-
 @end
 
 @interface IMPDecisionTest : XCTestCase
@@ -56,94 +54,87 @@
     return @[@"Hello World", @"Howdy World", @"Hi World"];
 }
 
-- (void)testGet_track_only_once {
+- (void)testGet {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    XCTAssertNotNil(decisionModel.tracker);
-    
-    IMPDecision *decision = [decisionModel chooseFrom:[self variants]];
-    XCTAssertEqual(0, decision.tracked);
-    
-    int loop = 1000;
-    for(int i = 0; i < loop; ++i) {
-        dispatch_async(dispatch_get_global_queue(0, 0), ^{
-            [decision get];
-        });
-    }
-    [NSThread sleepForTimeInterval:1];
-    XCTAssertEqual(1, decision.tracked);
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertEqualObjects(@"Hello World", [decision get]);
 }
 
-- (void)testGet_without_tracker {
+- (void)testRanked {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    
-    IMPDecision *decision = [decisionModel chooseFrom:[self variants]];
-    XCTAssertEqual(0, decision.tracked);
-    [decision get];
-    XCTAssertEqual(1, decision.tracked);
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertEqualObjects([self variants], [decision ranked]);
+}
 
-    decision = [decisionModel chooseFrom:[self variants]];
+- (void)testTrack {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertNil(decision.id);
+    [decision track];
+    XCTAssertTrue([decision.id length] > 0);
+}
+
+- (void)testTrack_nil_trackURL {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
     decisionModel.trackURL = nil;
-    XCTAssertEqual(0, decision.tracked);
-    [decision get];
-    XCTAssertEqual(0, decision.tracked);
+    @try {
+        [decision track];
+        XCTFail("trackURL can't be nil when calling track().");
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"trackURL of the underlying DecisionModel is nil!", e.reason);
+    }
 }
 
-- (void)testGet_persist_decision_id {
-    NSString *modelName = @"hello";
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
-    IMPDecision *decision = [decisionModel chooseFrom:[self variants]];
-    
-    NSString *decisionIdBeforeGet = [decisionModel.tracker lastDecisionIdOfModel:modelName];
-    
-    [decision get];
-    
-    NSString *decisionIdAfterGet = [decisionModel.tracker lastDecisionIdOfModel:modelName];
-    XCTAssertNotNil(decision.id);
-    XCTAssertEqualObjects(decision.id, decisionIdAfterGet);
-    XCTAssertNotEqualObjects(decisionIdBeforeGet, decisionIdAfterGet);
-    NSLog(@"decisionId: %@, %@, %@", decision.id, decisionIdBeforeGet, decisionIdAfterGet);
+- (void)testTrack_called_twice {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    [decision track];
+    @try {
+        [decision track];
+        XCTFail("trackURL can't be nil when calling track().");
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"the decision is already tracked!", e.reason);
+    }
 }
 
-- (void)testAddReward_valid {
+- (void)testAddReward {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    IMPDecision *decision = [decisionModel chooseFrom:variants];
+    IMPDecision *decision = [decisionModel decide:variants];
     XCTAssertNotNil([decision get]);
     [decision addReward:0.1];
 }
 
-- (void)testAddReward_before_get {
+- (void)testAddReward_before_track {
     @try {
         IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-        IMPDecision *decision = [decisionModel chooseFrom:[self variants]];
+        IMPDecision *decision = [decisionModel decide:[self variants]];
         [decision addReward:0.1];
+        XCTFail(@"addReward() can't be called before track().");
     } @catch(NSException *e) {
-        NSLog(@"Decision.addReward() can't be called prior to get()");
-        XCTAssertEqualObjects(IMPIllegalStateException, e.name);
-        return ;
+        XCTAssertEqualObjects(@"addReward() can't be called before track().", e.reason);
     }
-    XCTFail(@"An exception should have been thrown.");
 }
 
 - (void)testAddReward_nil_trackURL {
     @try {
         NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
-        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:nil trackApiKey:nil];
-        IMPDecision *decision = [decisionModel chooseFrom:variants];
-        [decision get];
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+        IMPDecision *decision = [decisionModel decide:variants];
+        [decision track];
+        decisionModel.trackURL = nil;
         [decision addReward:0.1];
+        XCTFail(@"trackURL of the underlying DecisionModel can't be nil when calling addReward.");
     } @catch(NSException *e) {
-        NSLog(@"trackURL of the underlying DecisionModel can't be nil");
-        XCTAssertEqualObjects(IMPIllegalStateException, e.name);
-        return ;
+        XCTAssertEqualObjects(@"trackURL can't be nil when calling addReward()", e.reason);
     }
-    XCTFail(@"An exception should have been thrown.");
 }
 
 - (void)testAddReward_NaN {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    IMPDecision *decision = [decisionModel chooseFrom:variants];
+    IMPDecision *decision = [decisionModel decide:variants];
     [decision get];
 
     @try {
@@ -158,7 +149,7 @@
 - (void)testAddReward_positive_infinity {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    IMPDecision *decision = [decisionModel chooseFrom:variants];
+    IMPDecision *decision = [decisionModel decide:variants];
     [decision get];
 
     @try {
@@ -173,7 +164,7 @@
 - (void)testAddReward_negative_infinity {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    IMPDecision *decision = [decisionModel chooseFrom:variants];
+    IMPDecision *decision = [decisionModel decide:variants];
     [decision get];
 
     @try {

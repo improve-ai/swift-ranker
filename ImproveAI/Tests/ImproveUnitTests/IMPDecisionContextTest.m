@@ -24,8 +24,6 @@ extern NSString *const kTrackApiKey;
 
 @property(nonatomic, strong) NSDictionary *givens;
 
-@property (nonatomic, readonly) int tracked;
-
 @end
 
 @interface IMPDecisionContextTest : XCTestCase

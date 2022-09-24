@@ -27,10 +27,7 @@ int ksuid_with_ts_and_payload(int64_t ts, uint8_t payload[KSUID_PAYLOAD_LENGTH],
     uint8_t buf[KSUID_BYTES_LENGTH];
     
     // encode timestamp
-    int64_t corrected_ts = ts - EPOCH_TIME;
-    if(corrected_ts < 0 || corrected_ts > UINT32_MAX) {
-        return -1;
-    }
+    uint64_t corrected_ts = (uint64_t)(ts - EPOCH_TIME);
     encode_timestamp(corrected_ts, buf);
     
     // copy payload

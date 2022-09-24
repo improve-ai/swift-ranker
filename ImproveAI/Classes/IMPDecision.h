@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @throws IMPIllegalStateException Thrown if the trackURL of the underlying IMPDecisionModel is null;
  * Thrown if the decision is already tracked.
  */
-- (nullable NSString *)track;
+- (NSString *)track;
 
 /**
  * Adds rewards that only apply to this specific decision. Before calling this method, make sure that the decision is

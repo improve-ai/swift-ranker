@@ -63,6 +63,8 @@
     return _rankedVariants;
 }
 
+// SecRandomCopyBytes() may fail leading to a nil ksuid. This case is ignored at the moment.
+// We assume track() always returns a nonnull id.
 - (NSString *)track
 {
     @synchronized (self) {
