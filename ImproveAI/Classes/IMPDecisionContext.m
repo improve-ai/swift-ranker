@@ -180,10 +180,14 @@
             NSString *reason = @"If only one argument, it must be an NSArray.";
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
         }
-        return [[self chooseFirst:variants[0]] get];
+        IMPDecision *decision = [self chooseFirst:variants[0]];
+        [decision trackWith:_model.tracker];
+        return [decision get];
     }
     
-    return [[self chooseFirst:variants] get];
+    IMPDecision *decision = [self chooseFirst:variants];
+    [decision trackWith:_model.tracker];
+    return [decision get];
 }
 
 - (IMPDecision *)chooseRandom:(NSArray *)variants
@@ -217,10 +221,14 @@
             NSString *reason = @"If only one argument, it must be an NSArray.";
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
         }
-        return [[self chooseRandom:variants[0]] get];
+        IMPDecision *decision = [self chooseRandom:variants[0]];
+        [decision trackWith:_model.tracker];
+        return [decision get];
     }
     
-    return [[self chooseRandom:variants] get];
+    IMPDecision *decision = [self chooseRandom:variants];
+    [decision trackWith:_model.tracker];
+    return [decision get];
 }
 
 - (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants

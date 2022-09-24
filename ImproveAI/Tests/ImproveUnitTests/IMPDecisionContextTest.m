@@ -308,6 +308,28 @@ extern NSString *const kTrackApiKey;
     XCTFail("An execption should have been thrown.");
 }
 
+- (void)testFirst_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [[decisionModel given:[self givens]] first:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testFirst_nil_trackURL {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [[decisionModel given:[self givens]] first:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
+}
+
 - (void)testChooseRandom {
     int loop = 1000;
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
@@ -375,6 +397,28 @@ extern NSString *const kTrackApiKey;
         return ;
     }
     XCTFail(@"An exception should have been thrown");
+}
+
+- (void)testRandom_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [[decisionModel given:[self givens]] random:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testRandom_nil_trackURL {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [[decisionModel given:[self givens]] random:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
 }
 
 - (void)testScore_nil_variants {
