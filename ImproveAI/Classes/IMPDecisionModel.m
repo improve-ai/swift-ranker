@@ -27,6 +27,8 @@
 
 - (id)randomInternal:(NSArray *)variants;
 
+- (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize;
+
 @end
 
 @interface IMPDecision ()
@@ -390,6 +392,11 @@ static IMPGivensProvider *_defaultGivensProvider;
         @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
     }
     [tracker addReward:reward forModel:self.modelName decision:decisionId];
+}
+
+- (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize
+{
+    return [[self given:nil] track:variant runnersUp:runnersUp sample:sample samplePoolSize:samplePoolSize];
 }
 
 #pragma mark - Deprecated, remove in 8.0

@@ -62,7 +62,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     return ((double)arc4random() / UINT32_MAX) <= 1.0 / MIN(variantsCount - 1, self.maxRunnersUp);
 }
 
-- (nullable NSString *)track:(NSArray *)rankedVariants given:(NSDictionary *)givens modelName:(NSString *)modelName
+- (NSString *)track:(NSArray *)rankedVariants given:(NSDictionary *)givens modelName:(NSString *)modelName
 {
     BOOL trackRunnersUp = [self shouldTrackRunnersUp:[rankedVariants count]];
     
@@ -71,8 +71,8 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     // create and persist decisionId
     NSString *decisionId = [self createAndPersistDecisionIdForModel:modelName];
     if(decisionId == nil) {
-        IMPErrLog("decisionId generated is nil");
-        return nil;
+        NSString *reason = @"Failed to generate a valid ksuid!";
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     }
     
     NSMutableDictionary *body = [@{
@@ -98,6 +98,41 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
     id sampleVariant = [self sampleVariantOf:rankedVariants runnersUpCount:runnersUp.count];
     if(sampleVariant) {
         body[kSampleKey] = sampleVariant;
+    }
+
+    [self track:body];
+    
+    return decisionId;
+}
+
+- (NSString *)track:(id)variant givens:(nullable NSDictionary *)givens runnersUp:(nullable NSArray *)runnersUp sample:(id)sample variantCount:(NSUInteger)variantCount modelName:(nonnull NSString *)modelName
+{
+    // create and persist decisionId
+    NSString *decisionId = [self createAndPersistDecisionIdForModel:modelName];
+    if(decisionId == nil) {
+        NSString *reason = @"Failed to generate a valid ksuid!";
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
+    }
+    
+    NSMutableDictionary *body = [@{
+        kTypeKey: kDecisionType,
+        kModelKey: modelName,
+        kMessageIdKey: decisionId
+    } mutableCopy];
+    
+    body[kVariantKey] = variant;
+    body[kCountKey] = @(variantCount);
+
+    if (givens) {
+        body[kGivensKey] = givens;
+    }
+    
+    if (runnersUp) {
+        body[kRunnersUpKey] = runnersUp;
+    }
+
+    if(sample) {
+        body[kSampleKey] = sample;
     }
 
     [self track:body];

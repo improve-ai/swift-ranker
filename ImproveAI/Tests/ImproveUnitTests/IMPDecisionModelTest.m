@@ -58,6 +58,8 @@ extern NSString *const kTrackApiKey;
 
 - (BOOL)isLoaded;
 
+- (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize;
+
 @end
 
 @interface TestGivensProvider : IMPGivensProvider
@@ -1863,6 +1865,15 @@ extern NSString * const kTrackerURL;
 
 - (void)testIsLoaded_not_loaded {
     XCTAssertFalse([[self unloadedModel] isLoaded]);
+}
+
+- (void)testTrack {
+    NSString *variant = @"hi";
+    NSArray *runnersUp = @[@"hello", @"hey"];
+    NSString *sample = @"Ha";
+    NSUInteger samplePoolSize = 4;
+    NSString *decisionId = [[self unloadedModel] track:variant runnersUp:runnersUp sample:sample samplePoolSize:samplePoolSize];
+    XCTAssertTrue([decisionId length] > 0);
 }
 
 @end

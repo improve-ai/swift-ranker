@@ -41,6 +41,12 @@ extern NSString *const kTrackApiKey;
 
 @end
 
+@interface IMPDecisionContext()
+
+- (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize;
+
+@end
+
 @implementation IMPDecisionContextTest
 
 - (void)setUp {
@@ -741,6 +747,15 @@ extern NSString *const kTrackApiKey;
     NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
     XCTAssertNotNil(newDecisionid);
     XCTAssertEqualObjects(lastDecisionId, newDecisionid);
+}
+
+- (void)testTrack {
+    NSString *variant = @"hi";
+    NSArray *runnersUp = @[@"hello", @"hey"];
+    NSString *sample = @"Ha";
+    NSUInteger samplePoolSize = 4;
+    NSString *decisionId = [[[self unloadedModel] given:[self givens]] track:variant runnersUp:runnersUp sample:sample samplePoolSize:samplePoolSize];
+    XCTAssertTrue([decisionId length] > 0);
 }
 
 @end

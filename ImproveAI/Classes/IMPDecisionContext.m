@@ -142,6 +142,13 @@
     return [self whichFrom:[self.model fullFactorialVariants:variantMap]];
 }
 
+- (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize
+{
+    NSUInteger variantCount = 1 + [runnersUp count] + samplePoolSize;
+    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
+    return [_model.tracker track:variant givens:allGivens runnersUp:runnersUp sample:sample variantCount:variantCount modelName:_model.modelName];
+}
+
 #pragma mark - Deprecated, remove in 8.0.
 
 - (IMPDecision *)chooseFrom:(NSArray *)variants
