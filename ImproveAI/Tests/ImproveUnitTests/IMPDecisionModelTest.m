@@ -675,26 +675,52 @@ extern NSString *const kTrackApiKey;
     }
 }
 
-- (void)testDecide_ordered_invalid_variants {
-    IMPDecisionModel *decisionModel = [self unloadedModel];
-    
-    // nil variants
+- (void)testDecide_ordered_nil_variants {
     @try {
         NSArray *variants = nil;
-        [decisionModel decide:variants ordered:YES];
+        [[self unloadedModel] decide:variants ordered:YES];
         XCTFail(@"variants can't be nil");
     } @catch (NSException *e){
         NSLog(@"%@", e);
     }
-    
-    // empty variants
+}
+
+- (void)testDecide_ordered_empty_variants {
     @try {
         NSArray *variants = @[];
-        [decisionModel decide:variants ordered:YES];
+        [[self unloadedModel] decide:variants ordered:YES];
         XCTFail(@"variants can't be empty");
     } @catch (NSException *e){
         NSLog(@"%@", e);
     }
+}
+
+- (void)testDecide_ordered_true_not_loaded {
+    NSArray *variants = [self variants];
+    NSArray *rankedVariants = [[[self unloadedModel] decide:variants ordered:true] ranked];
+    XCTAssertNotEqual(variants, rankedVariants); // different objects
+    XCTAssertEqualObjects(variants, rankedVariants);
+}
+
+- (void)testDecide_ordered_true_loaded {
+    NSArray *variants = @[@0, @1, @2, @3, @4, @5, @6, @7, @8, @9];
+    NSArray *rankedVariants = [[[self loadedModel] decide:variants ordered:true] ranked];
+    XCTAssertNotEqual(variants, rankedVariants); // different objects
+    XCTAssertEqualObjects(variants, rankedVariants);
+}
+
+- (void)testDecide_ordered_false_not_loaded {
+    NSArray *variants = [self variants];
+    NSArray *rankedVariants = [[[self unloadedModel] decide:variants ordered:false] ranked];
+    XCTAssertNotEqual(variants, rankedVariants); // different objects
+    XCTAssertEqualObjects(variants, rankedVariants);
+}
+
+- (void)testDecide_ordered_false_loaded {
+    NSArray *variants = @[@0, @1, @2, @3, @4, @5, @6, @7, @8, @9];
+    NSArray *rankedVariants = [[[self loadedModel] decide:variants ordered:false] ranked];
+    XCTAssertNotEqual(variants, rankedVariants); // different objects
+    XCTAssertNotEqualObjects(variants, rankedVariants);
 }
 
 - (void)testDecideVariantsAndScores {

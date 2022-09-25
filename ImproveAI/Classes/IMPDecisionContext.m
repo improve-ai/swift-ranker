@@ -37,6 +37,8 @@
 
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
+- (BOOL)isLoaded;
+
 @end
 
 @interface IMPDecisionContext ()
@@ -79,10 +81,14 @@
     
     NSArray *rankedVariants;
     if (ordered) {
-        rankedVariants = variants;
+        rankedVariants = [NSArray arrayWithArray:variants];
     } else {
-        NSArray<NSNumber *> *scores = [_model scoreInternal:variants allGivens:allGivens];
-        rankedVariants = [IMPDecisionModel rank:variants withScores:scores];
+        if([_model isLoaded]) {
+            NSArray<NSNumber *> *scores = [_model scoreInternal:variants allGivens:allGivens];
+            rankedVariants = [IMPDecisionModel rank:variants withScores:scores];
+        } else {
+            rankedVariants = [NSArray arrayWithArray:variants];
+        }
     }
     
     IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model rankedVariants:rankedVariants givens:allGivens];
