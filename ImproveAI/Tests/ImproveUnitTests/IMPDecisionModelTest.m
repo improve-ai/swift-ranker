@@ -56,6 +56,8 @@ extern NSString *const kTrackApiKey;
 
 - (BOOL)canParseVersion:(NSString *)versionString;
 
+- (BOOL)isLoaded;
+
 @end
 
 @interface TestGivensProvider : IMPGivensProvider
@@ -1826,6 +1828,14 @@ extern NSString * const kTrackerURL;
     XCTAssertNil(error);
     
     [[decisionModel chooseFrom:@[@[@1, @2], @[@3, @4]]] get];
+}
+
+- (void)testIsLoaded_loaded {
+    XCTAssertTrue([[self loadedModel] isLoaded]);
+}
+
+- (void)testIsLoaded_not_loaded {
+    XCTAssertFalse([[self unloadedModel] isLoaded]);
 }
 
 @end

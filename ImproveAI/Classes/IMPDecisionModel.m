@@ -190,12 +190,9 @@ static IMPGivensProvider *_defaultGivensProvider;
 {
     // MLModel is not thread safe, synchronize
     @synchronized (self) {
-        _model = model;
-
         if (!model || !model.modelDescription || !model.modelDescription.metadata) {
-            IMPErrLog("Invalid Improve model. model metadata not found");
-            return;
-
+            NSString *reason = @"Invalid model: metadata not found";
+            @throw [NSException exceptionWithName:@"InvalidModelVersion" reason:reason userInfo:nil];
         }
         NSDictionary * creatorDefined = model.modelDescription.metadata[MLModelCreatorDefinedKey];
         
@@ -205,15 +202,10 @@ static IMPGivensProvider *_defaultGivensProvider;
             @throw [NSException exceptionWithName:@"InvalidModelVersion" reason:reason userInfo:nil];
         }
         
-        NSString *modelName = creatorDefined[@"ai.improve.model.name"];
-        if([modelName length] <= 0) {
-            IMPErrLog("Invalid Improve model: modelName is nil or empty");
-            return ;
-        }
-        
         NSString *seedString = creatorDefined[@"ai.improve.model.seed"];
         uint64_t seed = strtoull([seedString UTF8String], NULL, 0);
-
+        
+        NSString *modelName = creatorDefined[@"ai.improve.model.name"];
         if(![_modelName isEqualToString:modelName]) {
             // The modelName set before loading the model has higher priority than
             // the one extracted from the model file. Just print a warning here if
@@ -221,6 +213,8 @@ static IMPGivensProvider *_defaultGivensProvider;
             IMPErrLog("Model names don't match: current model name is [%@]; "
                       "model name extracted is [%@]. [%@] will be used.", _modelName, modelName, _modelName);
         }
+        
+        _model = model;
         
         NSSet *featureNames = [[NSSet alloc] initWithArray:_model.modelDescription.inputDescriptionsByName.allKeys];
 
@@ -573,7 +567,8 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [arr copy];
 }
 
-+ (NSArray *)generateRandomScores:(NSUInteger)count {
++ (NSArray *)generateRandomScores:(NSUInteger)count
+{
     NSMutableArray *arr = [[NSMutableArray alloc] init];
     for(int i = 0; i < count; ++i){
         [arr addObject:[NSNumber numberWithDouble:[IMPUtils gaussianNumber]]];
@@ -581,18 +576,25 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [arr copy];
 }
 
-- (BOOL)isValidModelName:(NSString *)modelName {
+- (BOOL)isValidModelName:(NSString *)modelName
+{
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", @"^[a-zA-Z0-9][\\w\\-.]{0,63}$"];
     return [predicate evaluateWithObject:modelName];
 }
 
-- (BOOL)canParseVersion:(NSString *)versionString {
+- (BOOL)canParseVersion:(NSString *)versionString
+{
     if(versionString == nil) {
         return YES;
     }
     NSArray<NSString *> *array = [kIMPVersion componentsSeparatedByString:@"."];
     NSString *prefix = [NSString stringWithFormat:@"%@.", array[0]];
     return [versionString hasPrefix:prefix] || [versionString isEqualToString:array[0]];
+}
+
+- (BOOL)isLoaded
+{
+    return self.model != nil;
 }
 
 @end
