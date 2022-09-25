@@ -490,6 +490,7 @@ extern NSString *const kTrackApiKey;
     [decisionModel loadAsync:modelURL completion:^(IMPDecisionModel * _Nullable loadedModel, NSError * _Nullable error) {
         XCTAssertNil(loadedModel);
         XCTAssertNotNil(error);
+        XCTAssertFalse([decisionModel isLoaded]);
         NSLog(@"%@", error);
         [ex fulfill];
     }];
