@@ -8,7 +8,9 @@ build_tool_arguments:
   - "-sdk"
   - "iphonesimulator"
 
-exclude: "ImproveAISwift/internal/*"
+exclude:
+  - ImproveAISwift/internal/*
+  - ImproveAISwift/IMPError.swift
 title: Improve AI iOS SDK
 author: Improve AI
 author_url: https://improve.ai
