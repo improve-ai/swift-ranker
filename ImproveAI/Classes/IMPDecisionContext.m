@@ -132,9 +132,7 @@
 
 - (NSArray *)rank:(NSArray *)variants
 {
-    IMPDecision *decision = [self decide:variants];
-    [decision trackWith:_model.tracker];
-    return [decision ranked];
+    return [[self decide:variants] ranked];
 }
 
 - (id)optimize:(NSDictionary<NSString *, id> *)variantMap

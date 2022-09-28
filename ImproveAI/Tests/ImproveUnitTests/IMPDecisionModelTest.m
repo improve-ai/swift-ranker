@@ -1346,7 +1346,7 @@ extern NSString * const kTrackerURL;
     }
 }
 
-// decision is tracked when calling which().
+// decision is not tracked when calling which().
 - (void)testRank_track {
     NSString *modelName = @"greetings";
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
@@ -1354,7 +1354,7 @@ extern NSString * const kTrackerURL;
     [decisionModel rank:@[@"hi", @"hello", @"hey"]];
     NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
     XCTAssertNotNil(newDecisionid);
-    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
 }
 
 // When trackURL is nil, decision is not tracked and no exceptions thrown.
