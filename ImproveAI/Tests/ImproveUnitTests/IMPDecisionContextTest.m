@@ -19,8 +19,6 @@ extern NSString *const kTrackApiKey;
 
 @interface IMPDecision ()
 
-@property(nonatomic, readonly, nullable) id best;
-
 @property(nonatomic, copy) NSArray *rankedVariants;
 
 @property(nonatomic, strong) NSDictionary *givens;

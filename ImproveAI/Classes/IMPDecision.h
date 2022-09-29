@@ -15,16 +15,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
+// The best variant.
+@property (readonly) id best;
+
+// The ranked variants.
+@property (readonly) NSArray *ranked;
+
 /**
  * Get the chosen variant.
  */
 - (id)get;
-
-/**
- * Get the ranked variants.
- * @return Returns the ranked variants.
- */
-- (NSArray *)ranked;
 
 /**
  * Tracks the decision.

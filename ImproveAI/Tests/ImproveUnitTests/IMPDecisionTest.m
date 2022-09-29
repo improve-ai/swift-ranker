@@ -54,16 +54,23 @@
     return @[@"Hello World", @"Howdy World", @"Hi World"];
 }
 
+- (void)testBest {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertEqualObjects(@"Hello World", decision.best);
+}
+
 - (void)testGet {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecision *decision = [decisionModel decide:[self variants]];
     XCTAssertEqualObjects(@"Hello World", [decision get]);
+    NSLog(@"ranked: %@", decision.ranked);
 }
 
 - (void)testRanked {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecision *decision = [decisionModel decide:[self variants]];
-    XCTAssertEqualObjects([self variants], [decision ranked]);
+    XCTAssertEqualObjects([self variants], decision.ranked);
 }
 
 - (void)testTrack {

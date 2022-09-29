@@ -53,6 +53,10 @@
     return self;
 }
 
+- (id)best {
+    return _rankedVariants[0];
+}
+
 - (id)get
 {
     return _rankedVariants[0];
@@ -83,7 +87,7 @@
     }
 }
 
-// For which(), whichFrom(), rank() and optimize().
+// For which(), whichFrom(), and optimize().
 - (void)trackWith:(IMPDecisionTracker *)tracker
 {
     if(tracker != nil) {
