@@ -22,9 +22,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) NSArray *ranked;
 
 /**
- * Get the chosen variant.
+ * Gets the best variant.
  */
-- (id)get;
+- (id)peek DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0.");
+
+/**
+ * Gets the best variant, and also track the decision if it's not been tracked yet.
+ */
+- (id)get DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0.");
 
 /**
  * Tracks the decision.

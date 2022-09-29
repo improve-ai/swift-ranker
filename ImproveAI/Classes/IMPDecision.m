@@ -57,8 +57,23 @@
     return _rankedVariants[0];
 }
 
+- (id)peek
+{
+    return _rankedVariants[0];
+}
+
 - (id)get
 {
+    @synchronized (self) {
+        if(_id == nil) {
+            IMPDecisionTracker *tracker = _model.tracker;
+            if (tracker == nil) {
+                IMPLog("trackURL not set for the underlying DecisionModel. The decision won't be tracked.");
+            } else {
+                _id = [tracker track:_rankedVariants given:_givens modelName:_model.modelName];
+            }
+        }
+    }
     return _rankedVariants[0];
 }
 

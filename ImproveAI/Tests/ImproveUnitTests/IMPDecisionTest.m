@@ -21,7 +21,7 @@
 
 @interface IMPDecisionTracker ()
 
-- (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName;
++ (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName;
 
 @end
 
@@ -60,11 +60,34 @@
     XCTAssertEqualObjects(@"Hello World", decision.best);
 }
 
+- (void)testPeek {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertEqualObjects(@"Hello World", [decision peek]);
+}
+
 - (void)testGet {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecision *decision = [decisionModel decide:[self variants]];
     XCTAssertEqualObjects(@"Hello World", [decision get]);
     NSLog(@"ranked: %@", decision.ranked);
+}
+
+- (void)testGet_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    NSString *d0 = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decision get];
+    NSString *d1 = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decision get];
+    NSString *d2 = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(d0);
+    XCTAssertNotNil(d1);
+    XCTAssertNotEqualObjects(d0, d1);
+    XCTAssertEqualObjects(d1, d2);
+    XCTAssertEqualObjects(@"Hello World", [decision get]);
+    NSLog(@"decision id: %@, %@, %@", d0, d1, d2);
 }
 
 - (void)testRanked {
@@ -157,30 +180,28 @@
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecision *decision = [decisionModel decide:variants];
-    [decision get];
+    [decision track];
 
     @try {
         [decision addReward:(1.0/0.0)];
+        XCTFail(@"An exception should have been thrown.");
     } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
+        XCTAssertTrue([e.reason hasPrefix:@"invalid reward"]);
     }
-    XCTFail(@"An exception should have been thrown.");
 }
 
 - (void)testAddReward_negative_infinity {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
     IMPDecision *decision = [decisionModel decide:variants];
-    [decision get];
+    [decision track];
 
     @try {
         [decision addReward:(-1.0/0.0)];
+        XCTFail(@"An exception should have been thrown.");
     } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
+        XCTAssertTrue([e.reason hasPrefix:@"invalid reward"]);
     }
-    XCTFail(@"An exception should have been thrown.");
 }
 
 @end
