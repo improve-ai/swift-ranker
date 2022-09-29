@@ -62,7 +62,7 @@ public struct DecisionContext {
         if variants.isEmpty {
             throw IMPError.emptyVariants
         }
-        return try decide(variants).ranked()
+        return try decide(variants).ranked
     }
     
     public func optimize(_ variantMap: [String : Any]) throws -> [String : Any] {
