@@ -37,7 +37,7 @@
 
 @property (nonatomic, copy, nullable) NSDictionary *givens;
 
-@property (nonatomic, strong) NSArray *rankedVariants;
+@property (nonatomic, strong, readwrite) NSArray *ranked;
 
 @end
 
@@ -47,19 +47,19 @@
 {
     if(self = [super init]) {
         _model = model;
-        _rankedVariants = rankedVariants;
+        _ranked = rankedVariants;
         _givens = givens;
     }
     return self;
 }
 
 - (id)best {
-    return _rankedVariants[0];
+    return _ranked[0];
 }
 
 - (id)peek
 {
-    return _rankedVariants[0];
+    return _ranked[0];
 }
 
 - (id)get
@@ -70,16 +70,11 @@
             if (tracker == nil) {
                 IMPLog("trackURL not set for the underlying DecisionModel. The decision won't be tracked.");
             } else {
-                _id = [tracker track:_rankedVariants given:_givens modelName:_model.modelName];
+                _id = [tracker track:_ranked given:_givens modelName:_model.modelName];
             }
         }
     }
-    return _rankedVariants[0];
-}
-
-- (NSArray *)ranked
-{
-    return _rankedVariants;
+    return _ranked[0];
 }
 
 // SecRandomCopyBytes() may fail leading to a nil ksuid. This case is ignored at the moment.
@@ -96,7 +91,7 @@
             @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL of the underlying DecisionModel is nil!" userInfo:nil];
         }
         
-        _id = [tracker track:_rankedVariants given:_givens modelName:_model.modelName];
+        _id = [tracker track:_ranked given:_givens modelName:_model.modelName];
         
         return _id;
     }
@@ -106,7 +101,7 @@
 - (void)trackWith:(IMPDecisionTracker *)tracker
 {
     if(tracker != nil) {
-        [tracker track:_rankedVariants given:_givens modelName:_model.modelName];
+        [tracker track:_ranked given:_givens modelName:_model.modelName];
     }
 }
 

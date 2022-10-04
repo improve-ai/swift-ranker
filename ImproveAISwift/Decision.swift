@@ -24,7 +24,7 @@ public struct Decision<T> {
         self.decision = decision
         self.variants = variants
         ranked = decision.ranked.map({
-                    (decision.variants as NSArray).indexOfObjectIdentical(to: $0)
+            (decision.variants as NSArray).indexOfObjectIdentical(to: $0)
         }).map({ variants[$0] })
     }
     

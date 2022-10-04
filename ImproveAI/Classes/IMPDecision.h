@@ -16,10 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 // The best variant.
-@property (readonly) id best;
+@property (nonatomic, strong, readonly) id best;
 
 // The ranked variants.
-@property (readonly) NSArray *ranked;
+@property (nonatomic, strong, readonly) NSArray *ranked;
 
 /**
  * Gets the best variant.

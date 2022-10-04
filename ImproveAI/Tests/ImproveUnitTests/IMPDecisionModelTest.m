@@ -28,8 +28,6 @@ extern NSString *const kTrackApiKey;
 
 @property (nonatomic, copy) NSArray *variants;
 
-@property (nonatomic, copy) NSArray *rankedVariants;
-
 @property(nonatomic, strong) NSArray *scores;
 
 @property(nonatomic, strong) NSDictionary *givens;
@@ -637,7 +635,7 @@ extern NSString *const kTrackApiKey;
     
     NSArray *variants = [self variants];
     IMPDecision *decision = [decisionModel decide:variants];
-    XCTAssertEqual([variants count], [decision.rankedVariants count]);
+    XCTAssertEqual([variants count], [decision.ranked count]);
 }
 
 - (void)testDecide_invalid_variants {
@@ -670,9 +668,9 @@ extern NSString *const kTrackApiKey;
     
     for (int i = 0; i < 10; ++i) {
         IMPDecision *decision = [decisionModel decide:variants ordered:YES];
-        XCTAssertEqual([variants count], [decision.rankedVariants count]);
+        XCTAssertEqual([variants count], [decision.ranked count]);
         for(int j = 0; j < [variants count]; ++j) {
-            XCTAssertEqualObjects(variants[j], decision.rankedVariants[j]);
+            XCTAssertEqualObjects(variants[j], decision.ranked[j]);
         }
     }
 }
@@ -698,21 +696,21 @@ extern NSString *const kTrackApiKey;
 }
 
 - (void)testDecide_ordered_true_not_loaded {
-    NSArray *variants = [self variants];
+    NSArray *variants = [[self variants] mutableCopy];
     NSArray *rankedVariants = [[[self unloadedModel] decide:variants ordered:true] ranked];
     XCTAssertNotEqual(variants, rankedVariants); // different objects
     XCTAssertEqualObjects(variants, rankedVariants);
 }
 
 - (void)testDecide_ordered_true_loaded {
-    NSArray *variants = @[@0, @1, @2, @3, @4, @5, @6, @7, @8, @9];
+    NSArray *variants = [@[@0, @1, @2, @3, @4, @5, @6, @7, @8, @9] mutableCopy];
     NSArray *rankedVariants = [[[self loadedModel] decide:variants ordered:true] ranked];
     XCTAssertNotEqual(variants, rankedVariants); // different objects
     XCTAssertEqualObjects(variants, rankedVariants);
 }
 
 - (void)testDecide_ordered_false_not_loaded {
-    NSArray *variants = [self variants];
+    NSArray *variants = [[self variants] mutableCopy];
     NSArray *rankedVariants = [[[self unloadedModel] decide:variants ordered:false] ranked];
     XCTAssertNotEqual(variants, rankedVariants); // different objects
     XCTAssertEqualObjects(variants, rankedVariants);
@@ -730,9 +728,9 @@ extern NSString *const kTrackApiKey;
     NSArray *scores = @[@2.1, @1.1, @3.1];
     IMPDecisionModel *decisionModel = [self unloadedModel];
     IMPDecision *decision = [decisionModel decide:variants scores:scores];
-    XCTAssertEqualObjects(@"Hi World", decision.rankedVariants[0]);
-    XCTAssertEqualObjects(@"Hello World", decision.rankedVariants[1]);
-    XCTAssertEqualObjects(@"Howdy World", decision.rankedVariants[2]);
+    XCTAssertEqualObjects(@"Hi World", decision.ranked[0]);
+    XCTAssertEqualObjects(@"Hello World", decision.ranked[1]);
+    XCTAssertEqualObjects(@"Howdy World", decision.ranked[2]);
 }
 
 - (void)testDecideVariantsAndScores_invalid_variants {

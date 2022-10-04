@@ -19,8 +19,6 @@ extern NSString *const kTrackApiKey;
 
 @interface IMPDecision ()
 
-@property(nonatomic, copy) NSArray *rankedVariants;
-
 @property(nonatomic, strong) NSDictionary *givens;
 
 @end
@@ -90,7 +88,7 @@ extern NSString *const kTrackApiKey;
     
     NSArray *variants = [self variants];
     IMPDecision *decision = [[decisionModel given:nil] decide:variants];
-    XCTAssertEqual([variants count], [decision.rankedVariants count]);
+    XCTAssertEqual([variants count], [decision.ranked count]);
 }
 
 - (void)testDecide_invalid_variants {
@@ -123,9 +121,9 @@ extern NSString *const kTrackApiKey;
     
     for (int i = 0; i < 10; ++i) {
         IMPDecision *decision = [[decisionModel given:nil] decide:variants ordered:YES];
-        XCTAssertEqual([variants count], [decision.rankedVariants count]);
+        XCTAssertEqual([variants count], [decision.ranked count]);
         for(int j = 0; j < [variants count]; ++j) {
-            XCTAssertEqualObjects(variants[j], decision.rankedVariants[j]);
+            XCTAssertEqualObjects(variants[j], decision.ranked[j]);
         }
     }
 }

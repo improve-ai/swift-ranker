@@ -131,47 +131,6 @@ public struct DecisionContext {
         
     @available(*, deprecated, message: "Remove in 8.0")
     public func chooseMultivariate(_ variants: [String : Any]) throws -> Decision<[String: Any]> {
-        var categories: [[AnyEncodable]] = []
-        var keys: [String] = []
-        for (k, v) in variants {
-            if let v = v as? [Any] {
-                if !v.isEmpty {
-                    categories.append(v.map{ AnyEncodable($0) })
-                    keys.append(k)
-                }
-            } else {
-                categories.append([AnyEncodable(v)])
-                keys.append(k)
-            }
-        }
-        
-        if categories.isEmpty {
-            throw IMPError.emptyVariants
-        }
-
-        var combinations: [[String:AnyEncodable]] = []
-        for i in 0..<categories.count {
-            let category = categories[i]
-            var newCombinations:[[String:AnyEncodable]] = []
-            for m in 0..<category.count {
-                if combinations.count == 0 {
-                    newCombinations.append([keys[i]:category[m]])
-                } else {
-                    for n in 0..<combinations.count {
-                        var newVariant = combinations[n]
-                        newVariant[keys[i]] = category[m]
-                        newCombinations.append(newVariant)
-                    }
-                }
-            }
-            combinations = newCombinations
-        }
-        
-        let encodedVariants = try PListEncoder().encode(combinations) as! [[String:Any]]
-        return Decision(self.decisionContext.chooseFrom(encodedVariants), combinations.map({
-            $0.mapValues({ (v: AnyEncodable) in
-                v.value
-            })
-        }))
+        return try decide(decisionModel.fullFactorialVariants(variants))
     }
 }
