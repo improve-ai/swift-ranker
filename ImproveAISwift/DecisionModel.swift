@@ -11,14 +11,22 @@ public class DecisionModel {
         self.decisionModel = IMPDecisionModel(modelName)
     }
     
+    /// Initializer
+    ///
+    /// - Parameters
+    ///   - modelName: Length of modelName must be in range [1, 64]; Only alhpanumeric characters([a-zA-Z0-9]), '-', '.' and '_'
+    ///   are allowed in the modenName and the first character must be an alphnumeric one.
+    ///   - trackURL: The track url for this DecisionModel.
+    ///   - trackApiKey: The track api key to use for this DecisionModel.
     public init(modelName: String, trackURL: URL?, trackApiKey: String?) {
         self.decisionModel = IMPDecisionModel(modelName, trackURL, trackApiKey)
     }
     
-    public var model: MLModel {
-        return self.decisionModel.model
+    public var modelName: String {
+        return decisionModel.modelName
     }
     
+    /// The default track URL to use for all new DecisionModel instances
     public static var defaultTrackURL: URL {
         get {
             return IMPDecisionModel.defaultTrackURL
@@ -28,6 +36,7 @@ public class DecisionModel {
         }
     }
     
+    /// The default track API key to use for all new DecisionModel instances
     public static var defaultTrackApiKey: String {
         get {
             return IMPDecisionModel.defaultTrackApiKey
@@ -37,15 +46,28 @@ public class DecisionModel {
         }
     }
     
+    /// Static subscript for accessing a DecisionModel from the instances array
     public static subscript(modelName: String) -> DecisionModel {
         return DecisionModel(IMPDecisionModel.instances[modelName])
     }
     
+    /// Loads a MLModel synchronously.
+    ///
+    ///  - Parameter url: A `URL` that points to a MLModel file. It can be a local file path, a remote http url, or a bundled MLModel file.
+    ///  Urls that end with '.gz' are considered gzip compressed, and will be decompressed automatically.
+    ///  - Returns: Self.
+    ///  - Throws: An `Error` when model loading fails.
     public func load(_ url: URL) throws -> Self {
         try self.decisionModel.load(url)
         return self
     }
     
+    /// Loads a  MLModel from the `URL`
+    ///
+    /// - Parameters:
+    ///     - url: A `URL` that points to a MLModel file. It can be a local file path, a remote http url, or a bundled MLModel file.
+    ///     Urls that end with '.gz' are considered gzip compressed, and will be decompressed automatically.
+    ///     - handler: Closure handler to be called when the model is loaded. When error is nil, the `DecisionModel` is guaranteed to be nonnull.
     public func loadAsync(_ url: URL, completion handler: ((DecisionModel?, Error?) -> Void)? = nil) {
         decisionModel.loadAsync(url) { decisionModel, error in
             if error == nil {
@@ -62,6 +84,11 @@ public class DecisionModel {
         }
     }
     
+    /// Adds additional context info.
+    ///
+    /// - Parameter givens: Additional context info that will be used with each of the variants to calculate the score.
+    /// - Returns: A `DecisionContext` object.
+    /// - Throws: An `Error` if givens cannot be encoded.
     public func given(_ givens: [String : Any]?) throws -> DecisionContext {
         if givens == nil {
             return DecisionContext(decisionContext: self.decisionModel.given(nil), decisionModel: self)
@@ -70,36 +97,100 @@ public class DecisionModel {
         return DecisionContext(decisionContext: self.decisionModel.given(encodedGivens), decisionModel: self)
     }
     
+    /// Gets the scores of the variants. If the model is not loaded yet, a randomly generated list of scores in descending order would be returned.
+    ///
+    /// - Parameter variants: Variants can be any JSON encodable data structure of arbitrary complexity, including nested dictionaries,
+    /// arrays, strings, numbers, nulls, booleans, and types that conform to the `Encodable` protocol(`URL`, `Date`, `Data` excluded).
+    /// - Returns: Scores of the variants.
+    /// - Throws: An `Error` if variants is empty.
     public func score<T>(_ variants:[T]) throws -> [Double] {
         return try given(nil).score(variants)
     }
     
+    /// Chooses the best variant.
+    ///
+    /// - Parameters;
+    ///     - variants: Variants can be any JSON encodable data structure of arbitrary complexity, including nested dictionaries,
+    ///     arrays, strings, numbers, nulls, booleans, and types that conform to the `Encodable` protocol(`URL`, `Date`, `Data` excluded).
+    ///     - ordered: ordered = true means that the variants are already in order, and no scoring would be performed.
+    /// - Returns: A Decision object.
+    /// - Throws: An `Error` if variants is empty, or cannot be encoded.
     public func decide<T>(_ variants:[T], _ ordered:Bool = false) throws -> Decision<T> {
         return try given(nil).decide(variants, ordered)
     }
     
+    /// Chooses from the variants with the provided scores. The chosen variant is the one with highest score.
+    ///
+    /// - Parameters:
+    ///     - variants: Variants to choose from.
+    ///     - scores: Scores of the variants.
+    /// - Returns: A Decision object.
+    /// - Throws: An `IMPError.invalidArgument` if variants/scores is empty, or variants.count != scores.count.
     public func decide<T>(_ variants:[T], _ scores:[Double]) throws -> Decision<T> {
         return try given(nil).decide(variants, scores)
     }
     
+    /// The variadic version of whichFrom(variants).
     public func which<T>(_ variants: T...) throws -> T {
         return try whichFrom(variants)
     }
     
+    /// It exists only because we need to support different types among variants like which("hi", 1, false).
+    ///
+    /// - Parameter variants: Variants to choose from.
+    /// - Returns: The best variant.
     public func which(_ variants: Any...) throws -> Any {
         return try whichFrom(variants)
     }
     
+    /// Choose The best variant.
+    ///
+    /// - Parameter variants: Variants to choose from.
+    /// - Returns: The best variant.
     public func whichFrom<T>(_ variants: [T]) throws -> T {
         return try given(nil).whichFrom(variants)
     }
     
+    /// A shorthand of decide(variants).ranked.
     public func rank<T>(_ variants: [T]) throws -> [T] {
         return try given(nil).rank(variants)
     }
     
+    /// Generates all combinations of the variants from the variantMap, and chooses the best one.
+    ///
+    /// - Parameter variantMap: Vaules of the variantMap are expected to be lists of JSON encodable objects. Values that
+    /// are not lists are automatically wrapped as a list of containing a single item.
+    /// - Returns: The best variant.
     public func optimize(_ variantMap: [String : Any]) throws -> [String : Any] {
         return try given(nil).optimize(variantMap)
+    }
+    
+    /// Add rewards for the most recent Decision for this model name
+    ///
+    /// - Parameter reward: The reward to add.
+    /// - Throws: `IMPError.invalidArgument` if reward is NaN or Infinity.
+    public func addReward(_ reward: Double) throws {
+        if reward.isNaN || reward.isInfinite {
+            throw IMPError.invalidArgument(reason: "reward can't be NaN or Infinity.")
+        }
+        decisionModel.addReward(reward)
+    }
+    
+    /// Add reward for the decision designated by the decisionId.
+    ///
+    /// - Parameters
+    ///     - reward: The reward to add.
+    ///     - decisionId: The id of a decision.
+    /// - Throws: `IMPError.invalidArgument` if reward is NaN or Infinity; if decisionId is empty
+    public func addReward(_ reward: Double, _ decisionId: String) throws {
+        if reward.isNaN || reward.isInfinite {
+            throw IMPError.invalidArgument(reason: "reward can't be NaN or Infinity.")
+        }
+        
+        if decisionId.isEmpty {
+            throw IMPError.invalidArgument(reason: "invalid decision id.")
+        }
+        decisionModel.addReward(reward, decisionId)
     }
     
     internal static func fullFactorialVariants(_ variantMap: [String:Any]) throws -> [[String : Any]] {
@@ -139,16 +230,6 @@ public class DecisionModel {
             combinations = newCombinations
         }
         return combinations
-    }
-    
-    /// Add rewards for the most recent Decision for this model name
-    public func addReward(_ reward: Double) {
-        decisionModel.addReward(reward)
-    }
-    
-    /// Add reward for the provided decision_id
-    public func addReward(_ reward: Double, _ decisionId: String) {
-        decisionModel.addReward(reward, decisionId)
     }
     
     // MARK: Deprecated, remove in 8.0

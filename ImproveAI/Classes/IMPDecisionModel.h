@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @param givens Additional context info that will be used with each of the variants to calculate the score
- * @return A IMPDecision object to be lazily evaluated
+ * @return An IMPDecisionContext.
  */
 - (IMPDecisionContext *)given:(nullable NSDictionary <NSString *, id>*)givens NS_SWIFT_NAME(given(_:));
 

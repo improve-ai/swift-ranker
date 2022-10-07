@@ -55,6 +55,10 @@ class TestDecisionModel: XCTestCase {
         return URL(string:"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/songs-2.0.mlmodel.gz")!
     }
     
+    func notExistModelURL() -> URL {
+        return URL(string:"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/not_exist.mlmodel.gz")!
+    }
+    
     func variants() -> [String] {
         return ["Hello World", "Howdy World", "Hi World"]
     }
@@ -75,11 +79,21 @@ class TestDecisionModel: XCTestCase {
         return try model().load(modelUrl())
     }
 
-    func testDecisionModel_load() throws {
-        _ = try model().load(modelUrl())
+    func testLoad() throws {
+        let decisionModel = try model().load(modelUrl())
+        XCTAssertNotNil(decisionModel)
+    }
+    
+    func testLoad_invalid_url() {
+        do {
+            _ = try model().load(notExistModelURL())
+            XCTFail("should throw exception")
+        } catch {
+            debugPrint("load error: \(error)")
+        }
     }
 
-    func testDecisionModel_loadAsync() {
+    func testLoadAsync() {
         let expectation = expectation(description: "loading model")
         model().loadAsync(modelUrl()) { decisionModel, error in
             XCTAssertNil(error)
@@ -94,7 +108,7 @@ class TestDecisionModel: XCTestCase {
         let decisionModel = model()
         decisionModel.loadAsync(modelUrl())
         sleep(10)
-        XCTAssertNotNil(decisionModel.model)
+//        XCTAssertNotNil(decisionModel.model)
     }
     
     func testGiven_encodable() throws {
@@ -504,7 +518,7 @@ class TestDecisionModel: XCTestCase {
     func testTypeNotSupported_date() throws {
         let variants = [Date(), Date()]
         do {
-            let _ = try model().chooseFrom(variants)
+            let _ = try model().decide(variants)
         } catch IMPError.typeNotSupported {
             return
         }
@@ -514,7 +528,7 @@ class TestDecisionModel: XCTestCase {
     func testTypeNotSupported_url() throws {
         let variants = [URL(string: "http://example.com"), URL(string: "http://example.com")]
         do {
-            let _ = try model().chooseFrom(variants)
+            let _ = try model().decide(variants)
         } catch IMPError.typeNotSupported {
             return
         }
@@ -524,7 +538,7 @@ class TestDecisionModel: XCTestCase {
     func testTypeNotSupported_data() throws {
         let variants = ["hello".data(using: .utf8)]
         do {
-            let _ = try model().chooseFrom(variants)
+            let _ = try model().decide(variants)
         } catch IMPError.typeNotSupported {
             return
         }
@@ -532,10 +546,55 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testAddReward() {
-        model().addReward(0.1)
+        try! model().addReward(0.1)
+    }
+    
+    func testAddRewardd_NaN() throws {
+        do {
+            try model().addReward(Double.nan)
+            XCTFail(shouldThrowError)
+        } catch IMPError.invalidArgument(let reason){
+            print(reason)
+        }
+    }
+    
+    func testAddRewardd_infinity() throws {
+        do {
+            try model().addReward(Double.infinity)
+            XCTFail(shouldThrowError)
+        } catch IMPError.invalidArgument(let reason){
+            print(reason)
+        }
     }
     
     func testAddRewardForDecision() {
-        model().addReward(0.1, "abcd")
+        try! model().addReward(0.1, "abcd")
+    }
+    
+    func testAddRewarddForDecision_NaN() throws {
+        do {
+            try model().addReward(Double.nan, "abcd")
+            XCTFail(shouldThrowError)
+        } catch IMPError.invalidArgument(let reason){
+            print(reason)
+        }
+    }
+    
+    func testAddRewarddForDecision_infinity() throws {
+        do {
+            try model().addReward(Double.infinity, "abcd")
+            XCTFail(shouldThrowError)
+        } catch IMPError.invalidArgument(let reason){
+            print(reason)
+        }
+    }
+    
+    func testAddRewarddForDecision_empty_id() throws {
+        do {
+            try model().addReward(0.1, "")
+            XCTFail(shouldThrowError)
+        } catch IMPError.invalidArgument(let reason){
+            print(reason)
+        }
     }
 }
