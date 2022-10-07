@@ -66,7 +66,7 @@ public struct DecisionContext {
     }
     
     public func optimize(_ variantMap: [String : Any]) throws -> [String : Any] {
-        return try whichFrom(self.decisionModel.fullFactorialVariants(variantMap))
+        return try whichFrom(DecisionModel.fullFactorialVariants(variantMap))
     }
     
     // MARK: Deprecated, remove in 8.0
@@ -131,6 +131,6 @@ public struct DecisionContext {
         
     @available(*, deprecated, message: "Remove in 8.0")
     public func chooseMultivariate(_ variants: [String : Any]) throws -> Decision<[String: Any]> {
-        return try decide(decisionModel.fullFactorialVariants(variants))
+        return try decide(DecisionModel.fullFactorialVariants(variants))
     }
 }

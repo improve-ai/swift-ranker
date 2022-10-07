@@ -37,6 +37,8 @@
 
 + (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
 
++ (NSArray *)fullFactorialVariants:(NSDictionary *)variantMap;
+
 - (BOOL)isLoaded;
 
 @end
@@ -137,7 +139,7 @@
 
 - (id)optimize:(NSDictionary<NSString *, id> *)variantMap
 {
-    return [self whichFrom:[self.model fullFactorialVariants:variantMap]];
+    return [self whichFrom:[IMPDecisionModel fullFactorialVariants:variantMap]];
 }
 
 - (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize

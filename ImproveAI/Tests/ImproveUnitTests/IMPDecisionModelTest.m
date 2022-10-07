@@ -46,6 +46,8 @@ extern NSString *const kTrackApiKey;
 
 + (NSArray *)generateDescendingGaussians:(NSUInteger)count;
 
++ (NSArray *)fullFactorialVariants:(NSDictionary *)variantMap;
+
 - (IMPFeatureEncoder *)featureEncoder;
 
 - (BOOL)enableTieBreaker;
@@ -1368,10 +1370,9 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testFullFactorialVariants_nil_dictionary {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     @try {
         NSDictionary *variants = nil;
-        [decisionModel fullFactorialVariants:variants];
+        [IMPDecisionModel fullFactorialVariants:variants];
         XCTFail(@"variantMap can't be nil");
     } @catch(NSException *e) {
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
@@ -1379,9 +1380,8 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testFullFactorialVariants_empty_dictionary {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     @try {
-        [decisionModel fullFactorialVariants:@{}];
+        [IMPDecisionModel fullFactorialVariants:@{}];
         XCTFail(@"variantMap can't be empty");
     } @catch(NSException *e) {
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
@@ -1389,8 +1389,7 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testFullFactorialVariants_1_variate {
-    IMPDecisionModel *decisionModel = [self unloadedModel];
-    NSArray *variants = [decisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"]}];
+    NSArray *variants = [IMPDecisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"]}];
     XCTAssertEqual(2, [variants count]);
     NSArray *expected = @[
         @{@"font":@"Italic"} ,@{@"font":@"Bold"}
@@ -1400,8 +1399,7 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testFullFactorialVariants_2_variates {
-    IMPDecisionModel *decisionModel = [self unloadedModel];
-    NSArray *variants = [decisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]}];
+    NSArray *variants = [IMPDecisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]}];
     NSArray *expected = @[
         @{@"font":@"Italic", @"color":@"#000000"},
         @{@"font":@"Bold", @"color":@"#000000"},
@@ -1419,8 +1417,7 @@ extern NSString * const kTrackerURL;
         @"size":@3
     };
 
-    IMPDecisionModel *decisionModel = [self unloadedModel];
-    NSArray *variants = [decisionModel fullFactorialVariants:variantMap];
+    NSArray *variants = [IMPDecisionModel fullFactorialVariants:variantMap];
     NSArray *expected = @[
         @{@"font":@"Italic", @"color":@"#000000", @"size": @3},
         @{@"font":@"Bold", @"color":@"#000000", @"size": @3},
@@ -1432,8 +1429,7 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testFullFactorialVariants_empty_array {
-    IMPDecisionModel *decisionModel = [self unloadedModel];
-    NSArray *variants = [decisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[]}];
+    NSArray *variants = [IMPDecisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[]}];
     NSArray *expected = @[
         @{@"font":@"Italic", @"color":@"#000000"},
         @{@"font":@"Bold", @"color":@"#000000"},

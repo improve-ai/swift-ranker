@@ -382,32 +382,32 @@ class TestDecisionModel: XCTestCase {
         XCTAssertEqual("hi", greeting)
     }
     
-    func testFullFactorialVariants() throws {
-        let variantMap = ["style":["normal", "bold"], "color":["white", "black"]]
-        let variants: [[String : String]] = try model().fullFactorialVariants(variantMap) as! [[String : String]]
-        XCTAssertEqual(4, variants.count)
-        variants.forEach {
-            XCTAssertNotNil($0["style"])
-            XCTAssertNotNil($0["color"])
-        }
-    }
-    
-    func testFullFactorialVariants_empty_dict() throws {
-        let variantMap:[String:Any] = [:]
-        do {
-            let _ = try model().fullFactorialVariants(variantMap)
-        } catch IMPError.emptyVariants {
-            return
-        }
-        XCTFail(shouldThrowError)
-    }
-    
-    func testFullFactorialVariants_heterogenous() throws {
-        let variantMap:[String:Any] = ["style":["normal", "bold"], "size":[12, 13, 14], "color":["#ffffff"], "width":1080]
-        let variants: [[String:Any]] = try model().fullFactorialVariants(variantMap)
-        debugPrint("variants: \(variants)")
-        XCTAssertEqual(6, variants.count)
-    }
+//    func testFullFactorialVariants() throws {
+//        let variantMap = ["style":["normal", "bold"], "color":["white", "black"]]
+//        let variants: [[String : String]] = try model().fullFactorialVariants(variantMap) as! [[String : String]]
+//        XCTAssertEqual(4, variants.count)
+//        variants.forEach {
+//            XCTAssertNotNil($0["style"])
+//            XCTAssertNotNil($0["color"])
+//        }
+//    }
+//    
+//    func testFullFactorialVariants_empty_dict() throws {
+//        let variantMap:[String:Any] = [:]
+//        do {
+//            let _ = try model().fullFactorialVariants(variantMap)
+//        } catch IMPError.emptyVariants {
+//            return
+//        }
+//        XCTFail(shouldThrowError)
+//    }
+//    
+//    func testFullFactorialVariants_heterogenous() throws {
+//        let variantMap:[String:Any] = ["style":["normal", "bold"], "size":[12, 13, 14], "color":["#ffffff"], "width":1080]
+//        let variants: [[String:Any]] = try model().fullFactorialVariants(variantMap)
+//        debugPrint("variants: \(variants)")
+//        XCTAssertEqual(6, variants.count)
+//    }
     
     func testChooseMultivariate_dictionary_empty() throws {
         let variants:[String:Any] = [:]

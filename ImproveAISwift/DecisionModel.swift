@@ -102,7 +102,7 @@ public class DecisionModel {
         return try given(nil).optimize(variantMap)
     }
     
-    public func fullFactorialVariants(_ variantMap: [String:Any]) throws -> [[String : Any]] {
+    internal static func fullFactorialVariants(_ variantMap: [String:Any]) throws -> [[String : Any]] {
         var categories: [[Any]] = []
         var keys: [String] = []
         for (k, v) in variantMap {

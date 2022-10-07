@@ -151,23 +151,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variantMap NS_SWIFT_NAME(optimize(_:));
 
 /**
- * An example here might be more expressive:
- * fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5]}) returns
- * [
- *     {"style":"bold", "size":3},
- *     {"style":"italic", "size":3},
- *     {"style":"bold", "size":5},
- *     {"style":"italic", "size":5},
- * ]
- * @param variantMap The values of the variant map are expected to be lists of any JSON encodeable data structure of arbitrary complexity.
- * If they are not lists, they are automatically wrapped as a list containing a single item.
- * So fullFactorialVariants({"style":["bold", "italic"], "size":3}) is equivalent to fullFactorialVariants({"style":["bold", "italic"], "size":[3]})
- * @return Returns the full factorial combinations of key and values specified by the input variant map.
- * @throws NSInvalidArgumentException Thrown if variantMap is nil or empty.
- */
-- (NSArray *)fullFactorialVariants:(NSDictionary *)variantMap NS_SWIFT_NAME(fullFactorialVariants(_:));
-
-/**
  * Adds the reward value to the most recent Decision for this model name for this installation. The most recent Decision
  * can be from a different DecisionModel instance or a previous session as long as they have the same model name.
  * If no previous Decision is found, the reward will be ignored.
