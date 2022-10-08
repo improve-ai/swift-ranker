@@ -314,6 +314,20 @@ extern NSString *const kTrackApiKey;
     }
 }
 
+- (void)testSetDefaultTrackURL {
+    IMPDecisionModel.defaultTrackURL = nil;
+    XCTAssertNil([self unloadedModel].trackURL);
+    IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
+    XCTAssertNotNil([self unloadedModel].trackURL);
+}
+
+- (void)testSetDefaultTrackApiKey {
+    IMPDecisionModel.defaultTrackApiKey = nil;
+    XCTAssertNil([self unloadedModel].trackApiKey);
+    IMPDecisionModel.defaultTrackApiKey = @"api-key";
+    XCTAssertNotNil([self unloadedModel].trackApiKey);
+}
+
 - (void)testModelInstances {
     [IMPDecisionModel.instances clear];
     

@@ -45,6 +45,7 @@ class TestDecisionModel: XCTestCase {
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
         DecisionModel.defaultTrackURL = URL(string: "https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track")!
+        DecisionModel.defaultTrackApiKey = "api-key"
     }
 
     override func tearDownWithError() throws {
@@ -57,6 +58,10 @@ class TestDecisionModel: XCTestCase {
     
     func notExistModelURL() -> URL {
         return URL(string:"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/not_exist.mlmodel.gz")!
+    }
+    
+    func trackURL() -> URL {
+        URL(string: "https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track")!
     }
     
     func variants() -> [String] {
@@ -77,6 +82,50 @@ class TestDecisionModel: XCTestCase {
     
     func loadedModel() throws -> DecisionModel {
         return try model().load(modelUrl())
+    }
+    
+    func testSetDefaultTrackURL() {
+        DecisionModel.defaultTrackURL = nil
+        XCTAssertNil(model().trackURL)
+        
+        let trackURL = trackURL()
+        DecisionModel.defaultTrackURL = trackURL
+        XCTAssertNotNil(model().trackURL)
+        XCTAssertEqual(trackURL, model().trackURL)
+    }
+    
+    func testSetDefaultTrackApiKey() {
+        DecisionModel.defaultTrackApiKey = nil
+        XCTAssertNil(model().trackApiKey)
+        
+        let key = "api-key"
+        DecisionModel.defaultTrackApiKey = key
+        XCTAssertNotNil(model().trackApiKey)
+        XCTAssertEqual(key, model().trackApiKey)
+    }
+    
+    func testSetTrackURL() {
+        let model = model()
+        XCTAssertNotNil(model.trackURL)
+        
+        model.trackURL = nil
+        XCTAssertNil(model.trackURL)
+        
+        let trackURL = trackURL()
+        XCTAssertNotNil(trackURL)
+        model.trackURL = trackURL
+        XCTAssertEqual(trackURL, model.trackURL)
+    }
+    
+    func testSetTrackApiKey() {
+        let model = model()
+        XCTAssertNotNil(model.trackApiKey)
+        
+        model.trackApiKey = nil
+        XCTAssertNil(model.trackApiKey)
+        
+        model.trackApiKey = "api-key"
+        XCTAssertEqual("api-key", model.trackApiKey)
     }
 
     func testLoad() throws {

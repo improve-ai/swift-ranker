@@ -26,8 +26,28 @@ public class DecisionModel {
         return decisionModel.modelName
     }
     
+    /// The track URL to be used for tracking decisions and adding rewards.
+    public var trackURL: URL? {
+        get {
+            return decisionModel.trackURL
+        }
+        set(url) {
+            decisionModel.trackURL = url
+        }
+    }
+    
+    /// The track API key to be set in HTTP headers in track request.
+    public var trackApiKey: String? {
+        get {
+            return decisionModel.trackApiKey
+        }
+        set(key) {
+            decisionModel.trackApiKey = key
+        }
+    }
+    
     /// The default track URL to use for all new DecisionModel instances
-    public static var defaultTrackURL: URL {
+    public static var defaultTrackURL: URL? {
         get {
             return IMPDecisionModel.defaultTrackURL
         }
@@ -37,12 +57,12 @@ public class DecisionModel {
     }
     
     /// The default track API key to use for all new DecisionModel instances
-    public static var defaultTrackApiKey: String {
+    public static var defaultTrackApiKey: String? {
         get {
             return IMPDecisionModel.defaultTrackApiKey
         }
-        set(apiKey) {
-            IMPDecisionModel.defaultTrackApiKey = apiKey
+        set(key) {
+            IMPDecisionModel.defaultTrackApiKey = key
         }
     }
     

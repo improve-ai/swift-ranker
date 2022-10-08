@@ -18,9 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPDecisionModel : NSObject
 
-@property(class) NSURL *defaultTrackURL;
+@property(class, nullable) NSURL *defaultTrackURL;
 
-@property(class) NSString *defaultTrackApiKey;
+@property(class, nullable) NSString *defaultTrackApiKey;
 
 @property(class, readonly) IMPModelDictionary *instances;
 
