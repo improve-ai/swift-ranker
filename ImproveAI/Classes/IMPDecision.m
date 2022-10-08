@@ -29,8 +29,6 @@
 //Package priveate properties
 @interface IMPDecision ()
 
-@property (nonatomic, strong, readonly) NSString *id;
-
 @property (nonatomic, strong) IMPDecisionModel *model;
 
 @property (nonatomic, copy, readwrite) NSArray *variants;

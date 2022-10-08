@@ -15,6 +15,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
+// The id that uniquely identifies the decision after it's been tracked.
+// It's nil until the decision is tracked by calling track().
+@property (nonatomic, strong, readonly, nullable) NSString *id;
+
 // The best variant.
 @property (nonatomic, strong, readonly) id best;
 

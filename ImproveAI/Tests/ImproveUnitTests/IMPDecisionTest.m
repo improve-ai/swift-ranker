@@ -27,8 +27,6 @@
 
 @interface IMPDecision ()
 
-@property (nonatomic, strong, readonly) NSString *id;
-
 @property(nonatomic, strong) NSArray *scores;
 
 @property(nonatomic, strong) NSDictionary *allGivens;
