@@ -52,6 +52,8 @@
 
 @property (strong, atomic) IMPDecisionTracker *tracker;
 
+@property(atomic, strong) MLModel *model;
+
 @end
 
 @implementation IMPDecisionModel

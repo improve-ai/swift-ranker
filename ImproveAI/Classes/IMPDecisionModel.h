@@ -30,8 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(atomic, copy, nullable) NSString *trackApiKey;
 
-@property(atomic, strong) MLModel *model;
-
 @property(nonatomic, readonly, copy) NSString *modelName;
 
 @property(atomic, strong) IMPGivensProvider *givensProvider;
