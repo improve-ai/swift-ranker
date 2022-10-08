@@ -328,6 +328,29 @@ extern NSString *const kTrackApiKey;
     XCTAssertNotNil([self unloadedModel].trackApiKey);
 }
 
+- (void)testSetTrackURL {
+    IMPDecisionModel *model = [self unloadedModel];
+    XCTAssertNotNil(model.trackURL);
+    
+    model.trackURL = nil;
+    XCTAssertNil(model.trackURL);
+    
+    NSURL *url = [NSURL URLWithString:kTrackerURL];
+    model.trackURL = url;
+    XCTAssertEqualObjects(url, model.trackURL);
+}
+
+- (void)testSetTrackApiKey {
+    IMPDecisionModel *model = [self unloadedModel];
+    XCTAssertNotNil(model.trackApiKey);
+    
+    model.trackApiKey = nil;
+    XCTAssertNil(model.trackApiKey);
+    
+    model.trackApiKey = @"api-key";
+    XCTAssertEqualObjects(@"api-key", model.trackApiKey);
+}
+
 - (void)testModelInstances {
     [IMPDecisionModel.instances clear];
     
