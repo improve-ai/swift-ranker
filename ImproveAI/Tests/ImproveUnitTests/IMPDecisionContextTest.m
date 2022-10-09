@@ -39,6 +39,8 @@ extern NSString *const kTrackApiKey;
 
 @interface IMPDecisionContext()
 
+@property (nonatomic, copy, nullable, readonly) NSDictionary *givens;
+
 - (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize;
 
 @end
@@ -82,6 +84,22 @@ extern NSString *const kTrackApiKey;
     return [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
 }
 
+- (void)testGivens {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    IMPDecision *decision = [[decisionModel given:self.givens] decide:[self variants]];
+    XCTAssertEqual(20, [decision.givens count]);
+    
+    // If givensProvider is nil, givens set by calling given() will still be used.
+    decisionModel.givensProvider = nil;
+    decision = [[decisionModel given:self.givens] decide:[self variants]];
+    XCTAssertEqual(1, [decision.givens count]);
+    XCTAssertEqualObjects(@"en", decision.givens[@"lang"]);
+    
+    NSDictionary *givens = [@{ @"lang" : @"en" } mutableCopy];
+    IMPDecisionContext *decisionContext = [decisionModel given:givens];
+    XCTAssertNotEqual(givens, decisionContext.givens);
+}
+
 - (void)testDecide {
     IMPDecisionModel *decisionModel = [self loadedModel];
     XCTAssertNotNil(decisionModel);
@@ -89,6 +107,7 @@ extern NSString *const kTrackApiKey;
     NSArray *variants = [self variants];
     IMPDecision *decision = [[decisionModel given:nil] decide:variants];
     XCTAssertEqual([variants count], [decision.ranked count]);
+    XCTAssertEqual(19, [decision.givens count]);
 }
 
 - (void)testDecide_invalid_variants {
@@ -448,7 +467,7 @@ extern NSString *const kTrackApiKey;
     XCTFail(@"variants can't be empty");
 }
 
-- (void)testScore_valid {
+- (void)testScore{
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
     IMPDecisionContext *decisionContext = [decisionModel given:self.givens];

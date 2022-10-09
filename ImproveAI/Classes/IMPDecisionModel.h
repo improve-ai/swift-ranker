@@ -24,15 +24,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(class, readonly) IMPModelDictionary *instances;
 
-@property (class, readonly) IMPGivensProvider *defaultGivensProvider;
+@property (class, nonatomic, nullable) id<IMPGivensProvider> defaultGivensProvider;
+
+@property(atomic, strong, nullable) id<IMPGivensProvider> givensProvider;
 
 @property(atomic, strong, nullable) NSURL *trackURL;
 
 @property(atomic, copy, nullable) NSString *trackApiKey;
 
 @property(nonatomic, readonly, copy) NSString *modelName;
-
-@property(atomic, strong) IMPGivensProvider *givensProvider;
 
 - (instancetype)init NS_UNAVAILABLE;
 

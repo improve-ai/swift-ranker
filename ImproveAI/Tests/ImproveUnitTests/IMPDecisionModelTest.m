@@ -62,11 +62,16 @@ extern NSString *const kTrackApiKey;
 
 @end
 
-@interface TestGivensProvider : IMPGivensProvider
+@interface TestGivensProvider : NSObject <IMPGivensProvider>
 
 @end
 
 @implementation TestGivensProvider
+
+- (NSDictionary<NSString *, id> *)givensForModel:(IMPDecisionModel *)decisionModel givens:(nullable NSDictionary *)givens
+{
+    return @{ @"lang" : @"mars" };
+}
 
 @end
 
@@ -131,6 +136,10 @@ extern NSString *const kTrackApiKey;
 
 - (NSArray *)variants {
     return @[@"Hello World", @"Howdy World", @"Hi World"];
+}
+
+- (void)testStaticInitializer {
+    XCTAssertTrue([IMPDecisionModel.defaultGivensProvider isKindOfClass:[AppGivensProvider class]]);
 }
 
 - (void)testInit {
@@ -392,6 +401,17 @@ extern NSString *const kTrackApiKey;
         return ;
     }
     XCTFail(@"An exception should have been thrown. We should never reach here");
+}
+
+- (void)testDefaultGivensProvider {
+    IMPDecisionModel.defaultGivensProvider = [[TestGivensProvider alloc] init];
+    XCTAssertTrue([IMPDecisionModel.defaultGivensProvider isKindOfClass:[TestGivensProvider class]]);
+    
+    IMPDecisionModel.defaultGivensProvider = nil;
+    XCTAssertNil(IMPDecisionModel.defaultGivensProvider);
+    
+    // Reset it as AppGivensProvider
+    IMPDecisionModel.defaultGivensProvider = [AppGivensProvider shared];
 }
 
 - (void)testGivensProvider {

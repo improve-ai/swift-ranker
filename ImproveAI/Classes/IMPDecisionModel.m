@@ -31,18 +31,6 @@
 
 @end
 
-@interface IMPDecision ()
-
-//@property (nonatomic, copy) NSArray *variants;
-
-@property (nonatomic, copy, nullable) NSDictionary *givens;
-
-@property(nonatomic, strong) id best;
-
-- (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
-
-@end
-
 @interface IMPDecisionModel ()
 // Private vars
 
@@ -69,7 +57,13 @@ static NSString * _defaultTrackApiKey;
 
 static IMPModelDictionary *_instances;
 
-static IMPGivensProvider *_defaultGivensProvider;
+static id<IMPGivensProvider> _defaultGivensProvider;
+
++(void)initialize {
+    if (self == [IMPDecisionModel class]) {
+        _defaultGivensProvider = [AppGivensProvider shared];
+    }
+}
 
 + (NSURL *)defaultTrackURL
 {
@@ -99,9 +93,14 @@ static IMPGivensProvider *_defaultGivensProvider;
     return _instances;
 }
 
-+ (IMPGivensProvider *)defaultGivensProvider
++ (id<IMPGivensProvider>)defaultGivensProvider
 {
-    return [AppGivensProvider shared];
+    return _defaultGivensProvider;
+}
+
++ (void)setDefaultGivensProvider:(id<IMPGivensProvider>)defaultGivensProvider
+{
+    _defaultGivensProvider = defaultGivensProvider;
 }
 
 - (instancetype)initWithModelName:(NSString *)modelName
@@ -128,22 +127,10 @@ static IMPGivensProvider *_defaultGivensProvider;
         }
         
         _trackApiKey = [trackApiKey copy];
+        
+        _givensProvider = _defaultGivensProvider;
     }
     return self;
-}
-
-// TODO: If givensProvider is set as nil explicitly, should the default givens provider be used anyway?
-- (IMPGivensProvider *)givensProvider
-{
-    @synchronized (self) {
-        return _givensProvider ? _givensProvider : IMPDecisionModel.defaultGivensProvider;
-    }
-}
-
-- (void)setGivensProvider:(IMPGivensProvider *)givensProvider {
-    @synchronized (self) {
-        _givensProvider = givensProvider;
-    }
 }
 
 - (NSURL *)trackURL
@@ -281,12 +268,7 @@ static IMPGivensProvider *_defaultGivensProvider;
 
 - (NSArray <NSNumber *>*)score:(NSArray *)variants
 {
-    NSDictionary *givens = nil;
-    IMPGivensProvider *givensProvider = self.givensProvider;
-    if(givensProvider != nil) {
-        givens = [givensProvider givensForModel:self givens:nil];
-    }
-    return [self scoreInternal:variants allGivens:givens];
+    return [[self given:nil] score:variants];
 }
 
 - (IMPDecision *)decide:(NSArray *)variants

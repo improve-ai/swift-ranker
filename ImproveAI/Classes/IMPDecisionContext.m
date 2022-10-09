@@ -45,9 +45,9 @@
 
 @interface IMPDecisionContext ()
 
-@property (nonatomic, strong) IMPDecisionModel *model;
+@property (nonatomic, strong, readonly) IMPDecisionModel *model;
 
-@property (nonatomic, strong) NSDictionary *givens;
+@property (nonatomic, copy, nullable, readonly) NSDictionary *givens;
 
 @end
 
@@ -57,14 +57,14 @@
 {
     if(self = [super init]) {
         _model = model;
-        _givens = givens;
+        _givens = [givens copy];
     }
     return self;
 }
 
 - (NSArray<NSNumber *> *)score:(NSArray *)variants
 {
-    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
+    NSDictionary *allGivens = [self getAllGivens];
     return [_model scoreInternal:variants allGivens:allGivens];
 }
 
@@ -79,7 +79,7 @@
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be nil or empty." userInfo:nil];
     }
     
-    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
+    NSDictionary *allGivens = [self getAllGivens];
     
     NSArray *rankedVariants;
     if (ordered) {
@@ -101,7 +101,7 @@
 
 - (IMPDecision *)decide:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores
 {
-    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
+    NSDictionary *allGivens = [self getAllGivens];
     id rankedVariants = [IMPDecisionModel rank:variants withScores:scores];
     IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model rankedVariants:rankedVariants givens:allGivens];
     decision.variants = variants;
@@ -129,7 +129,7 @@
 {
     IMPDecision *decision = [self decide:variants];
     [decision trackWith:_model.tracker];
-    return [decision get];
+    return decision.best;
 }
 
 - (NSArray *)rank:(NSArray *)variants
@@ -147,6 +147,15 @@
     NSUInteger variantCount = 1 + [runnersUp count] + samplePoolSize;
     NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
     return [_model.tracker track:variant givens:allGivens runnersUp:runnersUp sample:sample variantCount:variantCount modelName:_model.modelName];
+}
+
+- (nullable NSDictionary *)getAllGivens {
+    NSDictionary *allGivens = _givens;
+    id<IMPGivensProvider> givensProvider = _model.givensProvider;
+    if(givensProvider != nil) {
+        allGivens = [givensProvider givensForModel:_model givens:_givens];
+    }
+    return allGivens;
 }
 
 #pragma mark - Deprecated, remove in 8.0.
