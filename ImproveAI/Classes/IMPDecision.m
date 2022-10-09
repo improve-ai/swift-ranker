@@ -17,25 +17,12 @@
 
 @end
 
-// Package private methods
-@interface IMPDecisionTracker ()
-
-- (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount;
-
-- (nullable NSString *)track:(NSArray *)rankedVariants given:(NSDictionary *)givens modelName:(NSString *)modelName;
-
-@end
-
 //Package priveate properties
 @interface IMPDecision ()
 
 @property (nonatomic, strong) IMPDecisionModel *model;
 
 @property (nonatomic, copy, readwrite) NSArray *variants;
-
-@property (nonatomic, copy, nullable) NSDictionary *givens;
-
-@property (nonatomic, strong, readwrite) NSArray *ranked;
 
 @end
 

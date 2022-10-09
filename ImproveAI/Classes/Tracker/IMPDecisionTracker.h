@@ -27,6 +27,8 @@ NS_SWIFT_NAME(DecisionTracker)
 
 - (void)addReward:(double)reward forModel:(NSString *)modelName decision:(NSString *)decisionId;
 
+- (nullable NSString *)track:(NSArray *)rankedVariants given:(NSDictionary *)givens modelName:(NSString *)modelName;
+
 - (NSString *)track:(id)variant givens:(nullable NSDictionary *)givens runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample variantCount:(NSUInteger)variantCount modelName:(NSString *)modelName;
 
 @end

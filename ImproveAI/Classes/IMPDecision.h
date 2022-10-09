@@ -19,6 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 // It's nil until the decision is tracked by calling track().
 @property (nonatomic, strong, readonly, nullable) NSString *id;
 
+// Additional context info that was used to score each of the variants.
+// It's also included in tracking.
+@property (nonatomic, strong, readonly, nullable) NSDictionary *givens;
+
 // The best variant.
 @property (nonatomic, strong, readonly) id best;
 
@@ -38,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Tracks the decision.
  * @return Returns the id that uniquely identifies the tracked decision.
- * @throws IMPIllegalStateException Thrown if the trackURL of the underlying IMPDecisionModel is null;
+ * @throws IMPIllegalStateException Thrown if the trackURL of the underlying IMPDecisionModel is nil;
  * Thrown if the decision is already tracked.
  */
 - (NSString *)track;

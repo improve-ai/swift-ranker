@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import "IMPDecisionTracker.h"
 #import "IMPDecisionModel.h"
+#import "IMPDecisionContext.h"
 #import "IMPDecision.h"
 #import "TestUtils.h"
 #import "IMPConstants.h"
@@ -22,14 +23,6 @@
 @interface IMPDecisionTracker ()
 
 + (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName;
-
-@end
-
-@interface IMPDecision ()
-
-@property(nonatomic, strong) NSArray *scores;
-
-@property(nonatomic, strong) NSDictionary *allGivens;
 
 @end
 
@@ -50,6 +43,24 @@
 
 - (NSArray *)variants {
     return @[@"Hello World", @"Howdy World", @"Hi World"];
+}
+
+- (void)testId {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertNil(decision.id);
+    [decision track];
+    XCTAssertNotNil(decision.id);
+}
+
+- (void)testGivens {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertEqual(19, [decision.givens count]);
+    
+    decision = [[decisionModel given:@{@"lang":@"mars"}] decide:[self variants]];
+    XCTAssertEqual(20, [decision.givens count]);
+    XCTAssertEqual(@"mars", decision.givens[@"lang"]);
 }
 
 - (void)testBest {
