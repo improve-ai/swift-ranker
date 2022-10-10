@@ -35,6 +35,19 @@ class TestDecision: XCTestCase {
         return DecisionModel(modelName: "greetings")
     }
     
+    func testId() throws {
+        let decision = try model().decide(variants())
+        XCTAssertNil(decision.id)
+        _ = decision.track()
+        XCTAssertNotNil(decision.id)
+        print("decision id is \(decision.id!)")
+    }
+    
+    func testGivens() throws {
+        let decision = try model().decide(variants())
+        XCTAssertEqual(19, decision.givens?.count)
+    }
+    
     func testBest() throws {
         let best = try model().decide(variants()).best
         XCTAssertEqual(variants()[0], best)

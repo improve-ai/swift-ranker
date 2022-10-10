@@ -55,7 +55,7 @@
 		B3F34BD5271EB2D7006636D8 /* InvalidModel.dat in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD3271EB236006636D8 /* InvalidModel.dat */; };
 		B3F34BD8271EB53B006636D8 /* TestModel.mlmodel.gz in Resources */ = {isa = PBXBuildFile; fileRef = B3F34BD7271EB53B006636D8 /* TestModel.mlmodel.gz */; };
 		B3F34C572727ECE0006636D8 /* IMPModelDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F34C562727ECE0006636D8 /* IMPModelDictionary.m */; };
-		B3F34C6227294A5D006636D8 /* AppGivensProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F34C6127294A5D006636D8 /* AppGivensProvider.m */; };
+		B3F34C6227294A5D006636D8 /* IMPAppGivensProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F34C6127294A5D006636D8 /* IMPAppGivensProvider.m */; };
 		B3F51D53269B590000049F17 /* nested_list.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D08269B58F200049F17 /* nested_list.json */; };
 		B3F51D54269B590000049F17 /* noise_2_256.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D09269B58F300049F17 /* noise_2_256.json */; };
 		B3F51D55269B590000049F17 /* nested_dict_string_keys.json in Resources */ = {isa = PBXBuildFile; fileRef = B3F51D0A269B58F300049F17 /* nested_dict_string_keys.json */; };
@@ -212,8 +212,8 @@
 		B3F34C562727ECE0006636D8 /* IMPModelDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPModelDictionary.m; sourceTree = "<group>"; };
 		B3F34C592727ECFA006636D8 /* IMPModelDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPModelDictionary.h; sourceTree = "<group>"; };
 		B3F34C5E27294924006636D8 /* IMPGivensProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPGivensProvider.h; sourceTree = "<group>"; };
-		B3F34C6027294A5D006636D8 /* AppGivensProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppGivensProvider.h; sourceTree = "<group>"; };
-		B3F34C6127294A5D006636D8 /* AppGivensProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppGivensProvider.m; sourceTree = "<group>"; };
+		B3F34C6027294A5D006636D8 /* IMPAppGivensProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPAppGivensProvider.h; sourceTree = "<group>"; };
+		B3F34C6127294A5D006636D8 /* IMPAppGivensProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPAppGivensProvider.m; sourceTree = "<group>"; };
 		B3F51D08269B58F200049F17 /* nested_list.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nested_list.json; sourceTree = "<group>"; };
 		B3F51D09269B58F300049F17 /* noise_2_256.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = noise_2_256.json; sourceTree = "<group>"; };
 		B3F51D0A269B58F300049F17 /* nested_dict_string_keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nested_dict_string_keys.json; sourceTree = "<group>"; };
@@ -607,8 +607,8 @@
 		B3F34C5D27294863006636D8 /* Provider */ = {
 			isa = PBXGroup;
 			children = (
-				B3F34C6027294A5D006636D8 /* AppGivensProvider.h */,
-				B3F34C6127294A5D006636D8 /* AppGivensProvider.m */,
+				B3F34C6027294A5D006636D8 /* IMPAppGivensProvider.h */,
+				B3F34C6127294A5D006636D8 /* IMPAppGivensProvider.m */,
 			);
 			path = Provider;
 			sourceTree = "<group>";
@@ -815,7 +815,7 @@
 				B3E850F72733DAAC002F02CF /* base62.c in Sources */,
 				5496CE5A23EC7CE7004E96C5 /* NSArray+Random.m in Sources */,
 				B38D664728487C2700AFA725 /* version_6_0.mlmodel in Sources */,
-				B3F34C6227294A5D006636D8 /* AppGivensProvider.m in Sources */,
+				B3F34C6227294A5D006636D8 /* IMPAppGivensProvider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

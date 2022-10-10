@@ -7,6 +7,7 @@ public class DecisionModel {
         self.decisionModel = decisionModel
     }
     
+    // Equivalent to init(modelName, defaultTrackURL, defaultTrackApiKey)
     public init(modelName: String) {
         self.decisionModel = IMPDecisionModel(modelName)
     }
@@ -66,6 +67,24 @@ public class DecisionModel {
         }
     }
     
+    public static var defaultGivensProvider: GivensProvider? {
+        get {
+            return IMPDecisionModel.defaultGivensProvider
+        }
+        set(provider) {
+            IMPDecisionModel.defaultGivensProvider = provider
+        }
+    }
+    
+    public var givensProvider: GivensProvider? {
+        get {
+            return decisionModel.givensProvider
+        }
+        set(provider) {
+            decisionModel.givensProvider = provider
+        }
+    }
+    
     /// Static subscript for accessing a DecisionModel from the instances array
     public static subscript(modelName: String) -> DecisionModel {
         return DecisionModel(IMPDecisionModel.instances[modelName])
@@ -110,11 +129,11 @@ public class DecisionModel {
     /// - Returns: A `DecisionContext` object.
     /// - Throws: An `Error` if givens cannot be encoded.
     public func given(_ givens: [String : Any]?) throws -> DecisionContext {
-        if givens == nil {
-            return DecisionContext(decisionContext: self.decisionModel.given(nil), decisionModel: self)
+        guard let givens = givens else {
+            return DecisionContext(decisionContext: self.decisionModel.given(nil), decisionModel: self, givens: nil)
         }
-        let encodedGivens = try PListEncoder().encode(givens?.mapValues{AnyEncodable($0)}) as? [String:Any]
-        return DecisionContext(decisionContext: self.decisionModel.given(encodedGivens), decisionModel: self)
+        let encodedGivens = try PListEncoder().encode(givens.mapValues{AnyEncodable($0)}) as? [String:Any]
+        return DecisionContext(decisionContext: self.decisionModel.given(encodedGivens), decisionModel: self, givens: givens)
     }
     
     /// Gets the scores of the variants. If the model is not loaded yet, a randomly generated list of scores in descending order would be returned.

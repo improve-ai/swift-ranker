@@ -6,7 +6,7 @@
 #import "IMPLogging.h"
 #import "NSArray+Random.h"
 #import "NSString+KSUID.h"
-#import "AppGivensProvider.h"
+#import "IMPAppGivensProvider.h"
 
 @import Security;
 
@@ -207,7 +207,7 @@ static NSString * const kLastDecisionIdKey = @"ai.improve.last_decision-%@";
 
     [self track:body];
     
-    [AppGivensProvider addReward:reward forModel:modelName];
+    [IMPAppGivensProvider addReward:reward forModel:modelName];
 }
 
 - (void)track:(NSDictionary *)body

@@ -12,6 +12,16 @@ public struct Decision<T> {
     /// original variants
     internal var variants: [T]
     
+    /// The id that uniquely identifies the decision after it's been tracked. It's nil until the decision
+    /// is tracked by calling track().
+    public var id: String? {
+        return decision.id
+    }
+    
+    /// Additional context info that was used to score each of the variants.
+    /// It's also included in tracking.
+    public let givens: [String : Any]?
+    
     /// The ranked variants.
     public let ranked: [T]
     
@@ -23,6 +33,7 @@ public struct Decision<T> {
     internal init(_ decision: IMPDecision, _ variants: [T]) {
         self.decision = decision
         self.variants = variants
+        self.givens = decision.givens
         ranked = decision.ranked.map({
             (decision.variants as NSArray).indexOfObjectIdentical(to: $0)
         }).map({ variants[$0] })

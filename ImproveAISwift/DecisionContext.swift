@@ -12,9 +12,12 @@ public struct DecisionContext {
     
     internal var decisionModel: DecisionModel
     
-    internal init(decisionContext: IMPDecisionContext, decisionModel: DecisionModel) {
+    internal let givens: [String : Any]?
+    
+    internal init(decisionContext: IMPDecisionContext, decisionModel: DecisionModel, givens: [String : Any]?) {
         self.decisionContext = decisionContext
         self.decisionModel = decisionModel
+        self.givens = givens
     }
     
     public func score<T>(_ variants: [T]) throws -> [Double] {

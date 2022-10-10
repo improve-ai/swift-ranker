@@ -6,6 +6,7 @@
 //
 import XCTest
 import ImproveAI
+import ImproveAICore
 
 let shouldThrowError = "An error should have been thrown."
 
@@ -37,6 +38,12 @@ struct Person: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
         try container.encode(age, forKey: .age)
+    }
+}
+
+class CustomGivensProvider : NSObject, GivensProvider {
+    func givens(for decisionModel: IMPDecisionModel, givens: [String : Any]?) -> [String : Any] {
+        return ["lang" : "mars"]
     }
 }
 
@@ -157,7 +164,52 @@ class TestDecisionModel: XCTestCase {
         let decisionModel = model()
         decisionModel.loadAsync(modelUrl())
         sleep(10)
-//        XCTAssertNotNil(decisionModel.model)
+    }
+    
+    func testDefaultGivensProvider() {
+        XCTAssertNotNil(DecisionModel.defaultGivensProvider)
+        DecisionModel.defaultGivensProvider = nil
+        XCTAssertNil(DecisionModel.defaultGivensProvider)
+        
+        DecisionModel.defaultGivensProvider = CustomGivensProvider()
+        XCTAssertTrue(DecisionModel.defaultGivensProvider is CustomGivensProvider)
+        
+        // reset to AppGivensProvider
+        DecisionModel.defaultGivensProvider = AppGivensProvider.shared()
+        XCTAssertTrue(DecisionModel.defaultGivensProvider is AppGivensProvider)
+    }
+    
+    func testSetDefaultGivensProvider() throws {
+        DecisionModel.defaultGivensProvider = CustomGivensProvider()
+        let decision = try model().decide(variants())
+        XCTAssertEqual(1, decision.givens?.count)
+        XCTAssertEqual("mars", decision.givens?["lang"] as! String)
+        
+        // reset to AppGivensProvider
+        DecisionModel.defaultGivensProvider = AppGivensProvider.shared()
+        XCTAssertTrue(DecisionModel.defaultGivensProvider is AppGivensProvider)
+    }
+    
+    func testGivensProvider_getter_setter() {
+        let decisionModel = model()
+        XCTAssertNotNil(decisionModel.givensProvider)
+        decisionModel.givensProvider = nil
+        XCTAssertNil(decisionModel.givensProvider)
+    }
+    
+    func testGivensProvider() throws {
+        let decisionModel = model()
+        var decision = try decisionModel.given(["lang":"mars"]).decide(variants())
+        XCTAssertEqual(20, decision.givens?.count)
+        XCTAssertEqual("mars", decision.givens?["lang"] as! String)
+        
+        decisionModel.givensProvider = nil
+        decision = try decisionModel.decide(variants())
+        XCTAssertNil(decision.givens)
+        
+        decisionModel.givensProvider = nil
+        decision = try decisionModel.given(["lang":"mars"]).decide(variants())
+        XCTAssertEqual(1, decision.givens?.count)
     }
     
     func testGiven_encodable() throws {

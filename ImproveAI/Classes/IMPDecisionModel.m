@@ -16,7 +16,7 @@
 #import "IMPUtils.h"
 #import "IMPJSONUtils.h"
 #import "IMPDecisionTracker.h"
-#import "AppGivensProvider.h"
+#import "IMPAppGivensProvider.h"
 #import "IMPConstants.h"
 
 @interface IMPDecisionContext()
@@ -61,7 +61,7 @@ static id<IMPGivensProvider> _defaultGivensProvider;
 
 +(void)initialize {
     if (self == [IMPDecisionModel class]) {
-        _defaultGivensProvider = [AppGivensProvider shared];
+        _defaultGivensProvider = [IMPAppGivensProvider shared];
     }
 }
 

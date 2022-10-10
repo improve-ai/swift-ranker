@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Additional context info that was used to score each of the variants.
 // It's also included in tracking.
-@property (nonatomic, strong, readonly, nullable) NSDictionary *givens;
+@property (nonatomic, strong, readonly, nullable) NSDictionary<NSString *, id> *givens;
 
 // The best variant.
 @property (nonatomic, strong, readonly) id best;

@@ -15,7 +15,7 @@
 #import "TestUtils.h"
 #import "IMPFeatureEncoder.h"
 #import "IMPConstants.h"
-#import "AppGivensProvider.h"
+#import "IMPAppGivensProvider.h"
 
 NSString * const kReasonVariantsNonEmpty = @"variants can't be nil or empty.";
 
@@ -139,7 +139,7 @@ extern NSString *const kTrackApiKey;
 }
 
 - (void)testStaticInitializer {
-    XCTAssertTrue([IMPDecisionModel.defaultGivensProvider isKindOfClass:[AppGivensProvider class]]);
+    XCTAssertTrue([IMPDecisionModel.defaultGivensProvider isKindOfClass:[IMPAppGivensProvider class]]);
 }
 
 - (void)testInit {
@@ -411,7 +411,7 @@ extern NSString *const kTrackApiKey;
     XCTAssertNil(IMPDecisionModel.defaultGivensProvider);
     
     // Reset it as AppGivensProvider
-    IMPDecisionModel.defaultGivensProvider = [AppGivensProvider shared];
+    IMPDecisionModel.defaultGivensProvider = [IMPAppGivensProvider shared];
 }
 
 - (void)testGivensProvider {
@@ -1862,7 +1862,7 @@ extern NSString * const kTrackerURL;
             [decisionModel score:variants];
         });
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
-            decisionModel.givensProvider = [[AppGivensProvider alloc] init];
+            decisionModel.givensProvider = [[IMPAppGivensProvider alloc] init];
         });
     }
     

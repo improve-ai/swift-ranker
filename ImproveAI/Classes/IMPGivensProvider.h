@@ -12,9 +12,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_NAME(GivensProvider)
 @protocol IMPGivensProvider <NSObject>
 
-- (NSDictionary<NSString *, id> *)givensForModel:(IMPDecisionModel *)decisionModel givens:(nullable NSDictionary *)givens;
+- (NSDictionary<NSString *, id> *)givensForModel:(IMPDecisionModel *)decisionModel givens:(nullable NSDictionary<NSString *, id> *)givens;
 
 @end
 

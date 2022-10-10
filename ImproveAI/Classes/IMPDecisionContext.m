@@ -145,7 +145,7 @@
 - (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize
 {
     NSUInteger variantCount = 1 + [runnersUp count] + samplePoolSize;
-    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
+    NSDictionary *allGivens = [self getAllGivens];
     return [_model.tracker track:variant givens:allGivens runnersUp:runnersUp sample:sample variantCount:variantCount modelName:_model.modelName];
 }
 
