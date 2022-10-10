@@ -14,6 +14,5 @@
 #import "IMPDecisionContext.h"
 #import "IMPGivensProvider.h"
 #import "IMPModelDictionary.h"
-#import "IMPAppGivensProvider.h"
 
 #endif /* ImproveAI_h */
