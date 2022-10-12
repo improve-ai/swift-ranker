@@ -15,27 +15,37 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-// The id that uniquely identifies the decision after it's been tracked.
-// It's nil until the decision is tracked by calling track().
+/**
+ * The id that uniquely identifies the decision after it's been tracked. It's nil until the decision is tracked by calling track().
+ */
 @property (nonatomic, strong, readonly, nullable) NSString *id;
 
-// Additional context info that was used to score each of the variants.
-// It's also included in tracking.
+/**
+ * Additional context info that was used along with each of the variants to score them, including the givens
+ * passed by IMPDecisionModel.given() and givens that was provided by the givensProvider. The givens here
+ * would also be included in tracking.
+ */
 @property (nonatomic, strong, readonly, nullable) NSDictionary<NSString *, id> *givens;
 
-// The best variant.
+/**
+ * The best variant.
+ */
 @property (nonatomic, strong, readonly) id best;
 
-// The ranked variants.
+/**
+ * The ranked variants.
+ */
 @property (nonatomic, strong, readonly) NSArray *ranked;
 
 /**
  * Gets the best variant.
+ * @return The best variant.
  */
 - (id)peek DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0.");
 
 /**
  * Gets the best variant, and also track the decision if it's not been tracked yet.
+ * @return The best variant.
  */
 - (id)get DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0.");
 
@@ -50,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Adds rewards that only apply to this specific decision. Before calling this method, make sure that the decision is
  * already tracked by calling track().
+ * @param reward  the reward to add. Must not be NaN, positive infinity, or negative infinity
  * @throws NSInvalidArgumentException Thrown if reward is NaN or +-Infinity
  * @throws IMPIllegalStateException Thrown if the trackURL of the underlying DecisionModel is nil; Thrown if the decision
  * is not tracked yet.

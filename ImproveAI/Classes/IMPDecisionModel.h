@@ -18,20 +18,52 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPDecisionModel : NSObject
 
+/**
+ * The default track URL to use for all new DecisionModel instances. It's recommended to have it set before
+ * creating any IMPDecisionModel instances, for example in the didFinishLaunchingWithOptions method in
+ * the AppDelegate.
+ */
 @property(class, nullable) NSURL *defaultTrackURL;
 
+/**
+ * The default track API key to use for all new DecisionModel instances. It's recommended to have it set before
+ * creating any IMPDecisionModel instances, for example in the didFinishLaunchingWithOptions method in
+ * the AppDelegate.
+ */
 @property(class, nullable) NSString *defaultTrackApiKey;
 
-@property(class, readonly) IMPModelDictionary *instances;
-
+/**
+ * The default givens provider. It's initialized with an IMPAppGivensProvider instance by the SDK, but you may set
+ * it with any custom givens provider that you implement.
+ */
 @property (class, nonatomic, nullable) id<IMPGivensProvider> defaultGivensProvider;
 
-@property(atomic, strong, nullable) id<IMPGivensProvider> givensProvider;
-
+/**
+ * The track URL to be used for tracking decisions and adding rewards.
+ */
 @property(atomic, strong, nullable) NSURL *trackURL;
 
+/**
+ * The track API key to be set in HTTP headers in track request.
+ */
 @property(atomic, copy, nullable) NSString *trackApiKey;
 
+/**
+ * The givens provider that would provide additional context info for scoring the variants.
+ */
+@property(atomic, strong, nullable) id<IMPGivensProvider> givensProvider;
+
+/**
+ * The collection of shared model instances. Models are automatically created using the provided name, for example
+ * DecisionModel.instances["greetings"]  always returns a IMPDecisionModel("greetings"), even if it was not previously
+ * set. Previously returned models are cached. Models can be overrwitten with DecisionModel["greetings"] = newModel,
+ * and cleared with DecisionModel["greetings"] = nil.
+ */
+@property(class, readonly) IMPModelDictionary *instances;
+
+/**
+ * Name of the model.
+ */
 @property(nonatomic, readonly, copy) NSString *modelName;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -72,6 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadAsync:(NSURL *)url completion:(nullable void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler;
 
 /**
+ * Add some additional context info that would be used along with each of the variants to score them.
  * @param givens Additional context info that will be used with each of the variants to calculate the score
  * @return An IMPDecisionContext.
  */

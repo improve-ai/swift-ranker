@@ -14,4 +14,6 @@ public enum IMPError: Error {
     case typeNotSupported
     /// illegal arguments
     case invalidArgument(reason:String)
+    /// illegal state
+    case illegalState(reason:String)
 }

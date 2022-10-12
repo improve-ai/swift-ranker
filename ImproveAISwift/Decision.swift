@@ -18,8 +18,9 @@ public struct Decision<T> {
         return decision.id
     }
     
-    /// Additional context info that was used to score each of the variants.
-    /// It's also included in tracking.
+    /// Additional context info that was used along with each of the variants to score them, including the givens
+    /// passed by DecisionModel.given() and givens that was provided by the givensProvider. The givens here
+    /// would also be included in tracking.
     public let givens: [String : Any]?
     
     /// The ranked variants.
@@ -53,11 +54,27 @@ public struct Decision<T> {
         return variants[index]
     }
     
+    /// Tracks the decision.
+    /// - Returns: The id that uniquely identifies the tracked decision.
     public func track() -> String {
         return self.decision.track()
     }
     
-    public func addReward(_ reward: Double) {
+    /// Adds rewards that only apply to this specific decision. Before calling this method, make sure that the decision is
+    /// already tracked by calling track().
+    ///
+    /// - Parameter reward: The reward to add. Must not be NaN, or Infinity.
+    /// - Throws: `IMPError.invalidArgument` if reward is NaN or infinity.
+    /// - Throws: `IMPError.illegalState` if the the decision is not tracked yet.
+    public func addReward(_ reward: Double) throws {
+        if reward.isNaN || reward.isInfinite {
+            throw IMPError.invalidArgument(reason: "reward can't be NaN or Infinity.")
+        }
+        
+        if self.id == nil {
+            throw IMPError.illegalState(reason: "addReward() can't be called before track().")
+        }
+        
         self.decision.addReward(reward)
     }
 }

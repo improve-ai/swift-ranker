@@ -74,9 +74,39 @@ class TestDecision: XCTestCase {
         XCTAssertNotNil(id)
     }
     
-    func testDecision_addReward() throws {
+    func testAddReward() throws {
         let decision = try model().decide(variants())
         let _ = decision.track()
-        decision.addReward(0.1)
+        try decision.addReward(0.1)
+    }
+    
+    func testAddRewardd_NaN() throws {
+        do {
+            let decision = try model().decide(variants())
+            _ = decision.track()
+            try decision.addReward(Double.nan)
+            XCTFail(shouldThrowError)
+        } catch IMPError.invalidArgument(let reason){
+            print(reason)
+        }
+    }
+    
+    func testAddRewardd_infinity() throws {
+        do {
+            let decision = try model().decide(variants())
+            _ = decision.track()
+            try decision.addReward(Double.infinity)
+            XCTFail(shouldThrowError)
+        } catch IMPError.invalidArgument(let reason){
+            print(reason)
+        }
+    }
+    
+    func testAddReward_before_track() throws {
+        do {
+            try model().decide(variants()).addReward(0.1)
+        } catch IMPError.illegalState(let reason){
+            print(reason)
+        }
     }
 }
