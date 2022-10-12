@@ -253,43 +253,9 @@
     return [decision get];
 }
 
-- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variantMap
 {
-    NSMutableArray *allKeys = [[NSMutableArray alloc] initWithCapacity:[variants count]];
-    
-    NSMutableArray *categories = [NSMutableArray arrayWithCapacity:[variants count]];
-    [variants enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if(![obj isKindOfClass:[NSArray class]]) {
-            [categories addObject:@[obj]];
-            [allKeys addObject:key];
-        } else {
-            if([obj count] > 0) {
-                [categories addObject:obj];
-                [allKeys addObject:key];
-            }
-        }
-    }];
-    
-    NSMutableArray<NSDictionary *> *combinations = [[NSMutableArray alloc] init];
-    for(int i = 0; i < [categories count]; ++i) {
-        NSArray *category = categories[i];
-        NSMutableArray<NSDictionary *> *newCombinations = [[NSMutableArray alloc] init];
-        for(int m = 0; m < [category count]; ++m) {
-            if([combinations count] == 0) {
-                [newCombinations addObject:@{allKeys[i]:category[m]}];
-            } else {
-                for(int n = 0; n < [combinations count]; ++n) {
-                    NSMutableDictionary *newVariant = [combinations[n] mutableCopy];
-                    [newVariant setObject:category[m] forKey:allKeys[i]];
-                    [newCombinations addObject:newVariant];
-                }
-            }
-        }
-        combinations = newCombinations;
-    }
-    IMPLog("Choosing from %ld combinations", [combinations count]);
-    
-    return [self chooseFrom:combinations];
+    return [self decide:[IMPDecisionModel fullFactorialVariants:variantMap]];
 }
 
 @end

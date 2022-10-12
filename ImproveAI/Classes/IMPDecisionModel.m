@@ -59,7 +59,7 @@ static IMPModelDictionary *_instances;
 
 static id<IMPGivensProvider> _defaultGivensProvider;
 
-+(void)initialize {
++ (void)initialize {
     if (self == [IMPDecisionModel class]) {
         _defaultGivensProvider = [IMPAppGivensProvider shared];
     }

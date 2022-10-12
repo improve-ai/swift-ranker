@@ -139,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *)rank:(NSArray *)variants NS_SWIFT_NAME(rank(_:));
 
 /**
- * This method is a short hand of chooseMultivariate(variants).get().
+ * Generates all combinations of the variants from the variantMap, and chooses the best one.
  * @param variantMap The value of the variantMap are expected to be lists of any JSON encodeable data structure of arbitrary complexity.
  * If they are not lists, they are automatically wrapped as a list containing a single item.
  * So optimize({"style":["bold", "italic"], "size":3}) is equivalent to optimize({"style":["bold", "italic"], "size":[3]})
@@ -218,7 +218,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 /**
- * This method is an alternative of chooseFrom(). An example here might be more expressive:
+ * Generates all combinations of the variants from the variantMap, and chooses the best one.
+ * An example here might be more expressive:
  * chooseMultivariate({"style":["bold", "italic"], "size":[3, 5]})
  *       is equivalent to
  * chooseFrom([
@@ -227,13 +228,13 @@ NS_ASSUME_NONNULL_BEGIN
  *      {"style":"bold", "size":5},
  *      {"style":"italic", "size":5},
  * ])
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
+ * @param variantMap Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
  * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
  * So chooseMultivariate({"style":["bold", "italic"], "size":3}) is equivalent to chooseMultivariate({"style":["bold", "italic"], "size":[3]})
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
-- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variantMap NS_SWIFT_NAME(chooseMultivariate(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 @end
 

@@ -90,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @see IMPDecisionModel#chooseMultivariate()
  */
-- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variantMap NS_SWIFT_NAME(chooseMultivariate(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 @end
 
