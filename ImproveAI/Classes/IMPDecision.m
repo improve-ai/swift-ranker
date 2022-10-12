@@ -24,6 +24,8 @@
 
 @property (nonatomic, copy, readwrite) NSArray *variants;
 
+@property(nonatomic, strong) NSArray<NSNumber *> *scores;
+
 @end
 
 @implementation IMPDecision

@@ -82,11 +82,12 @@
     NSDictionary *allGivens = [self getAllGivens];
     
     NSArray *rankedVariants;
+    NSArray<NSNumber *> *scores = nil;
     if (ordered) {
         rankedVariants = [NSArray arrayWithArray:variants];
     } else {
         if([_model isLoaded]) {
-            NSArray<NSNumber *> *scores = [_model scoreInternal:variants allGivens:allGivens];
+            scores = [_model scoreInternal:variants allGivens:allGivens];
             rankedVariants = [IMPDecisionModel rank:variants withScores:scores];
         } else {
             rankedVariants = [NSArray arrayWithArray:variants];
@@ -95,6 +96,7 @@
     
     IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model rankedVariants:rankedVariants givens:allGivens];
     decision.variants = variants;
+    decision.scores = scores;
     
     return decision;
 }

@@ -28,11 +28,9 @@ extern NSString *const kTrackApiKey;
 
 @property (nonatomic, copy) NSArray *variants;
 
-@property(nonatomic, strong) NSArray *scores;
+@property(nonatomic, strong) NSArray<NSNumber *> *scores;
 
 @property(nonatomic, strong) NSDictionary *givens;
-
-@property (nonatomic, readonly) int tracked;
 
 @end
 
@@ -780,6 +778,32 @@ extern NSString *const kTrackApiKey;
     NSArray *rankedVariants = [[[self loadedModel] decide:variants ordered:false] ranked];
     XCTAssertNotEqual(variants, rankedVariants); // different objects
     XCTAssertNotEqualObjects(variants, rankedVariants);
+}
+
+// Tests that the ranked variants are actually ordered according to the scores
+- (void)testDecide_loaded_scores {
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(int i = 0; i < 100; ++i) {
+        [variants addObject:[NSUUID UUID].UUIDString];
+    }
+    
+    // assert best variant is the one with highest score
+    IMPDecision *decision = [[self loadedModel] decide:variants];
+    XCTAssertEqual([variants count], [decision.scores count]);
+    
+    NSUInteger indexOfBest = [variants indexOfObjectIdenticalTo:decision.best];
+    for(int i = 0; i < [decision.scores count]; ++i) {
+        if(i == indexOfBest) {
+            continue;
+        }
+        [decision.scores[i] compare:decision.scores[indexOfBest]];
+        XCTAssertTrue(NSOrderedAscending == [decision.scores[i] compare:decision.scores[indexOfBest]]);
+    }
+    
+    NSArray *rankedVariants = [IMPDecisionModel rank:variants withScores:decision.scores];
+    for(int i = 0; i < [rankedVariants count]; ++i) {
+        XCTAssertEqual(rankedVariants[i], decision.ranked[i]); //
+    }
 }
 
 - (void)testDecideVariantsAndScores {

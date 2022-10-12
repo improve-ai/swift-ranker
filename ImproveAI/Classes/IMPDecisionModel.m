@@ -528,7 +528,7 @@ static id<IMPGivensProvider> _defaultGivensProvider;
 }
 
 // Case 3 #2 refsort approach: https://stackoverflow.com/a/27309301
-+ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
++ (NSArray *)rank:(NSArray *)variants withScores:(NSArray<NSNumber *> *)scores
 {
     if([variants count] <= 0 || [scores count] <= 0) {
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants and scores can't be nil or empty" userInfo:nil];
