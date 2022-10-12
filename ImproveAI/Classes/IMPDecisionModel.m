@@ -506,6 +506,7 @@ static id<IMPGivensProvider> _defaultGivensProvider;
     }
 }
 
+// TODO: looks like it's not needed any more.
 // in case of tie, the lowest index wins. Ties should be very rare due to small random noise added to scores
 // in IMPChooser.score()
 + (id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
