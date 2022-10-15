@@ -12,7 +12,7 @@
 #import <sys/sysctl.h>
 #import <sys/types.h>
 
-#import "AppGivensProvider.h"
+#import "IMPAppGivensProvider.h"
 #import "IMPDecisionModel.h"
 #import "IMPConstants.h"
 
@@ -28,13 +28,13 @@
 
 @end
 
-@implementation AppGivensProvider
+@implementation IMPAppGivensProvider
 
 + (instancetype)shared {
-    static AppGivensProvider *instance;
+    static IMPAppGivensProvider *instance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [[AppGivensProvider alloc] init];
+        instance = [[IMPAppGivensProvider alloc] init];
     });
     return instance;
 }
@@ -184,7 +184,7 @@ static NSString * const kDefaultsModelRewardsKey = @"ai.improve.rewards-%@";
 }
 
 - (IMPDeviceInfo *)deviceInfo {
-    NSString *platform = [AppGivensProvider getPlatformString];
+    NSString *platform = [IMPAppGivensProvider getPlatformString];
     return [self parseDeviceInfo:platform];
 }
 

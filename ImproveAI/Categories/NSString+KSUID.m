@@ -13,8 +13,10 @@
 
 + (NSString *)ksuidString {
     char buf[KSUID_STRING_LENGTH+1] = {0};
-    if(ksuid(buf)) {
-        return nil;
+    int ret = ksuid(buf);
+    if(ret != 0) {
+        NSString *reason = [NSString stringWithFormat:@"failed to generate ksuid: %d", ret];
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
     }
     return [NSString stringWithUTF8String:buf];
 }

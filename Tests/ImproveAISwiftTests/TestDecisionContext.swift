@@ -34,9 +34,31 @@ class TestDecisionContext: XCTestCase {
         return DecisionModel(modelName: "greetings")
     }
     
+    func loadedModel() throws -> DecisionModel {
+        return try model().load(modelUrl())
+    }
+    
     func testScore() throws {
         let scores:[Double] = try model().load(modelUrl()).given(givens()).score(variants())
         print("scores: \(scores)")
+    }
+    
+    func testDecide_ordered() throws {
+        let decisionModel = try loadedModel()
+        for _ in 1...5 {
+            let chosen = try decisionModel.given(givens()).decide(["Hi", "Hello", "Hey"], true).best
+            XCTAssertEqual("Hi", chosen)
+        }
+    }
+    
+    func testDecide_not_ordered() throws {
+        let chosen = try loadedModel().given(givens()).decide(["Hi", "Hello", "Hey"], false).best
+        print("chosen: \(chosen)")
+        
+        for _ in 1...5 {
+            let chosen = try model().given(givens()).decide(["Hi", "Hello", "Hey"], false).best
+            XCTAssertEqual("Hi", chosen)
+        }
     }
 
     func testChooseFrom() throws {
@@ -151,7 +173,7 @@ class TestDecisionContext: XCTestCase {
     func testRandomList_empty() throws {
         do {
             let themes:[Theme] = []
-            let _: Theme = try model().load(modelUrl()).random(themes)
+            let _: Theme = try model().given(givens()).random(themes)
         } catch IMPError.emptyVariants {
             return
         }
@@ -177,30 +199,53 @@ class TestDecisionContext: XCTestCase {
         debugPrint("chosen: \(chosen)")
     }
     
-    func testWhichList() throws {
+    func testWhichFrom() throws {
         let themes = [
             Theme(fontSize: 12, primaryColor: "#000000"),
             Theme(fontSize: 13, primaryColor: "#f0f0f0"),
             Theme(fontSize: 14, primaryColor: "#ffffff")]
-        let theme: Theme = try model().given(givens()).which(themes)
+        let theme: Theme = try loadedModel().given(givens()).whichFrom(themes)
         print("theme: \(theme)")
         
-        let upsell = try model().given(givens()).which([
+        let upsell = try model().given(givens()).whichFrom([
             ["name": "gold", "quantity": 100, "price": 1.99],
             ["name": "diamonds", "quantity": 10, "price": 2.99],
             ["name": "red scabbard", "price": 0.99]])
         debugPrint("upsell: ", upsell)
     }
     
-    func testWhichList_empty() throws {
+    func testWhichFrom_nil_trackURL() throws {
+        let model = model()
+        model.trackURL = nil
+        let chosen = try model.whichFrom(variants())
+        debugPrint("chosen = \(chosen)")
+    }
+    
+    func testWhichFrom_empty() throws {
         do {
             let themes:[Theme] = []
-            let _: Theme = try model().load(modelUrl()).which(themes)
+            let _: Theme = try model().given(givens()).whichFrom(themes)
         } catch IMPError.emptyVariants {
             return
         }
         XCTFail(shouldThrowError)
     }
+    
+    func testRank() throws {
+        let variants = ["Hi", "Hello", "Hey"]
+        let ranked = try loadedModel().given(givens()).rank(variants)
+        XCTAssertEqual(variants.count, ranked.count)
+        debugPrint("ranked: \(ranked)")
+    }
+
+    
+    func testRank_any() throws {
+        let variants: [Any] = ["Hi", "Hello", "Hey", 3]
+        let ranked = try loadedModel().given(givens()).rank(variants)
+        XCTAssertEqual(variants.count, ranked.count)
+        debugPrint("ranked: \(ranked)")
+    }
+
     
     func testChooseMultivariate() throws {
         let variants:[String:Any] = ["style":["normal", "bold"], "size":[12, 13]]

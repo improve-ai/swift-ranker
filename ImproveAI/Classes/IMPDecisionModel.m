@@ -16,32 +16,18 @@
 #import "IMPUtils.h"
 #import "IMPJSONUtils.h"
 #import "IMPDecisionTracker.h"
-#import "AppGivensProvider.h"
+#import "IMPAppGivensProvider.h"
 #import "IMPConstants.h"
 
 @interface IMPDecisionContext()
 
 - (instancetype)initWithModel:(IMPDecisionModel *)model andGivens:(nullable NSDictionary *)givens;
 
-- (id)whichInternal:(NSArray *)variants;
-
 - (id)firstInternal:(NSArray *)variants;
 
 - (id)randomInternal:(NSArray *)variants;
 
-@end
-
-@interface IMPDecision ()
-
-@property(nonatomic, strong) NSArray *scores;
-
-//@property (nonatomic, copy) NSArray *variants;
-
-@property (nonatomic, copy, nullable) NSDictionary *givens;
-
-@property(nonatomic, strong) id best;
-
-- (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
+- (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize;
 
 @end
 
@@ -53,6 +39,8 @@
 @property (nonatomic) BOOL enableTieBreaker;
 
 @property (strong, atomic) IMPDecisionTracker *tracker;
+
+@property(atomic, strong) MLModel *model;
 
 @end
 
@@ -69,7 +57,13 @@ static NSString * _defaultTrackApiKey;
 
 static IMPModelDictionary *_instances;
 
-static IMPGivensProvider *_defaultGivensProvider;
+static id<IMPGivensProvider> _defaultGivensProvider;
+
++ (void)initialize {
+    if (self == [IMPDecisionModel class]) {
+        _defaultGivensProvider = [IMPAppGivensProvider shared];
+    }
+}
 
 + (NSURL *)defaultTrackURL
 {
@@ -99,9 +93,14 @@ static IMPGivensProvider *_defaultGivensProvider;
     return _instances;
 }
 
-+ (IMPGivensProvider *)defaultGivensProvider
++ (id<IMPGivensProvider>)defaultGivensProvider
 {
-    return [AppGivensProvider shared];
+    return _defaultGivensProvider;
+}
+
++ (void)setDefaultGivensProvider:(id<IMPGivensProvider>)defaultGivensProvider
+{
+    _defaultGivensProvider = defaultGivensProvider;
 }
 
 - (instancetype)initWithModelName:(NSString *)modelName
@@ -128,22 +127,10 @@ static IMPGivensProvider *_defaultGivensProvider;
         }
         
         _trackApiKey = [trackApiKey copy];
+        
+        _givensProvider = _defaultGivensProvider;
     }
     return self;
-}
-
-// TODO: If givensProvider is set as nil explicitly, should the default givens provider be used anyway?
-- (IMPGivensProvider *)givensProvider
-{
-    @synchronized (self) {
-        return _givensProvider ? _givensProvider : IMPDecisionModel.defaultGivensProvider;
-    }
-}
-
-- (void)setGivensProvider:(IMPGivensProvider *)givensProvider {
-    @synchronized (self) {
-        _givensProvider = givensProvider;
-    }
 }
 
 - (NSURL *)trackURL
@@ -194,12 +181,9 @@ static IMPGivensProvider *_defaultGivensProvider;
 {
     // MLModel is not thread safe, synchronize
     @synchronized (self) {
-        _model = model;
-
         if (!model || !model.modelDescription || !model.modelDescription.metadata) {
-            IMPErrLog("Invalid Improve model. model metadata not found");
-            return;
-
+            NSString *reason = @"Invalid model: metadata not found";
+            @throw [NSException exceptionWithName:@"InvalidModelVersion" reason:reason userInfo:nil];
         }
         NSDictionary * creatorDefined = model.modelDescription.metadata[MLModelCreatorDefinedKey];
         
@@ -209,15 +193,10 @@ static IMPGivensProvider *_defaultGivensProvider;
             @throw [NSException exceptionWithName:@"InvalidModelVersion" reason:reason userInfo:nil];
         }
         
-        NSString *modelName = creatorDefined[@"ai.improve.model.name"];
-        if([modelName length] <= 0) {
-            IMPErrLog("Invalid Improve model: modelName is nil or empty");
-            return ;
-        }
-        
         NSString *seedString = creatorDefined[@"ai.improve.model.seed"];
         uint64_t seed = strtoull([seedString UTF8String], NULL, 0);
-
+        
+        NSString *modelName = creatorDefined[@"ai.improve.model.name"];
         if(![_modelName isEqualToString:modelName]) {
             // The modelName set before loading the model has higher priority than
             // the one extracted from the model file. Just print a warning here if
@@ -225,6 +204,8 @@ static IMPGivensProvider *_defaultGivensProvider;
             IMPErrLog("Model names don't match: current model name is [%@]; "
                       "model name extracted is [%@]. [%@] will be used.", _modelName, modelName, _modelName);
         }
+        
+        _model = model;
         
         NSSet *featureNames = [[NSSet alloc] initWithArray:_model.modelDescription.inputDescriptionsByName.allKeys];
 
@@ -285,6 +266,140 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[IMPDecisionContext alloc] initWithModel:self andGivens:givens];
 }
 
+- (NSArray <NSNumber *>*)score:(NSArray *)variants
+{
+    return [[self given:nil] score:variants];
+}
+
+- (IMPDecision *)decide:(NSArray *)variants
+{
+    return [self decide:variants ordered:false];
+}
+
+- (IMPDecision *)decide:(NSArray *)variants ordered:(BOOL)ordered
+{
+    return [[self given:nil] decide:variants ordered:ordered];
+}
+
+- (IMPDecision *)decide:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores
+{
+    return [[self given:nil] decide:variants scores:scores];
+}
+
+- (id)which:(id)firstVariant, ...
+{
+    va_list args;
+    va_start(args, firstVariant);
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(id arg = firstVariant; arg != nil; arg = va_arg(args, id)) {
+        [variants addObject:arg];
+    }
+    va_end(args);
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"which() expects at least one argument." userInfo:nil];
+    }
+    return [self whichFrom:variants];
+}
+
+- (id)whichFrom:(NSArray *)variants
+{
+    return [[self given:nil] whichFrom:variants];
+}
+
+- (NSArray *)rank:(NSArray *)variants
+{
+    return [[self given:nil] rank:variants];
+}
+
+- (id)optimize:(NSDictionary<NSString *, id> *)variantMap
+{
+    return [[self given:nil] optimize:variantMap];
+}
+
+/**
+ * An example here might be more expressive:
+ * fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5]}) returns
+ * [
+ *     {"style":"bold", "size":3},
+ *     {"style":"italic", "size":3},
+ *     {"style":"bold", "size":5},
+ *     {"style":"italic", "size":5},
+ * ]
+ * @param variantMap The values of the variant map are expected to be lists of any JSON encodeable data structure of arbitrary complexity.
+ * If they are not lists, they are automatically wrapped as a list containing a single item.
+ * So fullFactorialVariants({"style":["bold", "italic"], "size":3}) is equivalent to fullFactorialVariants({"style":["bold", "italic"], "size":[3]})
+ * @return Returns the full factorial combinations of key and values specified by the input variant map.
+ * @throws NSInvalidArgumentException Thrown if variantMap is nil or empty.
+ */
++ (NSArray *)fullFactorialVariants:(NSDictionary *)variantMap
+{
+    if([variantMap count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variantMap can't be nil or empty." userInfo:nil];
+    }
+    
+    NSMutableArray *keys = [[NSMutableArray alloc] initWithCapacity:[variantMap count]];
+    
+    NSMutableArray *categories = [NSMutableArray arrayWithCapacity:[variantMap count]];
+    [variantMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if(![obj isKindOfClass:[NSArray class]]) {
+            [categories addObject:@[obj]];
+            [keys addObject:key];
+        } else {
+            // ignore empty array values
+            if([obj count] > 0) {
+                [categories addObject:obj];
+                [keys addObject:key];
+            }
+        }
+    }];
+    
+    NSMutableArray<NSDictionary *> *combinations = [[NSMutableArray alloc] init];
+    for(int i = 0; i < [categories count]; ++i) {
+        NSArray *category = categories[i];
+        NSMutableArray<NSDictionary *> *newCombinations = [[NSMutableArray alloc] init];
+        for(int m = 0; m < [category count]; ++m) {
+            if([combinations count] == 0) {
+                [newCombinations addObject:@{keys[i]:category[m]}];
+            } else {
+                for(int n = 0; n < [combinations count]; ++n) {
+                    NSMutableDictionary *newVariant = [combinations[n] mutableCopy];
+                    [newVariant setObject:category[m] forKey:keys[i]];
+                    [newCombinations addObject:newVariant];
+                }
+            }
+        }
+        combinations = newCombinations;
+    }
+    
+    return combinations;
+}
+
+- (void)addReward:(double) reward
+{
+    IMPDecisionTracker *tracker = self.tracker;
+    if(tracker == nil) {
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
+    }
+    [tracker addReward:reward forModel:self.modelName];
+}
+
+// Add reward for a specific tracked decision
+- (void)addReward:(double)reward decision:(NSString *)decisionId
+{
+    IMPDecisionTracker *tracker = self.tracker;
+    if(tracker == nil) {
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
+    }
+    [tracker addReward:reward forModel:self.modelName decision:decisionId];
+}
+
+- (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize
+{
+    return [[self given:nil] track:variant runnersUp:runnersUp sample:sample samplePoolSize:samplePoolSize];
+}
+
+#pragma mark - Deprecated, remove in 8.0
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants
 {
     return [[self given:nil] chooseFrom:variants];
@@ -312,18 +427,9 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[self given:nil] firstInternal:variants];
 }
 
-- (id)first:(NSInteger)n args:(va_list)args
-{
-    return [[self given:nil] first:n args:args];
-}
-
 - (IMPDecision *)chooseRandom:(NSArray *)variants
 {
-    if([variants count] <= 0) {
-        NSString *reason = @"variants can't be nil or empty.";
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-    }
-    return [self chooseFrom:variants scores:[IMPDecisionModel generateRandomScores:[variants count]]];
+    return [[self given:nil] chooseRandom:variants];
 }
 
 - (id)random:(id)firstVariant, ...
@@ -338,60 +444,9 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [[self given:nil] randomInternal:variants];
 }
 
-- (id)random:(NSInteger)n args:(va_list)args
-{
-    return [[self given:nil] random:n args:args];
-}
-
 - (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants
 {
     return [[self given:nil] chooseMultivariate:variants];
-}
-
-- (id)optimize:(NSDictionary<NSString *, id> *)variants
-{
-    return [[self chooseMultivariate:variants] get];
-}
-
-- (id)which:(id)firstVariant, ...
-{
-    va_list args;
-    va_start(args, firstVariant);
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(id arg = firstVariant; arg != nil; arg = va_arg(args, id)) {
-        [variants addObject:arg];
-    }
-    va_end(args);
-    return [[self given:nil] whichInternal:variants];
-}
-
-- (void)addReward:(double) reward
-{
-    IMPDecisionTracker *tracker = self.tracker;
-    if(tracker == nil) {
-        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
-    }
-    [tracker addReward:reward forModel:self.modelName];
-}
-
-// Add reward for a specific tracked decision
-- (void)addReward:(double)reward decision:(NSString *)decisionId
-{
-    IMPDecisionTracker *tracker = self.tracker;
-    if(tracker == nil) {
-        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL can't be nil when calling addReward()" userInfo:nil];
-    }
-    [tracker addReward:reward forModel:self.modelName decision:decisionId];
-}
-
-- (NSArray <NSNumber *>*)score:(NSArray *)variants
-{
-    NSDictionary *givens = nil;
-    IMPGivensProvider *givensProvider = self.givensProvider;
-    if(givensProvider != nil) {
-        givens = [givensProvider givensForModel:self givens:nil];
-    }
-    return [self scoreInternal:variants allGivens:givens];
 }
 
 /**
@@ -451,7 +506,7 @@ static IMPGivensProvider *_defaultGivensProvider;
     }
 }
 
-
+// TODO: looks like it's not needed any more.
 // in case of tie, the lowest index wins. Ties should be very rare due to small random noise added to scores
 // in IMPChooser.score()
 + (id)topScoringVariant:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
@@ -473,16 +528,18 @@ static IMPGivensProvider *_defaultGivensProvider;
     return bestVariant;
 }
 
-// If variants.count != scores.count, an NSRangeException exception will be thrown.
 // Case 3 #2 refsort approach: https://stackoverflow.com/a/27309301
-+ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores
++ (NSArray *)rank:(NSArray *)variants withScores:(NSArray<NSNumber *> *)scores
 {
-    NSUInteger size;
-    if(variants.count > scores.count) {
-        size = variants.count;
-    } else {
-        size = scores.count;
+    if([variants count] <= 0 || [scores count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants and scores can't be nil or empty" userInfo:nil];
     }
+    
+    if([variants count] != [scores count]) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants.count must equal scores.count" userInfo:nil];
+    }
+    
+    NSUInteger size = [variants count];
     NSMutableArray<NSNumber *> *indices = [[NSMutableArray alloc] initWithCapacity:size];
     for(NSUInteger i = 0; i < size; ++i){
         indices[i] = [NSNumber numberWithInteger:i];
@@ -517,7 +574,8 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [arr copy];
 }
 
-+ (NSArray *)generateRandomScores:(NSUInteger)count {
++ (NSArray *)generateRandomScores:(NSUInteger)count
+{
     NSMutableArray *arr = [[NSMutableArray alloc] init];
     for(int i = 0; i < count; ++i){
         [arr addObject:[NSNumber numberWithDouble:[IMPUtils gaussianNumber]]];
@@ -525,18 +583,25 @@ static IMPGivensProvider *_defaultGivensProvider;
     return [arr copy];
 }
 
-- (BOOL)isValidModelName:(NSString *)modelName {
+- (BOOL)isValidModelName:(NSString *)modelName
+{
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", @"^[a-zA-Z0-9][\\w\\-.]{0,63}$"];
     return [predicate evaluateWithObject:modelName];
 }
 
-- (BOOL)canParseVersion:(NSString *)versionString {
+- (BOOL)canParseVersion:(NSString *)versionString
+{
     if(versionString == nil) {
         return YES;
     }
     NSArray<NSString *> *array = [kIMPVersion componentsSeparatedByString:@"."];
     NSString *prefix = [NSString stringWithFormat:@"%@.", array[0]];
     return [versionString hasPrefix:prefix] || [versionString isEqualToString:array[0]];
+}
+
+- (BOOL)isLoaded
+{
+    return self.model != nil;
 }
 
 @end

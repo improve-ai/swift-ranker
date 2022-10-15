@@ -17,82 +17,87 @@
 
 @end
 
-// Package private methods
-@interface IMPDecisionTracker ()
-
-- (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount;
-
-- (nullable NSString *)track:(id)variant variants:(NSArray *)variants given:(NSDictionary *)givens modelName:(NSString *)modelName variantsRankedAndTrackRunnersUp:(BOOL) variantsRankedAndTrackRunnersUp;
-@end
-
 //Package priveate properties
 @interface IMPDecision ()
-
-@property (nonatomic, strong, readonly) NSString *id;
-
-@property(nonatomic, strong) NSArray *scores;
 
 @property (nonatomic, strong) IMPDecisionModel *model;
 
 @property (nonatomic, copy, readwrite) NSArray *variants;
 
-@property (nonatomic, copy, nullable) NSDictionary *givens;
-
-@property (nonatomic, strong) id best;
-
-/**
- * A decision should be tracked only once when calling get(). A boolean here may
- * be more appropriate in the first glance. But I find it hard to unit test
- * that it's tracked only once with a boolean value in multi-thread mode. So I'm
- * using an int here with 0 as 'untracked', and anything else as 'tracked'.
- */
-@property(nonatomic, readonly) int tracked;
+@property(nonatomic, strong) NSArray<NSNumber *> *scores;
 
 @end
 
 @implementation IMPDecision
 
-- (instancetype)initWithModel:(IMPDecisionModel *)model
+- (instancetype)initWithModel:(IMPDecisionModel *)model rankedVariants:(NSArray *)rankedVariants givens:(NSDictionary *)givens
 {
     if(self = [super init]) {
         _model = model;
+        _ranked = rankedVariants;
+        _givens = givens;
     }
     return self;
 }
 
+- (id)best {
+    return _ranked[0];
+}
+
 - (id)peek
 {
-    return _best;
+    return _ranked[0];
 }
 
 - (id)get
 {
     @synchronized (self) {
-        // No matter how many times get() is called, we only call track for once.
-        if(_tracked == 0) {
+        if(_id == nil) {
             IMPDecisionTracker *tracker = _model.tracker;
-            if (tracker) {
-                if ([tracker shouldTrackRunnersUp:_variants.count]) {
-                    // the more variants there are, the less frequently this is called
-                    NSArray *rankedVariants = [IMPDecisionModel rank:_variants withScores:_scores];
-                    _id = [tracker track:_best variants:rankedVariants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:TRUE];
-                } else {
-                    // faster and more common path, avoids array sort
-                    _id = [tracker track:_best variants:_variants given:_givens modelName:_model.modelName variantsRankedAndTrackRunnersUp:FALSE];
-                }
-                _tracked++;
+            if (tracker == nil) {
+                IMPLog("trackURL not set for the underlying DecisionModel. The decision won't be tracked.");
             } else {
-                IMPErrLog("trackURL of the underlying DecisionModel is nil, decision will not be tracked");
+                _id = [tracker track:_ranked given:_givens modelName:_model.modelName];
             }
         }
     }
-    return _best;
+    return _ranked[0];
+}
+
+// SecRandomCopyBytes() may fail leading to a nil ksuid. This case is ignored at the moment.
+// We assume track() always returns a nonnull id.
+- (NSString *)track
+{
+    @synchronized (self) {
+        if(_id != nil) {
+            @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"the decision is already tracked!" userInfo:nil];
+        }
+        
+        IMPDecisionTracker *tracker = _model.tracker;
+        if (tracker == nil) {
+            @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"trackURL of the underlying DecisionModel is nil!" userInfo:nil];
+        }
+        
+        _id = [tracker track:_ranked given:_givens modelName:_model.modelName];
+        
+        return _id;
+    }
+}
+
+// Tracks the decision.
+// Don't throw any exception if the trackURL is not set for the DecisionModel.
+- (void)trackSilently
+{
+    IMPDecisionTracker *tracker = self.model.tracker;
+    if(tracker != nil) {
+        [tracker track:_ranked given:_givens modelName:_model.modelName];
+    }
 }
 
 - (void)addReward:(double)reward
 {
     if(_id == nil) {
-        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"_id can't be nil. Make sure that addReward() is called after get(); and trackURL is set in the DecisionModel." userInfo:nil];
+        @throw [NSException exceptionWithName:IMPIllegalStateException reason:@"addReward() can't be called before track()." userInfo:nil];
     }
     [self.model addReward:reward decision:_id];
 }

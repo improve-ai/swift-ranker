@@ -8,6 +8,7 @@
 
 #import "IMPDecisionContext.h"
 #import "IMPDecisionModel.h"
+#import "Tracker/IMPDecisionTracker.h"
 #import "IMPLogging.h"
 
 @interface IMPDecision ()
@@ -16,15 +17,15 @@
 
 @property (nonatomic, copy, readwrite) NSArray *variants;
 
-@property (nonatomic, copy, nullable) NSDictionary *givens;
+- (instancetype)initWithModel:(IMPDecisionModel *)model rankedVariants:(NSArray *)rankedVariants givens:(NSDictionary *)givens;
 
-@property(nonatomic, strong) id best;
-
-- (instancetype)initWithModel:(IMPDecisionModel *)model NS_SWIFT_NAME(init(_:));
+- (void)trackSilently;
 
 @end
 
 @interface IMPDecisionModel ()
+
+@property (strong, atomic) IMPDecisionTracker *tracker;
 
 - (NSArray<NSNumber *> *)scoreInternal:(NSArray *)variants allGivens:(nullable NSDictionary <NSString *, id>*)givens;
 
@@ -32,13 +33,21 @@
 
 + (NSArray *)generateDescendingGaussians:(NSUInteger) count;
 
++ (NSArray *)generateRandomScores:(NSUInteger)count;
+
++ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+
++ (NSArray *)fullFactorialVariants:(NSDictionary *)variantMap;
+
+- (BOOL)isLoaded;
+
 @end
 
 @interface IMPDecisionContext ()
 
-@property (nonatomic, strong) IMPDecisionModel *model;
+@property (nonatomic, strong, readonly) IMPDecisionModel *model;
 
-@property (nonatomic, strong) NSDictionary *givens;
+@property (nonatomic, copy, nullable, readonly) NSDictionary *givens;
 
 @end
 
@@ -48,38 +57,119 @@
 {
     if(self = [super init]) {
         _model = model;
-        _givens = givens;
+        _givens = [givens copy];
     }
     return self;
 }
 
-- (IMPDecision *)chooseFrom:(NSArray *)variants
+- (NSArray<NSNumber *> *)score:(NSArray *)variants
 {
-    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
+    NSDictionary *allGivens = [self getAllGivens];
+    return [_model scoreInternal:variants allGivens:allGivens];
+}
+
+- (IMPDecision *)decide:(NSArray *)variants
+{
+    return [self decide:variants ordered:false];
+}
+
+- (IMPDecision *)decide:(NSArray *)variants ordered:(BOOL)ordered
+{
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"variants can't be nil or empty." userInfo:nil];
+    }
     
-    NSArray *scores = [_model scoreInternal:variants allGivens:allGivens];
+    NSDictionary *allGivens = [self getAllGivens];
     
-    id best = [IMPDecisionModel topScoringVariant:variants withScores:scores];
+    NSArray *rankedVariants;
+    NSArray<NSNumber *> *scores = nil;
+    if (ordered) {
+        rankedVariants = [NSArray arrayWithArray:variants];
+    } else {
+        if([_model isLoaded]) {
+            scores = [_model scoreInternal:variants allGivens:allGivens];
+            rankedVariants = [IMPDecisionModel rank:variants withScores:scores];
+        } else {
+            rankedVariants = [NSArray arrayWithArray:variants];
+        }
+    }
     
-    IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model rankedVariants:rankedVariants givens:allGivens];
     decision.variants = variants;
-    decision.best = best;
-    decision.givens = allGivens;
     decision.scores = scores;
     
     return decision;
 }
 
+- (IMPDecision *)decide:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores
+{
+    NSDictionary *allGivens = [self getAllGivens];
+    id rankedVariants = [IMPDecisionModel rank:variants withScores:scores];
+    IMPDecision *decision = [[IMPDecision alloc] initWithModel:_model rankedVariants:rankedVariants givens:allGivens];
+    decision.variants = variants;
+    return decision;
+}
+
+- (id)which:(id)firstVariant, ...
+{
+    va_list args;
+    va_start(args, firstVariant);
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(id arg = firstVariant; arg != nil; arg = va_arg(args, id)) {
+        [variants addObject:arg];
+    }
+    va_end(args);
+    
+    if([variants count] <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"which() expects at least one argument." userInfo:nil];
+    }
+    
+    return [self whichFrom:variants];
+}
+
+- (id)whichFrom:(NSArray *)variants
+{
+    IMPDecision *decision = [self decide:variants];
+    [decision trackSilently];
+    return decision.best;
+}
+
+- (NSArray *)rank:(NSArray *)variants
+{
+    return [[self decide:variants] ranked];
+}
+
+- (id)optimize:(NSDictionary<NSString *, id> *)variantMap
+{
+    return [self whichFrom:[IMPDecisionModel fullFactorialVariants:variantMap]];
+}
+
+- (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize
+{
+    NSUInteger variantCount = 1 + [runnersUp count] + samplePoolSize;
+    NSDictionary *allGivens = [self getAllGivens];
+    return [_model.tracker track:variant givens:allGivens runnersUp:runnersUp sample:sample variantCount:variantCount modelName:_model.modelName];
+}
+
+- (nullable NSDictionary *)getAllGivens {
+    NSDictionary *allGivens = _givens;
+    id<IMPGivensProvider> givensProvider = _model.givensProvider;
+    if(givensProvider != nil) {
+        allGivens = [givensProvider givensForModel:_model givens:_givens];
+    }
+    return allGivens;
+}
+
+#pragma mark - Deprecated, remove in 8.0.
+
+- (IMPDecision *)chooseFrom:(NSArray *)variants
+{
+    return [self decide:variants];
+}
+
 - (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores
 {
-    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
-    id best = [IMPDecisionModel topScoringVariant:variants withScores:scores];
-    IMPDecision *decision = [[IMPDecision alloc] initWithModel:self.model];
-    decision.variants = variants;
-    decision.best = best;
-    decision.givens = allGivens;
-    decision.scores = scores;
-    return decision;
+    return [self decide:variants scores:scores];
 }
 
 - (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:))
@@ -103,15 +193,6 @@
     return [self firstInternal:variants];
 }
 
-- (id)first:(NSInteger)n args:(va_list)args
-{
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(int i = 0; i < n; ++i) {
-        [variants addObject:va_arg(args, id)];
-    }
-    return [self firstInternal:variants];
-}
-
 - (id)firstInternal:(NSArray *)variants
 {
     if([variants count] <= 0) {
@@ -131,9 +212,11 @@
 
 - (IMPDecision *)chooseRandom:(NSArray *)variants
 {
-    IMPDecision *decision = [self.model chooseRandom:variants];
-    decision.givens = [_model.givensProvider givensForModel:_model givens:_givens];;
-    return decision;
+    if([variants count] <= 0) {
+        NSString *reason = @"variants can't be nil or empty.";
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
+    }
+    return [self decide:variants scores:[IMPDecisionModel generateRandomScores:[variants count]]];
 }
 
 - (id)random:(id)firstVariant, ...
@@ -145,15 +228,6 @@
         [variants addObject:arg];
     }
     va_end(args);
-    return [self randomInternal:variants];
-}
-
-- (id)random:(NSInteger)n args:(va_list)args
-{
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(int i = 0; i < n; ++i) {
-        [variants addObject:va_arg(args, id)];
-    }
     return [self randomInternal:variants];
 }
 
@@ -173,83 +247,9 @@
     return [[self chooseRandom:variants] get];
 }
 
-- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variantMap
 {
-    NSMutableArray *allKeys = [[NSMutableArray alloc] initWithCapacity:[variants count]];
-    
-    NSMutableArray *categories = [NSMutableArray arrayWithCapacity:[variants count]];
-    [variants enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if(![obj isKindOfClass:[NSArray class]]) {
-            [categories addObject:@[obj]];
-            [allKeys addObject:key];
-        } else {
-            if([obj count] > 0) {
-                [categories addObject:obj];
-                [allKeys addObject:key];
-            }
-        }
-    }];
-    
-    NSMutableArray<NSDictionary *> *combinations = [[NSMutableArray alloc] init];
-    for(int i = 0; i < [categories count]; ++i) {
-        NSArray *category = categories[i];
-        NSMutableArray<NSDictionary *> *newCombinations = [[NSMutableArray alloc] init];
-        for(int m = 0; m < [category count]; ++m) {
-            if([combinations count] == 0) {
-                [newCombinations addObject:@{allKeys[i]:category[m]}];
-            } else {
-                for(int n = 0; n < [combinations count]; ++n) {
-                    NSMutableDictionary *newVariant = [combinations[n] mutableCopy];
-                    [newVariant setObject:category[m] forKey:allKeys[i]];
-                    [newCombinations addObject:newVariant];
-                }
-            }
-        }
-        combinations = newCombinations;
-    }
-    IMPLog("Choosing from %ld combinations", [combinations count]);
-    
-    return [self chooseFrom:combinations];
-}
-
-- (id)optimize:(NSDictionary<NSString *, id> *)variants
-{
-    return [[self chooseMultivariate:variants] get];
-}
-
-- (NSArray<NSNumber *> *)score:(NSArray *)variants
-{
-    NSDictionary *allGivens = [_model.givensProvider givensForModel:_model givens:_givens];
-    return [_model scoreInternal:variants allGivens:allGivens];
-}
-
-- (id)which:(id)firstVariant, ...
-{
-    va_list args;
-    va_start(args, firstVariant);
-    NSMutableArray *variants = [[NSMutableArray alloc] init];
-    for(id arg = firstVariant; arg != nil; arg = va_arg(args, id)) {
-        [variants addObject:arg];
-    }
-    va_end(args);
-    return [self whichInternal:variants];
-}
-
-- (id)whichInternal:(NSArray *)variants
-{
-    if([variants count] <= 0) {
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"which() expects at least one argument." userInfo:nil];
-    }
-    
-    if([variants count] == 1) {
-        id firstVariant = variants[0];
-        if([firstVariant isKindOfClass:[NSArray class]] && [firstVariant count] > 0) {
-            return [[self chooseFrom:firstVariant] get];
-        }
-        NSString *reason = @"If only one argument, it must be a nonempty NSArray.";
-        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];
-    }
-    return [[self chooseFrom:variants] get];
+    return [self decide:[IMPDecisionModel fullFactorialVariants:variantMap]];
 }
 
 @end

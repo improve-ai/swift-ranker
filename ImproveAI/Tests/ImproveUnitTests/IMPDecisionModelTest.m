@@ -15,7 +15,7 @@
 #import "TestUtils.h"
 #import "IMPFeatureEncoder.h"
 #import "IMPConstants.h"
-#import "AppGivensProvider.h"
+#import "IMPAppGivensProvider.h"
 
 NSString * const kReasonVariantsNonEmpty = @"variants can't be nil or empty.";
 
@@ -26,15 +26,11 @@ extern NSString *const kTrackApiKey;
 // Package private properties
 @interface IMPDecision ()
 
-@property(nonatomic, readonly, nullable) id best;
-
 @property (nonatomic, copy) NSArray *variants;
 
-@property(nonatomic, strong) NSArray *scores;
+@property(nonatomic, strong) NSArray<NSNumber *> *scores;
 
 @property(nonatomic, strong) NSDictionary *givens;
-
-@property (nonatomic, readonly) int tracked;
 
 @end
 
@@ -48,6 +44,8 @@ extern NSString *const kTrackApiKey;
 
 + (NSArray *)generateDescendingGaussians:(NSUInteger)count;
 
++ (NSArray *)fullFactorialVariants:(NSDictionary *)variantMap;
+
 - (IMPFeatureEncoder *)featureEncoder;
 
 - (BOOL)enableTieBreaker;
@@ -56,13 +54,22 @@ extern NSString *const kTrackApiKey;
 
 - (BOOL)canParseVersion:(NSString *)versionString;
 
+- (BOOL)isLoaded;
+
+- (NSString *)track:(id)variant runnersUp:(nullable NSArray *)runnersUp sample:(nullable id)sample samplePoolSize:(NSUInteger)samplePoolSize;
+
 @end
 
-@interface TestGivensProvider : IMPGivensProvider
+@interface TestGivensProvider : NSObject <IMPGivensProvider>
 
 @end
 
 @implementation TestGivensProvider
+
+- (NSDictionary<NSString *, id> *)givensForModel:(IMPDecisionModel *)decisionModel givens:(nullable NSDictionary *)givens
+{
+    return @{ @"lang" : @"mars" };
+}
 
 @end
 
@@ -79,6 +86,12 @@ extern NSString *const kTrackApiKey;
 - (NSUInteger)count;
 
 - (void)clear;
+
+@end
+
+@interface IMPDecisionTracker ()
+
++ (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName;
 
 @end
 
@@ -108,6 +121,23 @@ extern NSString *const kTrackApiKey;
                                                 withExtension:@"mlmodelc"];
     }
     return _bundledModelURL;
+}
+
+- (nullable IMPDecisionModel *)loadedModel {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    return [decisionModel load:[NSURL URLWithString:kRemoteModelURL] error:nil];
+}
+
+- (IMPDecisionModel *)unloadedModel {
+    return [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+}
+
+- (NSArray *)variants {
+    return @[@"Hello World", @"Howdy World", @"Hi World"];
+}
+
+- (void)testStaticInitializer {
+    XCTAssertTrue([IMPDecisionModel.defaultGivensProvider isKindOfClass:[IMPAppGivensProvider class]]);
 }
 
 - (void)testInit {
@@ -291,6 +321,43 @@ extern NSString *const kTrackApiKey;
     }
 }
 
+- (void)testSetDefaultTrackURL {
+    IMPDecisionModel.defaultTrackURL = nil;
+    XCTAssertNil([self unloadedModel].trackURL);
+    IMPDecisionModel.defaultTrackURL = [NSURL URLWithString:kTrackerURL];
+    XCTAssertNotNil([self unloadedModel].trackURL);
+}
+
+- (void)testSetDefaultTrackApiKey {
+    IMPDecisionModel.defaultTrackApiKey = nil;
+    XCTAssertNil([self unloadedModel].trackApiKey);
+    IMPDecisionModel.defaultTrackApiKey = @"api-key";
+    XCTAssertNotNil([self unloadedModel].trackApiKey);
+}
+
+- (void)testSetTrackURL {
+    IMPDecisionModel *model = [self unloadedModel];
+    XCTAssertNotNil(model.trackURL);
+    
+    model.trackURL = nil;
+    XCTAssertNil(model.trackURL);
+    
+    NSURL *url = [NSURL URLWithString:kTrackerURL];
+    model.trackURL = url;
+    XCTAssertEqualObjects(url, model.trackURL);
+}
+
+- (void)testSetTrackApiKey {
+    IMPDecisionModel *model = [self unloadedModel];
+    XCTAssertNotNil(model.trackApiKey);
+    
+    model.trackApiKey = nil;
+    XCTAssertNil(model.trackApiKey);
+    
+    model.trackApiKey = @"api-key";
+    XCTAssertEqualObjects(@"api-key", model.trackApiKey);
+}
+
 - (void)testModelInstances {
     [IMPDecisionModel.instances clear];
     
@@ -332,6 +399,17 @@ extern NSString *const kTrackApiKey;
         return ;
     }
     XCTFail(@"An exception should have been thrown. We should never reach here");
+}
+
+- (void)testDefaultGivensProvider {
+    IMPDecisionModel.defaultGivensProvider = [[TestGivensProvider alloc] init];
+    XCTAssertTrue([IMPDecisionModel.defaultGivensProvider isKindOfClass:[TestGivensProvider class]]);
+    
+    IMPDecisionModel.defaultGivensProvider = nil;
+    XCTAssertNil(IMPDecisionModel.defaultGivensProvider);
+    
+    // Reset it as AppGivensProvider
+    IMPDecisionModel.defaultGivensProvider = [IMPAppGivensProvider shared];
 }
 
 - (void)testGivensProvider {
@@ -469,6 +547,7 @@ extern NSString *const kTrackApiKey;
     [decisionModel loadAsync:modelURL completion:^(IMPDecisionModel * _Nullable loadedModel, NSError * _Nullable error) {
         XCTAssertNil(loadedModel);
         XCTAssertNotNil(error);
+        XCTAssertFalse([decisionModel isLoaded]);
         NSLog(@"%@", error);
         [ex fulfill];
     }];
@@ -524,7 +603,8 @@ extern NSString *const kTrackApiKey;
 - (void)testScore_nil_variants {
     IMPDecisionModel *model = [[IMPDecisionModel alloc] initWithModelName:@"theme"];
     @try {
-        [model score:nil];
+        NSArray *variants = nil;
+        [model score:variants];
     } @catch(NSException *e) {
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
         return ;
@@ -606,10 +686,169 @@ extern NSString *const kTrackApiKey;
     }
 }
 
+- (void)testDecide {
+    IMPDecisionModel *decisionModel = [self loadedModel];
+    XCTAssertNotNil(decisionModel);
+    
+    NSArray *variants = [self variants];
+    IMPDecision *decision = [decisionModel decide:variants];
+    XCTAssertEqual([variants count], [decision.ranked count]);
+}
+
+- (void)testDecide_invalid_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    
+    // nil variants
+    @try {
+        NSArray *variants = nil;
+        [decisionModel decide:variants];
+        XCTFail(@"variants can't be nil");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+    
+    // empty variants
+    @try {
+        NSArray *variants = @[];
+        [decisionModel decide:variants];
+        XCTFail(@"variants can't be empty");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+}
+
+- (void)testDecide_ordered_true {
+    IMPDecisionModel *decisionModel = [self loadedModel];
+    XCTAssertNotNil(decisionModel);
+    
+    NSArray *variants = [self variants];
+    
+    for (int i = 0; i < 10; ++i) {
+        IMPDecision *decision = [decisionModel decide:variants ordered:YES];
+        XCTAssertEqual([variants count], [decision.ranked count]);
+        for(int j = 0; j < [variants count]; ++j) {
+            XCTAssertEqualObjects(variants[j], decision.ranked[j]);
+        }
+    }
+}
+
+- (void)testDecide_ordered_nil_variants {
+    @try {
+        NSArray *variants = nil;
+        [[self unloadedModel] decide:variants ordered:YES];
+        XCTFail(@"variants can't be nil");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+}
+
+- (void)testDecide_ordered_empty_variants {
+    @try {
+        NSArray *variants = @[];
+        [[self unloadedModel] decide:variants ordered:YES];
+        XCTFail(@"variants can't be empty");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+}
+
+- (void)testDecide_ordered_true_not_loaded {
+    NSArray *variants = [[self variants] mutableCopy];
+    NSArray *rankedVariants = [[[self unloadedModel] decide:variants ordered:true] ranked];
+    XCTAssertNotEqual(variants, rankedVariants); // different objects
+    XCTAssertEqualObjects(variants, rankedVariants);
+}
+
+- (void)testDecide_ordered_true_loaded {
+    NSArray *variants = [@[@0, @1, @2, @3, @4, @5, @6, @7, @8, @9] mutableCopy];
+    NSArray *rankedVariants = [[[self loadedModel] decide:variants ordered:true] ranked];
+    XCTAssertNotEqual(variants, rankedVariants); // different objects
+    XCTAssertEqualObjects(variants, rankedVariants);
+}
+
+- (void)testDecide_ordered_false_not_loaded {
+    NSArray *variants = [[self variants] mutableCopy];
+    NSArray *rankedVariants = [[[self unloadedModel] decide:variants ordered:false] ranked];
+    XCTAssertNotEqual(variants, rankedVariants); // different objects
+    XCTAssertEqualObjects(variants, rankedVariants);
+}
+
+- (void)testDecide_ordered_false_loaded {
+    NSArray *variants = @[@0, @1, @2, @3, @4, @5, @6, @7, @8, @9];
+    NSArray *rankedVariants = [[[self loadedModel] decide:variants ordered:false] ranked];
+    XCTAssertNotEqual(variants, rankedVariants); // different objects
+    XCTAssertNotEqualObjects(variants, rankedVariants);
+}
+
+// Tests that the ranked variants are actually ordered according to the scores
+- (void)testDecide_loaded_scores {
+    NSMutableArray *variants = [[NSMutableArray alloc] init];
+    for(int i = 0; i < 100; ++i) {
+        [variants addObject:[NSUUID UUID].UUIDString];
+    }
+    
+    // assert best variant is the one with highest score
+    IMPDecision *decision = [[self loadedModel] decide:variants];
+    XCTAssertEqual([variants count], [decision.scores count]);
+    
+    NSUInteger indexOfBest = [variants indexOfObjectIdenticalTo:decision.best];
+    for(int i = 0; i < [decision.scores count]; ++i) {
+        if(i == indexOfBest) {
+            continue;
+        }
+        [decision.scores[i] compare:decision.scores[indexOfBest]];
+        XCTAssertTrue(NSOrderedAscending == [decision.scores[i] compare:decision.scores[indexOfBest]]);
+    }
+    
+    NSArray *rankedVariants = [IMPDecisionModel rank:variants withScores:decision.scores];
+    for(int i = 0; i < [rankedVariants count]; ++i) {
+        XCTAssertEqual(rankedVariants[i], decision.ranked[i]); //
+    }
+}
+
+- (void)testDecideVariantsAndScores {
+    NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+    NSArray *scores = @[@2.1, @1.1, @3.1];
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    IMPDecision *decision = [decisionModel decide:variants scores:scores];
+    XCTAssertEqualObjects(@"Hi World", decision.ranked[0]);
+    XCTAssertEqualObjects(@"Hello World", decision.ranked[1]);
+    XCTAssertEqualObjects(@"Howdy World", decision.ranked[2]);
+}
+
+- (void)testDecideVariantsAndScores_invalid_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    
+    @try {
+        NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
+        NSArray *scores = @[@2.1, @1.1];
+        [decisionModel decide:variants scores:scores];
+        XCTFail(@"variants size must be equal to scores size");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+    
+    @try {
+        NSArray *variants = @[];
+        NSArray *scores = @[];
+        [decisionModel decide:variants scores:scores];
+        XCTFail(@"variants and scores can't be empty");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+    
+    @try {
+        NSArray *variants = @[];
+        NSArray *scores = nil;
+        [decisionModel decide:variants scores:scores];
+        XCTFail(@"variants and scores can't be nil");
+    } @catch (NSException *e){
+        NSLog(@"%@", e);
+    }
+}
+
 - (void)testChooseFrom {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
-    NSDictionary *context = @{@"language": @"cowboy"};
-    
     NSURL *modelURL = [NSURL URLWithString:kRemoteModelURL];
     
     NSError *err;
@@ -617,10 +856,10 @@ extern NSString *const kTrackApiKey;
     [decisionModel load:modelURL error:&err];
     XCTAssertNotNil(decisionModel);
     XCTAssertNil(err);
-    IMPDecision *decision = [[decisionModel given:context] chooseFrom:variants];
+    IMPDecision *decision = [decisionModel chooseFrom:variants];
     IMPLog("url=%@, greeting=%@", modelURL, [decision get]);
     XCTAssertNotNil([decision get]);
-    XCTAssertEqual(20, [decision.givens count]);
+    XCTAssertEqual(19, [decision.givens count]);
 }
 
 extern NSString * const kTrackerURL;
@@ -668,9 +907,8 @@ extern NSString * const kTrackerURL;
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     IMPDecision *decision = [decisionModel chooseFrom:variants scores:scores];
     XCTAssertNotNil(decision);
-    XCTAssertEqualObjects(@"Hi World", decision.best);
+    XCTAssertEqualObjects(@"Hi World", [decision get]);
     XCTAssertEqualObjects(variants, decision.variants);
-    XCTAssertEqualObjects(scores, decision.scores);
     XCTAssertEqual(19, [decision.givens count]);
 }
 
@@ -806,6 +1044,28 @@ extern NSString * const kTrackerURL;
     XCTFail(@"An exception should have been thrown");
 }
 
+- (void)testFirst_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel first:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testFirst_nil_trackURL {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel first:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
+}
+
 - (void)testRandom {
     int loop = 1000;
     NSMutableDictionary<NSString *, NSNumber *> *count = [[NSMutableDictionary alloc] init];
@@ -866,10 +1126,33 @@ extern NSString * const kTrackerURL;
     XCTFail(@"An exception should have been thrown");
 }
 
+- (void)testRandom_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel random:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testRandom_nil_trackURL {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel random:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
+}
+
 - (void)testChooseMultivariate_nil_dictionary {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
     @try {
-        [decisionModel chooseMultivariate:nil];
+        NSDictionary *variants = nil;
+        [decisionModel chooseMultivariate:variants];
     } @catch(NSException *e) {
         XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
         return ;
@@ -956,9 +1239,75 @@ extern NSString * const kTrackerURL;
     }
 }
 
+- (void)testOptimize_nil_variantMap {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        NSDictionary *variantMap = nil;
+        [decisionModel optimize:variantMap];
+        XCTFail("variantMap can't be nil");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
+}
+
+- (void)testOptimize_empty_variantMap {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+    @try {
+        [decisionModel optimize:@{@"font":@[]}];
+        XCTFail("variantMap can't be empty");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
+}
+
+// decision is tracked when calling which().
+- (void)testOptimize_track {
+    NSString *modelName = @"greetings";
+    NSDictionary *variantMap = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[]};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel optimize:variantMap];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testOptimize_nil_trackURL {
+    NSString *modelName = @"greetings";
+    NSDictionary *variantMap = @{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[]};
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel optimize:variantMap];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
+}
+
 - (void)testWhich {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    [decisionModel which:@"Hi", @"Hello", @"Hey", nil];
+    id chosen = [decisionModel which:@"Hi", @"Hello", @"Hey", nil];
+    XCTAssertEqualObjects(@"Hi", chosen);
+    
+    chosen = [decisionModel which:@"Hello", nil];
+    XCTAssertEqualObjects(@"Hello", chosen);
+    
+    NSArray *array = @[@1, @2, @3];
+    chosen = [decisionModel which:array, nil];
+    XCTAssertEqualObjects(array, chosen);
+    
+    NSArray *emptyArray = @[];
+    chosen = [decisionModel which:emptyArray, nil];
+    XCTAssertEqualObjects(@[], chosen);
+    
+    NSDictionary *dict = @{@"color":@"#ffffff"};
+    chosen = [decisionModel which:dict, nil];
+    XCTAssertEqualObjects(dict, chosen);
+    
+    NSDictionary *emptyDict = @{};
+    chosen = [decisionModel which:emptyDict, nil];
+    XCTAssertEqualObjects(emptyDict, chosen);
 }
 
 - (void)testWhich_no_argument {
@@ -966,74 +1315,213 @@ extern NSString * const kTrackerURL;
     @try {
         [decisionModel which:nil];
     } @catch(NSException *e) {
-        XCTAssertEqualObjects(@"which() expects at least one argument.", e.reason);
+        NSLog(@"%@", e);
         return ;
     }
     XCTFail(@"An exception should have been thrown");
 }
 
-// pass only one variant to which() and the variant is not an array
-- (void)testWhich_1_argument_non_array {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    @try {
-        id best = [decisionModel which:@1, nil];
-        NSLog(@"best is %@", best);
-    } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
-    }
-    XCTFail(@"An exception should have been thrown");
+// decision is tracked when calling which().
+- (void)testWhich_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel which:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
 }
 
-- (void)testWhich_1_argument_array {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    id best = [decisionModel which:@[@1, @2, @3], nil];
-    NSLog(@"best is %@", best);
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testWhich_nil_trackURL {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel which:@"hi", @"hello", @"hey", nil];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
 }
 
-- (void)testWhich_1_argument_empty_array {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    @try {
-        [decisionModel which:@[], nil];
-    } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
-    }
-    XCTFail(@"An exception should have been thrown");
+- (void)testWhichFrom {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    NSString *chosen = [decisionModel whichFrom:[self variants]];
+    XCTAssertEqualObjects(@"Hello World", chosen);
 }
 
-- (void)testWhich_1_argument_dictionary {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
+- (void)testWhichFrom_nil_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
     @try {
-        [decisionModel which:@{@"style":@[@"bold", @"italic"], @"size":@[@3, @5]}, nil];
-    } @catch(NSException *e) {
-        return;
-    }
-    XCTFail(@"An exception should have been thrown");
-}
-
-- (void)testWhich_1_argument_empty_dictionary {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    @try {
-        [decisionModel which:@{}, nil];
+        NSArray *variants = nil;
+        [decisionModel whichFrom:variants];
+        XCTFail(@"variants can't be nil");
     } @catch(NSException *e) {
         NSLog(@"%@", e);
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
     }
-    XCTFail(@"An exception should have been thrown");
 }
 
-- (void)testWhich_multiple_arguments {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"greetings"];
-    id best = [decisionModel which:@"Hi", @"Hello", @"Hey", nil];
-    NSLog(@"best is %@", best);
-    
-    best = [decisionModel which:@[@"Hi", @"Hello", @"Hey"], @"Hi~", nil];
-    NSLog(@"best is %@", best);
+- (void)testWhichFrom_empty_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    @try {
+        NSArray *variants = @[];
+        [decisionModel whichFrom:variants];
+        XCTFail(@"variants can't be empty");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
 }
 
-- (void)testRank{
+// decision is tracked when calling which().
+- (void)testWhichFrom_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel whichFrom:@[@"hi", @"hello", @"hey"]];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertNotEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testWhichFrom_nil_trackURL {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel whichFrom:@[@"hi", @"hello", @"hey"]];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
+}
+
+- (void)testRank {
+    NSArray *variants = [self variants];
+    IMPDecisionModel *decisionModel = [self loadedModel];
+    NSArray *rankedVariants = [decisionModel rank:variants];
+    XCTAssertEqual([variants count], [rankedVariants count]);
+    for(int i = 0; i < [variants count]; ++i) {
+        XCTAssertTrue([rankedVariants containsObject:variants[i]]);
+    }
+}
+
+- (void)testRank_nil_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    @try {
+        NSArray *variants = nil;
+        [decisionModel rank:variants];
+        XCTFail(@"variants can't be nil");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
+}
+
+- (void)testRank_empty_variants {
+    IMPDecisionModel *decisionModel = [self unloadedModel];
+    @try {
+        NSArray *variants = @[];
+        [decisionModel whichFrom:variants];
+        XCTFail(@"variants can't be empty");
+    } @catch(NSException *e) {
+        NSLog(@"%@", e);
+    }
+}
+
+// decision is not tracked when calling which().
+- (void)testRank_track {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel rank:@[@"hi", @"hello", @"hey"]];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
+}
+
+// When trackURL is nil, decision is not tracked and no exceptions thrown.
+- (void)testRank_nil_trackURL {
+    NSString *modelName = @"greetings";
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
+    [decisionModel setTrackURL:nil];
+    NSString *lastDecisionId = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decisionModel rank:@[@"hi", @"hello", @"hey"]];
+    NSString *newDecisionid = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(newDecisionid);
+    XCTAssertEqualObjects(lastDecisionId, newDecisionid);
+}
+
+- (void)testFullFactorialVariants_nil_dictionary {
+    @try {
+        NSDictionary *variants = nil;
+        [IMPDecisionModel fullFactorialVariants:variants];
+        XCTFail(@"variantMap can't be nil");
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+    }
+}
+
+- (void)testFullFactorialVariants_empty_dictionary {
+    @try {
+        [IMPDecisionModel fullFactorialVariants:@{}];
+        XCTFail(@"variantMap can't be empty");
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
+    }
+}
+
+- (void)testFullFactorialVariants_1_variate {
+    NSArray *variants = [IMPDecisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"]}];
+    XCTAssertEqual(2, [variants count]);
+    NSArray *expected = @[
+        @{@"font":@"Italic"} ,@{@"font":@"Bold"}
+    ];
+    NSLog(@"variants: %@", variants);
+    XCTAssertEqualObjects(expected, variants);
+}
+
+- (void)testFullFactorialVariants_2_variates {
+    NSArray *variants = [IMPDecisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"]}];
+    NSArray *expected = @[
+        @{@"font":@"Italic", @"color":@"#000000"},
+        @{@"font":@"Bold", @"color":@"#000000"},
+        @{@"font":@"Italic", @"color":@"#ffffff"},
+        @{@"font":@"Bold", @"color":@"#ffffff"}
+    ];
+    NSLog(@"variants: %@", variants);
+    XCTAssertEqualObjects(expected, variants);
+}
+
+- (void)testFullFactorialVariants_3_variates {
+    NSDictionary *variantMap = @{
+        @"font":@[@"Italic", @"Bold"],
+        @"color":@[@"#000000", @"#ffffff"],
+        @"size":@3
+    };
+
+    NSArray *variants = [IMPDecisionModel fullFactorialVariants:variantMap];
+    NSArray *expected = @[
+        @{@"font":@"Italic", @"color":@"#000000", @"size": @3},
+        @{@"font":@"Bold", @"color":@"#000000", @"size": @3},
+        @{@"font":@"Italic", @"color":@"#ffffff", @"size": @3},
+        @{@"font":@"Bold", @"color":@"#ffffff", @"size": @3}
+    ];
+    NSLog(@"variants: %@", variants);
+    XCTAssertEqualObjects(expected, variants);
+}
+
+- (void)testFullFactorialVariants_empty_array {
+    NSArray *variants = [IMPDecisionModel fullFactorialVariants:@{@"font":@[@"Italic", @"Bold"], @"color":@[@"#000000", @"#ffffff"], @"size":@[]}];
+    NSArray *expected = @[
+        @{@"font":@"Italic", @"color":@"#000000"},
+        @{@"font":@"Bold", @"color":@"#000000"},
+        @{@"font":@"Italic", @"color":@"#ffffff"},
+        @{@"font":@"Bold", @"color":@"#ffffff"}
+    ];
+    NSLog(@"variants: %@", variants);
+    XCTAssertEqualObjects(expected, variants);
+}
+
+- (void)testRankWithScores {
     NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
     NSMutableArray *scores = [[NSMutableArray alloc] init];
     int size = 10;
@@ -1067,46 +1555,35 @@ extern NSString * const kTrackerURL;
     }
 }
 
-- (void)testRank_larger_variants_size {
-    NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
-    NSMutableArray *scores = [[NSMutableArray alloc] init];
-    int size = 10;
-    
-    for(NSUInteger i = 0; i < size; ++i){
-        variants[i] = [NSNumber numberWithInteger:i];
-        scores[i] = [NSNumber numberWithDouble:i/100000.0];
-    }
-    variants[size] = [NSNumber numberWithInt:size];
-    
+- (void)testRankWithScores_illegal_arguments {
     @try {
-        NSArray<NSNumber *> *result = [IMPDecisionModel rank:variants withScores:scores];
-        NSLog(@"ranked size = %lu", result.count);
+        [IMPDecisionModel rank:@[@"Hi", @"Hello"] withScores:@[@1.0]];
+        XCTFail(@"variants number and scores number must be equal.");
     } @catch (NSException *e) {
         NSLog(@"name=%@, reason=%@", e.name, e.reason);
-        return ;
     }
-    XCTFail(@"An exception should have been thrown, we should not have reached here.");
-}
-
-- (void)testRank_larger_scores_size {
-    NSMutableArray<NSNumber *> *variants = [[NSMutableArray alloc] init];
-    NSMutableArray *scores = [[NSMutableArray alloc] init];
-    int size = 10;
-    
-    for(NSUInteger i = 0; i < size; ++i){
-        variants[i] = [NSNumber numberWithInteger:i];
-        scores[i] = [NSNumber numberWithDouble:i/100000.0];
-    }
-    scores[size] = [NSNumber numberWithDouble:size/100000.0];
     
     @try {
-        NSArray<NSNumber *> *result = [IMPDecisionModel rank:variants withScores:scores];
-        NSLog(@"ranked size = %lu", result.count);
+        [IMPDecisionModel rank:@[@"Hi", @"Hello"] withScores:@[@1.0, @2.0, @3.0]];
+        XCTFail(@"variants number and scores number must be equal.");
     } @catch (NSException *e) {
         NSLog(@"name=%@, reason=%@", e.name, e.reason);
-        return ;
     }
-    XCTFail(@"An exception should have been thrown, we should not have reached here.");
+    
+    @try {
+        [IMPDecisionModel rank:@[] withScores:@[]];
+        XCTFail(@"variants and socres can't be nil or empty");
+    } @catch (NSException *e) {
+        NSLog(@"name=%@, reason=%@", e.name, e.reason);
+    }
+    
+    @try {
+        NSArray *variants = nil;
+        [IMPDecisionModel rank:@[@"Hi", @"Hello"] withScores:variants];
+        XCTFail(@"variants and scores can't be nil or empty.");
+    } @catch (NSException *e) {
+        NSLog(@"name=%@, reason=%@", e.name, e.reason);
+    }
 }
 
 - (void)testTopScoringVariant{
@@ -1409,7 +1886,7 @@ extern NSString * const kTrackerURL;
             [decisionModel score:variants];
         });
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
-            decisionModel.givensProvider = [[AppGivensProvider alloc] init];
+            decisionModel.givensProvider = [[IMPAppGivensProvider alloc] init];
         });
     }
     
@@ -1455,6 +1932,23 @@ extern NSString * const kTrackerURL;
     XCTAssertNil(error);
     
     [[decisionModel chooseFrom:@[@[@1, @2], @[@3, @4]]] get];
+}
+
+- (void)testIsLoaded_loaded {
+    XCTAssertTrue([[self loadedModel] isLoaded]);
+}
+
+- (void)testIsLoaded_not_loaded {
+    XCTAssertFalse([[self unloadedModel] isLoaded]);
+}
+
+- (void)testTrack {
+    NSString *variant = @"hi";
+    NSArray *runnersUp = @[@"hello", @"hey"];
+    NSString *sample = @"Ha";
+    NSUInteger samplePoolSize = 4;
+    NSString *decisionId = [[self unloadedModel] track:variant runnersUp:runnersUp sample:sample samplePoolSize:samplePoolSize];
+    XCTAssertTrue([decisionId length] > 0);
 }
 
 @end

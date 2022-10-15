@@ -40,7 +40,8 @@
     uint8_t payload[KSUID_PAYLOAD_LENGTH] = {0};
     
     int result = ksuid_with_ts_and_payload(EPOCH_TIME - 1, payload, ksuid_buf);
-    XCTAssertNotEqual(0, result);
+    XCTAssertEqual(0, result);
+    XCTAssertEqualObjects(@"aWgEPLxxrZOFaOlDVFHTB3ZiQOO", [NSString stringWithUTF8String:ksuid_buf]);
 }
 
 - (void)testMinTimestamp_0 {
@@ -109,7 +110,8 @@
     
     uint64_t maxTimestamp = EPOCH_TIME + (uint64_t)UINT32_MAX + 1;
     int result = ksuid_with_ts_and_payload(maxTimestamp, payload, ksuid_buf);
-    XCTAssertNotEqual(0, result);
+    XCTAssertEqual(0, result);
+    XCTAssertEqualObjects(@"000007n42DGM5Tflk9n8mt7Fhc7", [NSString stringWithUTF8String:ksuid_buf]);
 }
 
 
