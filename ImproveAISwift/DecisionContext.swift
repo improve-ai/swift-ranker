@@ -58,7 +58,12 @@ public struct DecisionContext {
     }
     
     public func whichFrom<T>(_ variants: [T]) throws -> T {
-        return try decide(variants).get()
+        let decision = try decide(variants)
+        
+        let selector = NSSelectorFromString("trackSilently")
+        decision.decision.perform(selector)
+        
+        return decision.best
     }
     
     public func rank<T>(_ variants: [T]) throws -> [T] {

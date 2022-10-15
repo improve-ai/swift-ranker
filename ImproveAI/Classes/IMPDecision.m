@@ -84,9 +84,11 @@
     }
 }
 
-// For which(), whichFrom(), and optimize().
-- (void)trackWith:(IMPDecisionTracker *)tracker
+// Tracks the decision.
+// Don't throw any exception if the trackURL is not set for the DecisionModel.
+- (void)trackSilently
 {
+    IMPDecisionTracker *tracker = self.model.tracker;
     if(tracker != nil) {
         [tracker track:_ranked given:_givens modelName:_model.modelName];
     }

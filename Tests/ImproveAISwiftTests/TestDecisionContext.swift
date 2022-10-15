@@ -207,11 +207,18 @@ class TestDecisionContext: XCTestCase {
         let theme: Theme = try loadedModel().given(givens()).whichFrom(themes)
         print("theme: \(theme)")
         
-        let upsell = try model().given(givens()).which([
+        let upsell = try model().given(givens()).whichFrom([
             ["name": "gold", "quantity": 100, "price": 1.99],
             ["name": "diamonds", "quantity": 10, "price": 2.99],
             ["name": "red scabbard", "price": 0.99]])
         debugPrint("upsell: ", upsell)
+    }
+    
+    func testWhichFrom_nil_trackURL() throws {
+        let model = model()
+        model.trackURL = nil
+        let chosen = try model.whichFrom(variants())
+        debugPrint("chosen = \(chosen)")
     }
     
     func testWhichFrom_empty() throws {
