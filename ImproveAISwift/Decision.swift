@@ -35,22 +35,29 @@ public struct Decision<T> {
         self.decision = decision
         self.variants = variants
         self.givens = decision.givens
+        let encodedVariants = decision.value(forKey: "variants")
         ranked = decision.ranked.map({
-            (decision.variants as NSArray).indexOfObjectIdentical(to: $0)
+            return (encodedVariants as! NSArray).indexOfObjectIdentical(to: $0)
         }).map({ variants[$0] })
     }
     
     @available(*, deprecated, message: "Remove in 8.0")
     public func peek() -> T {
         let encodedVariant = self.decision.peek()
-        let index = (self.decision.variants as NSArray).indexOfObjectIdentical(to: encodedVariant)
+        
+        let encodedVariants = decision.value(forKey: "variants")
+        let index = (encodedVariants as! NSArray).indexOfObjectIdentical(to: encodedVariant)
+        
         return variants[index]
     }
     
     @available(*, deprecated, message: "Remove in 8.0")
     public func get() -> T {
         let encodedVariant = self.decision.get()
-        let index = (self.decision.variants as NSArray).indexOfObjectIdentical(to: encodedVariant)
+        
+        let encodedVariants = decision.value(forKey: "variants")
+        let index = (encodedVariants as! NSArray).indexOfObjectIdentical(to: encodedVariant)
+        
         return variants[index]
     }
     

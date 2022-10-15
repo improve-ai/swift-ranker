@@ -11,8 +11,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPDecision : NSObject
 
-@property (nonatomic, copy, readonly) NSArray *variants;
-
 - (instancetype)init NS_UNAVAILABLE;
 
 /**

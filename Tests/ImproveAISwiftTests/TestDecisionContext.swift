@@ -46,17 +46,17 @@ class TestDecisionContext: XCTestCase {
     func testDecide_ordered() throws {
         let decisionModel = try loadedModel()
         for _ in 1...5 {
-            let chosen = try decisionModel.given(givens()).decide(["Hi", "Hello", "Hey"], true).get()
+            let chosen = try decisionModel.given(givens()).decide(["Hi", "Hello", "Hey"], true).best
             XCTAssertEqual("Hi", chosen)
         }
     }
     
     func testDecide_not_ordered() throws {
-        let chosen = try loadedModel().given(givens()).decide(["Hi", "Hello", "Hey"], false).get()
+        let chosen = try loadedModel().given(givens()).decide(["Hi", "Hello", "Hey"], false).best
         print("chosen: \(chosen)")
         
         for _ in 1...5 {
-            let chosen = try model().given(givens()).decide(["Hi", "Hello", "Hey"], false).get()
+            let chosen = try model().given(givens()).decide(["Hi", "Hello", "Hey"], false).best
             XCTAssertEqual("Hi", chosen)
         }
     }
