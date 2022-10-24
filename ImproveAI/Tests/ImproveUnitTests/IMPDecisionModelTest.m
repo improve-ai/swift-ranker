@@ -16,6 +16,7 @@
 #import "IMPFeatureEncoder.h"
 #import "IMPConstants.h"
 #import "IMPAppGivensProvider.h"
+#import "IMPVersion.h"
 
 NSString * const kReasonVariantsNonEmpty = @"variants can't be nil or empty.";
 
@@ -1949,6 +1950,10 @@ extern NSString * const kTrackerURL;
     NSUInteger samplePoolSize = 4;
     NSString *decisionId = [[self unloadedModel] track:variant runnersUp:runnersUp sample:sample samplePoolSize:samplePoolSize];
     XCTAssertTrue([decisionId length] > 0);
+}
+
+- (void)testVersion {
+    XCTAssertEqualObjects(@"7.2", IMPImproveAIVersion());
 }
 
 @end

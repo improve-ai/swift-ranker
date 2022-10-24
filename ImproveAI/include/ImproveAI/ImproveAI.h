@@ -9,6 +9,7 @@
 #ifndef ImproveAI_h
 #define ImproveAI_h
 
+#import "IMPVersion.h"
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
 #import "IMPDecisionContext.h"

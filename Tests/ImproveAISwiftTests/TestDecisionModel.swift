@@ -677,4 +677,8 @@ class TestDecisionModel: XCTestCase {
             print(reason)
         }
     }
+    
+    func testVersion() {
+        XCTAssertEqual("7.2", ImproveAIVersion())
+    }
 }

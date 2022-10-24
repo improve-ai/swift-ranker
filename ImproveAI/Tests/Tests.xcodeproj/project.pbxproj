@@ -34,6 +34,7 @@
 		B371835E2734F8E000FE03F1 /* KSUIDTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B371835D2734F8E000FE03F1 /* KSUIDTest.m */; };
 		B37E1335262EDF5E0042B761 /* IMPStreamDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */; };
 		B38D664728487C2700AFA725 /* version_6_0.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = B38D664628487C2700AFA725 /* version_6_0.mlmodel */; };
+		B394834F29068E8300D1215E /* IMPVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B394834E29068CEA00D1215E /* IMPVersion.m */; };
 		B3C412C8273E76B300CC7DCD /* model_test_suite.txt in Resources */ = {isa = PBXBuildFile; fileRef = B3C412C7273E76B200CC7DCD /* model_test_suite.txt */; };
 		B3C412D3273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward in Resources */ = {isa = PBXBuildFile; fileRef = B3C412D2273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward */; };
 		B3C412D8273E84F500CC7DCD /* 0_and_nan in Resources */ = {isa = PBXBuildFile; fileRef = B3C412D7273E84F500CC7DCD /* 0_and_nan */; };
@@ -187,6 +188,8 @@
 		B37E1333262EDF5D0042B761 /* IMPStreamDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPStreamDownloadManager.h; sourceTree = "<group>"; };
 		B37E1334262EDF5D0042B761 /* IMPStreamDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPStreamDownloadManager.m; sourceTree = "<group>"; };
 		B38D664628487C2700AFA725 /* version_6_0.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = version_6_0.mlmodel; sourceTree = "<group>"; };
+		B394834D29068CEA00D1215E /* IMPVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMPVersion.h; sourceTree = "<group>"; };
+		B394834E29068CEA00D1215E /* IMPVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPVersion.m; sourceTree = "<group>"; };
 		B3AD6AFC26BBD477008FCFF6 /* IMPConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IMPConstants.m; sourceTree = "<group>"; };
 		B3C412C7273E76B200CC7DCD /* model_test_suite.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = model_test_suite.txt; sourceTree = "<group>"; };
 		B3C412D2273E814B00CC7DCD /* 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2_nested_dict_variants_20_random_nested_dict_givens_large_binary_reward; sourceTree = "<group>"; };
@@ -412,6 +415,8 @@
 		54CB9B3223D988F10005BB94 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B394834D29068CEA00D1215E /* IMPVersion.h */,
+				B394834E29068CEA00D1215E /* IMPVersion.m */,
 				B3F34C5D27294863006636D8 /* Provider */,
 				E7D156A3271CABAA002A9FCD /* Tracker */,
 				B3675EB725FE2E690040FDBB /* FeatureEncoder */,
@@ -785,6 +790,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B394834F29068E8300D1215E /* IMPVersion.m in Sources */,
 				B3CB2829272A80C00081C29F /* IMPConstants.m in Sources */,
 				B371835A2734F51800FE03F1 /* NSString+KSUID.m in Sources */,
 				B3213C8526099B3800052770 /* IMPUtils.m in Sources */,
@@ -845,6 +851,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "ImproveAI_VERSION=7.2";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;

@@ -18,6 +18,7 @@
 #import "IMPDecisionTracker.h"
 #import "IMPAppGivensProvider.h"
 #import "IMPConstants.h"
+#import "IMPVersion.h"
 
 @interface IMPDecisionContext()
 
@@ -189,7 +190,7 @@ static id<IMPGivensProvider> _defaultGivensProvider;
         
         NSString *versionString = creatorDefined[@"ai.improve.version"];
         if(![self canParseVersion:versionString]) {
-            NSString *reason = [NSString stringWithFormat:@"Major version of ImproveAI SDK(%@) and extracted model version(%@) don't match!", kIMPVersion, versionString];
+            NSString *reason = [NSString stringWithFormat:@"Major version of ImproveAI SDK(%@) and extracted model version(%@) don't match!", IMPImproveAIVersion(), versionString];
             @throw [NSException exceptionWithName:@"InvalidModelVersion" reason:reason userInfo:nil];
         }
         
@@ -594,7 +595,7 @@ static id<IMPGivensProvider> _defaultGivensProvider;
     if(versionString == nil) {
         return YES;
     }
-    NSArray<NSString *> *array = [kIMPVersion componentsSeparatedByString:@"."];
+    NSArray<NSString *> *array = [IMPImproveAIVersion() componentsSeparatedByString:@"."];
     NSString *prefix = [NSString stringWithFormat:@"%@.", array[0]];
     return [versionString hasPrefix:prefix] || [versionString isEqualToString:array[0]];
 }

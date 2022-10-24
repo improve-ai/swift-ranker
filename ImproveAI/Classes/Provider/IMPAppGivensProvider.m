@@ -14,7 +14,7 @@
 
 #import "IMPAppGivensProvider.h"
 #import "IMPDecisionModel.h"
-#import "IMPConstants.h"
+#import "IMPVersion.h"
 
 @implementation IMPDeviceInfo
 
@@ -106,7 +106,7 @@ static NSString * const kDefaultsModelRewardsKey = @"ai.improve.rewards-%@";
     givens[kOSVersionKey] = [self osVersion];
     givens[kAppKey] = [self app];
     givens[kAppVersionKey] = [self appVersion];
-    givens[kImproveVersionKey] = [self improveVersion:kIMPVersion];
+    givens[kImproveVersionKey] = [self improveVersion:IMPImproveAIVersion()];
     givens[kScreenPixelsKey] = @([self screenPixels]);
     givens[kWeekDayKey] = [self weekDay];
     givens[kSinceMidnightKey] = [self sinceMidnight];

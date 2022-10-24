@@ -2,6 +2,8 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 import PackageDescription
 
+let improveAIVersion = "7.2"
+
 let package = Package(
     name: "ImproveAI",
     platforms: [
@@ -25,6 +27,7 @@ let package = Package(
             publicHeadersPath:"include",
             cSettings: [
                 .headerSearchPath("**"),
+                .define("ImproveAI_VERSION", to: improveAIVersion),
                 .define("IMPROVE_AI_DEBUG", .when(configuration: .debug)),
             ]),
         .target(
