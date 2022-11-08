@@ -196,12 +196,27 @@ public class DecisionModel {
     }
     
     /// Generates all combinations of the variants from the variantMap, and chooses the best one.
+    /// For example, optimize(["fontSize":[12, 13], "color":["#ffffff", "#000000"], "width": 100]) would first generate
+    /// a list of variants like this:
+    /// [
+    ///    ["fontSize": 12, "color":"#ffffff", "width": 100],
+    ///    ["fontSize": 12, "color":"#000000", "width": 100],
+    ///    ["fontSize": 13, "color":"#ffffff", "width": 100],
+    ///    ["fontSize": 13, "color":"#000000", "width": 100]
+    /// ]
+    /// and then choose one of them.
     ///
     /// - Parameter variantMap: Vaules of the variantMap are expected to be lists of JSON encodable objects. Values that
     /// are not lists are automatically wrapped as a list of containing a single item.
     /// - Returns: The best variant.
     public func optimize(_ variantMap: [String : Any]) throws -> [String : Any] {
         return try given(nil).optimize(variantMap)
+    }
+    
+    /// Generates all combinations of the variants from the variantMap, and chooses the best one.
+    /// A handy alternative of optimize(variantMap) that would convert the chosen dict object to a Decodable object.
+    public func optimize<T: Decodable>(_ variantMap: [String : Any], _ type: T.Type) throws -> T {
+        return try given(nil).optimize(variantMap, type)
     }
     
     /// Add rewards for the most recent Decision for this model name

@@ -265,4 +265,10 @@ class TestDecisionContext: XCTestCase {
         XCTAssertNotNil(theme["style"])
         XCTAssertNotNil(theme["size"])
     }
+    
+    func testOptimize_decodable() throws {
+        let variantMap = ["fontSize": [12, 13], "primaryColor":["#ffffff", "#000000"]]
+        let theme = try model().given(givens()).optimize(variantMap, Theme.self)
+        debugPrint("theme: \(theme.fontSize), \(theme.primaryColor)")
+    }
 }

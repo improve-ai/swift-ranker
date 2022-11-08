@@ -10,7 +10,7 @@ import ImproveAICore
 
 let shouldThrowError = "An error should have been thrown."
 
-struct Theme : Encodable{
+struct Theme : Codable{
     let fontSize: Int
     let primaryColor: String
     var secondaryColor: String? = nil
@@ -593,6 +593,12 @@ class TestDecisionModel: XCTestCase {
         let upsells = ["p":[["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "q": [["name": "gold", "quantity": 100, "price": 1.99], ["name": "diamonds", "quantity": 10, "price": 2.99], ["name": "red scabbard", "price": 0.99]], "m":[1, 2, 3]]
         let upsell = try model().optimize(upsells)
         debugPrint("upsell: ", upsell)
+    }
+    
+    func testOptimize_decodable() throws {
+        let variantMap = ["fontSize": [12, 13], "primaryColor":["#ffffff", "#000000"]]
+        let theme = try model().optimize(variantMap, Theme.self)
+        debugPrint("theme: \(theme.fontSize), \(theme.primaryColor)")
     }
     
     func testTypeNotSupported_date() throws {

@@ -77,6 +77,12 @@ public struct DecisionContext {
         return try whichFrom(DecisionModel.fullFactorialVariants(variantMap))
     }
     
+    public func optimize<T: Decodable>(_ variantMap: [String : Any], _ type: T.Type) throws -> T {
+        let dict = try optimize(variantMap)
+        let data = try JSONEncoder().encode(AnyEncodable(dict))
+        return try JSONDecoder().decode(type, from: data)
+    }
+    
     // MARK: Deprecated, remove in 8.0
     
     @available(*, deprecated, message: "Remove in 8.0")
