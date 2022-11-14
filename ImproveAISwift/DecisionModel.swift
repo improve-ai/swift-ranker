@@ -14,7 +14,7 @@ public class DecisionModel {
     
     /// Initializer
     ///
-    /// - Parameters
+    /// - Parameters:
     ///   - modelName: Length of modelName must be in range [1, 64]; Only alhpanumeric characters([a-zA-Z0-9]), '-', '.' and '_'
     ///   are allowed in the modenName and the first character must be an alphnumeric one.
     ///   - trackURL: The track url for this DecisionModel.

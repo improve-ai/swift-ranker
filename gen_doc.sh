@@ -12,6 +12,7 @@ build_docs_objc() {
         --umbrella-header ImproveAI/include/ImproveAI/ImproveAI.h \
         --framework-root . \
         --module ImproveAI \
+        --title "Improve AI iOS SDK(7.2.0)" \
         --output docs/objc
     mv tmp .jazzy.yaml
 }
