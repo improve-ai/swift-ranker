@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ImproveAI  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a title="ImproveAI  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html">Improve AI iOS SDK(7.2.0)</a> (84% documented)</p>
+        <p class="header-right"><a href="https://github.com/improve-ai/ios-sdk"><img src="img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html">ImproveAI Reference</a>
+        <img id="carat" src="img/carat.png" alt=""/>
+        ImproveAI  Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Classes/IMPDecision.html">IMPDecision</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/IMPDecisionContext.html">IMPDecisionContext</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/IMPDecisionModel.html">IMPDecisionModel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/IMPModelDictionary.html">IMPModelDictionary</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Protocols/IMPGivensProvider.html">IMPGivensProvider</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Functions.html#/c:@F@IMPImproveAIVersion">IMPImproveAIVersion</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            
+            <h1 id='ai-decisions-ranking-scoring-amp-multivariate-optimization-for-ios' class='heading'>AI Decisions, Ranking, Scoring &amp; Multivariate Optimization for iOS</h1>
+
+<p>Improve AI is a machine learning platform for quickly implementing app optimization, personalization, and recommendations for <a href="https://improve.ai/ios-sdk/">iOS</a>, <a href="https://improve.ai/android-sdk/">Android</a>, and <a href="https://improve.ai/python-sdk/">Python</a>.</p>
+
+<p>The SDKs provide simple APIs for AI <a href="https://improve.ai/decisions/">decisions</a>, <a href="https://improve.ai/ranking/">ranking</a>, <a href="https://improve.ai/scoring/">scoring</a>, and <a href="https://improve.ai/multivariate-optimization/">multivariate optimization</a> that execute immediately, on-device, with zero network latency. Decisions and rewards are tracked in the cloud with the <a href="https://github.com/improve-ai/gym/">Improve AI Gym</a> and updated models are trained regularly on AWS SageMaker.</p>
+<h2 id='installation' class='heading'>Installation</h2>
+
+<p>In Xcode:</p>
+
+<ul>
+<li>File -&gt; Add Packages&hellip;</li>
+<li>In &lsquo;Search or Enter Package URL&rsquo; paste <a href="https://github.com/improve-ai/ios-sdk.git">https://github.com/improve-ai/ios-sdk.git</a></li>
+</ul>
+<h2 id='initialization' class='heading'>Initialization</h2>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">ImproveAI</span>
+<span class="kd">import</span> <span class="kt">ImproveAISwift</span>
+</code></pre>
+<pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">application</span><span class="p">(</span><span class="n">_</span> <span class="nv">application</span><span class="p">:</span> <span class="kt">UIApplication</span><span class="p">,</span> <span class="n">didFinishLaunchingWithOptions</span> <span class="nv">launchOptions</span><span class="p">:</span> <span class="p">[</span><span class="kt">UIApplication</span><span class="o">.</span><span class="kt">LaunchOptionsKey</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]?)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span> <span class="p">{</span>
+
+    <span class="c1">// track and model urls are obtained from your Improve AI Gym configuration</span>
+    <span class="n">trackUrl</span> <span class="o">=</span> <span class="err">'</span><span class="nv">https</span><span class="p">:</span><span class="c1">//xxxx.lambda-url.us-east-1.on.aws/'</span>
+    <span class="n">modelUrl</span> <span class="o">=</span> <span class="err">'</span><span class="nv">https</span><span class="p">:</span><span class="c1">//xxxx.s3.amazonaws.com/models/latest/greetings.mlmodel.gz'</span>
+
+    <span class="kt">DecisionModel</span><span class="o">.</span><span class="n">defaultTrackURL</span> <span class="o">=</span> <span class="n">trackURL</span>
+
+    <span class="kt">DecisionModel</span><span class="p">[</span><span class="s">"greetings"</span><span class="p">]</span><span class="o">.</span><span class="nf">loadAsync</span><span class="p">(</span><span class="n">modelUrl</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">true</span>
+<span class="p">}</span>
+</code></pre>
+<h2 id='usage' class='heading'>Usage</h2>
+
+<p>The heart of Improve AI is the <em>which()</em> statement. <em>which()</em> is like an AI <em>if/then</em> statement.</p>
+<pre class="highlight swift"><code><span class="n">greeting</span> <span class="o">=</span> <span class="kt">DecisionModel</span><span class="p">[</span><span class="s">"greetings"</span><span class="p">]</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="s">"Hello"</span><span class="p">,</span> <span class="s">"Howdy"</span><span class="p">,</span> <span class="s">"Hola"</span><span class="p">)</span>
+</code></pre>
+
+<p><em>which()</em> takes a list of <em>variants</em> and returns the best - the &ldquo;best&rdquo; being the variant that provides the highest expected reward given the current conditions.</p>
+
+<p>Decision models are easily trained with <a href="https://improve.ai/reinforcement-learning/">reinforcement learning</a>:</p>
+<pre class="highlight swift"><code><span class="k">if</span> <span class="p">(</span><span class="n">likeTapped</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">DecisionModel</span><span class="p">[</span><span class="s">"greetings"</span><span class="p">]</span><span class="o">.</span><span class="nf">addReward</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>With reinforcement learning, positive rewards are assigned for positive outcomes (a &ldquo;carrot&rdquo;) and negative rewards are assigned for undesirable outcomes (a &ldquo;stick&rdquo;).</p>
+
+<p><em>which()</em> automatically tracks it&rsquo;s decision with the <a href="https://github.com/improve-ai/gym/">Improve AI Gym</a>. Rewards are credited to the most recent tracked decision for each model, including from a previous app session.</p>
+<h2 id='contextual-decisions' class='heading'>Contextual Decisions</h2>
+
+<p>Unlike A/B testing or feature flags, Improve AI uses <em>context</em> to make the best decision for each user. On iOS, the following context is automatically included:</p>
+
+<ul>
+<li><em>$country</em> - two letter country code</li>
+<li><em>$lang</em> - two letter language code</li>
+<li><em>$tz</em> - numeric GMT offset</li>
+<li><em>$carrier</em> - cellular network</li>
+<li><em>$device</em> - string portion of device model</li>
+<li><em>$devicev</em> - device version</li>
+<li><em>$os</em> - string portion of OS name</li>
+<li><em>$osv</em> - OS version</li>
+<li><em>$pixels</em> - screen width x screen height</li>
+<li><em>$app</em> - app name</li>
+<li><em>$appv</em> - app version</li>
+<li><em>$sdkv</em> - Improve AI SDK version</li>
+<li><em>$weekday</em> - (ISO 8601, monday==1.0, sunday==7.0) plus fractional part of day</li>
+<li><em>$time</em> - fractional day since midnight</li>
+<li><em>$runtime</em> - fractional days since session start</li>
+<li><em>$day</em> - fractional days since born</li>
+<li><em>$d</em> - the number of decisions for this model</li>
+<li><em>$r</em> - total rewards for this model</li>
+<li><em>$r/d</em> - total rewards/decisions</li>
+<li><em>$d/day</em> - decisions/$day</li>
+</ul>
+
+<p>Using the context, on a Spanish speaker&rsquo;s device we expect our <em>greetings</em> model to learn to choose <em>Hola</em>.</p>
+
+<p>Custom context can also be provided via <em>given()</em>:</p>
+<pre class="highlight swift"><code><span class="n">greeting</span> <span class="o">=</span> <span class="kt">DecisionModel</span><span class="p">[</span><span class="s">"greetings"</span><span class="p">]</span><span class="o">.</span><span class="nf">given</span><span class="p">([</span><span class="s">"language"</span><span class="p">:</span> <span class="s">"cowboy"</span><span class="p">])</span>
+                                     <span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="s">"Hello"</span><span class="p">,</span> <span class="s">"Howdy"</span><span class="p">,</span> <span class="s">"Hola"</span><span class="p">)</span>
+</code></pre>
+
+<p>Given the language is <em>cowboy</em>, the variant with the highest expected reward should be <em>Howdy</em> and the model would learn to make that choice.</p>
+<h2 id='ranking' class='heading'>Ranking</h2>
+
+<p><a href="https://improve.ai/ranking/">Ranking</a> is a fundamental task in recommender systems, search engines, and social media feeds. Fast ranking can be performed on-device in a single line of code:</p>
+<pre class="highlight swift"><code><span class="n">rankedWines</span> <span class="o">=</span> <span class="n">sommelierModel</span><span class="o">.</span><span class="nf">given</span><span class="p">(</span><span class="n">entree</span><span class="p">)</span><span class="o">.</span><span class="nf">rank</span><span class="p">(</span><span class="n">wines</span><span class="p">)</span>
+</code></pre>
+
+<p><strong>Note</strong>: Decisions are not tracked when calling <em>rank()</em>. <em>which()</em> or <em>decide()</em> must be used to train models for ranking.</p>
+<h2 id='scoring' class='heading'>Scoring</h2>
+
+<p><a href="https://improve.ai/scoring/">Scoring</a> makes it easy to turn any database table into a recommendation engine.</p>
+
+<p>Simply add a <em>score</em> column to the database and update the score for each row.</p>
+<pre class="highlight swift"><code><span class="n">scores</span> <span class="o">=</span> <span class="n">conversionRateModel</span><span class="o">.</span><span class="nf">score</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+</code></pre>
+
+<p>At query time, sort the query results descending by the <em>score</em> column and the first results will be the top recommendations. This works particularly well with local databases on mobile devices where the scores can be personalized to each individual user.</p>
+
+<p><em>score()</em> is also useful for crafting custom optimization algorithms or providing supplemental metrics in a multi-stage recommendation system.</p>
+
+<p><strong>Note</strong>: Decisions are not tracked when calling <em>score()</em>. <em>which()</em>, <em>decide()</em>, or <em>optimize()</em> must be used to train models for scoring.</p>
+<h2 id='multivariate-optimization' class='heading'>Multivariate Optimization</h2>
+
+<p><a href="https://improve.ai/multivariate-optimization/">Multivariate optimization</a> is the joint optimization of multiple variables simultaneously. This is often useful for app configuration and performance tuning.</p>
+<pre class="highlight swift"><code><span class="n">config</span> <span class="o">=</span> <span class="n">configModel</span><span class="o">.</span><span class="nf">optimize</span><span class="p">({</span><span class="s">"bufferSize"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">2048</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">8192</span><span class="p">],</span>
+                               <span class="s">"videoBitrate"</span><span class="p">:</span> <span class="p">[</span><span class="mi">256000</span><span class="p">,</span> <span class="mi">384000</span><span class="p">,</span> <span class="mi">512000</span><span class="p">]})</span>
+</code></pre>
+
+<p>This example decides multiple variables simultaneously.  Notice that instead of a single list of variants, a dictionary mapping keys to lists of variants is provided. This multi-variate mode jointly optimizes all variables for the highest expected reward.  </p>
+
+<p><em>optimize()</em> automatically tracks it&rsquo;s decision with the <a href="https://github.com/improve-ai/gym/">Improve AI Gym</a>. Rewards are credited to the most recent decision made by the model, including from a previous app session.</p>
+<h2 id='variant-types' class='heading'>Variant Types</h2>
+
+<p>Variants and givens can be any object conforming to the <a href="https://developer.apple.com/documentation/swift/codable"><em>Codable</em></a> interface. This includes <em>Int</em>, <em>Double</em>, <em>Bool</em>, <em>String</em>, <em>Dictionary</em>, <em>Array</em>, <em>nil</em>, as well as any custom <em>Codable</em> objects. Object properties and nested items within collections are automatically encoded as machine learning features to assist in the decision making process.</p>
+
+<p>The following are all valid:</p>
+<pre class="highlight swift"><code><span class="n">greeting</span> <span class="o">=</span> <span class="n">greetingsModel</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="s">"Hello"</span><span class="p">,</span> <span class="s">"Howdy"</span><span class="p">,</span> <span class="s">"Hola"</span><span class="p">)</span>
+
+<span class="n">discount</span> <span class="o">=</span> <span class="n">discountModel</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">enabled</span> <span class="o">=</span> <span class="n">featureFlagModel</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+
+<span class="n">item</span> <span class="o">=</span> <span class="n">filterModel</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+
+<span class="n">themes</span> <span class="o">=</span> <span class="p">[[</span> <span class="s">"font"</span><span class="p">:</span> <span class="s">"Helvetica"</span><span class="p">,</span> <span class="s">"size"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s">"color"</span><span class="p">:</span> <span class="s">"#000000"</span>  <span class="p">],</span>
+          <span class="p">[</span> <span class="s">"font"</span><span class="p">:</span> <span class="s">"Comic Sans"</span><span class="p">,</span> <span class="s">"size"</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span> <span class="s">"color"</span><span class="p">:</span> <span class="s">"#F0F0F0"</span> <span class="p">]]</span>
+
+<span class="n">theme</span> <span class="o">=</span> <span class="n">themeModel</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="n">themes</span><span class="p">)</span>
+</code></pre>
+
+<p>To use a custom class or struct as a variant, declare it as implementing <em>Codable</em>:</p>
+<pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">Theme</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">font</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">size</span><span class="p">:</span> <span class="kt">Int</span>
+    <span class="k">var</span> <span class="nv">color</span><span class="p">:</span> <span class="kt">String</span>
+<span class="p">}</span>
+
+<span class="n">theme</span> <span class="o">=</span> <span class="n">themeModel</span><span class="o">.</span><span class="nf">which</span><span class="p">(</span><span class="n">themes</span><span class="p">)</span>
+</code></pre>
+<h2 id='privacy' class='heading'>Privacy</h2>
+
+<p>It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is never tracked, persisted, or used as training data.</p>
+<h2 id='resources' class='heading'>Resources</h2>
+
+<ul>
+<li><a href="https://improve.ai/quick-start/">Quick Start Guide</a></li>
+<li><a href="https://improve.ai/ios-sdk/">iOS SDK API Docs</a></li>
+<li><a href="https://github.com/improve-ai/gym/">Improve AI Gym</a></li>
+<li><a href="https://aws.amazon.com/marketplace/pp/prodview-pyqrpf5j6xv6g">Improve AI Trainer (FREE)</a></li>
+<li><a href="https://aws.amazon.com/marketplace/pp/prodview-adchtrf2zyvow">Improve AI Trainer (PRO)</a></li>
+<li><a href="https://improve.ai/reinforcement-learning/">Reinforcement Learning</a></li>
+<li><a href="https://improve.ai/multivariate-optimization/">Decisions</a></li>
+<li><a href="https://improve.ai/ranking/">Ranking</a></li>
+<li><a href="https://improve.ai/scoring/">Scoring</a></li>
+<li><a href="https://improve.ai/multivariate-optimization/">Multivariate optimization</a></li>
+</ul>
+<h2 id='help-improve-our-world' class='heading'>Help Improve Our World</h2>
+
+<p>The mission of Improve AI is to make our corner of the world a little bit better each day. When each of us improve our corner of the world, the whole world becomes better. If your product or work does not make the world better, do not use Improve AI. Otherwise, welcome, I hope you find value in my labor of love. </p>
+
+<p>&ndash; Justin Chapweske</p>
+
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2022 <a class="link" href="https://improve.ai" target="_blank" rel="external noopener">ImproveAI</a>. All rights reserved. (Last updated: 2022-11-14)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
