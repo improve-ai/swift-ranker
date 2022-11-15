@@ -15,7 +15,6 @@ In Xcode:
 
 ```swift
 import ImproveAI
-import ImproveAISwift
 ```
 
 ```swift
