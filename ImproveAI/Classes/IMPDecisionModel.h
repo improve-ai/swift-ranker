@@ -18,23 +18,53 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPDecisionModel : NSObject
 
-@property(class) NSURL *defaultTrackURL;
+/**
+ * The default track URL to use for all new DecisionModel instances. It's recommended to have it set before
+ * creating any IMPDecisionModel instances, for example in the didFinishLaunchingWithOptions method in
+ * the AppDelegate.
+ */
+@property(class, nullable) NSURL *defaultTrackURL;
 
-@property(class) NSString *defaultTrackApiKey;
+/**
+ * The default track API key to use for all new DecisionModel instances. It's recommended to have it set before
+ * creating any IMPDecisionModel instances, for example in the didFinishLaunchingWithOptions method in
+ * the AppDelegate.
+ */
+@property(class, nullable) NSString *defaultTrackApiKey;
 
-@property(class, readonly) IMPModelDictionary *instances;
+/**
+ * The default givens provider. It's initialized with an IMPAppGivensProvider instance by the SDK, but you may set
+ * it with any custom givens provider that you implement.
+ */
+@property (class, nonatomic, nullable) id<IMPGivensProvider> defaultGivensProvider;
 
-@property (class, readonly) IMPGivensProvider *defaultGivensProvider;
-
+/**
+ * The track URL to be used for tracking decisions and adding rewards.
+ */
 @property(atomic, strong, nullable) NSURL *trackURL;
 
+/**
+ * The track API key to be set in HTTP headers in track request.
+ */
 @property(atomic, copy, nullable) NSString *trackApiKey;
 
-@property(atomic, strong) MLModel *model;
+/**
+ * The givens provider that would provide additional context info for scoring the variants.
+ */
+@property(atomic, strong, nullable) id<IMPGivensProvider> givensProvider;
 
+/**
+ * The collection of shared model instances. Models are automatically created using the provided name, for example
+ * DecisionModel.instances["greetings"]  always returns a IMPDecisionModel("greetings"), even if it was not previously
+ * set. Previously returned models are cached. Models can be overrwitten with DecisionModel["greetings"] = newModel,
+ * and cleared with DecisionModel["greetings"] = nil.
+ */
+@property(class, readonly) IMPModelDictionary *instances;
+
+/**
+ * Name of the model.
+ */
 @property(nonatomic, readonly, copy) NSString *modelName;
-
-@property(atomic, strong) IMPGivensProvider *givensProvider;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -74,18 +104,38 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadAsync:(NSURL *)url completion:(nullable void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler;
 
 /**
+ * Add some additional context info that would be used along with each of the variants to score them.
  * @param givens Additional context info that will be used with each of the variants to calculate the score
- * @return A IMPDecision object to be lazily evaluated
+ * @return An IMPDecisionContext.
  */
 - (IMPDecisionContext *)given:(nullable NSDictionary <NSString *, id>*)givens NS_SWIFT_NAME(given(_:));
 
 /**
+ * Let the model give a score for each of the variants.
+ * @param variants A variant can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
+ * @return scores of the variants
+ */
+- (NSArray<NSNumber *> *)score:(NSArray *)variants;
+
+/**
+ * Equivalent to decide(variants, ordered=false).
  * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
  *  arrays, strings, numbers, nulls, and booleans.
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
-- (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:));
+- (IMPDecision *)decide:(NSArray *)variants NS_SWIFT_NAME(decide(_:));
+
+/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @param ordered True means the variants are already in order with the best variant at the first position.
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
+ */
+- (IMPDecision *)decide:(NSArray *)variants ordered:(BOOL)ordered NS_SWIFT_NAME(decide(_:_:));
 
 /**
  * The chosen variant is the one with the highest score.
@@ -95,96 +145,41 @@ NS_ASSUME_NONNULL_BEGIN
  * @return An IMPDecision object.
  * @throws NSInvalidArgumentException Thrown if the variants is nil or empty; Thrown if variants.count != scores.count.
  */
-- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(_:_:));
+- (IMPDecision *)decide:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(decide(_:_:));
 
 /**
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
- *  arrays, strings, numbers, nulls, and booleans.
- * @return An IMPDecision object containing the first variant as the decision
- * @throws NSInvalidArgumentException Thrown if the variants to choose from is nil or empty.
- */
-- (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:));
-
-/**
- * This method is a short hand of chooseFirst(variants).get().
- * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive types are not allowed.
- * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
- */
-- (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
-
-/**
- * Variadic method declaration for Swift. It's recommended to wrap it in an extension method as shown above.
- * @param n The number of arguments in the va_list
- * @param args The arguments.
- * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
- */
-- (id)first:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(first(_:_:));
-
-/**
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
- *  arrays, strings, numbers, nulls, and booleans.
- * @return A Decision object containing a random variant as the decision
- * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
- */
-- (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:));
-
-/**
- * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive types are not allowed.
- * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
- */
-- (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
-
-// Variadic method declaration for Swift.
-- (id)random:(NSInteger)n args:(va_list)args NS_SWIFT_NAME(random(_:_:));
-
-/**
- * This method is an alternative of chooseFrom(). An example here might be more expressive:
- * chooseMultivariate({"style":["bold", "italic"], "size":[3, 5]})
- *       is equivalent to
- * chooseFrom([
- *      {"style":"bold", "size":3},
- *      {"style":"italic", "size":3},
- *      {"style":"bold", "size":5},
- *      {"style":"italic", "size":5},
- * ])
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
+ * Variadic version of which(NSArray *variants)
+ * @param firstVariant A variant can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
  * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
- * So chooseMultivariate({"style":["bold", "italic"], "size":3}) is equivalent to chooseMultivariate({"style":["bold", "italic"], "size":[3]})
- * @return An IMPDecision object.
- * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
- */
-- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(chooseMultivariate(_:));
-
-/**
- * This method is a short hand of chooseMultivariate(variants).get().
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
- * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
- * So optimize({"style":["bold", "italic"], "size":3}) is equivalent to optimize({"style":["bold", "italic"], "size":[3]})
- * @return Returns the chosen variant
- * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
- */
-- (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variants NS_SWIFT_NAME(optimize(_:));
-
-/**
- * This method is a short hand of chooseFrom(variants).get().
- * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray or an NSDictionary.
- * When the only argument is an NSArray, it's equivalent to calling chooseFrom(firstVariant).get();
- * When there are two or more arguments, all the arguments would form an NSArray and be passed to chooseFrom()
- * Primitive types are not allowed.
  * @return Returns the chosen variant.
- * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
  */
 - (id)which:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION;
 
 /**
- * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
- *  arrays, strings, numbers, nulls, and booleans.
+ * This method is a short hand of decide(variants).get()
+ * @param variants A variant can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
+ * @return The chosen variant.
  * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
- * @return scores of the variants
  */
-- (NSArray<NSNumber *> *)score:(NSArray *)variants;
+- (id)whichFrom:(NSArray *)variants NS_SWIFT_NAME(whichFrom(_:));
+
+/**
+ * @param variants A variant can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @return Ranked variants starting with the best.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
+ */
+- (NSArray *)rank:(NSArray *)variants NS_SWIFT_NAME(rank(_:));
+
+/**
+ * Generates all combinations of the variants from the variantMap, and chooses the best one.
+ * @param variantMap The value of the variantMap are expected to be lists of any JSON encodeable data structure of arbitrary complexity.
+ * If they are not lists, they are automatically wrapped as a list containing a single item.
+ * So optimize({"style":["bold", "italic"], "size":3}) is equivalent to optimize({"style":["bold", "italic"], "size":[3]})
+ * @return Returns the chosen variant
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is nil or empty.
+ */
+- (NSDictionary<NSString*, id> *)optimize:(NSDictionary<NSString *, id> *)variantMap NS_SWIFT_NAME(optimize(_:));
 
 /**
  * Adds the reward value to the most recent Decision for this model name for this installation. The most recent Decision
@@ -204,11 +199,75 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)addReward:(double)reward decision:(NSString *)decisionId NS_SWIFT_NAME(addReward(_:_:));
 
+#pragma mark - Deprecated, remove in 8.0
+
 /**
- * @warning This method is likely to be changed in the future. Try not to use it in your code.
- * @return a list of the variants ranked from best to worst by scores
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
  */
-+ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+- (IMPDecision *)chooseFrom:(NSArray *)variants NS_SWIFT_NAME(chooseFrom(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
+
+/**
+ * The chosen variant is the one with the highest score.
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @param scores Scores of the variants.
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants is nil or empty; Thrown if variants.count != scores.count.
+ */
+- (IMPDecision *)chooseFrom:(NSArray *)variants scores:(NSArray<NSNumber *> *)scores NS_SWIFT_NAME(chooseFrom(_:_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
+
+/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @return An IMPDecision object containing the first variant as the decision
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is nil or empty.
+ */
+- (IMPDecision *)chooseFirst:(NSArray *)variants NS_SWIFT_NAME(chooseFirst(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
+
+/**
+ * This method is a short hand of chooseFirst(variants).get().
+ * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive types are not allowed.
+ * @return Returns the chosen variant.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
+ */
+- (id)first:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
+
+/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @return A Decision object containing a random variant as the decision
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
+ */
+- (IMPDecision *)chooseRandom:(NSArray *)variants NS_SWIFT_NAME(chooseRandom(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
+
+/**
+ * @param firstVariant If there's only one variant, then the firstVariant must be an NSArray. Primitive types are not allowed.
+ * @return Returns the chosen variant.
+ * @throws NSInvalidArgumentException Thrown if there's only one argument and it's not a nonempty NSArray.
+ */
+- (id)random:(id)firstVariant, ... NS_REQUIRES_NIL_TERMINATION DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
+
+/**
+ * Generates all combinations of the variants from the variantMap, and chooses the best one.
+ * An example here might be more expressive:
+ * chooseMultivariate({"style":["bold", "italic"], "size":[3, 5]})
+ *       is equivalent to
+ * chooseFrom([
+ *      {"style":"bold", "size":3},
+ *      {"style":"italic", "size":3},
+ *      {"style":"bold", "size":5},
+ *      {"style":"italic", "size":5},
+ * ])
+ * @param variantMap Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
+ * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
+ * So chooseMultivariate({"style":["bold", "italic"], "size":3}) is equivalent to chooseMultivariate({"style":["bold", "italic"], "size":[3]})
+ * @return An IMPDecision object.
+ * @throws NSInvalidArgumentException Thrown if the variants to choose from is empty or nil
+ */
+- (IMPDecision *)chooseMultivariate:(NSDictionary<NSString *, id> *)variantMap NS_SWIFT_NAME(chooseMultivariate(_:)) DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0");
 
 @end
 

@@ -19,7 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface AppGivensProvider : IMPGivensProvider
+NS_SWIFT_NAME(AppGivensProvider)
+@interface IMPAppGivensProvider : NSObject <IMPGivensProvider>
 
 + (instancetype)shared;
 

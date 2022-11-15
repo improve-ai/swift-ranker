@@ -13,6 +13,12 @@
 #import "IMPLogging.h"
 #import "IMPDecisionModel.h"
 
+@interface IMPDecisionModel ()
+
++ (NSArray *)rank:(NSArray *)variants withScores:(NSArray <NSNumber *>*)scores;
+
+@end
+
 @implementation IMPUtils
 
 // Source: https://stackoverflow.com/a/12948538/3050403

@@ -12,9 +12,9 @@
 #import <sys/sysctl.h>
 #import <sys/types.h>
 
-#import "AppGivensProvider.h"
+#import "IMPAppGivensProvider.h"
 #import "IMPDecisionModel.h"
-#import "IMPConstants.h"
+#import "IMPVersion.h"
 
 @implementation IMPDeviceInfo
 
@@ -28,13 +28,13 @@
 
 @end
 
-@implementation AppGivensProvider
+@implementation IMPAppGivensProvider
 
 + (instancetype)shared {
-    static AppGivensProvider *instance;
+    static IMPAppGivensProvider *instance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [[AppGivensProvider alloc] init];
+        instance = [[IMPAppGivensProvider alloc] init];
     });
     return instance;
 }
@@ -106,7 +106,7 @@ static NSString * const kDefaultsModelRewardsKey = @"ai.improve.rewards-%@";
     givens[kOSVersionKey] = [self osVersion];
     givens[kAppKey] = [self app];
     givens[kAppVersionKey] = [self appVersion];
-    givens[kImproveVersionKey] = [self improveVersion:kIMPVersion];
+    givens[kImproveVersionKey] = [self improveVersion:IMPImproveAIVersion()];
     givens[kScreenPixelsKey] = @([self screenPixels]);
     givens[kWeekDayKey] = [self weekDay];
     givens[kSinceMidnightKey] = [self sinceMidnight];
@@ -184,7 +184,7 @@ static NSString * const kDefaultsModelRewardsKey = @"ai.improve.rewards-%@";
 }
 
 - (IMPDeviceInfo *)deviceInfo {
-    NSString *platform = [AppGivensProvider getPlatformString];
+    NSString *platform = [IMPAppGivensProvider getPlatformString];
     return [self parseDeviceInfo:platform];
 }
 

@@ -12,4 +12,8 @@ public enum IMPError: Error {
     case emptyVariants
     /// type Date, Data, URL  are not supported
     case typeNotSupported
+    /// illegal arguments
+    case invalidArgument(reason:String)
+    /// illegal state
+    case illegalState(reason:String)
 }

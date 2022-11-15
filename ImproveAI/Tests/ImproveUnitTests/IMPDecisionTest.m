@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import "IMPDecisionTracker.h"
 #import "IMPDecisionModel.h"
+#import "IMPDecisionContext.h"
 #import "IMPDecision.h"
 #import "TestUtils.h"
 #import "IMPConstants.h"
@@ -21,21 +22,7 @@
 
 @interface IMPDecisionTracker ()
 
-- (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName;
-
-@end
-
-@interface IMPDecision ()
-
-@property (nonatomic, strong, readonly) NSString *id;
-
-@property(nonatomic, readonly, nullable) id best;
-
-@property(nonatomic, strong) NSArray *scores;
-
-@property(nonatomic, strong) NSDictionary *allGivens;
-
-@property (nonatomic, readonly) int tracked;
++ (nullable NSString *)lastDecisionIdOfModel:(NSString *)modelName;
 
 @end
 
@@ -58,100 +45,135 @@
     return @[@"Hello World", @"Howdy World", @"Hi World"];
 }
 
+- (void)testId {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertNil(decision.id);
+    [decision track];
+    XCTAssertNotNil(decision.id);
+}
+
+- (void)testGivens {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertEqual(19, [decision.givens count]);
+    
+    decision = [[decisionModel given:@{@"lang":@"mars"}] decide:[self variants]];
+    XCTAssertEqual(20, [decision.givens count]);
+    XCTAssertEqual(@"mars", decision.givens[@"lang"]);
+}
+
+- (void)testBest {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertEqualObjects(@"Hello World", decision.best);
+}
+
 - (void)testPeek {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    id best = [[decisionModel chooseFrom:[self variants]] peek];
-    XCTAssertNotNil(best);
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertEqualObjects(@"Hello World", [decision peek]);
 }
 
-- (void)testGet_track_only_once {
+- (void)testGet {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    XCTAssertNotNil(decisionModel.tracker);
-    
-    IMPDecision *decision = [decisionModel chooseFrom:[self variants]];
-    XCTAssertEqual(0, decision.tracked);
-    
-    int loop = 1000;
-    for(int i = 0; i < loop; ++i) {
-        dispatch_async(dispatch_get_global_queue(0, 0), ^{
-            [decision get];
-        });
-    }
-    [NSThread sleepForTimeInterval:1];
-    XCTAssertEqual(1, decision.tracked);
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertEqualObjects(@"Hello World", [decision get]);
+    NSLog(@"ranked: %@", decision.ranked);
 }
 
-- (void)testGet_without_tracker {
-    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    
-    IMPDecision *decision = [decisionModel chooseFrom:[self variants]];
-    XCTAssertEqual(0, decision.tracked);
-    [decision get];
-    XCTAssertEqual(1, decision.tracked);
-
-    decision = [decisionModel chooseFrom:[self variants]];
-    decisionModel.trackURL = nil;
-    XCTAssertEqual(0, decision.tracked);
-    [decision get];
-    XCTAssertEqual(0, decision.tracked);
-}
-
-- (void)testGet_persist_decision_id {
-    NSString *modelName = @"hello";
+- (void)testGet_track {
+    NSString *modelName = @"greetings";
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
-    IMPDecision *decision = [decisionModel chooseFrom:[self variants]];
-    
-    NSString *decisionIdBeforeGet = [decisionModel.tracker lastDecisionIdOfModel:modelName];
-    
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    NSString *d0 = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
     [decision get];
-    
-    NSString *decisionIdAfterGet = [decisionModel.tracker lastDecisionIdOfModel:modelName];
-    XCTAssertNotNil(decision.id);
-    XCTAssertEqualObjects(decision.id, decisionIdAfterGet);
-    XCTAssertNotEqualObjects(decisionIdBeforeGet, decisionIdAfterGet);
-    NSLog(@"decisionId: %@, %@, %@", decision.id, decisionIdBeforeGet, decisionIdAfterGet);
+    NSString *d1 = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    [decision get];
+    NSString *d2 = [IMPDecisionTracker lastDecisionIdOfModel:modelName];
+    XCTAssertNotNil(d0);
+    XCTAssertNotNil(d1);
+    XCTAssertNotEqualObjects(d0, d1);
+    XCTAssertEqualObjects(d1, d2);
+    XCTAssertEqualObjects(@"Hello World", [decision get]);
+    NSLog(@"decision id: %@, %@, %@", d0, d1, d2);
 }
 
-- (void)testAddReward_valid {
+- (void)testRanked {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertEqualObjects([self variants], decision.ranked);
+}
+
+- (void)testTrack {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    XCTAssertNil(decision.id);
+    [decision track];
+    XCTAssertTrue([decision.id length] > 0);
+}
+
+- (void)testTrack_nil_trackURL {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    decisionModel.trackURL = nil;
+    @try {
+        [decision track];
+        XCTFail("trackURL can't be nil when calling track().");
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"trackURL of the underlying DecisionModel is nil!", e.reason);
+    }
+}
+
+- (void)testTrack_called_twice {
+    IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+    IMPDecision *decision = [decisionModel decide:[self variants]];
+    [decision track];
+    @try {
+        [decision track];
+        XCTFail("trackURL can't be nil when calling track().");
+    } @catch(NSException *e) {
+        XCTAssertEqualObjects(@"the decision is already tracked!", e.reason);
+    }
+}
+
+- (void)testAddReward {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    IMPDecision *decision = [decisionModel chooseFrom:variants];
+    IMPDecision *decision = [decisionModel decide:variants];
     XCTAssertNotNil([decision get]);
     [decision addReward:0.1];
 }
 
-- (void)testAddReward_before_get {
+- (void)testAddReward_before_track {
     @try {
         IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-        IMPDecision *decision = [decisionModel chooseFrom:[self variants]];
+        IMPDecision *decision = [decisionModel decide:[self variants]];
         [decision addReward:0.1];
+        XCTFail(@"addReward() can't be called before track().");
     } @catch(NSException *e) {
-        NSLog(@"Decision.addReward() can't be called prior to get()");
-        XCTAssertEqualObjects(IMPIllegalStateException, e.name);
-        return ;
+        XCTAssertEqualObjects(@"addReward() can't be called before track().", e.reason);
     }
-    XCTFail(@"An exception should have been thrown.");
 }
 
 - (void)testAddReward_nil_trackURL {
     @try {
         NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
-        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello" trackURL:nil trackApiKey:nil];
-        IMPDecision *decision = [decisionModel chooseFrom:variants];
-        [decision get];
+        IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
+        IMPDecision *decision = [decisionModel decide:variants];
+        [decision track];
+        decisionModel.trackURL = nil;
         [decision addReward:0.1];
+        XCTFail(@"trackURL of the underlying DecisionModel can't be nil when calling addReward.");
     } @catch(NSException *e) {
-        NSLog(@"trackURL of the underlying DecisionModel can't be nil");
-        XCTAssertEqualObjects(IMPIllegalStateException, e.name);
-        return ;
+        XCTAssertEqualObjects(@"trackURL can't be nil when calling addReward()", e.reason);
     }
-    XCTFail(@"An exception should have been thrown.");
 }
 
 - (void)testAddReward_NaN {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    IMPDecision *decision = [decisionModel chooseFrom:variants];
+    IMPDecision *decision = [decisionModel decide:variants];
     [decision get];
 
     @try {
@@ -166,31 +188,29 @@
 - (void)testAddReward_positive_infinity {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    IMPDecision *decision = [decisionModel chooseFrom:variants];
-    [decision get];
+    IMPDecision *decision = [decisionModel decide:variants];
+    [decision track];
 
     @try {
         [decision addReward:(1.0/0.0)];
+        XCTFail(@"An exception should have been thrown.");
     } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
+        XCTAssertTrue([e.reason hasPrefix:@"invalid reward"]);
     }
-    XCTFail(@"An exception should have been thrown.");
 }
 
 - (void)testAddReward_negative_infinity {
     NSArray *variants = @[@"Hello World", @"Howdy World", @"Hi World"];
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    IMPDecision *decision = [decisionModel chooseFrom:variants];
-    [decision get];
+    IMPDecision *decision = [decisionModel decide:variants];
+    [decision track];
 
     @try {
         [decision addReward:(-1.0/0.0)];
+        XCTFail(@"An exception should have been thrown.");
     } @catch(NSException *e) {
-        XCTAssertEqualObjects(NSInvalidArgumentException, e.name);
-        return ;
+        XCTAssertTrue([e.reason hasPrefix:@"invalid reward"]);
     }
-    XCTFail(@"An exception should have been thrown.");
 }
 
 @end

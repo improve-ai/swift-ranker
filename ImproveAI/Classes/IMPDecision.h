@@ -11,30 +11,57 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IMPDecision : NSObject
 
-@property (nonatomic, copy, readonly) NSArray *variants;
-
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Get the chosen variant and track the decision. The decision would be tracked only once.
- * @return Returns the chosen variant memoized.
- * @throws IMPIllegalStateException Thrown if called before chooseFrom()
+ * The id that uniquely identifies the decision after it's been tracked. It's nil until the decision is tracked by calling track().
  */
-- (id)get;
+@property (nonatomic, strong, readonly, nullable) NSString *id;
 
 /**
- * Same as get() except that peek won't track the decision.
- * @return Returns the chosen variant memoized.
- * @throws IMPIllegalStateException Thrown if called before chooseFrom()
+ * Additional context info that was used along with each of the variants to score them, including the givens
+ * passed by IMPDecisionModel.given() and givens that was provided by the givensProvider. The givens here
+ * would also be included in tracking.
  */
-- (id)peek;
+@property (nonatomic, strong, readonly, nullable) NSDictionary<NSString *, id> *givens;
 
 /**
- * Add rewards that only apply to this specific decision. Must be called after get().
+ * The best variant.
+ */
+@property (nonatomic, strong, readonly) id best;
+
+/**
+ * The ranked variants.
+ */
+@property (nonatomic, strong, readonly) NSArray *ranked;
+
+/**
+ * Gets the best variant.
+ * @return The best variant.
+ */
+- (id)peek DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0.");
+
+/**
+ * Gets the best variant, and also track the decision if it's not been tracked yet.
+ * @return The best variant.
+ */
+- (id)get DEPRECATED_MSG_ATTRIBUTE("Remove in 8.0.");
+
+/**
+ * Tracks the decision.
+ * @return Returns the id that uniquely identifies the tracked decision.
+ * @throws IMPIllegalStateException Thrown if the trackURL of the underlying IMPDecisionModel is nil;
+ * Thrown if the decision is already tracked.
+ */
+- (NSString *)track;
+
+/**
+ * Adds rewards that only apply to this specific decision. Before calling this method, make sure that the decision is
+ * already tracked by calling track().
+ * @param reward  the reward to add. Must not be NaN, positive infinity, or negative infinity
  * @throws NSInvalidArgumentException Thrown if reward is NaN or +-Infinity
- * @throws IMPIllegalStateException Thrown if the trackURL of the underlying DecisionModel is nil, or _id is nil.
- * The _id could be nil when addReward() is called prior to get(), or less likely the system clock is so
- * biased(beyond 2014~2150) that we can't generate a valid id(ksuid) when get() is called.
+ * @throws IMPIllegalStateException Thrown if the trackURL of the underlying DecisionModel is nil; Thrown if the decision
+ * is not tracked yet.
  */
 - (void)addReward:(double)reward;
 

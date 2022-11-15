@@ -26,7 +26,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 
 @interface IMPDecisionTracker ()
 
-- (id)sampleVariantOf:(NSArray *)variants runnersUpCount:(NSUInteger)runnersUpCount ranked:(BOOL)ranked bestVariant:(id)bestVariant;
+- (id)sampleVariantOf:(NSArray *)rankedVariants runnersUpCount:(NSUInteger)runnersUpCount;
 
 - (BOOL)shouldTrackRunnersUp:(NSUInteger) variantsCount;
 
@@ -73,7 +73,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     
     NSArray *runnersUp = [tracker topRunnersUp:variants];
     
-    id sample = [tracker sampleVariantOf:variants runnersUpCount:[runnersUp count] ranked:YES bestVariant:@"foo"];
+    id sample = [tracker sampleVariantOf:variants runnersUpCount:[runnersUp count]];
     XCTAssertNotNil(sample);
     XCTAssertEqualObjects(sample, [NSNull null]);
 }
@@ -91,7 +91,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     NSUInteger runnersUpCount = [[tracker topRunnersUp:variants] count];
 
     for (int i = 0; i < loop; ++i) {
-        id sample = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount ranked:YES bestVariant:@1];
+        id sample = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount];
         sampleCountDict[sample] = @([sampleCountDict[sample] intValue] + 1);
     }
 
@@ -109,7 +109,6 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
 // If there are runners up, then sample is a random sample from
 // variants with best and runners up excluded.
 - (void)testSampleVariant_2_RunnersUp {
-    NSURL *url = [NSURL URLWithString:kTrackerURL];
     IMPDecisionTracker *tracker = [self tracker];
     tracker.maxRunnersUp = 2;
 
@@ -120,7 +119,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     NSUInteger runnersUpCount = [[tracker topRunnersUp:variants] count];
 
     for (int i = 0; i < loop; ++i) {
-        id sample = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount ranked:YES bestVariant:@1];
+        id sample = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount];
         sampleCountDict[sample] = @([sampleCountDict[sample] intValue] + 1);
     }
 
@@ -140,7 +139,7 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     NSArray *variants = @[@1];
     NSUInteger runnersUpCount = [[tracker topRunnersUp:variants] count];
 
-    id sampleVariant = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount ranked:YES bestVariant:@1];
+    id sampleVariant = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount];
     XCTAssertNil(sampleVariant);
 }
 
@@ -152,38 +151,8 @@ NSString * const kRemoteModelURL = @"https://improveai-mindblown-mindful-prod-mo
     NSArray *variants = @[@1, @2, @3, @4, @5];
     NSUInteger runnersUpCount = [[tracker topRunnersUp:variants] count];
 
-    id sampleVariant = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount ranked:YES bestVariant:@1];
+    id sampleVariant = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount];
     XCTAssertNil(sampleVariant);
-}
-
-- (void)testSampleVariant_0_Runners_Up_Not_Ranked {
-    IMPDecisionTracker *tracker = [self tracker];
-    tracker.maxRunnersUp = 0;
-    
-    NSArray *variants = @[@1, @2, @3, @4, @5];
-    NSUInteger runnersUpCount = 0;
-    
-    id bestVariant = @2;
-    
-    int loop = 1000000;
-    NSMutableDictionary *sampleCountDict = [[NSMutableDictionary alloc] init];
-    
-    for(int i = 0; i < loop; ++i) {
-        id sampleVariant = [tracker sampleVariantOf:variants runnersUpCount:runnersUpCount ranked:NO bestVariant:bestVariant];
-        sampleCountDict[sampleVariant] = @([sampleCountDict[sampleVariant] intValue] + 1);
-    }
-    NSLog(@"sampleCount: %d, %d, %d, %d",
-          [sampleCountDict[@1] intValue],
-          [sampleCountDict[@3] intValue],
-          [sampleCountDict[@4] intValue],
-          [sampleCountDict[@5] intValue]);
-    
-    XCTAssertNil(sampleCountDict[bestVariant]);
-    
-    XCTAssertTrue(ABS(loop/4 - [sampleCountDict[@1] intValue]) < 1000);
-    XCTAssertTrue(ABS(loop/4 - [sampleCountDict[@3] intValue]) < 1000);
-    XCTAssertTrue(ABS(loop/4 - [sampleCountDict[@4] intValue]) < 1000);
-    XCTAssertTrue(ABS(loop/4 - [sampleCountDict[@5] intValue]) < 1000);
 }
 
 - (void)testShouldTrackRunnersUp_1_variantsCount {

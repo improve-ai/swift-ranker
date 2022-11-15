@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "AppGivensProvider.h"
+#import "IMPAppGivensProvider.h"
 #import "IMPDecisionModel.h"
 #import "IMPDecision.h"
 
@@ -17,7 +17,7 @@ extern NSString * const kTrackerURL;
 
 @end
 
-@interface AppGivensProvider()
+@interface IMPAppGivensProvider()
 
 - (IMPDeviceInfo *)parseDeviceInfo:(NSString *)platform;
 
@@ -40,7 +40,7 @@ extern NSString * const kTrackerURL;
 
 - (void)testAppGivensProvider {
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    AppGivensProvider *appGivensProvider = [[AppGivensProvider alloc] init];
+    IMPAppGivensProvider *appGivensProvider = [[IMPAppGivensProvider alloc] init];
     NSDictionary *givens = [appGivensProvider givensForModel:decisionModel givens:@{}];
     NSLog(@"app givens: %@", givens);
     
@@ -53,7 +53,7 @@ extern NSString * const kTrackerURL;
 }
 
 - (void)testImproveVersion {
-    AppGivensProvider *givensProvider = [[AppGivensProvider alloc] init];
+    IMPAppGivensProvider *givensProvider = [[IMPAppGivensProvider alloc] init];
     XCTAssertTrue([self isDecimalNumberEqual:[givensProvider improveVersion:@"6.1.123"]
                                             :[NSDecimalNumber decimalNumberWithString:@"6.001123"]]);
     
@@ -82,7 +82,7 @@ extern NSString * const kTrackerURL;
     IMPDecision *decision = [decisionModel chooseFrom:@[@1, @2, @3]];
     [decision get];
     
-    AppGivensProvider *provider = [[AppGivensProvider alloc] init];
+    IMPAppGivensProvider *provider = [[IMPAppGivensProvider alloc] init];
     double oldTotalRewardOfModel = [provider rewardOfModel:modelName];
     [decision addReward:0.1];
     double newTotalRewardOfModel = [provider rewardOfModel:modelName];
@@ -92,7 +92,7 @@ extern NSString * const kTrackerURL;
 - (void)testAddReward_decisionModel {
     NSString *modelName = @"greeting";
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
-    AppGivensProvider *provider = [[AppGivensProvider alloc] init];
+    IMPAppGivensProvider *provider = [[IMPAppGivensProvider alloc] init];
     double oldTotalRewardOfModel = [provider rewardOfModel:modelName];
     [decisionModel addReward:0.1];
     double newTotalRewardOfModel = [provider rewardOfModel:modelName];
@@ -102,9 +102,9 @@ extern NSString * const kTrackerURL;
 - (void)testAddRewardForDecision {
     NSString *modelName = @"greeting";
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:modelName];
-    double oldTotalReward = [[AppGivensProvider shared] rewardOfModel:modelName];
+    double oldTotalReward = [[IMPAppGivensProvider shared] rewardOfModel:modelName];
     [decisionModel addReward:0.1 decision:@"abc"];
-    double newTotalReward = [[AppGivensProvider shared] rewardOfModel:modelName];
+    double newTotalReward = [[IMPAppGivensProvider shared] rewardOfModel:modelName];
     NSLog(@"reward: %lf, %lf", oldTotalReward, newTotalReward);
     XCTAssertEqualWithAccuracy(oldTotalReward + 0.1, newTotalReward, 0.00000000001);
 }
@@ -115,7 +115,7 @@ extern NSString *const kLanguageKey;
        kLanguageKey : @"hi"
     };
     IMPDecisionModel *decisionModel = [[IMPDecisionModel alloc] initWithModelName:@"hello"];
-    AppGivensProvider *provider = [[AppGivensProvider alloc] init];
+    IMPAppGivensProvider *provider = [[IMPAppGivensProvider alloc] init];
     
     NSDictionary *allGivens = [provider givensForModel:decisionModel givens:nil];
     NSLog(@"allGivens: %@", allGivens);

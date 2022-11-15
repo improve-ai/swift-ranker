@@ -156,7 +156,7 @@
     id variants = [[root objectForKey:@"test_case"] objectForKey:@"variant"];
     id givens = [[root objectForKey:@"test_case"] objectForKey:@"givens"];
     
-    NSArray<NSDictionary *> *features = [featureEncoder encodeVariants:@[variants] given:givens];
+    NSArray *features = [featureEncoder encodeVariants:@[variants] given:givens];
     XCTAssertTrue(features.count == 1);
     NSLog(@"%@, features: %@", filename, features);
     
@@ -172,7 +172,7 @@
     
     id variants = [NSNumber numberWithDouble:NAN];
     
-    NSArray<NSDictionary *> *features = [featureEncoder encodeVariants:@[variants] given:nil];
+    NSArray *features = [featureEncoder encodeVariants:@[variants] given:nil];
     XCTAssertTrue(features.count == 1);
     
     NSDictionary *expected = @{};

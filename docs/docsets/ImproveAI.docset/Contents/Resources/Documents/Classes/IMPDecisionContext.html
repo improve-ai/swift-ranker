@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>IMPDecisionContext Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/objc/Class/IMPDecisionContext" class="dashAnchor"></a>
+    <a title="IMPDecisionContext Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">Improve AI iOS SDK(7.2.0)</a> (84% documented)</p>
+        <p class="header-right"><a href="https://github.com/improve-ai/ios-sdk"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">ImproveAI Reference</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        IMPDecisionContext Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/IMPDecision.html">IMPDecision</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/IMPDecisionContext.html">IMPDecisionContext</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/IMPDecisionModel.html">IMPDecisionModel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/IMPModelDictionary.html">IMPModelDictionary</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/IMPGivensProvider.html">IMPGivensProvider</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@IMPImproveAIVersion">IMPImproveAIVersion</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>IMPDecisionContext</h1>
+              <div class="declaration">
+                <div class="language">
+                  <p class="aside-title">Objective-C</p>
+                  <pre class="highlight objective_c"><code><span class="k">@interface</span> <span class="nc">IMPDecisionContext</span> <span class="p">:</span> <span class="nc">NSObject</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="n">init</span> <span class="n">NS_UNAVAILABLE</span><span class="p">;</span>
+
+<span class="cm">/**
+ * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+ *  arrays, strings, numbers, nulls, and booleans.
+ * @throws NSInvalidArgumentException Thrown if variants is nil or empty.
+ * @return scores of the variants
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">NSArray</span><span class="o">&lt;</span><span class="n">NSNumber</span> <span class="o">*&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nf">score</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">score</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="p">));</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel.decide()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">decide</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">decide</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="p">));</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel.decide()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">decide</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="nf">ordered</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">ordered</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">decide</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="n">_</span><span class="o">:</span><span class="p">));</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel.decide()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">decide</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="nf">scores</span><span class="p">:(</span><span class="n">NSArray</span><span class="o">&lt;</span><span class="n">NSNumber</span> <span class="o">*&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nv">scores</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">decide</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="n">_</span><span class="o">:</span><span class="p">));</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel.which()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">which</span><span class="p">:(</span><span class="n">id</span><span class="p">)</span><span class="nv">firstVariant</span><span class="p">,</span> <span class="p">...</span> <span class="n">NS_REQUIRES_NIL_TERMINATION</span><span class="p">;</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel.whichFrom()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">whichFrom</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">whichFrom</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="p">));</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel.rank()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nf">rank</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">rank</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="p">));</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel#optimize()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">NSDictionary</span><span class="o">&lt;</span><span class="n">NSString</span><span class="o">*</span><span class="p">,</span> <span class="n">id</span><span class="o">&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nf">optimize</span><span class="p">:(</span><span class="n">NSDictionary</span><span class="o">&lt;</span><span class="n">NSString</span> <span class="o">*</span><span class="p">,</span> <span class="n">id</span><span class="o">&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nv">variantMap</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">optimize</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="p">));</span>
+
+<span class="cp">#pragma mark - Deprecated, remove in 8.0
+</span>
+<span class="cm">/**
+ * @see IMPDecisionModel.chooseFrom()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">chooseFrom</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">chooseFrom</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="p">))</span> <span class="n">DEPRECATED_MSG_ATTRIBUTE</span><span class="p">(</span><span class="s">"Remove in 8.0"</span><span class="p">);</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">chooseFrom</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="nf">scores</span><span class="p">:(</span><span class="n">NSArray</span><span class="o">&lt;</span><span class="n">NSNumber</span> <span class="o">*&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nv">scores</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">chooseFrom</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="n">_</span><span class="o">:</span><span class="p">))</span> <span class="n">DEPRECATED_MSG_ATTRIBUTE</span><span class="p">(</span><span class="s">"Remove in 8.0"</span><span class="p">);</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel.chooseFirst()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">chooseFirst</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">chooseFirst</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="p">))</span> <span class="n">DEPRECATED_MSG_ATTRIBUTE</span><span class="p">(</span><span class="s">"Remove in 8.0"</span><span class="p">);</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel.first()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">first</span><span class="p">:(</span><span class="n">id</span><span class="p">)</span><span class="nv">firstVariant</span><span class="p">,</span> <span class="p">...</span> <span class="n">NS_REQUIRES_NIL_TERMINATION</span> <span class="nf">DEPRECATED_MSG_ATTRIBUTE</span><span class="p">(</span><span class="s">"Remove in 8.0"</span><span class="p">);</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel.chooseRandom()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">chooseRandom</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">chooseRandom</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="p">))</span> <span class="n">DEPRECATED_MSG_ATTRIBUTE</span><span class="p">(</span><span class="s">"Remove in 8.0"</span><span class="p">);</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel.random()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">random</span><span class="p">:(</span><span class="n">id</span><span class="p">)</span><span class="nv">firstVariant</span><span class="p">,</span> <span class="p">...</span> <span class="n">NS_REQUIRES_NIL_TERMINATION</span> <span class="nf">DEPRECATED_MSG_ATTRIBUTE</span><span class="p">(</span><span class="s">"Remove in 8.0"</span><span class="p">);</span>
+
+<span class="cm">/**
+ * @see IMPDecisionModel#chooseMultivariate()
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">chooseMultivariate</span><span class="p">:(</span><span class="n">NSDictionary</span><span class="o">&lt;</span><span class="n">NSString</span> <span class="o">*</span><span class="p">,</span> <span class="n">id</span><span class="o">&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nv">variantMap</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">chooseMultivariate</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="p">))</span> <span class="n">DEPRECATED_MSG_ATTRIBUTE</span><span class="p">(</span><span class="s">"Remove in 8.0"</span><span class="p">);</span>
+
+<span class="k">@end</span></code></pre>
+
+                </div>
+                <div class="language">
+                  <p class="aside-title">Swift</p>
+                  <pre class="highlight swift"><code><span class="kd">class</span> <span class="kt">IMPDecisionContext</span> <span class="p">:</span> <span class="kt">NSObject</span></code></pre>
+
+                </div>
+              </div>
+            <p>Undocumented</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)init"></a>
+                    <a name="//apple_ref/objc/Method/-init" class="dashAnchor"></a>
+                    <a class="token discouraged" href="#/c:objc(cs)IMPDecisionContext(im)init">-init</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="aside aside-unavailable">
+                        <p class="aside-title">Unavailable</p>
+                        
+                      </div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="n">init</span> <span class="n">NS_UNAVAILABLE</span><span class="p">;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)score:"></a>
+                    <a name="//apple_ref/objc/Method/-score:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)IMPDecisionContext(im)score:">-score:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n">NSArray</span><span class="o">&lt;</span><span class="n">NSNumber</span> <span class="o">*&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nf">score</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">score</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">NSNumber</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>variants</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+arrays, strings, numbers, nulls, and booleans.
+@throws NSInvalidArgumentException Thrown if variants is nil or empty.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>scores of the variants</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)decide:"></a>
+                    <a name="//apple_ref/objc/Method/-decide:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)IMPDecisionContext(im)decide:">-decide:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.decide()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">decide</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">decide</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/IMPDecision.html">IMPDecision</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)decide:ordered:"></a>
+                    <a name="//apple_ref/objc/Method/-decide:ordered:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)IMPDecisionContext(im)decide:ordered:">-decide:<wbr>ordered:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.decide()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">decide</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span>
+                        <span class="nf">ordered</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">ordered</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">decide</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">],</span> <span class="n">_</span> <span class="nv">ordered</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/IMPDecision.html">IMPDecision</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)decide:scores:"></a>
+                    <a name="//apple_ref/objc/Method/-decide:scores:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)IMPDecisionContext(im)decide:scores:">-decide:<wbr>scores:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.decide()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">decide</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span>
+                         <span class="nf">scores</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">NSArray</span><span class="o">&lt;</span><span class="n">NSNumber</span> <span class="o">*&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nv">scores</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">decide</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">],</span> <span class="n">_</span> <span class="nv">scores</span><span class="p">:</span> <span class="p">[</span><span class="kt">NSNumber</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/IMPDecision.html">IMPDecision</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)which:"></a>
+                    <a name="//apple_ref/objc/Method/-which:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)IMPDecisionContext(im)which:">-which:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.which()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n">id</span><span class="p">)</span><span class="nf">which</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">id</span><span class="p">)</span><span class="nv">firstVariant</span><span class="p">,</span> <span class="p">...;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)whichFrom:"></a>
+                    <a name="//apple_ref/objc/Method/-whichFrom:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)IMPDecisionContext(im)whichFrom:">-whichFrom:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.whichFrom()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n">id</span><span class="p">)</span><span class="nf">whichFrom</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">whichFrom</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kt">Any</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)rank:"></a>
+                    <a name="//apple_ref/objc/Method/-rank:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)IMPDecisionContext(im)rank:">-rank:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.rank()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nf">rank</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">rank</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">Any</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)optimize:"></a>
+                    <a name="//apple_ref/objc/Method/-optimize:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)IMPDecisionContext(im)optimize:">-optimize:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel#optimize()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n">NSDictionary</span><span class="o">&lt;</span><span class="n">NSString</span> <span class="o">*</span><span class="p">,</span> <span class="n">id</span><span class="o">&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nf">optimize</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">nonnull</span> <span class="n">NSDictionary</span><span class="o">&lt;</span><span class="n">NSString</span> <span class="o">*</span><span class="p">,</span> <span class="n">id</span><span class="o">&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nv">variantMap</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">optimize</span><span class="p">(</span><span class="n">_</span> <span class="nv">variantMap</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Deprecated%2C%20remove%20in%208.0"></a>
+                <a name="//apple_ref/objc/Section/Deprecated, remove in 8.0" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Deprecated%2C%20remove%20in%208.0"></a>
+                  <h3 class="section-name"><span>Deprecated, remove in 8.0</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)chooseFrom:"></a>
+                    <a name="//apple_ref/objc/Method/-chooseFrom:" class="dashAnchor"></a>
+                    <a class="token discouraged" href="#/c:objc(cs)IMPDecisionContext(im)chooseFrom:">-chooseFrom:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="aside aside-deprecated">
+                        <p class="aside-title">Deprecated</p>
+                        <p>Remove in 8.0</p>
+
+                      </div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.chooseFrom()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">chooseFrom</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chooseFrom</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/IMPDecision.html">IMPDecision</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)chooseFrom:scores:"></a>
+                    <a name="//apple_ref/objc/Method/-chooseFrom:scores:" class="dashAnchor"></a>
+                    <a class="token discouraged" href="#/c:objc(cs)IMPDecisionContext(im)chooseFrom:scores:">-chooseFrom:<wbr>scores:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="aside aside-deprecated">
+                        <p class="aside-title">Deprecated</p>
+                        <p>Remove in 8.0</p>
+
+                      </div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">chooseFrom</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span> <span class="nf">scores</span><span class="p">:(</span><span class="n">NSArray</span><span class="o">&lt;</span><span class="n">NSNumber</span> <span class="o">*&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nv">scores</span> <span class="n">NS_SWIFT_NAME</span><span class="p">(</span><span class="n">chooseFrom</span><span class="p">(</span><span class="n">_</span><span class="o">:</span><span class="n">_</span><span class="o">:</span><span class="p">))</span> <span class="n">DEPRECATED_MSG_ATTRIBUTE</span><span class="p">(</span><span class="s">"Remove in 8.0"</span><span class="p">);</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chooseFrom</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">],</span> <span class="n">_</span> <span class="nv">scores</span><span class="p">:</span> <span class="p">[</span><span class="kt">NSNumber</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/IMPDecision.html">IMPDecision</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)chooseFirst:"></a>
+                    <a name="//apple_ref/objc/Method/-chooseFirst:" class="dashAnchor"></a>
+                    <a class="token discouraged" href="#/c:objc(cs)IMPDecisionContext(im)chooseFirst:">-chooseFirst:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="aside aside-deprecated">
+                        <p class="aside-title">Deprecated</p>
+                        <p>Remove in 8.0</p>
+
+                      </div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.chooseFirst()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">chooseFirst</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chooseFirst</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/IMPDecision.html">IMPDecision</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)first:"></a>
+                    <a name="//apple_ref/objc/Method/-first:" class="dashAnchor"></a>
+                    <a class="token discouraged" href="#/c:objc(cs)IMPDecisionContext(im)first:">-first:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="aside aside-deprecated">
+                        <p class="aside-title">Deprecated</p>
+                        <p>Remove in 8.0</p>
+
+                      </div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.first()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n">id</span><span class="p">)</span><span class="nf">first</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">id</span><span class="p">)</span><span class="nv">firstVariant</span><span class="p">,</span> <span class="p">...;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)chooseRandom:"></a>
+                    <a name="//apple_ref/objc/Method/-chooseRandom:" class="dashAnchor"></a>
+                    <a class="token discouraged" href="#/c:objc(cs)IMPDecisionContext(im)chooseRandom:">-chooseRandom:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="aside aside-deprecated">
+                        <p class="aside-title">Deprecated</p>
+                        <p>Remove in 8.0</p>
+
+                      </div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.chooseRandom()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">chooseRandom</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">variants</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chooseRandom</span><span class="p">(</span><span class="n">_</span> <span class="nv">variants</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/IMPDecision.html">IMPDecision</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)random:"></a>
+                    <a name="//apple_ref/objc/Method/-random:" class="dashAnchor"></a>
+                    <a class="token discouraged" href="#/c:objc(cs)IMPDecisionContext(im)random:">-random:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="aside aside-deprecated">
+                        <p class="aside-title">Deprecated</p>
+                        <p>Remove in 8.0</p>
+
+                      </div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel.random()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n">id</span><span class="p">)</span><span class="nf">random</span><span class="p">:(</span><span class="n">nonnull</span> <span class="n">id</span><span class="p">)</span><span class="nv">firstVariant</span><span class="p">,</span> <span class="p">...;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)IMPDecisionContext(im)chooseMultivariate:"></a>
+                    <a name="//apple_ref/objc/Method/-chooseMultivariate:" class="dashAnchor"></a>
+                    <a class="token discouraged" href="#/c:objc(cs)IMPDecisionContext(im)chooseMultivariate:">-chooseMultivariate:<wbr></a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="aside aside-deprecated">
+                        <p class="aside-title">Deprecated</p>
+                        <p>Remove in 8.0</p>
+
+                      </div>
+                      <div class="abstract">
+                        <div class="aside aside-see">
+    <p class="aside-title">See</p>
+    IMPDecisionModel#chooseMultivariate()
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight objective_c"><code><span class="k">-</span> <span class="p">(</span><span class="n">nonnull</span> <span class="n"><a href="../Classes/IMPDecision.html">IMPDecision</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">chooseMultivariate</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">nonnull</span> <span class="n">NSDictionary</span><span class="o">&lt;</span><span class="n">NSString</span> <span class="o">*</span><span class="p">,</span> <span class="n">id</span><span class="o">&gt;</span> <span class="o">*</span><span class="p">)</span><span class="nv">variantMap</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chooseMultivariate</span><span class="p">(</span><span class="n">_</span> <span class="nv">variantMap</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/IMPDecision.html">IMPDecision</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2022 <a class="link" href="https://improve.ai" target="_blank" rel="external noopener">ImproveAI</a>. All rights reserved. (Last updated: 2022-11-14)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
