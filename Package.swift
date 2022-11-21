@@ -10,32 +10,21 @@ let package = Package(
         .iOS(.v12)
     ],
     products: [
-        .library(
-            name: "ImproveAI",
-            targets: ["ImproveAICore", "ImproveAI"]),
+        .library(name: "ImproveAI", targets: ["utils", "ImproveAI"]),
     ],
     targets: [
         .target(
-            name: "ImproveAICore",
-            path: "ImproveAI",
-            exclude: [
-                "Tests",
-                "ThirdParty/GZip/LICENSE.md",
-                "ThirdParty/Ksuid/LICENSE",
-                "ThirdParty/XXHash/LICENSE"
-            ],
-            publicHeadersPath:"include",
-            cSettings: [
-                .headerSearchPath("**"),
-                .define("ImproveAI_VERSION", to: improveAIVersion),
-                .define("IMPROVE_AI_DEBUG", .when(configuration: .debug)),
-            ]),
+            name: "utils",
+            path: "./Sources/utils"),
         .target(
             name: "ImproveAI",
-            dependencies: ["ImproveAICore"],
-            path: "ImproveAISwift"),
+            dependencies: ["utils"],
+            path: "./Sources/ImproveAI"),
         .testTarget(
-            name: "ImproveAISwiftTests",
-            dependencies: ["ImproveAI"])
+            name: "ImproveAITests",
+            dependencies: ["ImproveAI"],
+            path: "Tests",
+            resources: [.process("Resources")]
+        )
     ]
 )

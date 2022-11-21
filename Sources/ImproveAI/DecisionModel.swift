@@ -1,4 +1,4 @@
-import ImproveAICore
+import Foundation
 
 public class DecisionModel {
 //    internal var decisionModel: IMPDecisionModel
