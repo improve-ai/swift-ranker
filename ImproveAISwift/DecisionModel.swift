@@ -36,9 +36,9 @@ public class DecisionModel {
         self.trackApiKey = trackApiKey
     }
     
-//    public func score(_ variants:[Any]) throws -> [Double] {
-//
-//    }
+    public func score(_ variants:[Any]) throws -> [Double] {
+        given(nil)
+    }
     
 //    /// The track URL to be used for tracking decisions and adding rewards.
 //    public var trackURL: URL? {

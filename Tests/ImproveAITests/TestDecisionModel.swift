@@ -58,6 +58,22 @@ class TestDecisionModel: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
+    func model() -> DecisionModel {
+        return try! DecisionModel(modelName: "greetings")
+    }
+    
+    func plainModelURL() -> URL {
+        return URL(string: "http://192.168.1.4/messages.mlmodel")!
+    }
+    
+    func zippedModelURL() -> URL {
+        return URL(string: "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/messages-2.0.mlmodel.gz")!
+    }
+    
+    func bundledModelURL() -> URL {
+        return Bundle(for: Self.self).url(forResource: "messages-2.0", withExtension: "mlmodelc")!
+    }
+    
     func testInit_modelName() throws {
         let decisionModel = try? DecisionModel(modelName: "hello");
         XCTAssertEqual("hello", decisionModel?.modelName)
@@ -116,6 +132,96 @@ class TestDecisionModel: XCTestCase {
         }
     }
     
+    func testLoadAsync_nil_completion() {
+        model().loadAsync(bundledModelURL())
+    }
+    
+    func testLoadAsync_remote_zipped() {
+        let url = zippedModelURL()
+        let expectation = self.expectation(description: "Loading Model")
+        model().loadAsync(url) { model, error in
+            XCTAssertNil(error)
+            XCTAssertNotNil(model)
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
+    func testLoadAsync_remote_plain() {
+        let expectation = self.expectation(description: "Loading Model")
+        model().loadAsync(plainModelURL()) { model, error in
+            XCTAssertNil(error)
+            XCTAssertNotNil(model)
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+    }
+    
+    func testLoadAsync_local_zipped() {
+        let url = download(url: zippedModelURL())
+        let expectation = self.expectation(description: "Loading Model")
+        model().loadAsync(url) { model, error in
+            XCTAssertNil(error)
+            XCTAssertNotNil(model)
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+    }
+    
+    func testLoadAsync_local_plain() {
+        let url = download(url: plainModelURL())
+        let expectation = self.expectation(description: "Loading Model")
+        model().loadAsync(url) { model, error in
+            XCTAssertNil(error)
+            XCTAssertNotNil(model)
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+    }
+    
+    func testLoadAsync_bundled() {
+        let expectation = self.expectation(description: "Loading Model")
+        model().loadAsync(bundledModelURL()) { model, error in
+            XCTAssertNotNil(model)
+            XCTAssertNil(error)
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testLoadAsync_version_mismatch() {
+        let expectation = self.expectation(description: "Loading Model")
+        let url = Bundle(for: Self.self).url(forResource: "version_6_0", withExtension: "mlmodelc")!
+        model().loadAsync(url) { model, error in
+            XCTAssertNil(model)
+            XCTAssertNotNil(error)
+            if case let .invalidModel(reason) = (error as! IMPError) {
+                XCTAssertTrue(reason.hasPrefix("Major version of ImproveAI SDK"))
+            } else {
+                XCTFail("wrong error thrown")
+            }
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testVersion() {
+        XCTAssertEqual("7.2", ImproveAI.version)
+    }
+    
+    func download(url: URL) -> URL {
+        let dst = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("\(UUID().uuidString)").appendingPathExtension(url.pathExtension)
+        let semaphore = DispatchSemaphore(value: 0)
+        let task = URLSession.shared.downloadTask(with: URLRequest(url: url)) { location, response, error in
+            XCTAssertNil(error)
+            try! FileManager.default.moveItem(atPath: location!.path, toPath: dst.path)
+            semaphore.signal()
+        }
+        task.resume()
+        let result = semaphore.wait(timeout: DispatchTime.now() + DispatchTimeInterval.seconds(10))
+        XCTAssertTrue(result == .success)
+        return dst
+    }
 //
 //    func modelUrl() -> URL {
 //        return URL(string:"https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/songs-2.0.mlmodel.gz")!

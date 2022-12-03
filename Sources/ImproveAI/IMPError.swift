@@ -16,4 +16,8 @@ public enum IMPError: Error {
     case invalidArgument(reason:String)
     /// illegal state
     case illegalState(reason:String)
+    /// invalid model
+    case invalidModel(reason:String)
+    /// Download failure
+    case downloadFailure(reason: String)
 }
