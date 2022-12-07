@@ -74,6 +74,22 @@ public class DecisionModel {
         }
     }
     
+    public func load(_ url: URL) throws -> Self {
+        let group = DispatchGroup()
+        var err: Error?
+        group.enter()
+        self.loadAsync(url) { decisionModel, error in
+            err = error
+            group.leave()
+        }
+        group.wait()
+        
+        if let err = err {
+            throw err
+        }
+        return self
+    }
+    
     /// Loads a  MLModel from the `URL`
     ///
     /// - Parameters:

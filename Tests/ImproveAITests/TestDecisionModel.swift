@@ -205,6 +205,11 @@ class TestDecisionModel: XCTestCase {
         waitForExpectations(timeout: 3)
     }
     
+    func testLoad() throws {
+        let model = try model().load(zippedModelURL())
+        XCTAssertNotNil(model)
+    }
+    
     func testVersion() {
         XCTAssertEqual("7.2", ImproveAI.version)
     }
