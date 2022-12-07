@@ -12,10 +12,14 @@ public class DecisionModel {
     /// The track API key to be set in HTTP headers in track request.
     public var trackApiKey: String?
     
+    public static var defaultTrackURL: URL?
+    
+    public static var defaultTrackApiKey: String?
+    
     private let lockQueue = DispatchQueue(label: "DecisionModel.lockQueue")
     
     private var _model: MLModel?
-    var model: MLModel? {
+    private var model: MLModel? {
         get {
             return lockQueue.sync {
                 return _model
@@ -31,7 +35,7 @@ public class DecisionModel {
     
     // Equivalent to init(modelName, defaultTrackURL, defaultTrackApiKey)
     public convenience init(modelName: String) throws {
-        try self.init(modelName: modelName, trackURL: nil, trackApiKey: nil)
+        try self.init(modelName: modelName, trackURL: Self.defaultTrackURL, trackApiKey: Self.defaultTrackApiKey)
     }
     
     /// Initializer

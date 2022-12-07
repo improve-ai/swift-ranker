@@ -50,12 +50,20 @@ class TestDecisionModel: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
-//        DecisionModel.defaultTrackURL = URL(string: "https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track")!
-//        DecisionModel.defaultTrackApiKey = "api-key"
+        DecisionModel.defaultTrackURL = defaultTrackURL()
+        DecisionModel.defaultTrackApiKey = defaultTrackApiKey()
     }
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
+    }
+    
+    func defaultTrackURL() -> URL {
+        return URL(string: "https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track")!
+    }
+    
+    func defaultTrackApiKey() -> String {
+        return "api-key"
     }
     
     func model() -> DecisionModel {
@@ -130,6 +138,16 @@ class TestDecisionModel: XCTestCase {
                 print("invalid model name: \(modelName)")
             }
         }
+    }
+    
+    func testDefaultTrackURL() {
+        let model = model()
+        XCTAssertEqual(defaultTrackURL(), model.trackURL)
+    }
+    
+    func testDefaultTrackApiKey() {
+        let model = model()
+        XCTAssertEqual(defaultTrackApiKey(), model.trackApiKey)
     }
     
     func testLoadAsync_nil_completion() {
