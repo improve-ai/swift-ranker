@@ -33,6 +33,10 @@ public class DecisionModel {
     
     private var featureEncoder: FeatureEncoder?
     
+    public var givensProvider: GivensProvider?
+    
+    public static var defaultGivensProvider: GivensProvider? = AppGivensProvider()
+        
     // Equivalent to init(modelName, defaultTrackURL, defaultTrackApiKey)
     public convenience init(modelName: String) throws {
         try self.init(modelName: modelName, trackURL: Self.defaultTrackURL, trackApiKey: Self.defaultTrackApiKey)
