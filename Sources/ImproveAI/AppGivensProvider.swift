@@ -33,7 +33,7 @@ public struct AppGivensProvider : GivensProvider {
     
     public static let shared = AppGivensProvider()
     
-    public func givensForModel(decisionModel: DecisionModel, givens: Any?) -> [String : Any] {
+    public func givens(forModel: DecisionModel, context: Any?) -> [String : Any] {
         var result: [String : Any] = [:]
         
         result[GivensKey.context] = givens

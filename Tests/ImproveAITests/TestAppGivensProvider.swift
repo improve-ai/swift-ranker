@@ -23,7 +23,7 @@ final class TestAppGivensProvider: XCTestCase {
     }
     
     func testGivensForModel() {
-        let givens = AppGivensProvider.shared.givensForModel(decisionModel: model(), givens: nil)
+        let givens = AppGivensProvider.shared.givens(forModel: model(), context: nil)
         debugPrint("givens: \(givens), \(givens.count)")
     }
 }

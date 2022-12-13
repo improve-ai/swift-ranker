@@ -70,8 +70,12 @@ class TestDecisionModel: XCTestCase {
         return try! DecisionModel(modelName: "greetings")
     }
     
+    func loadedModel() -> DecisionModel {
+        return try! model().load(zippedModelURL())
+    }
+    
     func plainModelURL() -> URL {
-        return URL(string: "http://192.168.1.4/messages.mlmodel")!
+        return URL(string: "https://improveai-mindblown-mindful-dev-models.s3.amazonaws.com/deleteme/messages-v7.mlmodel")!
     }
     
     func zippedModelURL() -> URL {
@@ -226,6 +230,29 @@ class TestDecisionModel: XCTestCase {
     func testLoad() throws {
         let model = try model().load(zippedModelURL())
         XCTAssertNotNil(model)
+    }
+    
+    func testGiven() {
+        let _: DecisionContext = model().given(nil)
+    }
+    
+    func testScore() throws {
+        let variants = ["hi", "hello", "hey"]
+        let scores: [Double] = try loadedModel().score(variants)
+        XCTAssertEqual(variants.count, scores.count)
+        print("scores = \(scores)")
+    }
+    
+    func testScore_empty() throws {
+        do {
+            _ = try model().score([])
+            XCTFail("variannts can't be empty")
+        } catch {
+            guard case .emptyVariants = (error as! IMPError) else {
+                XCTFail("variants can't be empty")
+                return
+            }
+        }
     }
     
     func testVersion() {

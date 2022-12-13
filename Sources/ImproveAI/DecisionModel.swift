@@ -16,26 +16,15 @@ public class DecisionModel {
     
     public static var defaultTrackApiKey: String?
     
-    private let lockQueue = DispatchQueue(label: "DecisionModel.lockQueue")
-    
-    private var _model: MLModel?
-    private var model: MLModel? {
-        get {
-            return lockQueue.sync {
-                return _model
-            }
-        }
-        
-        set {
-            _model = newValue
-        }
-    }
+    private var model: MLModel?
     
     private var featureEncoder: FeatureEncoder?
     
     public var givensProvider: GivensProvider?
     
     public static var defaultGivensProvider: GivensProvider? = AppGivensProvider()
+    
+    private let lockQueue = DispatchQueue(label: "DecisionModel.lockQueue")
         
     // Equivalent to init(modelName, defaultTrackURL, defaultTrackApiKey)
     public convenience init(modelName: String) throws {
@@ -123,8 +112,8 @@ public class DecisionModel {
         }
     }
     
-    public func given(_ givens: Any?) -> DecisionContext {
-        return DecisionContext(self, givens)
+    public func given(_ context: Any?) -> DecisionContext {
+        return DecisionContext(self, context)
     }
     
     /// Gets the scores of the variants. If the model is not loaded yet, a randomly generated list of scores in descending order would be returned.
@@ -147,9 +136,58 @@ public class DecisionModel {
     }
 }
 
+extension DecisionModel {
+    func scoreInternal<T>(_ variants: [T], _ allGivens: [String : Any]?) throws -> [Double] {
+        guard !variants.isEmpty else {
+            throw IMPError.emptyVariants
+        }
+        
+        return try lockQueue.sync {
+            guard let model = self.model else {
+                return generateDescendingGaussians(n: UInt(variants.count))
+            }
+            
+            guard let featureEncoder = self.featureEncoder else {
+                return generateDescendingGaussians(n: UInt(variants.count))
+            }
+            
+            let plistEncoder = PListEncoder()
+            
+            let encodedGivens: [String : Any]? = try allGivens.map {
+                try plistEncoder.encode(AnyEncodable($0)) as! [String : Any]
+            }
+            
+            let encodedVariants = try plistEncoder.encode(AnyEncodable(variants)) as! [Any]
+            
+            let encodedFeatures = try self.featureEncoder?.encodeVariants(variants: encodedVariants, given: encodedGivens)
+
+            // TODO: wait until FeatureEncoder is ready.
+            return generateDescendingGaussians(n: UInt(variants.count))
+        }
+    }
+}
+
 private extension String {
     func isValidModelName() -> Bool {
         let predicate = NSPredicate(format:"SELF MATCHES %@", "^[a-zA-Z0-9][\\w\\-.]{0,63}$")
         return predicate.evaluate(with: self)
     }
+}
+
+extension DecisionModel {
+    func generateDescendingGaussians(n: UInt) -> [Double] {
+        var result: [Double] = []
+        for _ in 0..<n {
+            result.append(gaussianNumber())
+        }
+        return result.sorted { $0 > $1 }
+    }
+}
+
+fileprivate func gaussianNumber() -> Double {
+    let u1 = Double(arc4random()) / Double(UInt32.max)
+    let u2 = Double(arc4random()) / Double(UInt32.max)
+    let f1 = sqrt(-2 * log(u1))
+    let f2 = 2 * Double.pi * u2
+    return f1 * cos(f2)
 }

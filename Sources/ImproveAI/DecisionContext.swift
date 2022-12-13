@@ -8,23 +8,29 @@
 import Foundation
 
 public struct DecisionContext {
-    internal var decisionModel: DecisionModel
+    private var decisionModel: DecisionModel
 
-    internal let givens: Any?
+    private let context: Any?
     
-    internal init(_ decisionModel: DecisionModel, _ givens: Any?) {
+    init(_ decisionModel: DecisionModel, _ context: Any?) {
         self.decisionModel = decisionModel
-        self.givens = givens
+        self.context = context
     }
     
     public func score<T>(_ variants:[T]) throws -> [Double] {
-        return [0]
+        let allGivens = getAllGivens()
+        return try decisionModel.scoreInternal(variants, allGivens)
     }
-    
-    private func scoreInternal(_ variants:[Any], allGivens: Any?) throws {
-        if variants.isEmpty {
-            throw IMPError.emptyVariants
+}
+
+extension DecisionContext {
+    func getAllGivens() -> [String : Any]? {
+        if let givensProvider = decisionModel.givensProvider {
+            return givensProvider.givens(forModel: decisionModel, context: context)
         }
-        
+        if let context = context {
+            return [GivensKey.context : context]
+        }
+        return nil
     }
 }

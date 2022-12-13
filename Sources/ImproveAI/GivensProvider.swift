@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol GivensProvider {
-    func givensForModel(decisionModel: DecisionModel, givens: Any?) -> [String : Any]
+    func givens(forModel: DecisionModel, context: Any?) -> [String : Any]
 }
