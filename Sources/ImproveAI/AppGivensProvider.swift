@@ -27,6 +27,8 @@ struct GivensKey {
     static let rewardsOfModel = "r"
     static let rewardPerDecision = "r/d"
     static let decisionsPerDay = "d/day"
+    
+    static let modelRewards = "ai.improve.rewards-%@"
 }
 
 public struct AppGivensProvider : GivensProvider {
@@ -130,6 +132,18 @@ extension AppGivensProvider {
         let midnight = calendar.startOfDay(for: now)
         let second = calendar.dateComponents([.second], from: midnight, to: now).second!
         return Double(second) / 86400
+    }
+}
+
+extension AppGivensProvider {
+    static func addReward(_ reward: Double, forModel modelName: String) {
+        let key = String(format: GivensKey.modelRewards, modelName)
+        if let curTotalReward = UserDefaults.standard.object(forKey: key) as? Double {
+            UserDefaults.standard.set(curTotalReward + reward, forKey: key)
+        } else {
+            UserDefaults.standard.set(reward, forKey: key)
+        }
+        
     }
 }
 

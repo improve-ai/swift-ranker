@@ -203,7 +203,7 @@ public class DecisionModel {
             throw IMPError.illegalState(reason: "trackURL can't be nil when calling addReward()")
         }
         
-        tracker.addReward(reward, forModel: modelName)
+        try tracker.addReward(reward, forModel: modelName)
     }
     
     /// Add reward for the decision designated by the decisionId.
@@ -213,10 +213,6 @@ public class DecisionModel {
     ///     - decisionId: The id of a decision.
     /// - Throws: `IMPError.invalidArgument` if reward is NaN or Infinity; if decisionId is empty
     public func addReward(_ reward: Double, _ decisionId: String) throws {
-        if reward.isNaN || reward.isInfinite {
-            throw IMPError.invalidArgument(reason: "reward can't be NaN or Infinity.")
-        }
-        
         if decisionId.isEmpty {
             throw IMPError.invalidArgument(reason: "invalid decision id.")
         }
@@ -225,7 +221,7 @@ public class DecisionModel {
             throw IMPError.illegalState(reason: "trackURL can't be nil when calling addReward()")
         }
         
-        tracker.addReward(reward, forModel: modelName, decision: decisionId)
+        try tracker.addReward(reward, forModel: modelName, decision: decisionId)
     }
 }
 

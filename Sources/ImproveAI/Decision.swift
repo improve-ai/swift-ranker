@@ -48,7 +48,7 @@ public struct Decision<T> {
                 throw IMPError.illegalState(reason: "trackURL of the underlying DecisionModel is nil!")
             }
             
-            id = try tracker.track(rankedVariants: ranked, given: givens, modelName: decisionModel.modelName)
+            id = try tracker.track(rankedVariants: ranked, givens: givens, modelName: decisionModel.modelName)
             
             return id!
         }
@@ -71,7 +71,7 @@ public struct Decision<T> {
 extension Decision {
     func trackSilently() {
         if let tracker = self.decisionModel.tracker {
-            _ = try? tracker.track(rankedVariants: ranked, given: givens, modelName: decisionModel.modelName)
+            _ = try? tracker.track(rankedVariants: ranked, givens: givens, modelName: decisionModel.modelName)
         }
     }
 }
