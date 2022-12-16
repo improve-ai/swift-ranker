@@ -20,4 +20,6 @@ public enum IMPError: Error {
     case invalidModel(reason:String)
     /// Download failure
     case downloadFailure(reason: String)
+    /// internal error
+    case internalError(reason: String)
 }

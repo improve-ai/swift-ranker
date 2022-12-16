@@ -22,7 +22,7 @@
 
 #define KSUID_BYTES_LENGTH (KSUID_TIME_STAMP_LENGTH+KSUID_PAYLOAD_LENGTH)
 
-int ksuid(unsigned char buf[KSUID_BYTES_LENGTH+1]);
+int ksuid(char buf[KSUID_BYTES_LENGTH+1]);
 
 int ksuid_with_ts_and_payload(int64_t ts, uint8_t payload[KSUID_PAYLOAD_LENGTH],
                                char data[KSUID_STRING_LENGTH+1]);

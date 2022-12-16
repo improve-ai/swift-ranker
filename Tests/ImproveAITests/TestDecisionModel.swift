@@ -50,20 +50,12 @@ class TestDecisionModel: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
-        DecisionModel.defaultTrackURL = defaultTrackURL()
-        DecisionModel.defaultTrackApiKey = defaultTrackApiKey()
+        DecisionModel.defaultTrackURL = defaultTrackURL
+        DecisionModel.defaultTrackApiKey = defaultTrackApiKey
     }
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-    
-    func defaultTrackURL() -> URL {
-        return URL(string: "https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track")!
-    }
-    
-    func defaultTrackApiKey() -> String {
-        return "api-key"
     }
     
     func model() -> DecisionModel {
@@ -71,15 +63,7 @@ class TestDecisionModel: XCTestCase {
     }
     
     func loadedModel() -> DecisionModel {
-        return try! model().load(zippedModelURL())
-    }
-    
-    func plainModelURL() -> URL {
-        return URL(string: "https://improveai-mindblown-mindful-dev-models.s3.amazonaws.com/deleteme/messages-v7.mlmodel")!
-    }
-    
-    func zippedModelURL() -> URL {
-        return URL(string: "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/messages-2.0.mlmodel.gz")!
+        return try! model().load(zippedModelURL)
     }
     
     func bundledModelURL() -> URL {
@@ -146,12 +130,12 @@ class TestDecisionModel: XCTestCase {
     
     func testDefaultTrackURL() {
         let model = model()
-        XCTAssertEqual(defaultTrackURL(), model.trackURL)
+        XCTAssertEqual(defaultTrackURL, model.trackURL)
     }
     
     func testDefaultTrackApiKey() {
         let model = model()
-        XCTAssertEqual(defaultTrackApiKey(), model.trackApiKey)
+        XCTAssertEqual(defaultTrackApiKey, model.trackApiKey)
     }
     
     func testLoadAsync_nil_completion() {
@@ -159,9 +143,8 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testLoadAsync_remote_zipped() {
-        let url = zippedModelURL()
         let expectation = self.expectation(description: "Loading Model")
-        model().loadAsync(url) { model, error in
+        model().loadAsync(zippedModelURL) { model, error in
             XCTAssertNil(error)
             XCTAssertNotNil(model)
             expectation.fulfill()
@@ -171,7 +154,7 @@ class TestDecisionModel: XCTestCase {
     
     func testLoadAsync_remote_plain() {
         let expectation = self.expectation(description: "Loading Model")
-        model().loadAsync(plainModelURL()) { model, error in
+        model().loadAsync(plainModelURL) { model, error in
             XCTAssertNil(error)
             XCTAssertNotNil(model)
             expectation.fulfill()
@@ -180,7 +163,7 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testLoadAsync_local_zipped() {
-        let url = download(url: zippedModelURL())
+        let url = download(url: zippedModelURL)
         let expectation = self.expectation(description: "Loading Model")
         model().loadAsync(url) { model, error in
             XCTAssertNil(error)
@@ -191,7 +174,7 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testLoadAsync_local_plain() {
-        let url = download(url: plainModelURL())
+        let url = download(url: plainModelURL)
         let expectation = self.expectation(description: "Loading Model")
         model().loadAsync(url) { model, error in
             XCTAssertNil(error)
@@ -228,12 +211,36 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testLoad() throws {
-        let model = try model().load(zippedModelURL())
+        let model = try model().load(zippedModelURL)
         XCTAssertNotNil(model)
     }
     
     func testGiven() {
         let _: DecisionContext = model().given(nil)
+    }
+    
+    func testRankWithScores() throws {
+        var variants: [Int] = []
+        var scores: [Double] = []
+        for i in -100...100 {
+            variants.append(i)
+            scores.append(Double(i))
+        }
+        
+        // shuffle
+        for _ in 0...100 {
+            let i = Int.random(in: 0...200)
+            let j = Int.random(in: 0...200)
+            variants.swapAt(i, j)
+            scores.swapAt(i, j)
+        }
+        debugPrint("before: \(variants)")
+        let ranked = try DecisionModel.rank(variants: variants, scores: scores)
+        debugPrint("after: \(ranked)")
+        
+        for i in 0..<200 {
+            XCTAssertTrue(ranked[i] > ranked[i+1])
+        }
     }
     
     func testScore() throws {
@@ -253,6 +260,35 @@ class TestDecisionModel: XCTestCase {
                 return
             }
         }
+    }
+    
+    func testDecide() throws {
+        let variants = ["hi", "hello", "hey"]
+        let decision = try loadedModel().decide(variants)
+        print("chosen: \(decision)")
+    }
+    
+    func testWhich() throws {
+        let best = try loadedModel().which("hi", "hello", "hey")
+        debugPrint("best: \(best)")
+    }
+    
+    func testWhichFrom() throws {
+        let variants = ["hi", "hello", "hey"]
+        let best = try loadedModel().whichFrom(variants)
+        debugPrint("best: \(best)")
+    }
+    
+    func testRank() throws {
+        let variants = ["hi", "hello", "hey"]
+        let ranked = try loadedModel().rank(variants)
+        XCTAssertEqual(variants.count, ranked.count)
+    }
+    
+    func testOptimize() throws {
+        let variantMap = ["fontSize": [12, 13], "color": ["#ffffff", "#000000"]]
+        let best = try loadedModel().optimize(variantMap)
+        debugPrint("best: \(best)")
     }
     
     func testVersion() {

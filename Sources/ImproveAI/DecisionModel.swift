@@ -16,6 +16,8 @@ public class DecisionModel {
     
     public static var defaultTrackApiKey: String?
     
+    var tracker: DecisionTracker?
+    
     private var model: MLModel?
     
     private var featureEncoder: FeatureEncoder?
@@ -126,6 +128,112 @@ public class DecisionModel {
         return try given(nil).score(variants)
     }
     
+    /// Chooses the best variant.
+    ///
+    /// - Parameters;
+    ///     - variants: Variants can be any JSON encodable data structure of arbitrary complexity, including nested dictionaries,
+    ///     arrays, strings, numbers, nulls, booleans, and types that conform to the `Encodable` protocol(`URL`, `Date`, `Data` excluded).
+    ///     - ordered: ordered = true means that the variants are already in order, and no scoring would be performed.
+    /// - Returns: A Decision object.
+    /// - Throws: An `Error` if variants is empty, or cannot be encoded.
+    public func decide<T>(_ variants:[T], _ ordered:Bool = false) throws -> Decision<T> {
+        return try given(nil).decide(variants, ordered)
+    }
+    
+    /// The variadic version of whichFrom(variants).
+    public func which<T>(_ variants: T...) throws -> T {
+        return try whichFrom(variants)
+    }
+    
+    /// It exists only because we need to support different types among variants like which("hi", 1, false).
+    ///
+    /// - Parameter variants: Variants to choose from.
+    /// - Returns: The best variant.
+    public func which(_ variants: Any...) throws -> Any {
+        return try whichFrom(variants)
+    }
+    
+    /// Choose The best variant.
+    ///
+    /// - Parameter variants: Variants to choose from.
+    /// - Returns: The best variant.
+    public func whichFrom<T>(_ variants: [T]) throws -> T {
+        return try given(nil).whichFrom(variants)
+    }
+    
+    /// A shorthand of decide(variants).ranked.
+    public func rank<T>(_ variants: [T]) throws -> [T] {
+        return try given(nil).rank(variants)
+    }
+    
+    /// Generates all combinations of the variants from the variantMap, and chooses the best one.
+    /// For example, optimize(["fontSize":[12, 13], "color":["#ffffff", "#000000"], "width": 100]) would first generate
+    /// a list of variants like this:
+    /// [
+    ///    ["fontSize": 12, "color":"#ffffff", "width": 100],
+    ///    ["fontSize": 12, "color":"#000000", "width": 100],
+    ///    ["fontSize": 13, "color":"#ffffff", "width": 100],
+    ///    ["fontSize": 13, "color":"#000000", "width": 100]
+    /// ]
+    /// and then choose one of them.
+    ///
+    /// - Parameter variantMap: Vaules of the variantMap are expected to be lists of JSON encodable objects. Values that
+    /// are not lists are automatically wrapped as a list containing a single item.
+    /// - Returns: The best variant.
+    public func optimize(_ variantMap: [String : Any]) throws -> [String : Any] {
+        return try given(nil).optimize(variantMap)
+    }
+    
+    /// Generates all combinations of the variants from the variantMap, and chooses the best one.
+    /// A handy alternative of optimize(variantMap) that would convert the chosen dict object to a Decodable object.
+    public func optimize<T: Decodable>(_ variantMap: [String : Any], _ type: T.Type) throws -> T {
+        return try given(nil).optimize(variantMap, type)
+    }
+    
+    /// Add rewards for the most recent Decision for this model name
+    ///
+    /// - Parameter reward: The reward to add.
+    /// - Throws: `IMPError.invalidArgument` if reward is NaN or Infinity.
+    public func addReward(_ reward: Double) throws {
+        if reward.isNaN || reward.isInfinite {
+            throw IMPError.invalidArgument(reason: "reward can't be NaN or Infinity.")
+        }
+        
+        guard let tracker = self.tracker else {
+            throw IMPError.illegalState(reason: "trackURL can't be nil when calling addReward()")
+        }
+        
+        tracker.addReward(reward, forModel: modelName)
+    }
+    
+    /// Add reward for the decision designated by the decisionId.
+    ///
+    /// - Parameters
+    ///     - reward: The reward to add.
+    ///     - decisionId: The id of a decision.
+    /// - Throws: `IMPError.invalidArgument` if reward is NaN or Infinity; if decisionId is empty
+    public func addReward(_ reward: Double, _ decisionId: String) throws {
+        if reward.isNaN || reward.isInfinite {
+            throw IMPError.invalidArgument(reason: "reward can't be NaN or Infinity.")
+        }
+        
+        if decisionId.isEmpty {
+            throw IMPError.invalidArgument(reason: "invalid decision id.")
+        }
+        
+        guard let tracker = self.tracker else {
+            throw IMPError.illegalState(reason: "trackURL can't be nil when calling addReward()")
+        }
+        
+        tracker.addReward(reward, forModel: modelName, decision: decisionId)
+    }
+}
+
+extension DecisionModel {
+    func isLoaded() -> Bool {
+        return model != nil
+    }
+    
     private func canParseVersion(_ versionString: String?) -> Bool {
         guard let versionString = versionString else {
             return true
@@ -133,6 +241,26 @@ public class DecisionModel {
         let array = version.components(separatedBy: ".")
         let prefix = "\(array[0])."
         return versionString.hasPrefix(prefix) || versionString == array[0]
+    }
+    
+    public static func rank<T>(variants: [T], scores: [Double]) throws -> [T] {
+        if variants.count <= 0 || scores.count <= 0 {
+            throw IMPError.invalidArgument(reason: "variants and scores can't be empty")
+        }
+        
+        if variants.count != scores.count {
+            throw IMPError.invalidArgument(reason: "variants.count must equal scores.count")
+        }
+        
+        var indices: [Int] = []
+        for i in 0..<variants.count {
+            indices.append(i)
+        }
+        
+        // descending
+        indices.sort { scores[$0] > scores[$1] }
+        
+        return indices.map { variants[$0] }
     }
 }
 

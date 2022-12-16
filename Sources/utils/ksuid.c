@@ -42,7 +42,7 @@ int ksuid_with_ts_and_payload(int64_t ts, uint8_t payload[KSUID_PAYLOAD_LENGTH],
     return 0;
 }
 
-int ksuid(unsigned char data[KSUID_STRING_LENGTH+1]) {
+int ksuid(char data[KSUID_STRING_LENGTH+1]) {
     uint8_t payloadBuf[KSUID_PAYLOAD_LENGTH];
     
     int status = SecRandomCopyBytes(kSecRandomDefault, KSUID_PAYLOAD_LENGTH, payloadBuf);
