@@ -27,15 +27,32 @@ struct GivensKey {
     static let rewardsOfModel = "r"
     static let rewardPerDecision = "r/d"
     static let decisionsPerDay = "d/day"
-    
-    static let modelRewards = "ai.improve.rewards-%@"
 }
+
+fileprivate let SecondsPerDay: Double = 86400
+
+fileprivate let ModelRewardsKey = "ai.improve.rewards-%@"
+
+fileprivate let BornTimeKey = "ai.improve.born_time"
+
+fileprivate let DecisionNumberKey = "ai.improve.decision_count-%@"
 
 public struct AppGivensProvider : GivensProvider {
     
     public static let shared = AppGivensProvider()
     
-    public func givens(forModel: DecisionModel, context: Any?) -> [String : Any] {
+    // Can't get true app launch time. Make do with this...
+    let sessionStartTime = Date().timeIntervalSince1970
+    
+    init() {
+        // set born time
+        let bornTime = UserDefaults.standard.object(forKey: BornTimeKey)
+        if bornTime == nil {
+            UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: BornTimeKey)
+        }
+    }
+    
+    public func givens(forModel model: DecisionModel, context: Any?) -> [String : Any] {
         var result: [String : Any] = [:]
         
         result[GivensKey.context] = givens
@@ -49,6 +66,15 @@ public struct AppGivensProvider : GivensProvider {
         result[GivensKey.app] = app()
         result[GivensKey.weekday] = weekday().toDecimal()
         result[GivensKey.time] = fractionalDay().toDecimal()
+        result[GivensKey.runtime] = runtime().toDecimal()
+        result[GivensKey.day] = day().toDecimal()
+        result[GivensKey.decisionNumberOfModel] = decisionNumber(modelName: model.modelName)
+        result[GivensKey.rewardsOfModel] = rewardsOfModel(modelName: model.modelName).toDecimal()
+        result[GivensKey.rewardPerDecision] = rewardPerDecision(modelName: model.modelName).toDecimal()
+        result[GivensKey.decisionsPerDay] = decisionsPerDay(modelName: model.modelName).toDecimal()
+        
+        // increment decision number
+        incrementDecisionNumberOfModel(modelName: model.modelName)
         
         return result
     }
@@ -131,19 +157,60 @@ extension AppGivensProvider {
         let calendar = Calendar(identifier: .iso8601)
         let midnight = calendar.startOfDay(for: now)
         let second = calendar.dateComponents([.second], from: midnight, to: now).second!
-        return Double(second) / 86400
+        return Double(second) / SecondsPerDay
+    }
+    
+    // fractional days since session start
+    func runtime() -> Double {
+        return (Date().timeIntervalSince1970 - self.sessionStartTime) / SecondsPerDay
+    }
+    
+    // fractional days since born
+    func day() -> Double {
+        if let bornTime = UserDefaults.standard.object(forKey: BornTimeKey) as? Double {
+            return (Date().timeIntervalSince1970 - bornTime) / SecondsPerDay
+        }
+        return 0
+    }
+    
+    // the number of decisions for this model
+    func decisionNumber(modelName: String) -> Int {
+        let key = String(format: DecisionNumberKey, modelName)
+        return UserDefaults.standard.integer(forKey: key)
+    }
+    
+    // total rewards for this model
+    func rewardsOfModel(modelName: String) -> Double {
+        let key = String(format: ModelRewardsKey, modelName)
+        return UserDefaults.standard.double(forKey: key)
+    }
+    
+    // total rewards / decisions number
+    func rewardPerDecision(modelName: String) -> Double {
+        let decisionNumber = decisionNumber(modelName: modelName)
+        let rewards = rewardsOfModel(modelName: modelName)
+        return decisionNumber == 0 ? 0 : rewards / Double(decisionNumber)
+    }
+    
+    // decision number / day
+    func decisionsPerDay(modelName: String) -> Double {
+        let decisionNumber = decisionNumber(modelName: modelName)
+        let day = day()
+        return Double(decisionNumber) / day
     }
 }
 
 extension AppGivensProvider {
     static func addReward(_ reward: Double, forModel modelName: String) {
-        let key = String(format: GivensKey.modelRewards, modelName)
-        if let curTotalReward = UserDefaults.standard.object(forKey: key) as? Double {
-            UserDefaults.standard.set(curTotalReward + reward, forKey: key)
-        } else {
-            UserDefaults.standard.set(reward, forKey: key)
-        }
-        
+        let key = String(format: ModelRewardsKey, modelName)
+        let curTotalReward = UserDefaults.standard.double(forKey: key)
+        UserDefaults.standard.set(curTotalReward + reward, forKey: key)
+    }
+    
+    func incrementDecisionNumberOfModel(modelName: String) {
+        let key = String(format: DecisionNumberKey, modelName)
+        let curNum = UserDefaults.standard.integer(forKey: key)
+        UserDefaults.standard.setValue(curNum+1, forKey: key)
     }
 }
 

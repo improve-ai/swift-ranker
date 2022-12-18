@@ -24,7 +24,7 @@ public class DecisionModel {
     
     public var givensProvider: GivensProvider?
     
-    public static var defaultGivensProvider: GivensProvider? = AppGivensProvider()
+    public static var defaultGivensProvider: GivensProvider? = AppGivensProvider.shared
     
     private let lockQueue = DispatchQueue(label: "DecisionModel.lockQueue")
         
