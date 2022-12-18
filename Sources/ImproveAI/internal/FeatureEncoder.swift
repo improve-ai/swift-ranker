@@ -9,203 +9,202 @@ import Foundation
 import CoreML
 import utils
 
-public class FeatureEncoder {
-    let modelSeed: UInt64
+fileprivate let VARIANT_FEATURE_KEY = "v"
+fileprivate let GIVENS_FEATURE_KEY = "g"
+
+public struct FeatureEncoder {
+    let featureNames: [String]
     
-    let modelFeatureNames: Set<String>
+    let modelSeed: Int
     
-    let variantSeed: UInt64
+    let stringTables: [StringTable]
     
-    let valueSeed: UInt64
+    let featureIndexes: [String : Int]
     
-    let givensSeed: UInt64
-    
-    public var noise: Double? = nil
-    
-    public init(modelSeed: UInt64, modelFeatureNames: Set<String>) {
+    public init(featureNames: [String], stringTables: [String : [UInt64]], modelSeed: Int) throws {
+        self.featureNames = featureNames
         self.modelSeed = modelSeed
-        self.modelFeatureNames = modelFeatureNames
-        self.variantSeed = xxhash3("variant", self.modelSeed)
-        self.valueSeed = xxhash3("$value", self.variantSeed)
-        self.givensSeed = xxhash3("givens", self.modelSeed)
-        print("model_seed: \(modelSeed), variant_seed: \(variantSeed), value_seed: \(valueSeed), givens_seed: \(givensSeed)")
-    }
-    
-    public func encodeVariants(variants: [Any], given context: [String : Any]?) throws -> [[String : MLFeatureValue]] {
-        let noise = self.noise ?? Double(arc4random()) / Double(UINT32_MAX)
-        
-        let contextFeatures = try self.encodeContext(context: context, noise: noise)
-        
-        var result:[[String : MLFeatureValue]] = []
-        for variant in variants {
-            var variantFeatures: [String : MLFeatureValue] = contextFeatures ?? [:]
-            try result.append(self.encodeVariant(variant: variant, noise: noise, features: &variantFeatures))
+        self.featureIndexes = featureNames.reduce(into: [String : Int]()) { partialResult, value in
+            partialResult[value] = partialResult.count
         }
         
-        return result
-    }
-    
-    private func encodeContext(context: [String : Any]?, noise: Double) throws -> [String : MLFeatureValue]? {
-        guard let context = context else {
-            return nil
+        var tmp = Array(repeating: StringTable(stringTable: [], modelSeed: modelSeed), count: featureNames.count)
+        for (featureName, table) in stringTables {
+            guard let index = self.featureIndexes[featureName] else {
+                throw IMPError.invalidModel(reason: "Bad model metadata")
+            }
+            tmp[index] = StringTable(stringTable: table, modelSeed: modelSeed)
         }
-        let smallNoise = shrink(noise: noise)
-        var features: [String : MLFeatureValue] = [:]
-        return try encodeInternal(node: context, seed: givensSeed, noise: smallNoise, features: &features)
+        self.stringTables = tmp
     }
     
-    private func encodeVariant(variant: Any, noise: Double, features: inout [String : MLFeatureValue]) throws -> [String : MLFeatureValue] {
-        let smallNoise = shrink(noise: noise)
-        if variant is Dictionary<String, Any> {
-            return try self.encodeInternal(node: variant, seed: self.variantSeed, noise: smallNoise, features: &features)
+    public func encodeFeatureVector(variant: Any, givens: Any?, into: inout [Double], noise: Float = 0.0) throws {
+        let p: (noiseShift: Double, noiseScale: Double) = getNoiseAndShiftScale(noise: noise)
+        
+        try self.encodeVariant(variant: variant, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
+        
+        try self.encodeGivens(givens: givens, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
+    }
+}
+
+extension FeatureEncoder {
+    private func encodeVariant(variant: Any?, into: inout [Double], noiseShift: Float = 0.0, noiseScale: Float = 1.0) throws {
+        try self.encode(obj: variant, path: VARIANT_FEATURE_KEY, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+    }
+    
+    private func encodeGivens(givens: Any?, into: inout [Double], noiseShift: Float = 0.0, noiseScale: Float = 1.0) throws {
+        try self.encode(obj: givens, path: GIVENS_FEATURE_KEY, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+    }
+    
+    func encode(obj: Any?, path: String, into: inout [Double], noiseShift: Float = 0.0, noiseScale: Float = 1.0) throws {
+        guard let obj = obj else {
+            return
         }
-        return try self.encodeInternal(node: variant, seed: self.valueSeed, noise: smallNoise, features: &features)
-    }
-    
-    private func encodeInternal(node: Any, seed: UInt64, noise: Double, features: inout [String : MLFeatureValue]) throws -> [String : MLFeatureValue] {
-        switch node {
+        
+        switch obj {
         case is NSNull:
             break
-        case let node as Int8:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as UInt8:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as Int16:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as UInt16:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as Int32:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as UInt32:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as Int64:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as UInt64:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as Int:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as UInt:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as Float:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as Double:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as Bool:
-            encodeNumber(node: NSNumber(value: node), seed: seed, noise: noise, features: &features)
-        case let node as NSNumber:
-            encodeNumber(node: node, seed: seed, noise: noise, features: &features)
-        case let node as String:
-            encodeString(node: node, seed: seed, noise: noise, features: &features)
+        case let obj as Int8:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as UInt8:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as Int16:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as UInt16:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as Int32:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as UInt32:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as Int64:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as UInt64:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as Int:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as UInt:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as Float:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as Double:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as Bool:
+            encodeNumber(obj: NSNumber(value: obj), path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as NSNumber:
+            encodeNumber(obj: obj, path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let obj as String:
+            encodeString(obj: obj, path: path, into: &into, noiseShift: noiseShift, noiseScale:noiseScale)
         case let array as [Any?]:
-            try encodeArray(node: array, seed: seed, noise: noise, features: &features)
+            try encodeArray(array: array, path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
         case let dict as [String : Any]:
-            try encodeDict(node: dict, seed: seed, noise: noise, features: &features)
+            try encodeDict(dict: dict, path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
         default:
             throw IMPError.typeNotSupported
         }
-        return features
+        
     }
     
-    private func encodeNumber(node: NSNumber, seed: UInt64, noise: Double, features: inout [String : MLFeatureValue]) {
-        let featureName = hashToFeatureName(seed)
-        if !node.doubleValue.isNaN {
-            if self.modelFeatureNames.contains(featureName) {
-                let curValue = features[featureName]
-                var unsprinkledValue: Double = 0
-                if curValue != nil {
-                    unsprinkledValue = reverseSprinkle(sprinkled: curValue!.doubleValue, smallNoise: noise)
-                }
-                let newValue = MLFeatureValue(double: sprinkle(unsprinkledValue + node.doubleValue, noise))
-                features[featureName] = newValue
-            }
-        }
-    }
-    
-    private func encodeString(node: String, seed: UInt64, noise: Double, features: inout [String : MLFeatureValue]) {
-        let hashed = xxhash3(node, seed)
-        let featureName = hashToFeatureName(seed)
-        if self.modelFeatureNames.contains(featureName) {
-            let curValue = features[featureName]
-            var unsprinkledValue: Double = 0
-            if curValue != nil {
-                unsprinkledValue = reverseSprinkle(sprinkled: curValue!.doubleValue, smallNoise: noise)
-            }
-            let newValue = MLFeatureValue(double: sprinkle((Double((hashed & 0xffff0000) >> 16) - 0x8000) + unsprinkledValue, noise))
-            features[featureName] = newValue
+    func encodeNumber(obj: NSNumber, path: String, into: inout [Double], noiseShift: Float, noiseScale: Float) {
+        if obj.doubleValue.isNaN {
+            return
         }
         
-        let hashedFeatureName = hashToFeatureName(hashed)
-        if self.modelFeatureNames.contains(hashedFeatureName) {
-            let curHashedValue = features[hashedFeatureName]
-            var unsprinkledHashedValue: Double = 0
-            if curHashedValue != nil {
-                unsprinkledHashedValue = reverseSprinkle(sprinkled: curHashedValue!.doubleValue, smallNoise: noise)
-            }
-            let newHashedValue = MLFeatureValue(double: sprinkle((Double(hashed & 0xffff) - 0x8000) + unsprinkledHashedValue, noise))
-            features[hashedFeatureName] = newHashedValue
+        guard let featureIndex = self.featureIndexes[path] else {
+            return
+        }
+        
+        into[featureIndex] = sprinkle(x: obj.doubleValue, noiseShift: noiseShift, noiseScale: noiseScale)
+    }
+    
+    func encodeString(obj: String, path: String, into: inout [Double], noiseShift: Float, noiseScale: Float) {
+        guard let featureIndex = self.featureIndexes[path] else {
+            return
+        }
+        
+        let stringTable = self.stringTables[featureIndex]
+        
+        into[featureIndex] = sprinkle(x: stringTable.encode(string: obj), noiseShift: noiseShift, noiseScale: noiseScale)
+    }
+    
+    func encodeArray(array: [Any?], path: String, into: inout [Double], noiseShift: Float, noiseScale: Float) throws {
+        for (index, item) in array.enumerated() {
+            try self.encode(obj: item, path: "\(path).\(index)", into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
         }
     }
     
-    private func encodeArray(node: [Any?], seed: UInt64, noise: Double, features: inout [String : MLFeatureValue]) throws {
-        for (index, item) in node.enumerated() {
-            if let item = item {
-                let bytes = withUnsafeBytes(of: index.bigEndian, Array.init)
-                let newSeed = xxhash3(bytes, seed)
-                _ = try self.encodeInternal(node: item, seed: newSeed, noise: noise, features: &features)
-            }
+    func encodeDict(dict: [String : Any], path: String, into: inout [Double], noiseShift: Float, noiseScale: Float) throws {
+        for (key, value) in dict {
+            try self.encode(obj: value, path: "\(path).\(key)", into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
         }
     }
     
-    private func encodeDict(node: [String : Any], seed: UInt64, noise: Double, features: inout [String : MLFeatureValue]) throws {
-        for (key, value) in node {
-            let newSeed = xxhash3(key, seed)
-            _ = try self.encodeInternal(node: value, seed: newSeed, noise: noise, features: &features)
+    private func getNoiseAndShiftScale(noise: Float) -> (Double, Double) {
+        // x + noise * 2 ** -142 will round to x for most values of x. Used to create
+        // distinct values when x is 0.0 since x * scale would be zero
+        return (Double(noise) * pow(2, -142), 1 + Double(noise) * pow(2, -17))
+    }
+    
+    private func sprinkle(x: Double, noiseShift: Float, noiseScale: Float) -> Double {
+        // x + noise_offset will round to x for most values of x
+        // allows different values when x == 0.0
+        return (x + Double(noiseShift)) * Double(noiseScale)
+    }
+}
+
+struct StringTable {
+    let modelSeed: Int
+    
+    let mask: Int
+    
+    let missWidth: Double
+    
+    let valueTable: [UInt64 : Double]
+    
+    init(stringTable: [UInt64], modelSeed: Int) {
+        self.modelSeed = modelSeed
+        self.mask = Self.getMask(stringTable)
+        
+        // empty and single entry tables will have a miss_width of 1 or range [-0.5, 0.5]
+        // 2 / max_position keeps miss values from overlapping with nonzero table values
+        let maxPosition = stringTable.count - 1
+        self.missWidth = maxPosition < 1 ? 1 : 2.0 / Double(maxPosition)
+        
+        self.valueTable = stringTable.reversed().reduce(into: [UInt64 : Double]()) { partialResult, value in
+            partialResult[value] = maxPosition == 0 ? 1.0 : Self.scale(value: Double(partialResult.count) / Double(maxPosition))
         }
     }
     
-    private func shrink(noise: Double) -> Double {
-        return noise * pow(2, -17)
+    func encode(string: String) -> Double {
+        let stringHash = xxhash3(string, UInt64(self.modelSeed))
+        if let value = self.valueTable[stringHash & UInt64(self.mask)] {
+            return value
+        }
+        return self.encodeMiss(stringHash: stringHash)
     }
     
-    private func sprinkle(_ value: Double, _ smallNoise: Double) -> Double {
-        return (value + smallNoise) * (1 + smallNoise)
+    func encodeMiss(stringHash: UInt64) -> Double {
+        // hash to float in range [-miss_width/2, miss_width/2]
+        // 32 bit mask for JS portability
+        return Self.scale(value: Double((stringHash & 0xFFFFFFFF)) * pow(2, -32), width: self.missWidth)
     }
     
-    private func reverseSprinkle(sprinkled: Double, smallNoise: Double) -> Double {
-        return sprinkled / (1 + smallNoise) - smallNoise
+    func xxhash3(_ value: String, _ seed: UInt64) -> UInt64 {
+        let bytes = value.utf8CString
+        return bytes.withUnsafeBufferPointer { p in
+            XXH3_64bits_withSeed(p.baseAddress!, value.utf8.count, seed)
+        }
     }
     
-    private func hashToFeatureName(_ hash: UInt64) -> String {
-        var buffer: [Character] = Array(repeating: "0", count: 8)
-        let ref = "0123456789abcdef"
-        let hash = hash >> 32
-        buffer[0] = ref[Int((hash >> 28) & 0xf)]
-        buffer[1] = ref[Int((hash >> 24) & 0xf)]
-        buffer[2] = ref[Int((hash >> 20) & 0xf)]
-        buffer[3] = ref[Int((hash >> 16) & 0xf)]
-        buffer[4] = ref[Int((hash >> 12) & 0xf)]
-        buffer[5] = ref[Int((hash >> 8) & 0xf)]
-        buffer[6] = ref[Int((hash >> 4) & 0xf)]
-        buffer[7] = ref[Int(hash & 0xf)]
-        return String(buffer)
+    static func scale(value: Double, width: Double = 2) -> Double {
+        // map value in [0, 1] to [-width/2, width/2]
+        return value * width - 0.5 * width
     }
-}
-
-fileprivate func xxhash3(_ value: String, _ seed: UInt64) -> UInt64 {
-    let bytes = value.utf8CString
-    return bytes.withUnsafeBufferPointer { p in
-        XXH3_64bits_withSeed(p.baseAddress!, value.utf8.count, seed)
-    }
-}
-
-fileprivate func xxhash3(_ value: [UInt8], _ seed: UInt64) -> UInt64 {
-    return value.withUnsafeBufferPointer { p in
-        XXH3_64bits_withSeed(p.baseAddress!, value.count, seed)
-    }
-}
-
-internal extension String {
-    subscript (characterIndex: Int) -> Character {
-        return self[index(startIndex, offsetBy: characterIndex)]
+    
+    static func getMask(_ stringTable: [UInt64]) -> Int {
+        guard let maxValue = stringTable.max(), maxValue != 0 else {
+            return 0
+        }
+        // find the most significant bit in the table and create a mask
+        return (1 << Int(log2(Double(maxValue)) + 1)) - 1
     }
 }

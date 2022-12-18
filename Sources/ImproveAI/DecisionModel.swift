@@ -67,7 +67,7 @@ public class DecisionModel {
             }
             
             let featureNames = Set(model.modelDescription.inputDescriptionsByName.keys)
-            self.featureEncoder = FeatureEncoder(modelSeed: seed, modelFeatureNames: featureNames)
+//            self.featureEncoder = FeatureEncoder(modelSeed: seed, modelFeatureNames: featureNames)
             
             self.model = model
         }
@@ -283,7 +283,7 @@ extension DecisionModel {
             
             let encodedVariants = try plistEncoder.encode(AnyEncodable(variants)) as! [Any]
             
-            let encodedFeatures = try self.featureEncoder?.encodeVariants(variants: encodedVariants, given: encodedGivens)
+//            let encodedFeatures = try self.featureEncoder?.encodeVariants(variants: encodedVariants, given: encodedGivens)
 
             // TODO: wait until FeatureEncoder is ready.
             return generateDescendingGaussians(n: UInt(variants.count))
