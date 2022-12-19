@@ -58,14 +58,6 @@ class TestDecisionModel: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
-    func model() -> DecisionModel {
-        return try! DecisionModel(modelName: "greetings")
-    }
-    
-    func loadedModel() -> DecisionModel {
-        return try! model().load(zippedModelURL)
-    }
-    
     func bundledModelURL() -> URL {
         return Bundle(for: Self.self).url(forResource: "messages-2.0", withExtension: "mlmodelc")!
     }

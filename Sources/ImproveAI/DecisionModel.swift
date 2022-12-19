@@ -6,15 +6,33 @@ public typealias LoadModelCompletionBlock = (DecisionModel?, Error?) -> Void
 public class DecisionModel {
     public let modelName: String
     
-    /// The track URL to be used for tracking decisions and adding rewards.
-    public var trackURL: URL?
-
-    /// The track API key to be set in HTTP headers in track request.
-    public var trackApiKey: String?
-    
     public static var defaultTrackURL: URL?
     
     public static var defaultTrackApiKey: String?
+    
+    /// The track URL to be used for tracking decisions and adding rewards.
+    private var _trackURL: URL?
+    public var trackURL: URL? {
+        get { _trackURL }
+        set {
+            _trackURL = newValue
+            if newValue == nil {
+                tracker = nil
+            } else {
+                tracker = DecisionTracker(trackURL: newValue!, trackApiKey: _trackApiKey)
+            }
+        }
+    }
+
+    /// The track API key to be set in HTTP headers in track request.
+    private var _trackApiKey: String?
+    public var trackApiKey: String? {
+        get { _trackApiKey }
+        set {
+            _trackApiKey = newValue
+            tracker?.trackApiKey = newValue
+        }
+    }
     
     var tracker: DecisionTracker?
     
@@ -22,7 +40,7 @@ public class DecisionModel {
     
     private var featureEncoder: FeatureEncoder?
     
-    public var givensProvider: GivensProvider?
+    public var givensProvider: GivensProvider? = defaultGivensProvider
     
     public static var defaultGivensProvider: GivensProvider? = AppGivensProvider.shared
     

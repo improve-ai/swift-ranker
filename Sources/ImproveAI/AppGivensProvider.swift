@@ -55,7 +55,7 @@ public struct AppGivensProvider : GivensProvider {
     public func givens(forModel model: DecisionModel, context: Any?) -> [String : Any] {
         var result: [String : Any] = [:]
         
-        result[GivensKey.context] = givens
+        result[GivensKey.context] = context
         result[GivensKey.country] = country()
         result[GivensKey.lang] = language()
         result[GivensKey.tz] = timezone()
@@ -167,10 +167,8 @@ extension AppGivensProvider {
     
     // fractional days since born
     func day() -> Double {
-        if let bornTime = UserDefaults.standard.object(forKey: BornTimeKey) as? Double {
-            return (Date().timeIntervalSince1970 - bornTime) / SecondsPerDay
-        }
-        return 0
+        let bornTime = UserDefaults.standard.double(forKey: BornTimeKey)
+        return (Date().timeIntervalSince1970 - bornTime) / SecondsPerDay
     }
     
     // the number of decisions for this model
