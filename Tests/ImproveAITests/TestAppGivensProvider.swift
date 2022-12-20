@@ -24,9 +24,15 @@ final class TestAppGivensProvider: XCTestCase {
         XCTAssertEqual("hello", givens["context"] as! String)
     }
 
-    func testGivensForModel() {
+    func testGivensForModel_nil_context() {
         let givens = AppGivensProvider.shared.givens(forModel: model(), context: nil)
         debugPrint("givens: \(givens), \(givens.count)")
+        XCTAssertEqual(15, givens.count)
+    }
+    
+    func testGivensForModel_with_context() {
+        let givens = AppGivensProvider.shared.givens(forModel: model(), context: "en")
+        XCTAssertEqual(16, givens.count)
     }
     
     func testDecisionNumber() {

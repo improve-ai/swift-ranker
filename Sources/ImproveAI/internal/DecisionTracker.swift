@@ -23,8 +23,10 @@ struct DecisionTracker {
     func track(rankedVariants: [Any], givens: [String : Any]?, modelName: String) throws -> String {
         let best = rankedVariants[0]
         
-        guard let decisionId = try self.createAndPersistDecisionId(forModel: modelName) else {
-            throw IMPError.internalError(reason: "Failed to generate a valid ksuid")
+        guard let decisionId = try? self.createAndPersistDecisionId(forModel: modelName) else {
+            // We don't expect SecRandomCopyBytes() to fail in production which leads to a nil ksuid.
+            // Just let it crash if that really happens.
+            fatalError("Failed to generate a valid ksuid!")
         }
         
         var body: [String : Any] = [TrackerKey.type: "decision", TrackerKey.model: modelName, TrackerKey.messageId: decisionId]

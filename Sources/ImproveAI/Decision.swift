@@ -41,11 +41,11 @@ public struct Decision<T> {
     public mutating func track() throws -> String {
         try lockQueue.sync {
             if self.id != nil {
-                throw IMPError.illegalState(reason: "the decision is already tracked!")
+                fatalError("The decision is already tracked!")
             }
             
             guard let tracker = self.decisionModel.tracker else {
-                throw IMPError.illegalState(reason: "trackURL of the underlying DecisionModel is nil!")
+                fatalError("trackURL of the underlying DecisionModel is nil!")
             }
             
             id = try tracker.track(rankedVariants: ranked, givens: givens, modelName: decisionModel.modelName)
