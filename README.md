@@ -1,4 +1,4 @@
-# Rank, Score & Optimize Swift Data Structures with Machine Learning
+# Rank, Score & Optimize Swift Data Structures
 
 Improve AI is a machine learning platform for quickly implementing app optimization, personalization, and recommendations for [iOS](https://improve.ai/ios-sdk/), [Android](https://improve.ai/android-sdk/), and [Python](https://improve.ai/python-sdk/).
 
