@@ -12,6 +12,8 @@
 
 extern NSString * const kRemoteModelURL;
 
+extern NSString * const kPlainModelURL;
+
 @interface DownloaderTest : XCTestCase
 
 @end
@@ -37,12 +39,11 @@ extern NSString * const kRemoteModelURL;
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelURL];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+    [downloader downloadWithCompletion:^(MLModel * _Nullable model, NSError * _Nullable error) {
         if (error != nil) {
             XCTFail(@"Downloading error: %@", error);
         }
-        XCTAssert(compiledModelURL != nil);
-        NSLog(@"Compiled model URL: %@", compiledModelURL);
+        XCTAssert(model != nil);
 
         [expectation fulfill];
 
@@ -56,12 +57,11 @@ extern NSString * const kRemoteModelURL;
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:modelURL];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+    [downloader downloadWithCompletion:^(MLModel * _Nullable model, NSError * _Nullable error) {
         if (error != nil) {
             XCTFail(@"Downloading error: %@", error);
         }
-        XCTAssert(compiledModelURL != nil);
-        NSLog(@"Compiled model URL: %@", compiledModelURL);
+        XCTAssert(model != nil);
 
         [expectation fulfill];
 
@@ -71,16 +71,15 @@ extern NSString * const kRemoteModelURL;
 }
 
 - (void)testDownloadRemote{
-    NSURL *url = [NSURL URLWithString:kRemoteModelURL];
+    NSURL *url = [NSURL URLWithString:kPlainModelURL];
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+    [downloader downloadWithCompletion:^(MLModel * _Nullable model, NSError * _Nullable error) {
         if (error != nil) {
             XCTFail(@"Downloading error: %@", error);
         }
-        XCTAssert(compiledModelURL != nil);
-        NSLog(@"Compiled model URL: %@", compiledModelURL);
+        XCTAssert(model != nil);
 
         [expectation fulfill];
 
@@ -101,16 +100,16 @@ extern NSString * const kRemoteModelURL;
         IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
         
         XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-        [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+        [downloader downloadWithCompletion:^(MLModel * _Nullable model, NSError * _Nullable error) {
             if (error != nil) {
                 XCTFail(@"Downloading error: %@", error);
             }
-            XCTAssert(compiledModelURL != nil);
-            NSLog(@"Compiled model URL: %@", compiledModelURL);
+            XCTAssert(model != nil);
 
             [expectation fulfill];
 
         }];
+        
         [self waitForExpectations:@[expectation] timeout:600.0];
     }
 }
@@ -121,12 +120,11 @@ extern NSString * const kRemoteModelURL;
     IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:url];
     
     XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
-    [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+    [downloader downloadWithCompletion:^(MLModel * _Nullable model, NSError * _Nullable error) {
         if (error != nil) {
             XCTFail(@"Downloading error: %@", error);
         }
-        XCTAssert(compiledModelURL != nil);
-        NSLog(@"Compiled model URL: %@", compiledModelURL);
+        XCTAssert(model != nil);
 
         [expectation fulfill];
 
@@ -147,14 +145,13 @@ extern NSString * const kRemoteModelURL;
     for (int i = 0; i < loop; i++) {
         XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Model downloaded"];
         IMPModelDownloader *downloader = [[IMPModelDownloader alloc] initWithURL:[NSURL URLWithString:kRemoteModelURL]];
-        [downloader downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable error) {
+        [downloader downloadWithCompletion:^(MLModel * _Nullable model, NSError * _Nullable error) {
             if (error != nil) {
                 XCTFail(@"Downloading error: %@", error);
             }
-            XCTAssert(compiledModelURL != nil);
+            XCTAssert(model != nil);
             
-                [expectation fulfill];
-            NSLog(@"%d done, Compiled model URL: %@", i, compiledModelURL);
+            [expectation fulfill];
         }];
         [self waitForExpectations:@[expectation] timeout:300.0];
     }

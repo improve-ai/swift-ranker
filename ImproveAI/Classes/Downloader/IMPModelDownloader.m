@@ -44,20 +44,16 @@
     }
     
     if([self.modelUrl hasDirectoryPath]) {
-        completion(self.modelUrl, nil);
+        NSError *error;
+        MLModel *model = [MLModel modelWithContentsOfURL:self.modelUrl error:&error];
+        completion(model, error);
         return ;
     }
     
-    if([self.modelUrl.absoluteString hasPrefix:@"http"]) {
-        if([self.modelUrl.path hasSuffix:@".gz"]) {
-            [[IMPStreamDownloadManager sharedManager] download:self.modelUrl WithCompletion:completion];
-        } else {
-            [self downloadRemoteWithCompletion:completion];
-        }
+    if([self.modelUrl.path hasSuffix:@".gz"]) {
+        [[IMPStreamDownloadManager sharedManager] download:self.modelUrl WithCompletion:completion];
     } else {
-        dispatch_async(dispatch_get_global_queue(0, 0), ^{
-            [self loadLocal:self.modelUrl WithCompletion:completion];
-        });
+        [self downloadRemoteWithCompletion:completion];
     }
 }
 
@@ -78,7 +74,7 @@
             }
             return;
         }
-
+        
         NSError *error; // General purpose error
 
         // Optional check for HTTP responses, will not be called for file URLs
@@ -100,37 +96,20 @@
                 return;
             }
         }
-
-        IMPLog("Loaded %ld bytes.", data.length);
-        [self saveAndCompile:data withCompletion:completion];
+        if(@available(iOS 16.0, *)) {
+            MLModelAsset *modelAsset = [MLModelAsset modelAssetWithSpecificationData:data error:&error];
+            MLModelConfiguration *config = [[MLModelConfiguration alloc] init];
+            [MLModel loadModelAsset:modelAsset configuration:config completionHandler:^(MLModel * _Nullable model, NSError * _Nullable error) {
+                if(completion) {
+                    completion(model, error);
+                }
+            }];
+        } else {
+            [self saveAndCompile:data withCompletion:completion];
+        }
     }];
     [_downloadTask resume];
 
-}
-
-- (void)loadLocal:(NSURL *)url WithCompletion:(IMPModelDownloaderCompletion)completion{
-    NSError *error = nil;
-    NSURL *localModelURL = url;
-    
-    // unzip
-    if([self.modelUrl.path hasSuffix:@".gz"]){
-        localModelURL = [self unzipLocalModel:self.modelUrl];
-        if(localModelURL == nil) {
-            NSError *error = [NSError errorWithDomain:@"ai.improve.IMPModelDownloader"
-                                                 code:-100
-                                             userInfo:@{NSLocalizedDescriptionKey: @"unzip error"}];
-            IMPLog("unzip failed %@", url);
-            if(completion){
-                completion(nil, error);
-            }
-            return ;
-        }
-    }
-    
-    NSURL *compiledUrl = [self compileModelAtURL:localModelURL error:&error];
-    if(completion){
-        completion(compiledUrl, error);
-    }
 }
 
 - (void)saveAndCompile:(NSData *)data withCompletion:(IMPModelDownloaderCompletion)completion{
@@ -152,20 +131,15 @@
 
     IMPLog("Compiling model %@", tempPath);
     NSURL *compiledUrl = [self compileModelAtURL:[NSURL fileURLWithPath:tempPath] error:&error];
-    if(completion){
-        completion(compiledUrl, error);
+    if(error) {
+        if(completion) { completion(nil, error); }
+        return ;
     }
-}
-
-- (NSURL *)unzipLocalModel:(NSURL *)url{
-    NSData *data = [NSData dataWithContentsOfURL:url];
-    NSData *unzippedData = [data gunzippedData];
     
-    NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"ai.improve.tmp.%@.mlmodel", [[NSUUID UUID] UUIDString]]];
-    if(![unzippedData writeToFile:tempPath atomically:YES]){
-        return nil;
+    MLModel *model = [MLModel modelWithContentsOfURL:compiledUrl error:&error];
+    if(completion){
+        completion(model, error);
     }
-    return [NSURL fileURLWithPath:tempPath];
 }
 
 - (NSURL *)compileModelAtURL:(NSURL *)modelDefinitionURL error:(NSError **)error{

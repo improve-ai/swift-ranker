@@ -235,20 +235,13 @@ static id<IMPGivensProvider> _defaultGivensProvider;
 
 - (void)loadAsync:(NSURL *)url completion:(void (^)(IMPDecisionModel *_Nullable loadedModel, NSError *_Nullable error))handler
 {
-    [[[IMPModelDownloader alloc] initWithURL:url] downloadWithCompletion:^(NSURL * _Nullable compiledModelURL, NSError * _Nullable downloadError) {
+    [[[IMPModelDownloader alloc] initWithURL:url] downloadWithCompletion:^(MLModel * _Nullable model, NSError * _Nullable downloadError) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             if(downloadError) {
                 if(handler) handler(nil, downloadError);
                 return;
             }
 
-            NSError *modelError;
-            MLModel *model = [MLModel modelWithContentsOfURL:compiledModelURL error:&modelError];
-            if(modelError) {
-                if(handler) handler(nil, modelError);
-                return;
-            }
-            
             @try {
                 self.model = model;
             } @catch(NSException *e) {

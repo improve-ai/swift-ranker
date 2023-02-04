@@ -7,8 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreML/CoreML.h>
 
-typedef void (^IMPModelDownloaderCompletion) (NSURL *_Nullable compiledModelURL, NSError *_Nullable error);
+typedef void (^IMPModelDownloaderCompletion) (MLModel *_Nullable model, NSError *_Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
 

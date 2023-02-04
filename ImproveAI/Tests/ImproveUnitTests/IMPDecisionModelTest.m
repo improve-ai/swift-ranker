@@ -22,6 +22,8 @@ NSString * const kReasonVariantsNonEmpty = @"variants can't be nil or empty.";
 
 extern NSString * const kRemoteModelURL;
 
+extern NSString * const kPlainModelURL;
+
 extern NSString *const kTrackApiKey;
 
 // Package private properties
