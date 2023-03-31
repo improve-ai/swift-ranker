@@ -9,8 +9,11 @@ import Foundation
 import CoreML
 import utils
 
-fileprivate let VARIANT_FEATURE_KEY = "v"
-fileprivate let GIVENS_FEATURE_KEY = "g"
+fileprivate let ITEM_FEATURE_KEY = "item"
+
+fileprivate let CONTEXT_FEATURE_KEY = "context"
+
+fileprivate let FIRST_LEVEL_FEATURES_CHUNKS = Set([ITEM_FEATURE_KEY, CONTEXT_FEATURE_KEY])
 
 public struct FeatureEncoder {
     let featureNames: [String]
@@ -38,22 +41,22 @@ public struct FeatureEncoder {
         self.stringTables = tmp
     }
     
-    public func encodeFeatureVector(variant: Any, givens: Any?, into: inout [Double], noise: Float = 0.0) throws {
+    public func encodeFeatureVector(item: Any, context: Any?, into: inout [Double], noise: Float = 0.0) throws {
         let p: (noiseShift: Double, noiseScale: Double) = getNoiseAndShiftScale(noise: noise)
         
-        try self.encodeVariant(variant: variant, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
+        try self.encodeItem(item: item, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
         
-        try self.encodeGivens(givens: givens, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
+        try self.encodeContext(context: context, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
     }
 }
 
 extension FeatureEncoder {
-    private func encodeVariant(variant: Any?, into: inout [Double], noiseShift: Float = 0.0, noiseScale: Float = 1.0) throws {
-        try self.encode(obj: variant, path: VARIANT_FEATURE_KEY, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+    private func encodeItem(item: Any?, into: inout [Double], noiseShift: Float = 0.0, noiseScale: Float = 1.0) throws {
+        try self.encode(obj: item, path: ITEM_FEATURE_KEY, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
     }
     
-    private func encodeGivens(givens: Any?, into: inout [Double], noiseShift: Float = 0.0, noiseScale: Float = 1.0) throws {
-        try self.encode(obj: givens, path: GIVENS_FEATURE_KEY, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+    private func encodeContext(context: Any?, into: inout [Double], noiseShift: Float = 0.0, noiseScale: Float = 1.0) throws {
+        try self.encode(obj: context, path: CONTEXT_FEATURE_KEY, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
     }
     
     func encode(obj: Any?, path: String, into: inout [Double], noiseShift: Float = 0.0, noiseScale: Float = 1.0) throws {
@@ -101,7 +104,6 @@ extension FeatureEncoder {
         default:
             throw IMPError.typeNotSupported
         }
-        
     }
     
     func encodeNumber(obj: NSNumber, path: String, into: inout [Double], noiseShift: Float, noiseScale: Float) {

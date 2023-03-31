@@ -1,0 +1,26 @@
+{
+    "test_case": {
+        "item": {
+            "text": "lovely corgi",
+            "chars": 12,
+            "words": 2
+        },
+        "context": {
+            "given_0": 0.0,
+            "given_1": [
+                0,
+                1,
+                2
+            ],
+            "given_2": {
+                "0": 0.0,
+                "1": "dummy_str"
+            }
+        }
+    },
+    "test_output": [1.5974802e-43, 1.5974802e-43, 1.0000068e+00, 2.0000136e+00, 1.5974802e-43, 1.0000068e+00, 1.0000068e+00, 1.2000082e+01, 2.0000136e+00],
+    "model_seed": 1,
+    "feature_names": ["context.given_0", "context.given_1.0", "context.given_1.1", "context.given_1.2", "context.given_2.0", "context.given_2.1", "item.text", "item.chars", "item.words"],
+    "string_tables": {"item.text":  [1], "context.given_2.1":  [1]},
+    "noise": 0.8928601514360016
+}

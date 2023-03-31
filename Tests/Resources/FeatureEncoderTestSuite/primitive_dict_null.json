@@ -1,0 +1,12 @@
+{
+    "test_case": {
+        "item": {
+            "$value": null
+        }
+    },
+    "test_output": [null],
+    "model_seed": 1,
+    "feature_names": ["item.$value"],
+    "string_tables": {},
+    "noise": 0.8928601514360016
+}

@@ -1,0 +1,10 @@
+{
+    "test_case": {
+        "item": {"a": null, "d": null, "e": null}
+    },
+    "test_output": [null, null, null, null, null],
+    "model_seed": 1,
+    "feature_names": ["item.a", "item.b", "item.c", "item.d", "item.e"],
+    "string_tables": {},
+    "noise": 0.8928601514360016
+}
