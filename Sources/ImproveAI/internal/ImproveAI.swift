@@ -7,4 +7,4 @@
 
 import Foundation
 
-public let version = "7.2"
+public let sdkVersion = "8.0.0"

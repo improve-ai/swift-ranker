@@ -284,7 +284,7 @@ class TestDecisionModel: XCTestCase {
     }
     
     func testVersion() {
-        XCTAssertEqual("7.2", ImproveAI.version)
+        XCTAssertEqual("7.2", ImproveAI.sdkVersion)
     }
     
     func download(url: URL) -> URL {

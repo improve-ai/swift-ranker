@@ -6,24 +6,16 @@
 //
 
 import XCTest
-import ImproveAI
+@testable import ImproveAI
 
 final class TestFeatureEncoder: XCTestCase {
 
-    var featureNames: Set<String>!
-    
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
-        self.featureNames = Set(loadFeatureNames())
     }
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-    
-    func loadFeatureNames() -> [String] {
-        let data = Bundle.stringContentOfFile(filename: "feature_names.txt")
-        return data.components(separatedBy: "\n").filter { !$0.isEmpty }
     }
     
     func testFeatureEncoder() throws {
@@ -42,7 +34,7 @@ final class TestFeatureEncoder: XCTestCase {
     func verify(_ root: [String : Any]) {
         let featureNames = root["feature_names"] as! [String]
         let stringTables = root["string_tables"] as! [String : [UInt64]]
-        let modelSeed = root["model_seed"] as! Int
+        let modelSeed = root["model_seed"] as! UInt32
         let noise = (root["noise"] as! NSNumber).floatValue
         
         let testcase = root["test_case"] as! [String : Any]
@@ -81,6 +73,46 @@ final class TestFeatureEncoder: XCTestCase {
                 XCTAssertTrue(features[i].isNaN)
             } else {
                 XCTAssertEqual(Float(expected[i]), Float(features[i]), accuracy: 0.000001)
+            }
+        }
+    }
+    
+    func testCollision() throws {
+        let allTestFileNames = ["collisions_none_items_valid_context.json",
+                         "collisions_valid_items_and_context.json",
+                         "collisions_valid_items_no_context.json"]
+        for filename in allTestFileNames {
+            print(">>> start testing: \(filename)")
+            try verifyCollision(Bundle.dictFromFile(filename: filename))
+            print(">>> end testing: \(filename)\n")
+        }
+    }
+    
+    func verifyCollision(_ root: [String : Any]) throws {
+        let featureNames = root["feature_names"] as! [String]
+        let stringTables = root["string_tables"] as! [String : [UInt64]]
+        let modelSeed = root["model_seed"] as! UInt32
+        let noise = (root["noise"] as! NSNumber).floatValue
+        let featureEncoder = try! FeatureEncoder(featureNames: featureNames, stringTables: stringTables, modelSeed: modelSeed)
+
+        let items: [Any] = (root["test_case"] as! [String : [Any]])["items"]!
+        let contexts: [Any?]? = (root["test_case"] as? [String : [Any?]])?["contexts"]
+        let outputs: [[Double?]] = root["test_output"] as! [[Double?]]
+        XCTAssertGreaterThan(items.count, 0)
+        
+        for i in 0..<items.count {
+            var featureVector = [Double](repeating: Double.nan, count: featureNames.count)
+            try featureEncoder.encodeFeatureVector(item: items[i], context: contexts?[i], into: &featureVector, noise: noise)
+            let expected = outputs[i]
+            XCTAssertEqual(expected.count, featureVector.count)
+            XCTAssertGreaterThan(expected.count, 0)
+            
+            for j in 0..<expected.count {
+                if expected[j] != nil {
+                    XCTAssertEqual(expected[j]!, featureVector[j], accuracy: 0.000000000000001)
+                } else {
+                    XCTAssertTrue(featureVector[j].isNaN)
+                }
             }
         }
     }

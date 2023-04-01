@@ -16,15 +16,16 @@ fileprivate let CONTEXT_FEATURE_KEY = "context"
 fileprivate let FIRST_LEVEL_FEATURES_CHUNKS = Set([ITEM_FEATURE_KEY, CONTEXT_FEATURE_KEY])
 
 public struct FeatureEncoder {
+    static let defaultNoise: Float = 0.0
     let featureNames: [String]
     
-    let modelSeed: Int
+    let modelSeed: UInt32
     
     let stringTables: [StringTable]
     
     let featureIndexes: [String : Int]
     
-    public init(featureNames: [String], stringTables: [String : [UInt64]], modelSeed: Int) throws {
+    public init(featureNames: [String], stringTables: [String : [UInt64]], modelSeed: UInt32) throws {
         self.featureNames = featureNames
         self.modelSeed = modelSeed
         self.featureIndexes = featureNames.reduce(into: [String : Int]()) { partialResult, value in
@@ -41,12 +42,18 @@ public struct FeatureEncoder {
         self.stringTables = tmp
     }
     
-    public func encodeFeatureVector(item: Any, context: Any?, into: inout [Double], noise: Float = 0.0) throws {
+    func encodeFeatureVector(item: Any, context: Any?, into: inout [Double], noise: Float = defaultNoise) throws {
         let p: (noiseShift: Double, noiseScale: Double) = getNoiseAndShiftScale(noise: noise)
         
         try self.encodeItem(item: item, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
         
         try self.encodeContext(context: context, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
+    }
+    
+    func encodeFeatureVectors(items: [Any], context: Any?, into: inout [[Double]], noise: Float = defaultNoise) throws {
+        for (index, item) in items.enumerated() {
+            try encodeFeatureVector(item: item, context: context, into: &into[index], noise: noise)
+        }
     }
 }
 
@@ -154,7 +161,7 @@ extension FeatureEncoder {
 }
 
 struct StringTable {
-    let modelSeed: Int
+    let modelSeed: UInt32
     
     let mask: Int
     
@@ -162,7 +169,7 @@ struct StringTable {
     
     let valueTable: [UInt64 : Double]
     
-    init(stringTable: [UInt64], modelSeed: Int) {
+    init(stringTable: [UInt64], modelSeed: UInt32) {
         self.modelSeed = modelSeed
         self.mask = Self.getMask(stringTable)
         

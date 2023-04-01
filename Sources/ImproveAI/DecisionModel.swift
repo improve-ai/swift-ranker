@@ -73,7 +73,7 @@ public class DecisionModel {
             
             let versionString = creatorDefined["ai.improve.version"] as? String
             if !canParseVersion(versionString) {
-                throw IMPError.invalidModel(reason: "Major version of ImproveAI SDK(\(version)) and extracted model version(\(versionString ?? "")) don't match!")
+                throw IMPError.invalidModel(reason: "Major version of ImproveAI SDK(\(sdkVersion)) and extracted model version(\(versionString ?? "")) don't match!")
             }
             
             let seedString = creatorDefined["ai.improve.model.seed"] as! String
@@ -252,7 +252,7 @@ extension DecisionModel {
         guard let versionString = versionString else {
             return true
         }
-        let array = version.components(separatedBy: ".")
+        let array = sdkVersion.components(separatedBy: ".")
         let prefix = "\(array[0])."
         return versionString.hasPrefix(prefix) || versionString == array[0]
     }
