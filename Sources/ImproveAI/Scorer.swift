@@ -38,11 +38,7 @@ public struct Scorer {
         self.featureEncoder = try FeatureEncoder(featureNames: featureNames, stringTables: metadata.stringTables, modelSeed: metadata.seed)
     }
     
-    public func score(items: [Any]) throws -> [Double] {
-        return try score(items: items, context: nil)
-    }
-    
-    public func score(items: [Any], context: Any?) throws -> [Double] {
+    public func score(items: [Any], context: Any? = nil) throws -> [Double] {
         if items.isEmpty {
             throw IMPError.emptyVariants
         }
