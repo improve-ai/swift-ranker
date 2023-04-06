@@ -43,6 +43,9 @@ public struct Scorer {
     }
     
     public func score(items: [Any], context: Any?) throws -> [Double] {
+        if items.isEmpty {
+            throw IMPError.emptyVariants
+        }
         return try lockQueue.sync {
             var featureVectors: [[Double]] = [[Double]].init(repeating: [Double].init(repeating: Double.nan, count: self.featureNames.count), count: items.count)
             try self.featureEncoder.encodeFeatureVectors(items: items, context: context, into: &featureVectors, noise: self.noise)

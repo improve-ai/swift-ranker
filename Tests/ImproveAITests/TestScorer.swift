@@ -25,7 +25,27 @@ final class TestScorer: XCTestCase {
     func testScore() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         let scores = try scorer.score(items: [1, 2 ,3])
-        print("scores: \(scores)")
+        XCTAssertEqual(3, scores.count)
+    }
+    
+    func testScore_empty() throws {
+        let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
+        do {
+            let _ = try scorer.score(items: [])
+            XCTFail("expecting an error")
+        } catch {
+            print("error: \(error)")
+        }
+    }
+    
+    func testScoreWithContext_empty() throws {
+        let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
+        do {
+            let _ = try scorer.score(items: [], context: nil)
+            XCTFail("expecting an error")
+        } catch {
+            print("error: \(error)")
+        }
     }
     
     func testInvalidModel_obselete() throws {
