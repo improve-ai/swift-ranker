@@ -57,9 +57,14 @@ public struct RewardTracker {
         var body: [String : Any] = [:]
         body[Constants.Tracker.typeKey] = RequestType.decision.rawValue
         body[Constants.Tracker.modelKey] = self.modelName
-        body[Constants.Tracker.itemKey] = item
         body[Constants.Tracker.countKey] = numCandidates
         body[Constants.Tracker.messageIdKey] = ksuid
+        
+        if let item = item {
+            body[Constants.Tracker.itemKey] = item
+        } else {
+            body[Constants.Tracker.itemKey] = NSNull()
+        }
         
         if let sample = sample {
             body[Constants.Tracker.sampleKey] = sample

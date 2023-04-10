@@ -40,6 +40,20 @@ final class TestRewardTracker: XCTestCase {
         XCTAssertEqual(2, lastPostData["count"] as? Int)
     }
     
+    func testTrack_null_item() throws {
+        let rewardId = try tracker.track(item: nil, candidates: [nil, "hi"])
+        XCTAssertEqual(27, rewardId.count)
+        
+        let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
+        XCTAssertEqual(6, lastPostData.count)
+        XCTAssertEqual("decision", lastPostData["type"] as? String)
+        XCTAssertEqual("greetings", lastPostData["model"] as? String)
+        XCTAssertEqual("hi", lastPostData["sample"] as? String)
+        XCTAssertEqual(NSNull(), lastPostData["item"] as? NSNull)
+        XCTAssertEqual(27, (lastPostData["message_id"] as? String)?.count)
+        XCTAssertEqual(2, lastPostData["count"] as? Int)
+    }
+    
     func testTrack_null_sample() throws {
         let rewardId = try tracker.track(item: "hi", candidates: ["hi", nil])
         XCTAssertEqual(27, rewardId.count)
