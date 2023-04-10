@@ -10,7 +10,7 @@ import CoreML
 import zlib
 import struct Foundation.Data
 
-public typealias DownloadCompletionBlock = (URL?, Error?) -> Void
+typealias DownloadCompletionBlock = (URL?, Error?) -> Void
 
 class ModelLoader : NSObject {
     lazy var session: URLSession = {

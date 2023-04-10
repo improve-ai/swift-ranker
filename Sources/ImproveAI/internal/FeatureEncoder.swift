@@ -15,7 +15,7 @@ fileprivate let CONTEXT_FEATURE_KEY = "context"
 
 fileprivate let FIRST_LEVEL_FEATURES_CHUNKS = Set([ITEM_FEATURE_KEY, CONTEXT_FEATURE_KEY])
 
-public struct FeatureEncoder {
+struct FeatureEncoder {
     static let defaultNoise: Float = 0.0
     let featureNames: [String]
     

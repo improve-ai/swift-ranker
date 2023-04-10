@@ -7,17 +7,30 @@
 
 import Foundation
 
-struct Ranker {
+public struct Ranker {
     let scorer: Scorer
     
+    /// Create an instance
+    ///
+    /// - Parameters:
+    ///   - scorer: A `Scorer` instance
     init(scorer: Scorer) {
         self.scorer = scorer
     }
     
+    /// Create an instance
+    ///
+    /// - Parameters:
+    ///   - modelUrl: URL of a plain or gzip compressed CoreML model resource.
     init(modelUrl: URL) throws {
         self.scorer = try Scorer(modelUrl: modelUrl)
     }
     
+    /// Rank the list of items by their scores.
+    ///
+    /// - Parameters:
+    ///   - items: The list of items to rank.
+    ///   - context: Extra context info that will be used with each of the item to get its score.
     public func rank<T>(items: [T], context: Any? = nil) throws -> [T] {
         let scores = try self.scorer.score(items: items, context: context)
         return try Self.rank_with_score(items: items, scores: scores)

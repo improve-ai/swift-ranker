@@ -22,6 +22,12 @@ public struct RewardTracker {
     
     var writePostData = false
     
+    /// Create an instance.
+    ///
+    /// - Parameters:
+    ///   - modelName: Name of the model
+    ///   - trackUrl: Improve AI AWS track endpoint URL that all tracked data will be sent to.
+    ///   - trackApiKey: AWS track endpoint API key (if applicable); Can be nil.
     public init(modelName: String, trackUrl: URL, trackApiKey: String? = nil) throws {
         if(!isValidModelName(modelName)) {
             throw IMPError.invalidArgument(reason: "invalid model name")
@@ -31,7 +37,13 @@ public struct RewardTracker {
         self.trackApiKey = trackApiKey
     }
     
-    /// Tracks the item and the candiates that it was selected from.
+    /// Tracks the item selected from candidates and a random sample from the remaining items.
+    ///
+    /// - Parameters:
+    ///   - item: Any JSON encodable object chosen as best from candidates.
+    ///   - candidates: Collection of items from which best is chosen.
+    ///   - context: Extra context info that was used with each of the item to get its score.
+    /// - Returns: Id of this track request.
     public func track<T : Equatable>(item: T?, candidates: [T?], context: Any? = nil) throws -> String {
         var samples = candidates
         guard let index = candidates.firstIndex(where: { $0 == item }) else { throw IMPError.invalidArgument(reason: "candidates must include item!") }
@@ -47,6 +59,14 @@ public struct RewardTracker {
         }
     }
     
+    /// Tracks the item selected and a specific sample.
+    ///
+    /// - Parameters:
+    ///   - item: The selected item.
+    ///   - sample: A specific sample from the candidates.
+    ///   - numCandidates: Total number of candidates, including the selected item.
+    ///   - context: Extra context info that was used with each of the item to get its score.
+    /// - Returns: Id of this track equest
     public func track(item: Any?, sample: Any?, numCandidates: Int, context: Any? = nil) throws -> String {
         guard let ksuid = try? ksuid() else {
             // We don't expect SecRandomCopyBytes() to fail in production which leads to a nil ksuid.
@@ -79,6 +99,11 @@ public struct RewardTracker {
         return ksuid
     }
     
+    /// Add reward for the provided rewardId
+    ///
+    /// - Parameters:
+    ///   - reward: The reward to add. Must not be NaN or Infinite.
+    ///   - rewardId: The id that was returned from the track() methods.
     public func addReward(reward: Double, rewardId: String) throws {
         if reward.isNaN || reward.isInfinite {
             throw IMPError.invalidArgument(reason: "reward can't be NaN or Infinite")

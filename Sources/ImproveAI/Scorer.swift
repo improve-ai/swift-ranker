@@ -24,6 +24,10 @@ public struct Scorer {
     
     var noise: Float = FeatureEncoder.defaultNoise
     
+    /// Create a Scorer
+    ///
+    /// - Parameters:
+    ///   - modelUrl: URL of a plain or gzip compressed CoreML model resource.
     public init(modelUrl: URL) throws {
         self.modelUrl = modelUrl
         
@@ -38,6 +42,11 @@ public struct Scorer {
         self.featureEncoder = try FeatureEncoder(featureNames: featureNames, stringTables: metadata.stringTables, modelSeed: metadata.seed)
     }
     
+    /// Uses the model to score a list of items with the given context.
+    ///
+    /// - Parameters:
+    ///  - items: The list of items to score.
+    ///  - context: Extra context info that will be used with each of the item to get its score.
     public func score(items: [Any?], context: Any? = nil) throws -> [Double] {
         if items.isEmpty {
             throw IMPError.emptyVariants
