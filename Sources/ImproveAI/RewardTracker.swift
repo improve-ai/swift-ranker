@@ -14,11 +14,11 @@ enum RequestType: String {
 }
 
 public struct RewardTracker {
-    let modelName: String
+    public let modelName: String
     
-    let trackUrl: URL
+    public let trackUrl: URL
     
-    let trackApiKey: String?
+    public let trackApiKey: String?
     
     var writePostData = false
     
