@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>RewardTracker Structure Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset="utf-8">
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+
+    <a name="//apple_ref/swift/Struct/RewardTracker" class="dashAnchor"></a>
+
+    <a title="RewardTracker Structure Reference"></a>
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="../index.html">
+          Improve AI iOS SDK(8.0.0)
+        </a>
+         (100% documented)
+      </p>
+    
+      <div class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
+      </div>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/improve-ai/ios-sdk">
+            <img class="header-icon" src="../img/gh.png" alt="GitHub"/>
+            View on GitHub
+          </a>
+        </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="dash-feed://https%3A%2F%2Fimprove-ai.github.io%2Fios-sdk%2Fdocsets%2F.xml">
+            <img class="header-icon" src="../img/dash.png" alt="Dash"/>
+            Install in Dash
+          </a>
+        </p>
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="../index.html"> Reference</a>
+      <img class="carat" src="../img/carat.png" alt=""/>
+      RewardTracker Structure Reference
+    </p>
+
+    <div class="content-wrapper">
+      <nav class="navigation">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/Ranker.html">Ranker</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/RewardTracker.html">RewardTracker</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/Scorer.html">Scorer</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+
+        <section class="section">
+          <div class="section-content top-matter">
+            <h1>RewardTracker</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">RewardTracker</span></code></pre>
+
+                </div>
+              </div>
+            
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-content">
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13RewardTrackerV9modelName8trackUrl0G6ApiKeyACSS_10Foundation3URLVSSSgtKcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(modelName:trackUrl:trackApiKey:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13RewardTrackerV9modelName8trackUrl0G6ApiKeyACSS_10Foundation3URLVSSSgtKcfc">init(modelName:<wbr>trackUrl:<wbr>trackApiKey:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create an instance.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">modelName</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">trackUrl</span><span class="p">:</span> <span class="kt">URL</span><span class="p">,</span> <span class="nv">trackApiKey</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>modelName</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Name of the model</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>trackUrl</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Improve AI AWS track endpoint URL that all tracked data will be sent to.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>trackApiKey</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>AWS track endpoint API key (if applicable); Can be nil.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13RewardTrackerV5track4item10candidates7contextSSxSg_SayAHGypSgtKSQRzlF"></a>
+                    <a name="//apple_ref/swift/Method/track(item:candidates:context:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13RewardTrackerV5track4item10candidates7contextSSxSg_SayAHGypSgtKSQRzlF">track(item:<wbr>candidates:<wbr>context:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Tracks the item selected from candidates and a random sample from the remaining items.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">track</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">item</span><span class="p">:</span> <span class="kt">T</span><span class="p">?,</span> <span class="nv">candidates</span><span class="p">:</span> <span class="p">[</span><span class="kt">T</span><span class="p">?],</span> <span class="nv">context</span><span class="p">:</span> <span class="kt">Any</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">String</span> <span class="k">where</span> <span class="kt">T</span> <span class="p">:</span> <span class="kt">Equatable</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>item</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Any JSON encodable object chosen as best from candidates.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>candidates</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Collection of items from which best is chosen.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>context</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Extra context info that was used with each of the item to get its score.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Id of this track request.</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13RewardTrackerV5track4item6sample13numCandidates7contextSSypSg_AISiAItKF"></a>
+                    <a name="//apple_ref/swift/Method/track(item:sample:numCandidates:context:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13RewardTrackerV5track4item6sample13numCandidates7contextSSypSg_AISiAItKF">track(item:<wbr>sample:<wbr>numCandidates:<wbr>context:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Tracks the item selected and a specific sample.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">track</span><span class="p">(</span><span class="nv">item</span><span class="p">:</span> <span class="kt">Any</span><span class="p">?,</span> <span class="nv">sample</span><span class="p">:</span> <span class="kt">Any</span><span class="p">?,</span> <span class="nv">numCandidates</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="nv">context</span><span class="p">:</span> <span class="kt">Any</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>item</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The selected item.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>sample</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A specific sample from the candidates.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>numCandidates</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Total number of candidates, including the selected item.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>context</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Extra context info that was used with each of the item to get its score.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Id of this track equest</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9ImproveAI13RewardTrackerV03addC06reward0F2IdySd_SStKF"></a>
+                    <a name="//apple_ref/swift/Method/addReward(reward:rewardId:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9ImproveAI13RewardTrackerV03addC06reward0F2IdySd_SStKF">addReward(reward:<wbr>rewardId:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Add reward for the provided rewardId</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">addReward</span><span class="p">(</span><span class="nv">reward</span><span class="p">:</span> <span class="kt">Double</span><span class="p">,</span> <span class="nv">rewardId</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>reward</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The reward to add. Must not be NaN or Infinite.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>rewardId</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The id that was returned from the track() methods.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </article>
+    </div>
+    <section class="footer">
+      <p>&copy; 2023 <a class="link" href="https://improve.ai" target="_blank" rel="external noopener">Improve AI</a>. All rights reserved. (Last updated: 2023-04-10)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+    </section>
+  </body>
+</html>
