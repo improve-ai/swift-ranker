@@ -42,7 +42,7 @@ public struct FeatureEncoder {
         self.stringTables = tmp
     }
     
-    func encodeFeatureVector(item: Any, context: Any?, into: inout [Double], noise: Float = defaultNoise) throws {
+    func encodeFeatureVector(item: Any?, context: Any?, into: inout [Double], noise: Float = defaultNoise) throws {
         let p: (noiseShift: Double, noiseScale: Double) = getNoiseAndShiftScale(noise: noise)
         
         try self.encodeItem(item: item, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
@@ -50,7 +50,7 @@ public struct FeatureEncoder {
         try self.encodeContext(context: context, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
     }
     
-    func encodeFeatureVectors(items: [Any], context: Any?, into: inout [[Double]], noise: Float = defaultNoise) throws {
+    func encodeFeatureVectors(items: [Any?], context: Any?, into: inout [[Double]], noise: Float = defaultNoise) throws {
         for (index, item) in items.enumerated() {
             try encodeFeatureVector(item: item, context: context, into: &into[index], noise: noise)
         }

@@ -24,7 +24,7 @@ final class TestScorer: XCTestCase {
     
     func testScore() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
-        let scores = try scorer.score(items: [1, 2 ,3])
+        let scores = try scorer.score(items: [1, 2, nil])
         XCTAssertEqual(3, scores.count)
     }
     
