@@ -9,11 +9,6 @@ import XCTest
 @testable import ImproveAI
 
 final class TestScorer: XCTestCase {
-
-    var bundledV8ModelUrl: URL {
-        Bundle.test.url(forResource: "model_v8", withExtension: "mlmodelc")!
-    }
-    
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }

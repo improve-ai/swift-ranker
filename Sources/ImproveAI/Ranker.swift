@@ -18,12 +18,7 @@ struct Ranker {
         self.scorer = try Scorer(modelUrl: modelUrl)
     }
     
-    public func rank<T>(items: [T]) throws -> [T] {
-        let scores = try self.scorer.score(items: items)
-        return try Self.rank_with_score(items: items, scores: scores)
-    }
-    
-    public func rank<T>(items: [T], context: [Any]) throws -> [T] {
+    public func rank<T>(items: [T], context: Any? = nil) throws -> [T] {
         let scores = try self.scorer.score(items: items, context: context)
         return try Self.rank_with_score(items: items, scores: scores)
     }

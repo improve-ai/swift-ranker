@@ -16,6 +16,10 @@ let zippedModelURL = URL(string: "https://improveai-mindblown-mindful-prod-model
 
 let plainModelURL = URL(string: "https://improveai-mindblown-mindful-dev-models.s3.amazonaws.com/deleteme/messages-v7.mlmodel")!
 
+let bundledV8ModelUrl: URL = {
+    Bundle.test.url(forResource: "model_v8", withExtension: "mlmodelc")!
+}()
+
 func model() -> DecisionModel {
     return try! DecisionModel(modelName: "greetings")
 }
