@@ -10,7 +10,7 @@ import XCTest
 
 final class TestRewardTracker: XCTestCase {
 
-    static let trackUrl = URL(string: "https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track")!
+    static let trackUrl = URL(string: "https://f6f7vxez5b5u25l2pw6qzpr7bm0qojug.lambda-url.us-east-2.on.aws/")!
     
     let tracker = {
         var tracker = try! RewardTracker(modelName: "greetings", trackUrl: trackUrl)
@@ -24,6 +24,11 @@ final class TestRewardTracker: XCTestCase {
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
+    }
+    
+    private func clearCachedTrackingData() {
+        UserDefaults.standard.removeObject(forKey: Constants.Tracker.lastPostData)
+        UserDefaults.standard.removeObject(forKey: Constants.Tracker.lastPostRsp)
     }
     
     func testTrack() throws {
@@ -150,6 +155,13 @@ final class TestRewardTracker: XCTestCase {
         XCTAssertEqual("2ODatv95LBsqbCgK0VDSD0hcm5n", lastPostData["decision_id"] as? String)
         XCTAssertEqual(27, (lastPostData["message_id"] as? String)?.count)
         XCTAssertEqual(0.1, lastPostData["reward"] as? Double)
+    }
+    
+    func testTrackRequest() throws {
+        clearCachedTrackingData()
+        let _ = try tracker.track(item: "hi", candidates: ["hi", "hello"])
+        Thread.sleep(forTimeInterval: 10)
+        XCTAssertEqual("{\"status\":\"success\"}", UserDefaults.standard.value(forKey: Constants.Tracker.lastPostRsp) as? String)
     }
 }
 

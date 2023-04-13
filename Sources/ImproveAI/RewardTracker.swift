@@ -147,7 +147,7 @@ extension RewardTracker {
         request.allHTTPHeaderFields = headers
         request.httpBody = postData
         
-        let session = URLSession(configuration: URLSessionConfiguration.default, delegate: nil, delegateQueue: OperationQueue.main)
+        let session = URLSession(configuration: URLSessionConfiguration.default, delegate: nil, delegateQueue: nil)
         let dataTask = session.dataTask(with: request) { data, response, error in
             if let error = error {
                 let statusCode = (response as? HTTPURLResponse)?.statusCode
@@ -157,6 +157,9 @@ extension RewardTracker {
             
             if let data = data, let dataString = String(data: data, encoding: .utf8) {
                 print("track response: \(dataString)")
+                if writePostData {
+                    UserDefaults.standard.setValue(dataString, forKey: Constants.Tracker.lastPostRsp)
+                }
             }
         }
         dataTask.resume()
@@ -194,5 +197,6 @@ struct Constants {
         static let apiKeyHeader = "x-api-key"
         
         static let lastPostData = "last_post_data"
+        static let lastPostRsp = "last_post_rsp"
     }
 }
