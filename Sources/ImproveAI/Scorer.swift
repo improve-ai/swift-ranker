@@ -55,7 +55,7 @@ public struct Scorer {
             var featureVectors: [[Double]] = [[Double]].init(repeating: [Double].init(repeating: Double.nan, count: self.featureNames.count), count: items.count)
             try self.featureEncoder.encodeFeatureVectors(items: items, context: context, into: &featureVectors, noise: self.noise)
             
-            let batchProvider = MLArrayBatchProvider(array: featureVectors.map{ FeatureProvider(featureVector: $0, featureNames: Set(featureNames)) })
+            let batchProvider = MLArrayBatchProvider(array: featureVectors.map{ FeatureProvider(featureVector: $0, featureNames: featureNames) })
             let predictions = try self.model.predictions(fromBatch: batchProvider)
 
             var result = [Double](repeating: 0, count: predictions.count)

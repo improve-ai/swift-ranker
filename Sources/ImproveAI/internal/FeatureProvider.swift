@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  FeatureProvider.swift
 //  
 //
 //  Created by Hongxi Pan on 2023/4/3.
@@ -13,16 +13,18 @@ class FeatureProvider: MLFeatureProvider {
     
     var featureNames: Set<String>
     
-    var curIndex = 0
+    let featureIndexes: [String : Int]
     
-    init(featureVector: [Double], featureNames: Set<String>) {
+    init(featureVector: [Double], featureNames: [String]) {
         self.featureVector = featureVector
-        self.featureNames = featureNames
+        self.featureNames = Set(featureNames)
+        self.featureIndexes = featureNames.reduce(into: [String : Int]()) { partialResult, value in
+            partialResult[value] = partialResult.count
+        }
     }
     
     func featureValue(for featureName: String) -> MLFeatureValue? {
-        let value = MLFeatureValue(double: Double(Float32(self.featureVector[curIndex])))
-        curIndex += 1
-        return value
+        let index = self.featureIndexes[featureName]!
+        return MLFeatureValue(double: Double(Float32(self.featureVector[index])))
     }
 }
