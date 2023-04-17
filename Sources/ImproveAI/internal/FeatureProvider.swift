@@ -15,12 +15,10 @@ class FeatureProvider: MLFeatureProvider {
     
     let featureIndexes: [String : Int]
     
-    init(featureVector: [Double], featureNames: [String]) {
+    init(featureVector: [Double], featureNames: [String], indexes: [String : Int]) {
         self.featureVector = featureVector
         self.featureNames = Set(featureNames)
-        self.featureIndexes = featureNames.reduce(into: [String : Int]()) { partialResult, value in
-            partialResult[value] = partialResult.count
-        }
+        self.featureIndexes = indexes
     }
     
     func featureValue(for featureName: String) -> MLFeatureValue? {
