@@ -38,7 +38,7 @@ public struct Scorer {
         self.model = result.model!
         
         self.metadata = try ModelMetadata(from: model.modelDescription.metadata[.creatorDefinedKey] as! [String : String])
-        self.featureNames = model.modelDescription.inputDescriptionsByName.keys.map { $0 }.sorted()
+        self.featureNames = model.modelDescription.inputDescriptionsByName.keys.map { $0 }
         self.featureEncoder = try FeatureEncoder(featureNames: featureNames, stringTables: metadata.stringTables, modelSeed: metadata.seed)
     }
     

@@ -116,7 +116,6 @@ extension ModelLoader : URLSessionDataDelegate {
     }
     
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        print("didReceiveData: \(data.count)")
         var status: Int32 = Z_OK
         var zipOutputData = Data(capacity: data.count * 2)
         let total_out = zstream.total_out
