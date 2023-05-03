@@ -9,8 +9,112 @@ The SDKs provide simple APIs for AI [decisions](https://improve.ai/decisions/), 
 In Xcode:
 
 * File -> Add Packages...
-* In 'Search or Enter Package URL' paste <https://github.com/improve-ai/ios-sdk.git>
+* In 'Search or Enter Package URL' paste <https://github.com/improve-ai/swift-ranker.git>
 
+
+## Instructions for ChatGPT
+
+Paste the following into your ChatGPT prompt to have it write code against the ImproveAI APIs:
+
+```
+The following is the Swift API documentation for ImproveAI, which is imported with import ImproveAI. When generating examples from this documentation,
+include details on item tracking and reward assignment. Simply respond with 'ImproveAI documentation imported':
+
+/**
+ A utility for ranking items based on their scores. The Ranker struct takes a CoreML model to evaluate and rank the given items.
+ */
+public struct Ranker {
+    
+    /**
+     Create a Ranker instance with a CoreML model.
+     
+     - Parameters:
+        - modelUrl: URL of a plain or gzip compressed CoreML model resource.
+     
+     - Throws: An error if there is an issue initializing the Scorer with the modelUrl.
+    */
+    init(modelUrl: URL) throws
+    
+    /**
+     Rank the list of items by their scores.
+     
+     - Parameters:
+        - items: The list of items to rank.
+        - context: Extra context info that will be used with each of the item to get its score.
+     
+     - Returns: An array of ranked items, sorted by their scores in descending order.
+     
+     - Throws: An error if there is an issue ranking the items.
+    */
+    public func rank<T>(items: [T], context: Any? = nil) throws -> [T] 
+}
+
+/**
+ Scores items with optional context using a CoreML model.
+ */
+public struct Scorer {
+
+    /**
+     Initialize a Scorer instance.
+     
+     - Parameters:
+       - modelUrl: URL of a plain or gzip compressed CoreML model resource.
+     - Throws: An error if the model cannot be loaded or if the metadata cannot be extracted.
+     */
+    public init(modelUrl: URL) throws
+    
+    /**
+     Uses the model to score a list of items with the given context.
+     
+     - Parameters:
+      - items: The list of items to score.
+      - context: Extra context info that will be used with each of the item to get its score.
+     - Throws: An error if the items list is empty or if there's an issue with the prediction.
+     - Returns: An array of `Double` values representing the scores of the items.
+     */
+    public func score(items: [Any?], context: Any? = nil) throws -> [Double]
+}
+
+/**
+ Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the track() function, which will return a rewardId. Use the rewardId to track future rewards associated with that item.
+ */
+public struct RewardTracker {
+    
+    /// Create an instance.
+    ///
+    /// - Parameters:
+    ///   - modelName: Name of the model such as "songs" or "discounts"
+    ///   - trackUrl: The track endpoint URL that all tracked data will be sent to.
+    ///   - trackApiKey: track endpoint API key (if applicable); Can be nil.
+    public init(modelName: String, trackUrl: URL, trackApiKey: String? = nil) throws
+    
+    /// Tracks the item selected from candidates and a random sample from the remaining items.
+    ///
+    /// - Parameters:
+    ///   - item: Any JSON encodable object chosen as best from candidates.
+    ///   - candidates: Collection of items from which best is chosen.
+    ///   - context: Extra context info that was used with each of the item to get its score.
+    /// - Returns: rewardId of this track request.
+    public func track<T : Equatable>(item: T?, candidates: [T?], context: Any? = nil) throws -> String
+    
+    /// Tracks the item selected and a specific sample.
+    ///
+    /// - Parameters:
+    ///   - item: The selected item.
+    ///   - sample: A specific sample from the candidates.
+    ///   - numCandidates: Total number of candidates, including the selected item.
+    ///   - context: Extra context info that was used with each of the item to get its score.
+    /// - Returns: rewardId of this track equest
+    public func track(item: Any?, sample: Any?, numCandidates: Int, context: Any? = nil) throws -> String
+    
+    /// Add reward for the provided rewardId
+    ///
+    /// - Parameters:
+    ///   - reward: The reward to add. Must not be NaN or Infinite.
+    ///   - rewardId: The id that was returned from the track() methods.
+    public func addReward(reward: Double, rewardId: String) throws {
+
+```
 ## Initialization
 
 ```swift

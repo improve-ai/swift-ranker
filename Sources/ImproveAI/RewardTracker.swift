@@ -13,6 +13,9 @@ enum RequestType: String {
     case reward = "reward"
 }
 
+/**
+ Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the track() function, which will return a rewardId. Use the rewardId to track future rewards associated with that item.
+ */
 public struct RewardTracker {
     public let modelName: String
     
@@ -25,9 +28,9 @@ public struct RewardTracker {
     /// Create an instance.
     ///
     /// - Parameters:
-    ///   - modelName: Name of the model
-    ///   - trackUrl: Improve AI AWS track endpoint URL that all tracked data will be sent to.
-    ///   - trackApiKey: AWS track endpoint API key (if applicable); Can be nil.
+    ///   - modelName: Name of the model such as "songs" or "discounts"
+    ///   - trackUrl: The track endpoint URL that all tracked data will be sent to.
+    ///   - trackApiKey: track endpoint API key (if applicable); Can be nil.
     public init(modelName: String, trackUrl: URL, trackApiKey: String? = nil) throws {
         if(!isValidModelName(modelName)) {
             throw IMPError.invalidArgument(reason: "invalid model name")
@@ -43,7 +46,7 @@ public struct RewardTracker {
     ///   - item: Any JSON encodable object chosen as best from candidates.
     ///   - candidates: Collection of items from which best is chosen.
     ///   - context: Extra context info that was used with each of the item to get its score.
-    /// - Returns: Id of this track request.
+    /// - Returns: rewardId of this track request.
     public func track<T : Equatable>(item: T?, candidates: [T?], context: Any? = nil) throws -> String {
         var samples = candidates
         guard let index = candidates.firstIndex(where: { $0 == item }) else { throw IMPError.invalidArgument(reason: "candidates must include item!") }
@@ -66,7 +69,7 @@ public struct RewardTracker {
     ///   - sample: A specific sample from the candidates.
     ///   - numCandidates: Total number of candidates, including the selected item.
     ///   - context: Extra context info that was used with each of the item to get its score.
-    /// - Returns: Id of this track equest
+    /// - Returns: rewardId of this track equest
     public func track(item: Any?, sample: Any?, numCandidates: Int, context: Any? = nil) throws -> String {
         guard let ksuid = try? ksuid() else {
             // We don't expect SecRandomCopyBytes() to fail in production which leads to a nil ksuid.

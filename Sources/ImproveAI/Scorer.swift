@@ -1,6 +1,6 @@
 //
 //  Scorer.swift
-//  
+//
 //
 //  Created by Hongxi Pan on 2023/4/1.
 //
@@ -8,7 +8,9 @@
 import Foundation
 import CoreML
 
-
+/**
+ Scores items with optional context using a CoreML model.
+ */
 public struct Scorer {
     let modelUrl: URL
     
@@ -24,10 +26,13 @@ public struct Scorer {
     
     var noise: Float = FeatureEncoder.defaultNoise
     
-    /// Create a Scorer
-    ///
-    /// - Parameters:
-    ///   - modelUrl: URL of a plain or gzip compressed CoreML model resource.
+    /**
+     Initialize a Scorer instance.
+     
+     - Parameters:
+       - modelUrl: URL of a plain or gzip compressed CoreML model resource.
+     - Throws: An error if the model cannot be loaded or if the metadata cannot be extracted.
+     */
     public init(modelUrl: URL) throws {
         self.modelUrl = modelUrl
         
@@ -42,11 +47,15 @@ public struct Scorer {
         self.featureEncoder = try FeatureEncoder(featureNames: featureNames, stringTables: metadata.stringTables, modelSeed: metadata.seed)
     }
     
-    /// Uses the model to score a list of items with the given context.
-    ///
-    /// - Parameters:
-    ///  - items: The list of items to score.
-    ///  - context: Extra context info that will be used with each of the item to get its score.
+    /**
+     Uses the model to score a list of items with the given context.
+     
+     - Parameters:
+      - items: The list of items to score.
+      - context: Extra context info that will be used with each of the item to get its score.
+     - Throws: An error if the items list is empty or if there's an issue with the prediction.
+     - Returns: An array of `Double` values representing the scores of the items.
+     */
     public func score(items: [Any?], context: Any? = nil) throws -> [Double] {
         if items.isEmpty {
             throw IMPError.emptyVariants
