@@ -66,7 +66,7 @@ public struct RewardTracker {
     ///
     /// - Parameters:
     ///   - item: The selected item.
-    ///   - sample: A specific sample from the candidates.
+    ///   - sample: A random sample from the candidates.
     ///   - numCandidates: Total number of candidates, including the selected item.
     ///   - context: Extra context info that was used with each of the item to get its score.
     /// - Returns: rewardId of this track equest
