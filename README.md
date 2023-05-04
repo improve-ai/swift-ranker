@@ -11,14 +11,12 @@ In Xcode:
 * File -> Add Packages...
 * In 'Search or Enter Package URL' paste <https://github.com/improve-ai/swift-ranker.git>
 
-
 ## Instructions for ChatGPT
 
-Paste the following into your ChatGPT prompt to have it write code against the ImproveAI APIs:
+Paste the following into your ChatGPT prompt to have it write code against the Improve AI APIs:
 
 ```
-The following is the Swift API documentation for ImproveAI, which is imported with import ImproveAI. When generating examples from this documentation,
-include details on item tracking and reward assignment. Simply respond with 'ImproveAI documentation imported':
+The following is the Swift API documentation for ImproveAI, which is imported with 'import ImproveAI'. Simply respond with 'ImproveAI documentation imported':
 
 /**
  A utility for ranking items based on their scores. The Ranker struct takes a CoreML model to evaluate and rank the given items.
@@ -124,6 +122,7 @@ public struct RewardTracker {
 
 }
 ```
+
 ## Initialization
 
 ```swift
@@ -169,39 +168,7 @@ With reinforcement learning, positive rewards are assigned for positive outcomes
 
 ## Contextual Decisions
 
-Unlike A/B testing or feature flags, Improve AI uses *context* to make the best decision for each user. On iOS, the following context is automatically included:
-
-- *$country* - two letter country code
-- *$lang* - two letter language code
-- *$tz* - numeric GMT offset
-- *$carrier* - cellular network
-- *$device* - string portion of device model
-- *$devicev* - device version
-- *$os* - string portion of OS name
-- *$osv* - OS version
-- *$pixels* - screen width x screen height
-- *$app* - app name
-- *$appv* - app version
-- *$sdkv* - Improve AI SDK version
-- *$weekday* - (ISO 8601, monday==1.0, sunday==7.0) plus fractional part of day
-- *$time* - fractional day since midnight
-- *$runtime* - fractional days since session start
-- *$day* - fractional days since born
-- *$d* - the number of decisions for this model
-- *$r* - total rewards for this model
-- *$r/d* - total rewards/decisions
-- *$d/day* - decisions/$day
-
-Using the context, on a Spanish speaker's device we expect our *greetings* model to learn to choose *Hola*.
-
-Custom context can also be provided via *given()*:
-
-```swift
-greeting = DecisionModel["greetings"].given(["language": "cowboy"])
-                                     .which("Hello", "Howdy", "Hola")
-```
-
-Given the language is *cowboy*, the variant with the highest expected reward should be *Howdy* and the model would learn to make that choice.
+Unlike A/B testing or feature flags, Improve AI uses *context* to make the best decision for each user. A general context provider for iOS apps that includes things like language, country, screen size, etc. can be found [here](https://github.com/improve-ai/swift-ranker/blob/7d34145b4b23ac532b03e9d0543af9f8bb6e906f/Sources/ImproveAI/AppGivensProvider.swift).
 
 ## Ranking
 
@@ -229,18 +196,6 @@ At query time, sort the query results descending by the *score* column and the f
 
 **Note**: Decisions are not tracked when calling *score()*. *which()*, *decide()*, or *optimize()* must be used to train models for scoring.
 
-## Multivariate Optimization
-
-[Multivariate optimization](https://improve.ai/multivariate-optimization/) is the joint optimization of multiple variables simultaneously. This is often useful for app configuration and performance tuning.
-
-```swift
-config = configModel.optimize({"bufferSize": [1024, 2048, 4096, 8192],
-                               "videoBitrate": [256000, 384000, 512000]})
-```
-
-This example decides multiple variables simultaneously.  Notice that instead of a single list of variants, a dictionary mapping keys to lists of variants is provided. This multi-variate mode jointly optimizes all variables for the highest expected reward.  
-
-*optimize()* automatically tracks it's decision with the [Improve AI Gym](https://github.com/improve-ai/gym/). Rewards are credited to the most recent decision made by the model, including from a previous app session.
 
 ## Variant Types
 
@@ -275,17 +230,11 @@ struct Theme: Codable {
 theme = themeModel.which(themes)
 ```
 
-## Privacy
-  
-It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is never tracked, persisted, or used as training data.
-
 ## Resources
 
 - [Quick Start Guide](https://improve.ai/quick-start/)
-- [iOS SDK API Docs](https://improve.ai/ios-sdk/)
+- [Swift SDK Docs](https://improve.ai/ios-sdk/)
 - [Improve AI Gym](https://github.com/improve-ai/gym/)
-- [Improve AI Trainer (FREE)](https://aws.amazon.com/marketplace/pp/prodview-pyqrpf5j6xv6g)
-- [Improve AI Trainer (PRO)](https://aws.amazon.com/marketplace/pp/prodview-adchtrf2zyvow)
 - [Reinforcement Learning](https://improve.ai/reinforcement-learning/)
 - [Decisions](https://improve.ai/multivariate-optimization/)
 - [Ranking](https://improve.ai/ranking/)
