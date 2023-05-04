@@ -62,7 +62,7 @@ public struct Scorer {
 }
 
 extension Scorer {
-    public func scoreInternal(items: [Any], context: Any? = nil) throws -> [Double] {
+    func scoreInternal(items: [Any], context: Any? = nil) throws -> [Double] {
         if items.isEmpty {
             throw IMPError.emptyVariants
         }
