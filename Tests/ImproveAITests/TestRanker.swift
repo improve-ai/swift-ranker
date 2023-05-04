@@ -8,6 +8,11 @@
 import XCTest
 @testable import ImproveAI
 
+struct Theme: Encodable {
+    let font: String
+    let size: Int
+}
+
 final class TestRanker: XCTestCase {
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -40,7 +45,15 @@ final class TestRanker: XCTestCase {
         XCTAssertEqual(3, ranked.count)
     }
     
-    func testRank_with_context() throws {
+    func testRank_Encodable() throws {
+        let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
+        let ranker = Ranker(scorer: scorer)
+        let ranked = try ranker.rank(items: [Theme(font: "helvetica", size: 12), Theme(font: "Comic Sans", size: 16)])
+        print("ranked: \(ranked)")
+        XCTAssertEqual(2, ranked.count)
+    }
+    
+    func testRank_int_context() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         let ranker = Ranker(scorer: scorer)
         let ranked = try ranker.rank(items: [1, 2, 3], context: 99)
@@ -48,6 +61,14 @@ final class TestRanker: XCTestCase {
         XCTAssertEqual(3, ranked.count)
     }
     
+    func testRank_dict_context() throws {
+        let context: [String : Any] = ["name": "diamond", "price": 99.99]
+        let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
+        let ranker = Ranker(scorer: scorer)
+        let ranked = try ranker.rank(items: [1, 2, 3], context: context)
+        print("ranked: \(ranked)")
+        XCTAssertEqual(3, ranked.count)
+    }
     
     func testRankWithScores() throws {
         var variants: [Int] = []

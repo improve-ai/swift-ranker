@@ -25,6 +25,8 @@ struct FeatureEncoder {
     
     let featureIndexes: [String : Int]
     
+    let plistEncoder = PListEncoder()
+    
     public init(featureNames: [String], stringTables: [String : [UInt64]], modelSeed: UInt32) throws {
         self.featureNames = featureNames
         self.modelSeed = modelSeed
@@ -108,6 +110,8 @@ extension FeatureEncoder {
             try encodeArray(array: array, path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
         case let dict as [String : Any]:
             try encodeDict(dict: dict, path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
+        case let encodable as Encodable:
+            try encodeEncodable(encodable: encodable, path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
         default:
             throw IMPError.typeNotSupported
         }
@@ -145,6 +149,11 @@ extension FeatureEncoder {
         for (key, value) in dict {
             try self.encode(obj: value, path: "\(path).\(key)", into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
         }
+    }
+    
+    func encodeEncodable<T: Encodable>(encodable: T, path: String, into: inout [Double], noiseShift: Float, noiseScale: Float) throws {
+        let obj = try plistEncoder.encode(encodable)
+        try encode(obj: obj, path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
     }
     
     private func getNoiseAndShiftScale(noise: Float) -> (Double, Double) {
