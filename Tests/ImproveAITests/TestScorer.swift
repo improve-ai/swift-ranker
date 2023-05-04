@@ -24,9 +24,10 @@ final class TestScorer: XCTestCase {
     }
     
     func testScore_empty() throws {
+        let items: [Int] = []
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         do {
-            let _ = try scorer.score(items: [])
+            let _ = try scorer.score(items: items)
             XCTFail("expecting an error")
         } catch {
             print("error: \(error)")
@@ -77,7 +78,7 @@ final class TestScorer: XCTestCase {
         for i in 0..<contexts.count {
             let context = contexts[i]
             let output = (outputs[i] as! [String:Any])["scores"] as! [Double]
-            let scores = try scorer.score(items: items, context: context)
+            let scores = try scorer.scoreInternal(items: items, context: context)
             XCTAssertEqual(output.count, scores.count)
             XCTAssertGreaterThan(scores.count, 0)
             for j in 0..<scores.count {
