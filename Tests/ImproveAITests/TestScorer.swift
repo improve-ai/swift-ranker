@@ -17,6 +17,11 @@ final class TestScorer: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
+    func testVersion() {
+        print("sdk version is \(sdkVersion)")
+        XCTAssertEqual("8.0.0", sdkVersion)
+    }
+    
     func testScore() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         let scores = try scorer.score(items: [1, 2, nil])

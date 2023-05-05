@@ -6,5 +6,6 @@
 //
 
 import Foundation
+import utils
 
-public let sdkVersion = "8.0.0"
+public let sdkVersion = String(cString: improve_ai_version())
