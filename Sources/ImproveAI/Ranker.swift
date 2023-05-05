@@ -41,13 +41,28 @@ public struct Ranker {
      
      - Parameters:
         - items: The list of items to rank.
+     
+     - Returns: An array of ranked items, sorted by their scores in descending order.
+     
+     - Throws: An error if there is an issue ranking the items.
+    */
+    public func rank<T>(items: [T]) throws -> [T] where T: Encodable {
+        let scores = try self.scorer.score(items: items)
+        return try Self.rank_with_score(items: items, scores: scores)
+    }
+    
+    /**
+     Rank the list of items by their scores.
+     
+     - Parameters:
+        - items: The list of items to rank.
         - context: Extra JSON encodable context info that will be used with each of the item to get its score.
      
      - Returns: An array of ranked items, sorted by their scores in descending order.
      
      - Throws: An error if there is an issue ranking the items.
     */
-    public func rank<T>(items: [T], context: Any? = nil) throws -> [T] where T: Encodable {
+    public func rank<T, U>(items: [T], context: U?) throws -> [T] where T: Encodable, U: Encodable {
         let scores = try self.scorer.score(items: items, context: context)
         return try Self.rank_with_score(items: items, scores: scores)
     }

@@ -52,12 +52,24 @@ public struct Scorer {
      
      - Parameters:
       - items: The list of items to score.
-      - context: Extra  JSON encodable context info that will be used with each of the item to get its score.
      - Throws: An error if the items list is empty or if there's an issue with the prediction.
      - Returns: An array of `Double` values representing the scores of the items.
      */
-    public func score<T>(items: [T], context: Any? = nil) throws -> [Double] where T: Encodable {
+    public func score<T>(items: [T]) throws -> [Double] where T: Encodable {
         return try scoreInternal(items: items)
+    }
+    
+    /**
+     Uses the model to score a list of items with the given context.
+     
+     - Parameters:
+      - items: The list of items to score.
+      - context: Extra JSON encodable context info that will be used with each of the item to get its score.
+     - Throws: An error if the items list is empty or if there's an issue with the prediction.
+     - Returns: An array of `Double` values representing the scores of the items.
+     */
+    public func score<T, U>(items: [T], context: U?) throws -> [Double] where T: Encodable, U: Encodable {
+        return try scoreInternal(items: items, context: context)
     }
 }
 

@@ -23,6 +23,25 @@ final class TestScorer: XCTestCase {
         XCTAssertEqual(3, scores.count)
     }
     
+    func testScore_encodable_context() throws {
+        let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
+        let scores = try scorer.score(items: [1, 2, nil], context: DeviceInfo(device: "14", screenPixels: 1000000))
+        print("scores: \(scores)")
+        XCTAssertEqual(3, scores.count)
+    }
+    
+    func testScore_encodable_items() throws {
+        let candidate = Candidate(a: 0.0, b: B(x: [0, 1.0, 2], y: false, z: ["value": "abc"]), c: nil)
+        let context = ["value": "A"]
+        
+        let modelUrl = Bundle.test.url(forResource: "0_and_nan.mlmodel.gz", withExtension: nil)!
+        var scorer = try Scorer(modelUrl: modelUrl)
+        scorer.noise = 0
+        let scores = try scorer.score(items: [candidate], context: context)
+        print("scores: \(scores)")
+        XCTAssertEqual(scores[0], 2.9701548276917342, accuracy: 0.000001)
+    }
+    
     func testScore_empty() throws {
         let items: [Int] = []
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
@@ -88,4 +107,24 @@ final class TestScorer: XCTestCase {
         }
     }
 }
+
+struct Candidate: Encodable {
+    let a: Double
+    let b: B
+    let c: Int?
+}
+
+struct B: Encodable {
+    let x: [Double]
+    let y: Bool
+    let z: [String : String]
+}
+
+struct Context: Encodable {
+    let a: [String : String]
+    
+}
+
+
+
 

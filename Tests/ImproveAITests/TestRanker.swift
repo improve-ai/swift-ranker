@@ -13,6 +13,11 @@ struct Theme: Encodable {
     let size: Int
 }
 
+struct DeviceInfo: Encodable {
+    let device: String
+    let screenPixels: Int
+}
+
 final class TestRanker: XCTestCase {
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -61,11 +66,10 @@ final class TestRanker: XCTestCase {
         XCTAssertEqual(3, ranked.count)
     }
     
-    func testRank_dict_context() throws {
-        let context: [String : Any] = ["name": "diamond", "price": 99.99]
+    func testRank_encodable_context() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         let ranker = Ranker(scorer: scorer)
-        let ranked = try ranker.rank(items: [1, 2, 3], context: context)
+        let ranked = try ranker.rank(items: [1, 2, 3], context: DeviceInfo(device: "14", screenPixels: 1000000))
         print("ranked: \(ranked)")
         XCTAssertEqual(3, ranked.count)
     }
