@@ -2,7 +2,7 @@
 
 Improve AI is a machine learning platform for quickly implementing app optimization, personalization, and recommendations for [iOS](https://improve.ai/ios-sdk/), [Android](https://improve.ai/android-sdk/), and [Python](https://improve.ai/python-sdk/).
 
-The SDKs provide simple APIs for AI [decisions](https://improve.ai/decisions/), [ranking](https://improve.ai/ranking/), [scoring](https://improve.ai/scoring/), and [multivariate optimization](https://improve.ai/multivariate-optimization/) that execute immediately, on-device, with zero network latency. Decisions and rewards are tracked in the cloud with the [Improve AI Gym](https://github.com/improve-ai/gym/) and updated models are trained regularly on AWS SageMaker.
+The SDKs provide simple APIs for AI [decisions](https://improve.ai/decisions/), [ranking](https://improve.ai/ranking/), and [scoring](https://improve.ai/scoring/), that execute immediately, on-device, with zero network latency. Items and their rewards are with the [Improve AI Tracker / Trainer](https://github.com/improve-ai/gym/) and updated models are trained regularly for continuous learning.
 
 ## Installation
 
@@ -123,32 +123,11 @@ public struct RewardTracker {
 }
 ```
 
-## Initialization
-
-```swift
-import ImproveAI
-```
-
-```swift
-func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
-    // track and model urls are obtained from your Improve AI Gym configuration
-    trackUrl = 'https://xxxx.lambda-url.us-east-1.on.aws/'
-    modelUrl = 'https://xxxx.s3.amazonaws.com/models/latest/greetings.mlmodel.gz'
-
-    DecisionModel.defaultTrackURL = trackURL
-
-    DecisionModel["greetings"].loadAsync(modelUrl)
-
-    return true
-}
-```
-
 ## Usage
 
-With Swift, Python, or Java, create a list of JSON encodable items and simply call *Ranker.rank(items)*.
+Create a list of JSON encodable items and simply call *Ranker.rank(items)*.
 
-For instance, in an iOS bedtime story app, you may have a list of *Story* objects:
+For instance, in an bedtime story app, you may have a list of *Story* objects:
 
 ```swift
 struct Story: Codable {
