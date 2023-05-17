@@ -44,7 +44,7 @@ public struct Ranker {
      
      - Throws: An error if there is an issue ranking the items.
     */
-    public func rank<T>(items: [T], context: Any? = nil) throws -> [T] 
+    public func rank<T>(items: [T]) throws -> [T] where T: Encodable 
 }
 
 /**
@@ -70,7 +70,7 @@ public struct Scorer {
      - Throws: An error if the items list is empty or if there's an issue with the prediction.
      - Returns: An array of `Double` values representing the scores of the items.
      */
-    public func score(items: [Any?], context: Any? = nil) throws -> [Double]
+     public func score<T, U>(items: [T], context: U?) throws -> [Double] where T: Encodable, U:
 }
 
 /**
