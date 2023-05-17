@@ -146,101 +146,76 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 ## Usage
 
-The heart of Improve AI is the *which()* statement. *which()* is like an AI *if/then* statement.
+With Swift, Python, or Java, create a list of JSON encodable items and simply call *Ranker.rank(items)*.
+
+For instance, in an iOS bedtime story app, you may have a list of *Story* objects:
 
 ```swift
-greeting = DecisionModel["greetings"].which("Hello", "Howdy", "Hola")
-```
-
-*which()* takes a list of *variants* and returns the best - the "best" being the variant that provides the highest expected reward given the current conditions.
-
-Decision models are easily trained with [reinforcement learning](https://improve.ai/reinforcement-learning/):
-
-```swift
-if (likeTapped) {
-    DecisionModel["greetings"].addReward(1.0)
+struct Story: Codable {
+    var title: String
+    var author: String
+    var pageCount: Int
 }
 ```
 
-With reinforcement learning, positive rewards are assigned for positive outcomes (a "carrot") and negative rewards are assigned for undesirable outcomes (a "stick").
-
-*which()* automatically tracks it's decision with the [Improve AI Gym](https://github.com/improve-ai/gym/). Rewards are credited to the most recent tracked decision for each model, including from a previous app session.
-
-## Contextual Decisions
-
-Unlike A/B testing or feature flags, Improve AI uses *context* to make the best decision for each user. A general context provider for iOS apps that includes things like language, country, screen size, etc. can be found [here](https://github.com/improve-ai/swift-ranker/blob/7d34145b4b23ac532b03e9d0543af9f8bb6e906f/Sources/ImproveAI/AppGivensProvider.swift).
-
-## Ranking
-
-[Ranking](https://improve.ai/ranking/) is a fundamental task in recommender systems, search engines, and social media feeds. Fast ranking can be performed on-device in a single line of code:
+To obtain a ranked list of stories, use just one line of code:
 
 ```swift
-rankedWines = sommelierModel.given(entree).rank(wines)
+let rankedStories = try Ranker(modelUrl).rank(stories)
 ```
 
-**Note**: Decisions are not tracked when calling *rank()*. *which()* or *decide()* must be used to train models for ranking.
+## Reward Assignment
 
-## Scoring
+Easily train your rankers using [reinforcement learning](/reinforcement-learning/).
 
-[Scoring](https://improve.ai/scoring/) makes it easy to turn any database table into a recommendation engine.
-
-Simply add a *score* column to the database and update the score for each row.
+First, track when an item is used:
 
 ```swift
-scores = conversionRateModel.score(rows)
+let tracker = RewardTracker("stories", trackUrl)
+let rewardId = tracker.track(story, from: rankedStories)
 ```
 
-At query time, sort the query results descending by the *score* column and the first results will be the top recommendations. This works particularly well with local databases on mobile devices where the scores can be personalized to each individual user.
-
-*score()* is also useful for crafting custom optimization algorithms or providing supplemental metrics in a multi-stage recommendation system.
-
-**Note**: Decisions are not tracked when calling *score()*. *which()*, *decide()*, or *optimize()* must be used to train models for scoring.
-
-
-## Variant Types
-
-Variants and givens can be any object conforming to the [*Codable*](https://developer.apple.com/documentation/swift/codable) interface. This includes *Int*, *Double*, *Bool*, *String*, *Dictionary*, *Array*, *nil*, as well as any custom *Codable* objects. Object properties and nested items within collections are automatically encoded as machine learning features to assist in the decision making process.
-
-The following are all valid:
+Later, if a positive outcome occurs, provide a reward:
 
 ```swift
-greeting = greetingsModel.which("Hello", "Howdy", "Hola")
-
-discount = discountModel.which(0.1, 0.2, 0.3)
-
-enabled = featureFlagModel.which(true, false)
-
-item = filterModel.which(item, nil)
-
-themes = [[ "font": "Helvetica", "size": 12, "color": "#000000"  ],
-          [ "font": "Comic Sans", "size": 16, "color": "#F0F0F0" ]]
-
-theme = themeModel.which(themes)
-```
-
-To use a custom class or struct as a variant, declare it as implementing *Codable*:
-
-```swift
-struct Theme: Codable {
-    var font: String
-    var size: Int
-    var color: String
+if (purchased) {
+    tracker.addReward(profit, rewardId)
 }
-
-theme = themeModel.which(themes)
 ```
+
+Reinforcement learning uses positive rewards for favorable outcomes (a "carrot") and negative rewards for undesirable outcomes (a "stick"). By assigning rewards based on business metrics, such as revenue or conversions, the system optimizes these metrics over time.
+
+## Contextual Ranking & Scoring
+
+Improve AI turns XGBoost into a *contextual multi-armed bandit*, meaning that context is considered when making ranking or scoring decisions.
+
+Often, the choice of the best variant depends on the context that the decision is made within. Let's take the example of greetings for different times of the day:
+
+```py
+greetings = ["Good Morning", 
+             "Good Afternoon", 
+             "Good Evening",
+             "Buenos Días",
+             "Buenas Tardes",
+             "Buenas Noches"]
+```
+
+*rank()* also considers the *context* of each decision. The context can be any JSON-encodable data structure.
+
+```py
+ranked = ranker.rank(items=greetings, 
+                     context={ "day_time": 12.0,
+                               "language": "en" })
+greeting = ranked[0]
+```
+
+Trained with appropriate rewards, Improve AI would learn from scratch which greeting is best for each time of day and language.
 
 ## Resources
 
 - [Quick Start Guide](https://improve.ai/quick-start/)
-- [Swift SDK Docs](https://improve.ai/ios-sdk/)
-- [Improve AI Gym](https://github.com/improve-ai/gym/)
+- [Tracker / Trainer](https://github.com/improve-ai/tracker-trainer/)
 - [Reinforcement Learning](https://improve.ai/reinforcement-learning/)
-- [Decisions](https://improve.ai/multivariate-optimization/)
-- [Ranking](https://improve.ai/ranking/)
-- [Scoring](https://improve.ai/scoring/)
-- [Multivariate optimization](https://improve.ai/multivariate-optimization/)
-
 
 ## Help Improve Our World
 
