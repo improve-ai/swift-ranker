@@ -41,8 +41,7 @@ final class TestScorer: XCTestCase {
         
         let modelUrl = Bundle.test.url(forResource: "0_and_nan.mlmodel.gz", withExtension: nil)!
         var scorer = try Scorer(modelUrl: modelUrl)
-        scorer.noise = 0
-        let scores = try scorer.score(items: [candidate], context: context)
+        let scores = try scorer.scoreInternal(items: [candidate], context: context, noise: 0)
         print("scores: \(scores)")
         XCTAssertEqual(scores[0], 2.9701548276917342, accuracy: 0.000001)
     }
@@ -91,18 +90,18 @@ final class TestScorer: XCTestCase {
         let items = testcase["candidates"] as! [Any]
         let contexts = testcase["contexts"] as! [Any]
         let outputs = root["expected_output"] as! [Any]
-        let noise = (testcase["noise"] as! NSNumber).floatValue
+        let noise = (testcase["noise"] as! NSNumber).doubleValue
         
         let modelUrl = Bundle.test.url(forResource: "\(name).mlmodel.gz", withExtension: nil)!
         var scorer = try Scorer(modelUrl: modelUrl)
-        scorer.noise = noise
+//        scorer.noise = noise
         
         XCTAssertGreaterThan(contexts.count, 0)
         
         for i in 0..<contexts.count {
             let context = contexts[i]
             let output = (outputs[i] as! [String:Any])["scores"] as! [Double]
-            let scores = try scorer.scoreInternal(items: items, context: context)
+            let scores = try scorer.scoreInternal(items: items, context: context, noise: noise)
             XCTAssertEqual(output.count, scores.count)
             XCTAssertGreaterThan(scores.count, 0)
             for j in 0..<scores.count {

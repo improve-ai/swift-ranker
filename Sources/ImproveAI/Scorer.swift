@@ -24,8 +24,6 @@ public struct Scorer {
     
     private let lockQueue = DispatchQueue(label: "Scorer.lockQueue")
     
-    var noise: Float = FeatureEncoder.defaultNoise
-    
     /**
      Initialize a Scorer instance.
      
@@ -56,7 +54,8 @@ public struct Scorer {
      - Returns: An array of `Double` values representing the scores of the items.
      */
     public func score<T>(items: [T]) throws -> [Double] where T: Encodable {
-        return try scoreInternal(items: items)
+        let noise = Double(arc4random()) / Double(UINT32_MAX)
+        return try scoreInternal(items: items, context: nil, noise: noise)
     }
     
     /**
@@ -69,18 +68,19 @@ public struct Scorer {
      - Returns: An array of `Double` values representing the scores of the items.
      */
     public func score<T, U>(items: [T], context: U?) throws -> [Double] where T: Encodable, U: Encodable {
-        return try scoreInternal(items: items, context: context)
+        let noise = Double(arc4random()) / Double(UINT32_MAX)
+        return try scoreInternal(items: items, context: context, noise: noise)
     }
 }
 
 extension Scorer {
-    func scoreInternal(items: [Any], context: Any? = nil) throws -> [Double] {
+    func scoreInternal(items: [Any], context: Any? = nil, noise: Double) throws -> [Double] {
         if items.isEmpty {
             throw IMPError.emptyVariants
         }
         return try lockQueue.sync {
             var featureVectors: [[Double]] = [[Double]].init(repeating: [Double].init(repeating: Double.nan, count: self.featureNames.count), count: items.count)
-            try self.featureEncoder.encodeFeatureVectors(items: items, context: context, into: &featureVectors, noise: self.noise)
+            try self.featureEncoder.encodeFeatureVectors(items: items, context: context, into: &featureVectors, noise: noise)
             
             let batchProvider = MLArrayBatchProvider(array: featureVectors.map{ FeatureProvider(featureVector: $0, featureNames: featureNames, indexes: self.featureEncoder.featureIndexes) })
             let predictions = try self.model.predictions(fromBatch: batchProvider)

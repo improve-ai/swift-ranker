@@ -16,7 +16,7 @@ fileprivate let CONTEXT_FEATURE_KEY = "context"
 fileprivate let FIRST_LEVEL_FEATURES_CHUNKS = Set([ITEM_FEATURE_KEY, CONTEXT_FEATURE_KEY])
 
 struct FeatureEncoder {
-    static let defaultNoise: Float = 0.0
+    static let defaultNoise: Double = 0.0
     let featureNames: [String]
     
     let modelSeed: UInt32
@@ -44,7 +44,7 @@ struct FeatureEncoder {
         self.stringTables = tmp
     }
     
-    func encodeFeatureVector(item: Any?, context: Any?, into: inout [Double], noise: Float = defaultNoise) throws {
+    func encodeFeatureVector(item: Any?, context: Any?, into: inout [Double], noise: Double) throws {
         let p: (noiseShift: Double, noiseScale: Double) = getNoiseAndShiftScale(noise: noise)
         
         try self.encodeItem(item: item, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
@@ -52,7 +52,7 @@ struct FeatureEncoder {
         try self.encodeContext(context: context, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
     }
     
-    func encodeFeatureVectors(items: [Any?], context: Any?, into: inout [[Double]], noise: Float = defaultNoise) throws {
+    func encodeFeatureVectors(items: [Any?], context: Any?, into: inout [[Double]], noise: Double) throws {
         for (index, item) in items.enumerated() {
             try encodeFeatureVector(item: item, context: context, into: &into[index], noise: noise)
         }
@@ -156,10 +156,10 @@ extension FeatureEncoder {
         try encode(obj: obj, path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
     }
     
-    private func getNoiseAndShiftScale(noise: Float) -> (Double, Double) {
+    private func getNoiseAndShiftScale(noise: Double) -> (Double, Double) {
         // x + noise * 2 ** -142 will round to x for most values of x. Used to create
         // distinct values when x is 0.0 since x * scale would be zero
-        return (Double(noise) * pow(2, -142), 1 + Double(noise) * pow(2, -17))
+        return (noise * pow(2, -142), 1 + noise * pow(2, -17))
     }
     
     private func sprinkle(x: Double, noiseShift: Float, noiseScale: Float) -> Double {

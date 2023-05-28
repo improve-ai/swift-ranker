@@ -35,7 +35,7 @@ final class TestFeatureEncoder: XCTestCase {
         let featureNames = root["feature_names"] as! [String]
         let stringTables = root["string_tables"] as! [String : [UInt64]]
         let modelSeed = root["model_seed"] as! UInt32
-        let noise = (root["noise"] as! NSNumber).floatValue
+        let noise = (root["noise"] as! NSNumber).doubleValue
         
         let testcase = root["test_case"] as! [String : Any]
         guard let item = testcase["item"] else {
@@ -92,7 +92,7 @@ final class TestFeatureEncoder: XCTestCase {
         let featureNames = root["feature_names"] as! [String]
         let stringTables = root["string_tables"] as! [String : [UInt64]]
         let modelSeed = root["model_seed"] as! UInt32
-        let noise = (root["noise"] as! NSNumber).floatValue
+        let noise = (root["noise"] as! NSNumber).doubleValue
         let featureEncoder = try! FeatureEncoder(featureNames: featureNames, stringTables: stringTables, modelSeed: modelSeed)
 
         let items: [Any] = (root["test_case"] as! [String : [Any]])["items"]!
