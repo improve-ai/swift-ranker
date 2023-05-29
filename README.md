@@ -170,9 +170,9 @@ Improve AI turns XGBoost into a *contextual multi-armed bandit*, meaning that co
 
 Often, the choice of the best variant depends on the context that the decision is made within. Let's take the example of greetings for different times of the day:
 
-```py
-greetings = ["Good Morning", 
-             "Good Afternoon", 
+```Swift
+let greetings = ["Good Morning",
+             "Good Afternoon",
              "Good Evening",
              "Buenos Días",
              "Buenas Tardes",
@@ -181,11 +181,15 @@ greetings = ["Good Morning",
 
 *rank()* also considers the *context* of each decision. The context can be any JSON-encodable data structure.
 
-```py
-ranked = ranker.rank(items=greetings, 
-                     context={ "day_time": 12.0,
-                               "language": "en" })
-greeting = ranked[0]
+```Swift
+struct GreetingContext: Encodable {
+    let dayTime: Double
+    let language: String
+}
+
+let ranked = try ranker.rank(items: greetings, context: GreetingContext(dayTime: 12.0, language: "en"))
+
+let greeting = ranked[0]
 ```
 
 Trained with appropriate rewards, Improve AI would learn from scratch which greeting is best for each time of day and language.
