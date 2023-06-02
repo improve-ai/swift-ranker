@@ -107,7 +107,7 @@ public struct RewardTracker {
        - sample: A random sample from the candidates.
        - numCandidates: Total number of candidates, including the selected item.
        - context: Extra context info that was used with each of the item to get its score.
-     - Returns: rewardId of this track equest
+     - Returns: rewardId of this track request
      */
     public func track(item: Any?, sample: Any?, numCandidates: Int, context: Any? = nil) throws -> String
 
@@ -145,7 +145,7 @@ let rankedStories = try Ranker(modelUrl).rank(stories)
 
 ## Reward Assignment
 
-Easily train your rankers using [reinforcement learning](/reinforcement-learning/).
+Easily train your rankers using [reinforcement learning](https://improve.ai/reinforcement-learning/).
 
 First, track when an item is used:
 
