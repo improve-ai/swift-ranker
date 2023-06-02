@@ -19,7 +19,7 @@ final class TestScorer: XCTestCase {
     
     func testVersion() {
         print("sdk version is \(sdkVersion)")
-        XCTAssertEqual("8.0.0", sdkVersion)
+        XCTAssertEqual("8.0.1", sdkVersion)
     }
     
     func testScore() throws {
