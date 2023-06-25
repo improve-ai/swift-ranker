@@ -16,7 +16,7 @@ In Xcode:
 Paste the following into your ChatGPT prompt to have it write code against the Improve AI APIs:
 
 ```
-The following is the Swift API documentation for ImproveAI, which is imported with 'import ImproveAI'. Simply respond with 'ImproveAI documentation imported':
+The following is the Swift API documentation for ImproveAI, which is imported with 'import ImproveAI'. Simply respond with 'Improve AI documentation imported':
 
 /**
  A utility for ranking items based on their scores. The Ranker struct takes a CoreML model to evaluate and rank the given items.
@@ -74,8 +74,7 @@ public struct Scorer {
 }
 
 /**
- Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the track() function, which will return a rewardId and optionally cache it for this modelName. Explicitly use the rewardId to track future rewards
- associated with that item or simply use the cached rewardId by calling addReward(reward) without an explicit rewardId.
+ Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the track() function. By default, the last rewardId is cached for each model and does not need to be passed explicitly to addReward(reward) assuming that the reward is for the last tracked item.
  */
 public struct RewardTracker {
     
@@ -112,7 +111,7 @@ public struct RewardTracker {
     /// - Parameters:
     ///   - reward: The reward to add. Must not be NaN or Infinite.
     ///   - rewardId: The id that was returned from the track() methods. If nil, will use the cached rewardId for this modelName, if any
-    public func addReward(reward: Double, rewardId: String? = nil)
+    public func addReward(_ reward: Double, rewardId: String? = nil)
 
     /// Clears any cached rewardId for this modelName
     public func clearCachedRewardId()

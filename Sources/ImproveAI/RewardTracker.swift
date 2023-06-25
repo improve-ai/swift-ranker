@@ -119,7 +119,7 @@ public struct RewardTracker {
     /// - Parameters:
     ///   - reward: The reward to add. Must not be NaN or Infinite.
     ///   - rewardId: The id that was returned from the track() methods. If nil, will use the cached rewardId for this modelName, if any
-    public func addReward(reward: Double, rewardId: String? = nil) {
+    public func addReward(_ reward: Double, rewardId: String? = nil) {
         assert(!reward.isNaN && !reward.isInfinite, "Reward must not be NaN or infinite.")
             
         var finalRewardId = rewardId
