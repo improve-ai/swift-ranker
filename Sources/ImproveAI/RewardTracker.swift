@@ -16,7 +16,8 @@ enum RequestType: String {
 fileprivate let modelNameRegex = "^[a-zA-Z0-9][\\w\\-.]{0,63}$"
 
 /**
- Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the track() function, which will return a rewardId. Use the rewardId to track future rewards associated with that item.
+ Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the track() function, which will return a rewardId and optionally cache it for this modelName. Explicitly use the rewardId to track future rewards
+ associated with that item or simply use the cached rewardId by calling addReward(reward) without an explicit rewardId.
  */
 public struct RewardTracker {
     
@@ -26,19 +27,27 @@ public struct RewardTracker {
     
     public let trackApiKey: String?
     
+    public let cacheRewardId: Bool
+
+    public var cachedRewardIdKey: String {
+        return "ai.improve.last_reward_id-\(self.modelName)"
+    }
+
     var writePostData = false
-    
+
     /// Create an instance.
     ///
     /// - Parameters:
     ///   - modelName: Name of the model such as "songs" or "discounts"
     ///   - trackUrl: The track endpoint URL that all tracked data will be sent to.
     ///   - trackApiKey: track endpoint API key (if applicable); Can be nil.
-    public init(modelName: String, trackUrl: URL, trackApiKey: String? = nil) {
+    ///   - cacheRewardId: Determines if the track methods should cache the rewardId to be used in future calls to addReward(reward)
+    public init(modelName: String, trackUrl: URL, trackApiKey: String? = nil, cacheRewardId: Bool = true) {
         assert(isValidModelName(modelName), "Invalid model name \(modelName). Must match \(modelNameRegex)")
         self.modelName = modelName
         self.trackUrl = trackUrl
         self.trackApiKey = trackApiKey
+        self.cacheRewardId = cacheRewardId
     }
     
     /// Tracks the item selected from candidates and a random sample from the remaining items.
@@ -98,6 +107,10 @@ public struct RewardTracker {
         
         post(body: body)
         
+        if cacheRewardId {
+            UserDefaults.standard.setValue(ksuid, forKey: self.cachedRewardIdKey)
+        }
+        
         return ksuid
     }
     
@@ -105,12 +118,18 @@ public struct RewardTracker {
     ///
     /// - Parameters:
     ///   - reward: The reward to add. Must not be NaN or Infinite.
-    ///   - rewardId: The id that was returned from the track() methods.
-    public func addReward(reward: Double, rewardId: String) {
-        assert(!reward.isNaN && !reward.isInfinite, "Reward must not be NaN or infinite")
-        
-        if rewardId.isEmpty || rewardId.count != KSUID_STRING_LENGTH {
-            print("Add reward error: Please use the rewardId returned from method track().")
+    ///   - rewardId: The id that was returned from the track() methods. If nil, will use the cached rewardId for this modelName, if any
+    public func addReward(reward: Double, rewardId: String? = nil) {
+        assert(!reward.isNaN && !reward.isInfinite, "Reward must not be NaN or infinite.")
+            
+        var finalRewardId = rewardId
+
+        if finalRewardId == nil {
+            finalRewardId = UserDefaults.standard.string(forKey: self.cachedRewardIdKey)
+        }
+
+        guard let finalRewardId = finalRewardId else {
+            print("[ImproveAI] RewardTracker.addReward error: No rewardId provided and no rewardId found in cache.")
             return
         }
         
@@ -118,10 +137,15 @@ public struct RewardTracker {
         body[Constants.Tracker.typeKey] = RequestType.reward.rawValue
         body[Constants.Tracker.modelKey] = self.modelName
         body[Constants.Tracker.messageIdKey] = ksuid()
-        body[Constants.Tracker.decisionIdKey] = rewardId
+        body[Constants.Tracker.decisionIdKey] = finalRewardId
         body[Constants.Tracker.rewardKey] = reward
-        
+            
         post(body: body)
+    }
+
+    /// Clears any cached rewardId for this modelName
+    public func clearCachedRewardId() {
+        UserDefaults.standard.removeObject(forKey: self.cachedRewardIdKey)
     }
 }
 
@@ -136,7 +160,7 @@ extension RewardTracker {
         do {
             postData = try JSONEncoder().encode(AnyEncodable(body))
         } catch {
-            print("Post error: \(error)")
+            print("[ImproveAI] error encoding JSON: \(error)")
             return
         }
         
@@ -153,12 +177,12 @@ extension RewardTracker {
         let dataTask = session.dataTask(with: request) { data, response, error in
             if let error = error {
                 let statusCode = (response as? HTTPURLResponse)?.statusCode
-                print("POST error: statusCode = \(statusCode ?? 0), \(error)")
+                print("[ImproveAI] POST error: statusCode = \(statusCode ?? 0), \(error)")
                 return
             }
             
             if let data = data, let dataString = String(data: data, encoding: .utf8) {
-                print("track response: \(dataString)")
+                print("[ImproveAI] track response: \(dataString)")
                 if writePostData {
                     UserDefaults.standard.setValue(dataString, forKey: Constants.Tracker.lastPostRsp)
                 }
