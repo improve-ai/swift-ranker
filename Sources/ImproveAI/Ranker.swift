@@ -20,7 +20,7 @@ public struct Ranker {
      - Parameters:
         - scorer: A `Scorer` instance.
     */
-    init(scorer: Scorer) {
+    public init(scorer: Scorer) {
         self.scorer = scorer
     }
     
@@ -32,7 +32,7 @@ public struct Ranker {
      
      - Throws: An error if there is an issue initializing the Scorer with the modelUrl.
     */
-    init(modelUrl: URL) throws {
+    public init(modelUrl: URL) throws {
         self.scorer = try Scorer(modelUrl: modelUrl)
     }
     

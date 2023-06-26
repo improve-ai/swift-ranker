@@ -49,7 +49,7 @@ class ModelLoader : NSObject {
     func compileModel(url: URL) throws -> URL {
         let startTime = CFAbsoluteTimeGetCurrent()
         let compiledURL = try MLModel.compileModel(at: url)
-        print("model: \(url.lastPathComponent) compile time \((CFAbsoluteTimeGetCurrent() - startTime) * 1000)ms")
+        print("[ImproveAI] model: \(url.lastPathComponent) compile time \((CFAbsoluteTimeGetCurrent() - startTime) * 1000)ms")
         return compiledURL
     }
 }

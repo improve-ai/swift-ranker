@@ -121,7 +121,7 @@ final class TestRewardTracker: XCTestCase {
     
     
     func testAddReward() throws {
-        tracker.addReward(reward: 0.1, rewardId: "2ODatv95LBsqbCgK0VDSD0hcm5n")
+        tracker.addReward(0.1, rewardId: "2ODatv95LBsqbCgK0VDSD0hcm5n")
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
         XCTAssertEqual(5, lastPostData.count)
