@@ -16,7 +16,7 @@ import Foundation
  - `rewardTracker`: A reference to the `RewardTracker` that tracked the item. It can be `nil` if the item hasn't been tracked yet.
 
  */
-public protocol Rewardable {
+public protocol Rewardable: AnyObject {
     var rewardId: String? { get set }
     var rewardTracker: RewardTracker? { get set }
     
@@ -27,11 +27,11 @@ public protocol Rewardable {
 
     - Parameter reward: A `Double` representing the value of the reward to be added.
     */
-    mutating func addReward(_ reward: Double)
+    func addReward(_ reward: Double)
 }
 
 extension Rewardable {
-    mutating public func addReward(_ reward: Double) {
+    public func addReward(_ reward: Double) {
         guard let rewardId = self.rewardId else {
             print("[ImproveAI] Error: rewardId is nil.")
             return
