@@ -73,49 +73,78 @@ public struct Scorer {
      public func score<T, U>(items: [T], context: U?) throws -> [Double] where T: Encodable, U:
 }
 
-/**
- Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the track() function. By default, the last rewardId is cached for each model and does not need to be passed explicitly to addReward(reward) assuming that the reward is for the last tracked item.
+**
+ Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the `track()` function, which will return a `rewardId`. Explicitly use the `rewardId` to track future rewards associated with that item. Items can also
+ implement the Rewardable protocol to automatically manage rewardIds and allow item.addReward(reward) to be called later.
  */
 public struct RewardTracker {
     
-    /// Create an instance.
-    ///
-    /// - Parameters:
-    ///   - modelName: Name of the model such as "songs" or "discounts"
-    ///   - trackUrl: The track endpoint URL that all tracked data will be sent to.
-    ///   - trackApiKey: track endpoint API key (if applicable); Can be nil.
-    ///   - cacheRewardId: Determines if the track methods should cache the rewardId to be used in future calls to addReward(reward)
-    public init(modelName: String, trackUrl: URL, trackApiKey: String? = nil, cacheRewardId: Bool = true)
+    /**
+    Initializes a new instance of `RewardTracker`.
     
-    /// Tracks the item selected from candidates and a random sample from the remaining items.
-    ///
-    /// - Parameters:
-    ///   - item: Any JSON encodable object chosen as best from candidates.
-    ///   - candidates: Collection of items from which best is chosen.
-    ///   - context: Extra context info that was used with each of the item to get its score.
-    /// - Returns: rewardId of this track request.
+    - Parameters:
+      - modelName: The model's name, such as "songs" or "discounts".
+      - trackUrl: The tracking endpoint URL to which all tracked data will be sent.
+      - trackApiKey: The tracking endpoint API key (if applicable); Can be nil.
+    */
+    public init(modelName: String, trackUrl: URL, trackApiKey: String? = nil) 
+    
+    /**
+    Tracks the item selected from candidates and a random sample from the remaining items.
+
+    - Parameters:
+      - item: The item that is interacted with. If item conforms to Rewardable the `rewardId` and this `RewardTracker` will be set on it so that `item.addReward(reward)` can be called later.
+      - candidates: The collection of items from which the best is chosen.
+      - context: Extra context information that was used with each of the item to get its score.
+    - Returns: `rewardId` of this track request.
+    */
     public func track<T : Equatable>(item: T?, candidates: [T?], context: Any? = nil) -> String
     
-    /// Tracks the item selected and a specific sample.
-    ///
-    /// - Parameters:
-    ///   - item: The selected item.
-    ///   - sample: A random sample from the candidates.
-    ///   - numCandidates: Total number of candidates, including the selected item.
-    ///   - context: Extra context info that was used with each of the item to get its score.
-    /// - Returns: rewardId of this track equest
+    /**
+    Tracks the item selected and a specific sample candidate.
+
+    - Parameters:
+      - item: The item that is interacted with. If item conforms to Rewardable the `rewardId` and this `RewardTracker` will be set on it so that `item.addReward(reward)` can be called later.
+      - sample: A random sample from the candidates.
+      - numCandidates: The total number of candidates, including the selected item.
+      - context: Extra context information that was used with each of the item to get its score.
+    - Returns: `rewardId` of this track request.
+    */
     public func track(item: Any?, sample: Any?, numCandidates: Int, context: Any? = nil) -> String
     
-    /// Add reward for the provided rewardId
-    ///
-    /// - Parameters:
-    ///   - reward: The reward to add. Must not be NaN or Infinite.
-    ///   - rewardId: The id that was returned from the track() methods. If nil, will use the cached rewardId for this modelName, if any
-    public func addReward(_ reward: Double, rewardId: String? = nil)
+    /**
+    Adds a reward for the provided `rewardId`.
 
-    /// Clears any cached rewardId for this modelName
-    public func clearCachedRewardId()
+    - Parameters:
+      - reward: The reward to add. Must not be NaN or Infinite.
+      - rewardId: The id that was returned from the `track()` methods. If nil, it will use the cached `rewardId` for this modelName, if any.
+    */
+    public func addReward(_ reward: Double, rewardId: String)
 }
+
+/**
+ Items that conform to `Rewardable` can be used with the `RewardTracker.track()` method. The `RewardTracker` will associate a `rewardId` with the `Rewardable` item and store a reference to itself in the item's `rewardTracker` property.
+
+ This design allows for later rewarding of the `Rewardable` item through its `addReward(_:)` method. Rewards can be added only if the item was previously tracked by a `RewardTracker`.
+
+ Properties:
+ - `rewardId`: A `String` that identifies the reward, which gets set when the item is tracked. It can be `nil` if the item hasn't been tracked yet.
+ - `rewardTracker`: A reference to the `RewardTracker` that tracked the item. It can be `nil` if the item hasn't been tracked yet.
+ */
+public protocol Rewardable {
+    var rewardId: String? { get set }
+    var rewardTracker: RewardTracker? { get set }
+    
+    /**
+    Adds a reward for the `Rewardable` item. This method should be called only if the item was previously tracked by a `RewardTracker`.
+
+    If called on an untracked item, it will print an error and not add the reward.
+
+    - Parameter reward: A `Double` representing the value of the reward to be added.
+    */
+    mutating func addReward(_ reward: Double)
+}
+
 ```
 
 ## Usage

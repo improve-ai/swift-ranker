@@ -16,8 +16,8 @@ enum RequestType: String {
 fileprivate let modelNameRegex = "^[a-zA-Z0-9][\\w\\-.]{0,63}$"
 
 /**
- Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the track() function, which will return a rewardId and optionally cache it for this modelName. Explicitly use the rewardId to track future rewards
- associated with that item or simply use the cached rewardId by calling addReward(reward) without an explicit rewardId.
+ Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the `track()` function, which will return a `rewardId`. Explicitly use the `rewardId` to track future rewards associated with that item. Items can also
+ implement the Rewardable protocol to automatically manage rewardIds and allow item.addReward(reward) to be called later.
  */
 public struct RewardTracker {
     
@@ -26,37 +26,32 @@ public struct RewardTracker {
     public let trackUrl: URL
     
     public let trackApiKey: String?
-    
-    public let cacheRewardId: Bool
-
-    public var cachedRewardIdKey: String {
-        return "ai.improve.last_reward_id-\(self.modelName)"
-    }
 
     var writePostData = false
 
-    /// Create an instance.
-    ///
-    /// - Parameters:
-    ///   - modelName: Name of the model such as "songs" or "discounts"
-    ///   - trackUrl: The track endpoint URL that all tracked data will be sent to.
-    ///   - trackApiKey: track endpoint API key (if applicable); Can be nil.
-    ///   - cacheRewardId: Determines if the track methods should cache the rewardId to be used in future calls to addReward(reward)
-    public init(modelName: String, trackUrl: URL, trackApiKey: String? = nil, cacheRewardId: Bool = true) {
+    /**
+    Initializes a new instance of `RewardTracker`.
+    
+    - Parameters:
+      - modelName: The model's name, such as "songs" or "discounts".
+      - trackUrl: The tracking endpoint URL to which all tracked data will be sent.
+      - trackApiKey: The tracking endpoint API key (if applicable); Can be nil.
+    */    public init(modelName: String, trackUrl: URL, trackApiKey: String? = nil) {
         assert(isValidModelName(modelName), "Invalid model name \(modelName). Must match \(modelNameRegex)")
         self.modelName = modelName
         self.trackUrl = trackUrl
         self.trackApiKey = trackApiKey
-        self.cacheRewardId = cacheRewardId
     }
     
-    /// Tracks the item selected from candidates and a random sample from the remaining items.
-    ///
-    /// - Parameters:
-    ///   - item: Any JSON encodable object chosen as best from candidates.
-    ///   - candidates: Collection of items from which best is chosen.
-    ///   - context: Extra context info that was used with each of the item to get its score.
-    /// - Returns: rewardId of this track request.
+    /**
+    Tracks the item selected from candidates and a random sample from the remaining items.
+
+    - Parameters:
+      - item: The item that is interacted with. If item conforms to Rewardable the `rewardId` and this `RewardTracker` will be set on it so that `item.addReward(reward)` can be called later.
+      - candidates: The collection of items from which the best is chosen.
+      - context: Extra context information that was used with each of the item to get its score.
+    - Returns: `rewardId` of this track request.
+    */
     public func track<T : Equatable>(item: T?, candidates: [T?], context: Any? = nil) -> String {
         var samples = candidates
         let index = candidates.firstIndex(where: { $0 == item })
@@ -74,14 +69,16 @@ public struct RewardTracker {
     }
 
     
-    /// Tracks the item selected and a specific sample.
-    ///
-    /// - Parameters:
-    ///   - item: The selected item.
-    ///   - sample: A random sample from the candidates.
-    ///   - numCandidates: Total number of candidates, including the selected item.
-    ///   - context: Extra context info that was used with each of the item to get its score.
-    /// - Returns: rewardId of this track equest
+    /**
+    Tracks the item selected and a specific sample candidate.
+
+    - Parameters:
+      - item: The item that is interacted with. If item conforms to Rewardable the `rewardId` and this `RewardTracker` will be set on it so that `item.addReward(reward)` can be called later.
+      - sample: A random sample from the candidates.
+      - numCandidates: The total number of candidates, including the selected item.
+      - context: Extra context information that was used with each of the item to get its score.
+    - Returns: `rewardId` of this track request.
+    */
     public func track(item: Any?, sample: Any?, numCandidates: Int, context: Any? = nil) -> String {
         let ksuid = ksuid()
         
@@ -107,45 +104,32 @@ public struct RewardTracker {
         
         post(body: body)
         
-        if cacheRewardId {
-            UserDefaults.standard.setValue(ksuid, forKey: self.cachedRewardIdKey)
+        if var rewardableItem = item as? Rewardable {
+            rewardableItem.rewardId = ksuid
+            rewardableItem.rewardTracker = self
         }
         
         return ksuid
     }
     
-    /// Add reward for the provided rewardId
-    ///
-    /// - Parameters:
-    ///   - reward: The reward to add. Must not be NaN or Infinite.
-    ///   - rewardId: The id that was returned from the track() methods. If nil, will use the cached rewardId for this modelName, if any
-    public func addReward(_ reward: Double, rewardId: String? = nil) {
+    /**
+    Adds a reward for the provided `rewardId`.
+
+    - Parameters:
+      - reward: The reward to add. Must not be NaN or Infinite.
+      - rewardId: The id that was returned from the `track()` methods. If nil, it will use the cached `rewardId` for this modelName, if any.
+    */
+    public func addReward(_ reward: Double, rewardId: String) {
         assert(!reward.isNaN && !reward.isInfinite, "Reward must not be NaN or infinite.")
-            
-        var finalRewardId = rewardId
-
-        if finalRewardId == nil {
-            finalRewardId = UserDefaults.standard.string(forKey: self.cachedRewardIdKey)
-        }
-
-        guard let finalRewardId = finalRewardId else {
-            print("[ImproveAI] RewardTracker.addReward error: No rewardId provided and no rewardId found in cache.")
-            return
-        }
         
         var body: [String : Any] = [:]
         body[Constants.Tracker.typeKey] = RequestType.reward.rawValue
         body[Constants.Tracker.modelKey] = self.modelName
         body[Constants.Tracker.messageIdKey] = ksuid()
-        body[Constants.Tracker.decisionIdKey] = finalRewardId
+        body[Constants.Tracker.decisionIdKey] = rewardId
         body[Constants.Tracker.rewardKey] = reward
             
         post(body: body)
-    }
-
-    /// Clears any cached rewardId for this modelName
-    public func clearCachedRewardId() {
-        UserDefaults.standard.removeObject(forKey: self.cachedRewardIdKey)
     }
 }
 
