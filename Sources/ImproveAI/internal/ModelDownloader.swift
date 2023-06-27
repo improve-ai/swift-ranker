@@ -166,17 +166,17 @@ extension ModelLoader : URLSessionDataDelegate {
         
         let status = inflateEnd(&zstream)
         guard status == Z_OK else {
-            self.completionHandler?(nil, IMPError.downloadFailure(reason: "unzip error \(status)"))
+            self.completionHandler?(nil, ImproveAIError.downloadFailure(reason: "unzip error \(status)"))
             return
         }
         
         guard unzippedOK else {
-            self.completionHandler?(nil, IMPError.downloadFailure(reason: "unzip error"))
+            self.completionHandler?(nil, ImproveAIError.downloadFailure(reason: "unzip error"))
             return
         }
         
         guard let compiledURL = try? self.compileModel(url: unzippedFileURL) else {
-            self.completionHandler?(nil, IMPError.invalidModel(reason: "failed to compile \(url). Is it a valid model?"))
+            self.completionHandler?(nil, ImproveAIError.invalidModel(reason: "failed to compile \(url). Is it a valid model?"))
             return
         }
         

@@ -76,7 +76,7 @@ public struct Scorer {
 extension Scorer {
     func scoreInternal(items: [Any], context: Any? = nil, noise: Double) throws -> [Double] {
         if items.isEmpty {
-            throw IMPError.emptyVariants
+            throw ImproveAIError.emptyVariants
         }
         return try lockQueue.sync {
             var featureVectors: [[Double]] = [[Double]].init(repeating: [Double].init(repeating: Double.nan, count: self.featureNames.count), count: items.count)

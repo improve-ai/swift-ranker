@@ -15,10 +15,10 @@ struct ModelMetadata : Decodable {
     
     init(from dict: [String : String]) throws {
         guard let versionString = dict["ai.improve.version"] else {
-            throw IMPError.invalidModel(reason: "'version' not found in metadata")
+            throw ImproveAIError.invalidModel(reason: "'version' not found in metadata")
         }
         if !canParseVersion(versionString) {
-            throw IMPError.invalidModel(reason: "Major version of ImproveAI SDK(\(sdkVersion)) and extracted model version(\(versionString)) don't match!")
+            throw ImproveAIError.invalidModel(reason: "Major version of ImproveAI SDK(\(sdkVersion)) and extracted model version(\(versionString)) don't match!")
         }
         version = versionString
         

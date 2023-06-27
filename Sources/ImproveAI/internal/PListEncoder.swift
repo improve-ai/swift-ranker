@@ -493,12 +493,12 @@ extension __PlistEncoder {
     fileprivate func box_<T : Encodable>(_ value: T) throws -> NSObject? {
         if T.self == Date.self || T.self == NSDate.self {
             // PropertyListSerialization handles NSDate directly.
-            throw IMPError.typeNotSupported
+            throw ImproveAIError.typeNotSupported
         } else if T.self == Data.self || T.self == NSData.self {
             // PropertyListSerialization handles NSData directly.
-            throw IMPError.typeNotSupported
+            throw ImproveAIError.typeNotSupported
         } else if T.self == URL.self || T.self == NSURL.self {
-            throw IMPError.typeNotSupported
+            throw ImproveAIError.typeNotSupported
         }
 
         // The value should request a container from the __PlistEncoder.

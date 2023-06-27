@@ -37,7 +37,7 @@ struct FeatureEncoder {
         var tmp = Array(repeating: StringTable(stringTable: [], modelSeed: modelSeed), count: featureNames.count)
         for (featureName, table) in stringTables {
             guard let index = self.featureIndexes[featureName] else {
-                throw IMPError.invalidModel(reason: "Bad model metadata")
+                throw ImproveAIError.invalidModel(reason: "Bad model metadata")
             }
             tmp[index] = StringTable(stringTable: table, modelSeed: modelSeed)
         }
@@ -113,7 +113,7 @@ extension FeatureEncoder {
         case let encodable as Encodable:
             try encodeEncodable(encodable: encodable, path: path, into: &into, noiseShift: noiseShift, noiseScale: noiseScale)
         default:
-            throw IMPError.typeNotSupported
+            throw ImproveAIError.typeNotSupported
         }
     }
     

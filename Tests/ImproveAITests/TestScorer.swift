@@ -19,7 +19,7 @@ final class TestScorer: XCTestCase {
     
     func testVersion() {
         print("sdk version is \(sdkVersion)")
-        XCTAssertEqual("8.0.1", sdkVersion)
+        XCTAssertEqual("8.0.2", sdkVersion)
     }
     
     func testScore() throws {
@@ -63,9 +63,9 @@ final class TestScorer: XCTestCase {
             let _ = try Scorer(modelUrl: modelUrl)
             XCTFail("expecting .invalidModel error")
         } catch {
-            XCTAssertTrue(error is IMPError)
+            XCTAssertTrue(error is ImproveAIError)
             // Better way to compare the enum case???
-            if case .invalidModel = (error as! IMPError) {
+            if case .invalidModel = (error as! ImproveAIError) {
             } else {
                 XCTFail("expecting .invalidModel error")
             }
