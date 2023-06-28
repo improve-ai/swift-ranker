@@ -31,17 +31,7 @@ public struct Ranker {
      - Throws: An error if there is an issue initializing the Scorer with the modelUrl.
     */
     init(modelUrl: URL) throws
-    
-    /**
-     Rank the list of items from best to worst (highest to lowest scoring)
-     
-     - Parameters:
-        - items: The list of items to rank.
-     - Returns: An array of ranked items, sorted by their scores in descending order.
-     - Throws: An error if items is empty or there is an issue ranking the items.
-    */
-    public func rank<T>(items: [T]) throws -> [T] where T: Encodable 
-    
+        
     /**
      Rank the list of items from best to worst (highest to lowest scoring)
      
@@ -49,9 +39,8 @@ public struct Ranker {
         - items: The list of items to rank.
         - context: Extra JSON encodable context info that will be used with each of the item to get its score.
      - Returns: An array of ranked items, sorted by their scores in descending order.
-     - Throws: An error if items is empty or there is an issue ranking the items.
     */
-    public func rank<T, U>(items: [T], context: U?) throws -> [T] where T: Encodable, U: Encodable {
+    public func rank<T, U>(items: [T], context: U? = nil) -> [T] where T: Encodable, U: Encodable {
 }
 
 /**
@@ -77,7 +66,7 @@ public struct Scorer {
      - Throws: An error if the items list is empty or if there's an issue with the prediction.
      - Returns: An array of `Double` values representing the scores of the items.
      */
-     public func score<T, U>(items: [T], context: U?) throws -> [Double] where T: Encodable, U:
+     public func score<T, U>(items: [T], context: U? = nil) throws -> [Double] where T: Encodable, U:
 }
 
 **

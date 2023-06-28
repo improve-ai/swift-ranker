@@ -41,11 +41,15 @@ public struct Ranker {
      - Parameters:
         - items: The list of items to rank.
      - Returns: An array of ranked items, sorted by their scores in descending order.
-     - Throws: An error if items is empty or there is an issue ranking the items.
     */
-    public func rank<T>(items: [T]) throws -> [T] where T: Encodable {
-        let scores = try self.scorer.score(items: items)
-        return try Self.rank_with_score(items: items, scores: scores)
+    public func rank<T>(items: [T]) -> [T] where T: Encodable {
+        do {
+            let scores = try self.scorer.score(items: items)
+            return Self.rank_with_score(items: items, scores: scores)
+        } catch {
+            print("Failed to score items: \(error)")
+            return items
+        }
     }
     
     /**
@@ -55,11 +59,15 @@ public struct Ranker {
         - items: The list of items to rank.
         - context: Extra JSON encodable context info that will be used with each of the item to get its score.
      - Returns: An array of ranked items, sorted by their scores in descending order.
-     - Throws: An error if items is empty or there is an issue ranking the items.
     */
-    public func rank<T, U>(items: [T], context: U?) throws -> [T] where T: Encodable, U: Encodable {
-        let scores = try self.scorer.score(items: items, context: context)
-        return try Self.rank_with_score(items: items, scores: scores)
+    public func rank<T, U>(items: [T], context: U?) -> [T] where T: Encodable, U: Encodable {
+        do {
+            let scores = try self.scorer.score(items: items, context: context)
+            return Self.rank_with_score(items: items, scores: scores)
+        } catch {
+            print("Failed to score items: \(error)")
+            return items
+        }
     }
 }
 
@@ -75,15 +83,9 @@ extension Ranker {
      
      - Throws: An error if there is an issue with the input, such as empty arrays or mismatched lengths.
     */
-    static func rank_with_score<T>(items: [T], scores: [Double]) throws -> [T] {
-        if items.count <= 0 || scores.count <= 0 {
-            throw ImproveAIError.invalidArgument(reason: "variants and scores can't be empty")
-        }
-
-        if items.count != scores.count {
-            throw ImproveAIError.invalidArgument(reason: "variants.count must equal scores.count")
-        }
-
+    static func rank_with_score<T>(items: [T], scores: [Double]) -> [T] {
+        assert(items.count == scores.count)
+        
         var indices: [Int] = []
         for i in 0..<items.count {
             indices.append(i)
