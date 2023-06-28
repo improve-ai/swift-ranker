@@ -29,7 +29,7 @@ final class TestRanker: XCTestCase {
     
     func testRank_init_url() throws {
         let ranker = try Ranker(modelUrl: bundledV8ModelUrl)
-        let ranked = try ranker.rank(items: ["hi", "hello", "hey"])
+        let ranked = ranker.rank(items: ["hi", "hello", "hey"])
         print("ranked: \(ranked)")
         XCTAssertEqual(3, ranked.count)
     }
@@ -37,7 +37,7 @@ final class TestRanker: XCTestCase {
     func testRank_init_scorer() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         let ranker = Ranker(scorer: scorer)
-        let ranked = try ranker.rank(items: ["hi", "hello", "hey"])
+        let ranked = ranker.rank(items: ["hi", "hello", "hey"])
         print("ranked: \(ranked)")
         XCTAssertEqual(3, ranked.count)
     }
@@ -45,7 +45,7 @@ final class TestRanker: XCTestCase {
     func testRank() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         let ranker = Ranker(scorer: scorer)
-        let ranked = try ranker.rank(items: [1, 2, 3])
+        let ranked = ranker.rank(items: [1, 2, 3])
         print("ranked: \(ranked)")
         XCTAssertEqual(3, ranked.count)
     }
@@ -53,7 +53,7 @@ final class TestRanker: XCTestCase {
     func testRank_Encodable() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         let ranker = Ranker(scorer: scorer)
-        let ranked = try ranker.rank(items: [Theme(font: "helvetica", size: 12), Theme(font: "Comic Sans", size: 16)])
+        let ranked = ranker.rank(items: [Theme(font: "helvetica", size: 12), Theme(font: "Comic Sans", size: 16)])
         print("ranked: \(ranked)")
         XCTAssertEqual(2, ranked.count)
     }
@@ -61,7 +61,7 @@ final class TestRanker: XCTestCase {
     func testRank_int_context() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         let ranker = Ranker(scorer: scorer)
-        let ranked = try ranker.rank(items: [1, 2, 3], context: 99)
+        let ranked = ranker.rank(items: [1, 2, 3], context: 99)
         print("ranked: \(ranked)")
         XCTAssertEqual(3, ranked.count)
     }
@@ -69,7 +69,7 @@ final class TestRanker: XCTestCase {
     func testRank_encodable_context() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         let ranker = Ranker(scorer: scorer)
-        let ranked = try ranker.rank(items: [1, 2, 3], context: DeviceInfo(device: "14", screenPixels: 1000000))
+        let ranked = ranker.rank(items: [1, 2, 3], context: DeviceInfo(device: "14", screenPixels: 1000000))
         print("ranked: \(ranked)")
         XCTAssertEqual(3, ranked.count)
     }
@@ -90,7 +90,7 @@ final class TestRanker: XCTestCase {
             scores.swapAt(i, j)
         }
         debugPrint("before: \(variants)")
-        let ranked = try Ranker.rank_with_score(items: variants, scores: scores)
+        let ranked = Ranker.rank_with_score(items: variants, scores: scores)
         debugPrint("after: \(ranked)")
         
         for i in 0..<200 {
