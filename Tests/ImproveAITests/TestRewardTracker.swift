@@ -32,7 +32,7 @@ final class TestRewardTracker: XCTestCase {
     }
     
     func testTrack() throws {
-        let rewardId = tracker.track(item: "hi", candidates: ["hi", "hello"])
+        let rewardId = tracker.track("hi", candidates: ["hi", "hello"])
         XCTAssertEqual(27, rewardId.count)
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
@@ -46,7 +46,7 @@ final class TestRewardTracker: XCTestCase {
     }
     
     func testTrack_null_item() throws {
-        let rewardId = tracker.track(item: nil, candidates: [nil, "hi"])
+        let rewardId = tracker.track(nil, candidates: [nil, "hi"])
         XCTAssertEqual(27, rewardId.count)
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
@@ -60,7 +60,7 @@ final class TestRewardTracker: XCTestCase {
     }
     
     func testTrack_null_sample() throws {
-        let rewardId = tracker.track(item: "hi", candidates: ["hi", nil])
+        let rewardId = tracker.track("hi", candidates: ["hi", nil])
         XCTAssertEqual(27, rewardId.count)
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
@@ -74,7 +74,7 @@ final class TestRewardTracker: XCTestCase {
     }
     
     func testTrack_none_sample() throws {
-        let rewardId = tracker.track(item: "hi", candidates: ["hi"])
+        let rewardId = tracker.track("hi", candidates: ["hi"])
         XCTAssertEqual(27, rewardId.count)
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
@@ -87,7 +87,7 @@ final class TestRewardTracker: XCTestCase {
     }
     
     func testTrack_context() throws {
-        let rewardId = tracker.track(item: "hi", candidates: ["hi", "hello"], context: ["lang": "en"])
+        let rewardId = tracker.track("hi", candidates: ["hi", "hello"], context: ["lang": "en"])
         XCTAssertEqual(27, rewardId.count)
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
@@ -134,7 +134,7 @@ final class TestRewardTracker: XCTestCase {
     
     func testTrackRequest() throws {
         clearCachedTrackingData()
-        let _ = tracker.track(item: "hi", candidates: ["hi", "hello"])
+        let _ = tracker.track("hi", candidates: ["hi", "hello"])
         Thread.sleep(forTimeInterval: 10)
         XCTAssertEqual("{\"status\":\"success\"}", UserDefaults.standard.value(forKey: Constants.Tracker.lastPostRsp) as? String)
     }

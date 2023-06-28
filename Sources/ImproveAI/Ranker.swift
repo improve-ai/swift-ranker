@@ -42,12 +42,12 @@ public struct Ranker {
         - items: The list of items to rank.
      - Returns: An array of ranked items, sorted by their scores in descending order.
     */
-    public func rank<T>(items: [T]) -> [T] where T: Encodable {
+    public func rank<T>(_ items: [T]) -> [T] where T: Encodable {
         do {
-            let scores = try self.scorer.score(items: items)
+            let scores = try self.scorer.score(items)
             return Self.rank_with_score(items: items, scores: scores)
         } catch {
-            print("Failed to score items: \(error)")
+            print("[ImproveAI] Failed to score items: \(error)")
             return items
         }
     }
@@ -60,12 +60,12 @@ public struct Ranker {
         - context: Extra JSON encodable context info that will be used with each of the item to get its score.
      - Returns: An array of ranked items, sorted by their scores in descending order.
     */
-    public func rank<T, U>(items: [T], context: U?) -> [T] where T: Encodable, U: Encodable {
+    public func rank<T, U>(_ items: [T], context: U?) -> [T] where T: Encodable, U: Encodable {
         do {
-            let scores = try self.scorer.score(items: items, context: context)
+            let scores = try self.scorer.score(items, context: context)
             return Self.rank_with_score(items: items, scores: scores)
         } catch {
-            print("Failed to score items: \(error)")
+            print("[ImproveAI] Failed to score items: \(error)")
             return items
         }
     }

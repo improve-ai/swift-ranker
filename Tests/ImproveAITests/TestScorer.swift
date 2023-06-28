@@ -24,13 +24,13 @@ final class TestScorer: XCTestCase {
     
     func testScore() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
-        let scores = try scorer.score(items: [1, 2, nil])
+        let scores = try scorer.score([1, 2, nil])
         XCTAssertEqual(3, scores.count)
     }
     
     func testScore_encodable_context() throws {
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
-        let scores = try scorer.score(items: [1, 2, nil], context: DeviceInfo(device: "14", screenPixels: 1000000))
+        let scores = try scorer.score([1, 2, nil], context: DeviceInfo(device: "14", screenPixels: 1000000))
         print("scores: \(scores)")
         XCTAssertEqual(3, scores.count)
     }
@@ -50,7 +50,7 @@ final class TestScorer: XCTestCase {
         let items: [Int] = []
         let scorer = try Scorer(modelUrl: bundledV8ModelUrl)
         do {
-            let _ = try scorer.score(items: items)
+            let _ = try scorer.score(items)
             XCTFail("expecting an error")
         } catch {
             print("error: \(error)")

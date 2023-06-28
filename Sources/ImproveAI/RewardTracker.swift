@@ -47,23 +47,29 @@ public struct RewardTracker {
     Tracks the item selected from candidates and a random sample from the remaining items.
 
     - Parameters:
-      - item: The item that is interacted with. If item conforms to Rewardable the `rewardId` and this `RewardTracker` will be set on it so that `item.addReward(reward)` can be called later.
-      - candidates: The collection of items from which the best is chosen.
-      - context: Extra context information that was used with each of the item to get its score.
+      - item: The item that is interacted with or is causal. If item conforms to Rewardable the `rewardId` and this `RewardTracker` will be set on it so that `item.addReward(reward)` can be called later.
+      - candidates: The collection from which the item was chosen
+      - context: Extra context information that was used with the item to get its score or ranking
     - Returns: `rewardId` of this track request.
     */
-    public func track<T : Equatable>(item: T?, candidates: [T?], context: Any? = nil) -> String {
+    public func track<T : Equatable>(_ item: T?, candidates: [T?], context: Any? = nil) -> String {
         var samples = candidates
-        let index = candidates.firstIndex(where: { $0 == item })
-        assert(index != nil, "Candidates must include item.")
-        samples.remove(at: index!)
+        var numCandidates = candidates.count
+
+        if let index = candidates.firstIndex(where: { $0 == item }) {
+            samples.remove(at: index)
+        } else {
+            // item was not found in candidates, so increase the numCandidates by 1
+            numCandidates += 1
+        }
+        
         if samples.isEmpty {
-            return track(item: item, sample: nil, numCandidates: candidates.count, context: context)
+            return track(item, sample: nil, numCandidates: numCandidates, context: context)
         } else {
             if let sample = samples.randomElement()! {
-                return track(item: item, sample: sample, numCandidates: candidates.count, context: context)
+                return track(item, sample: sample, numCandidates: numCandidates, context: context)
             } else {
-                return track(item: item, sample: NSNull(), numCandidates: candidates.count, context: context)
+                return track(item, sample: NSNull(), numCandidates: numCandidates, context: context)
             }
         }
     }
@@ -79,7 +85,7 @@ public struct RewardTracker {
       - context: Extra context information that was used with each of the item to get its score.
     - Returns: `rewardId` of this track request.
     */
-    public func track(item: Any?, sample: Any?, numCandidates: Int, context: Any? = nil) -> String {
+    public func track(_ item: Any?, sample: Any?, numCandidates: Int, context: Any? = nil) -> String {
         let ksuid = ksuid()
         
         var body: [String : Any] = [:]
@@ -104,7 +110,7 @@ public struct RewardTracker {
         
         post(body: body)
         
-        if var rewardableItem = item as? Rewardable {
+        if let rewardableItem = item as? Rewardable {
             rewardableItem.rewardId = ksuid
             rewardableItem.rewardTracker = self
         }

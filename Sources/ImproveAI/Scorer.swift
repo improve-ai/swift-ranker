@@ -53,7 +53,7 @@ public struct Scorer {
      - Throws: An error if the items list is empty or if there's an issue with the prediction.
      - Returns: An array of `Double` values representing the scores of the items.
      */
-    public func score<T>(items: [T]) throws -> [Double] where T: Encodable {
+    public func score<T>(_ items: [T]) throws -> [Double] where T: Encodable {
         let noise = Double(arc4random()) / Double(UINT32_MAX)
         return try scoreInternal(items: items, context: nil, noise: noise)
     }
@@ -67,7 +67,7 @@ public struct Scorer {
      - Throws: An error if the items list is empty or if there's an issue with the prediction.
      - Returns: An array of `Double` values representing the scores of the items.
      */
-    public func score<T, U>(items: [T], context: U?) throws -> [Double] where T: Encodable, U: Encodable {
+    public func score<T, U>(_ items: [T], context: U?) throws -> [Double] where T: Encodable, U: Encodable {
         let noise = Double(arc4random()) / Double(UINT32_MAX)
         return try scoreInternal(items: items, context: context, noise: noise)
     }
