@@ -158,6 +158,10 @@ extension RewardTracker {
             UserDefaults.standard.setValue(String(data: postData, encoding: .utf8), forKey: Constants.Tracker.lastPostData)
         }
         
+        #if DEBUG && IMPROVE_AI_DEBUG
+        print("[ImproveAI] POSTing \(String(data: postData, encoding: .utf8))")
+        #endif
+        
         var request = URLRequest(url: self.trackUrl)
         request.httpMethod = "POST"
         request.allHTTPHeaderFields = headers
@@ -172,7 +176,9 @@ extension RewardTracker {
             }
             
             if let data = data, let dataString = String(data: data, encoding: .utf8) {
+                #if DEBUG && IMPROVE_AI_DEBUG
                 print("[ImproveAI] track response: \(dataString)")
+                #endif
                 if writePostData {
                     UserDefaults.standard.setValue(dataString, forKey: Constants.Tracker.lastPostRsp)
                 }

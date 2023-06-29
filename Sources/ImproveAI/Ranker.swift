@@ -93,7 +93,40 @@ extension Ranker {
 
         // descending
         indices.sort { scores[$0] > scores[$1] }
+        
+        let rankedItems = indices.map { items[$0] }
 
-        return indices.map { items[$0] }
+        #if DEBUG && IMPROVE_AI_DEBUG
+        let sortedScores = indices.map { scores[$0] }
+        dump(scores: sortedScores, items: rankedItems)
+        #endif
+
+        return rankedItems
+    }
+
+    static func dump<T: Encodable>(scores: [Double], items: [T]) {
+        let leadingCount = 10
+        let trailingCount = 10
+        let jsonEncoder = JSONEncoder()
+
+        if scores.count <= (leadingCount + trailingCount) {
+            // dump all
+            for i in 0..<scores.count {
+                let itemJSONString = String(data: try! jsonEncoder.encode(items[i]), encoding: .utf8)!
+                print("#\(i) score: \(scores[i]) item: \(itemJSONString)")
+            }
+        } else {
+            // dump top N scores and items
+            for i in 0..<leadingCount {
+                let itemJSONString = String(data: try! jsonEncoder.encode(items[i]), encoding: .utf8)!
+                print("#\(i) score: \(scores[i]) item: \(itemJSONString)")
+            }
+
+            // dump bottom N scores and items
+            for i in (scores.count - trailingCount)..<scores.count {
+                let itemJSONString = String(data: try! jsonEncoder.encode(items[i]), encoding: .utf8)!
+                print("#\(i) score: \(scores[i]) item: \(itemJSONString)")
+            }
+        }
     }
 }

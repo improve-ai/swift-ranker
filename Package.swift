@@ -22,7 +22,10 @@ let package = Package(
         .target(
             name: "ImproveAI",
             dependencies: ["utils"],
-            path: "./Sources/ImproveAI"),
+            path: "./Sources/ImproveAI",
+            cSettings: [
+                .define("IMPROVE_AI_DEBUG", .when(configuration: .debug)),
+            ]),
         .testTarget(
             name: "ImproveAITests",
             dependencies: ["ImproveAI"],
