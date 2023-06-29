@@ -78,11 +78,7 @@ extension Scorer {
         if items.isEmpty {
             throw ImproveAIError.emptyVariants
         }
-        
-        #if DEBUG && IMPROVE_AI_DEBUG
-        print("[ImproveAI] scoring model \(self.metadata.name), context \(String(data: try! jsonEncoder.encode(context as! Encodable), encoding: .utf8)!), items count \(items.count)")
-        #endif
-              
+                      
         return try lockQueue.sync {
             var featureVectors: [[Double]] = [[Double]].init(repeating: [Double].init(repeating: Double.nan, count: self.featureNames.count), count: items.count)
             try self.featureEncoder.encodeFeatureVectors(items: items, context: context, into: &featureVectors, noise: noise)

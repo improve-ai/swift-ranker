@@ -83,7 +83,7 @@ extension Ranker {
      
      - Throws: An error if there is an issue with the input, such as empty arrays or mismatched lengths.
     */
-    static func rank_with_score<T>(items: [T], scores: [Double]) -> [T] {
+    static func rank_with_score<T: Encodable>(items: [T], scores: [Double]) -> [T] {
         assert(items.count == scores.count)
         
         var indices: [Int] = []
