@@ -23,8 +23,8 @@ let package = Package(
             name: "ImproveAI",
             dependencies: ["utils"],
             path: "./Sources/ImproveAI",
-            cSettings: [
-                .define("IMPROVE_AI_DEBUG", .when(configuration: .debug)),
+            swiftSettings: [
+                .define("IMPROVE_AI_DEBUG", .when(configuration: .debug))
             ]),
         .testTarget(
             name: "ImproveAITests",
