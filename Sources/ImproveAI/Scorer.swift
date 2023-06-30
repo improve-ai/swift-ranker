@@ -80,8 +80,7 @@ extension Scorer {
         }
                       
         return try lockQueue.sync {
-            var featureVectors: [[Double]] = [[Double]].init(repeating: [Double].init(repeating: Double.nan, count: self.featureNames.count), count: items.count)
-            try self.featureEncoder.encodeFeatureVectors(items: items, context: context, into: &featureVectors, noise: noise)
+            var featureVectors = try self.featureEncoder.encodeFeatureVectors(items: items, context: context, noise: noise)
             
             let batchProvider = MLArrayBatchProvider(array: featureVectors.map{ FeatureProvider(featureVector: $0, featureNames: featureNames, indexes: self.featureEncoder.featureIndexes) })
             let predictions = try self.model.predictions(fromBatch: batchProvider)

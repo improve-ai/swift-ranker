@@ -44,18 +44,24 @@ struct FeatureEncoder {
         self.stringTables = tmp
     }
     
-    func encodeFeatureVector(item: Any?, context: Any?, into: inout [Double], noise: Double) throws {
+    func encodeFeatureVectors(items: [Any?], context: Any?, noise: Double) throws -> [[Double]] {
         let p: (noiseShift: Double, noiseScale: Double) = getNoiseAndShiftScale(noise: noise)
-        
-        try self.encodeItem(item: item, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
-        
-        try self.encodeContext(context: context, into: &into, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
-    }
-    
-    func encodeFeatureVectors(items: [Any?], context: Any?, into: inout [[Double]], noise: Double) throws {
+
+        // Compute context vector once
+        var contextVector = [Double](repeating: Double.nan, count: self.featureNames.count)
+
+        try self.encodeContext(context: context, into: &contextVector, noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
+
+        // Initialize featureVectors with contextVector
+        var featureVectors = [[Double]](repeating: contextVector, count: items.count)
+
+        // Now loop over items
         for (index, item) in items.enumerated() {
-            try encodeFeatureVector(item: item, context: context, into: &into[index], noise: noise)
+            // And encode item on top of context vector
+            try self.encodeItem(item: item, into: &featureVectors[index], noiseShift: Float(p.noiseShift), noiseScale: Float(p.noiseScale))
         }
+        
+        return featureVectors
     }
 }
 

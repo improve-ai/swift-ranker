@@ -63,8 +63,7 @@ final class TestFeatureEncoder: XCTestCase {
         
         let featureEncoder = try! FeatureEncoder(featureNames: featureNames, stringTables: stringTables, modelSeed: modelSeed)
         
-        var features = [Double](repeating: Double.nan, count: featureNames.count)
-        try! featureEncoder.encodeFeatureVector(item: item, context: context, into: &features, noise: noise)
+        var features = try! featureEncoder.encodeFeatureVectors(items: [item], context: context, noise: noise).first!
         
         XCTAssertGreaterThan(features.count, 0)
         XCTAssertEqual(expected.count, features.count)
@@ -101,8 +100,7 @@ final class TestFeatureEncoder: XCTestCase {
         XCTAssertGreaterThan(items.count, 0)
         
         for i in 0..<items.count {
-            var featureVector = [Double](repeating: Double.nan, count: featureNames.count)
-            try featureEncoder.encodeFeatureVector(item: items[i], context: contexts?[i], into: &featureVector, noise: noise)
+            var featureVector = try featureEncoder.encodeFeatureVectors(items: [items[i]], context: contexts?[i], noise: noise).first!
             let expected = outputs[i]
             XCTAssertEqual(expected.count, featureVector.count)
             XCTAssertGreaterThan(expected.count, 0)
