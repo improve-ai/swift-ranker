@@ -8,11 +8,6 @@
 import Foundation
 import utils
 
-enum RequestType: String {
-    case decision = "decision"
-    case reward = "reward"
-}
-
 fileprivate let modelNameRegex = "^[a-zA-Z0-9][\\w\\-.]{0,63}$"
 
 /**
@@ -89,7 +84,6 @@ public struct RewardTracker {
         let ksuid = ksuid()
         
         var body: [String : Any] = [:]
-        body[Constants.Tracker.typeKey] = RequestType.decision.rawValue
         body[Constants.Tracker.modelKey] = self.modelName
         body[Constants.Tracker.countKey] = numCandidates
         body[Constants.Tracker.messageIdKey] = ksuid
@@ -129,7 +123,6 @@ public struct RewardTracker {
         assert(!reward.isNaN && !reward.isInfinite, "Reward must not be NaN or infinite.")
         
         var body: [String : Any] = [:]
-        body[Constants.Tracker.typeKey] = RequestType.reward.rawValue
         body[Constants.Tracker.modelKey] = self.modelName
         body[Constants.Tracker.messageIdKey] = ksuid()
         body[Constants.Tracker.decisionIdKey] = rewardId
@@ -205,7 +198,6 @@ fileprivate func isValidModelName(_ modelName: String) -> Bool {
 
 struct Constants {
     struct Tracker {
-        static let typeKey = "type"
         static let modelKey = "model"
         static let itemKey = "item"
         static let countKey = "count"

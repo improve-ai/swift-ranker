@@ -36,8 +36,7 @@ final class TestRewardTracker: XCTestCase {
         XCTAssertEqual(27, rewardId.count)
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
-        XCTAssertEqual(6, lastPostData.count)
-        XCTAssertEqual("decision", lastPostData["type"] as? String)
+        XCTAssertEqual(5, lastPostData.count)
         XCTAssertEqual("greetings", lastPostData["model"] as? String)
         XCTAssertEqual("hello", lastPostData["sample"] as? String)
         XCTAssertEqual("hi", lastPostData["item"] as? String)
@@ -50,8 +49,7 @@ final class TestRewardTracker: XCTestCase {
         XCTAssertEqual(27, rewardId.count)
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
-        XCTAssertEqual(6, lastPostData.count)
-        XCTAssertEqual("decision", lastPostData["type"] as? String)
+        XCTAssertEqual(5, lastPostData.count)
         XCTAssertEqual("greetings", lastPostData["model"] as? String)
         XCTAssertEqual("hi", lastPostData["sample"] as? String)
         XCTAssertEqual(NSNull(), lastPostData["item"] as? NSNull)
@@ -64,8 +62,7 @@ final class TestRewardTracker: XCTestCase {
         XCTAssertEqual(27, rewardId.count)
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
-        XCTAssertEqual(6, lastPostData.count)
-        XCTAssertEqual("decision", lastPostData["type"] as? String)
+        XCTAssertEqual(5, lastPostData.count)
         XCTAssertEqual("greetings", lastPostData["model"] as? String)
         XCTAssertEqual(NSNull(), lastPostData["sample"] as? NSNull)
         XCTAssertEqual("hi", lastPostData["item"] as? String)
@@ -78,8 +75,7 @@ final class TestRewardTracker: XCTestCase {
         XCTAssertEqual(27, rewardId.count)
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
-        XCTAssertEqual(5, lastPostData.count)
-        XCTAssertEqual("decision", lastPostData["type"] as? String)
+        XCTAssertEqual(4, lastPostData.count)
         XCTAssertEqual("greetings", lastPostData["model"] as? String)
         XCTAssertEqual("hi", lastPostData["item"] as? String)
         XCTAssertEqual(27, (lastPostData["message_id"] as? String)?.count)
@@ -91,8 +87,7 @@ final class TestRewardTracker: XCTestCase {
         XCTAssertEqual(27, rewardId.count)
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
-        XCTAssertEqual(7, lastPostData.count)
-        XCTAssertEqual("decision", lastPostData["type"] as? String)
+        XCTAssertEqual(6, lastPostData.count)
         XCTAssertEqual("greetings", lastPostData["model"] as? String)
         XCTAssertEqual("hello", lastPostData["sample"] as? String)
         XCTAssertEqual("hi", lastPostData["item"] as? String)
@@ -124,8 +119,7 @@ final class TestRewardTracker: XCTestCase {
         tracker.addReward(0.1, rewardId: "2ODatv95LBsqbCgK0VDSD0hcm5n")
         
         let lastPostData = UserDefaults.standard.string(forKey: Constants.Tracker.lastPostData)!.toDictionary()
-        XCTAssertEqual(5, lastPostData.count)
-        XCTAssertEqual("reward", lastPostData["type"] as? String)
+        XCTAssertEqual(4, lastPostData.count)
         XCTAssertEqual("greetings", lastPostData["model"] as? String)
         XCTAssertEqual("2ODatv95LBsqbCgK0VDSD0hcm5n", lastPostData["decision_id"] as? String)
         XCTAssertEqual(27, (lastPostData["message_id"] as? String)?.count)

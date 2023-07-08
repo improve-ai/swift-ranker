@@ -160,7 +160,7 @@ struct Story: Codable {
 To obtain a ranked list of stories, use just one line of code:
 
 ```swift
-let rankedStories = try Ranker(modelUrl).rank(stories)
+let rankedStories = try Ranker(modelUrl: modelUrl).rank(stories)
 ```
 
 ## Reward Assignment
