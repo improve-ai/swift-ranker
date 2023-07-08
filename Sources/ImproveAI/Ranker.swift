@@ -47,7 +47,7 @@ public struct Ranker {
             let scores = try self.scorer.score(items)
             return Self.rank_with_score(items: items, scores: scores)
         } catch {
-            print("[ImproveAI] Failed to score items: \(error)")
+            Logger.log("failed to score items: \(error)")
             return items
         }
     }
@@ -65,7 +65,7 @@ public struct Ranker {
             let scores = try self.scorer.score(items, context: context)
             return Self.rank_with_score(items: items, scores: scores)
         } catch {
-            print("[ImproveAI] Failed to score items: \(error)")
+            Logger.log("failed to score items: \(error)")
             return items
         }
     }
@@ -113,19 +113,19 @@ extension Ranker {
             // dump all
             for i in 0..<scores.count {
                 let itemJSONString = String(data: try! jsonEncoder.encode(items[i]), encoding: .utf8)!
-                print("#\(i) score: \(scores[i]) item: \(itemJSONString)")
+                Logger.log("#\(i) score: \(scores[i]) item: \(itemJSONString)")
             }
         } else {
             // dump top N scores and items
             for i in 0..<leadingCount {
                 let itemJSONString = String(data: try! jsonEncoder.encode(items[i]), encoding: .utf8)!
-                print("#\(i) score: \(scores[i]) item: \(itemJSONString)")
+                Logger.log("#\(i) score: \(scores[i]) item: \(itemJSONString)")
             }
 
             // dump bottom N scores and items
             for i in (scores.count - trailingCount)..<scores.count {
                 let itemJSONString = String(data: try! jsonEncoder.encode(items[i]), encoding: .utf8)!
-                print("#\(i) score: \(scores[i]) item: \(itemJSONString)")
+                Logger.log("#\(i) score: \(scores[i]) item: \(itemJSONString)")
             }
         }
     }

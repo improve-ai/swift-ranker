@@ -28,6 +28,12 @@ struct ModelMetadata : Decodable {
         stringTables = try JSONDecoder().decode([String : [UInt64]].self, from: stringTablesString.data(using: .utf8)!)
         
         name = dict["ai.improve.model"]!
+        
+        #if DEBUG && IMPROVE_AI_DEBUG
+        if let createdAtString = dict["ai.improve.created_at"] {
+            Logger.log("loaded model \(name) created at \(createdAtString)")
+        }
+        #endif
     }
 }
 

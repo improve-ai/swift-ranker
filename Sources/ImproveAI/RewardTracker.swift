@@ -143,7 +143,7 @@ extension RewardTracker {
         do {
             postData = try JSONEncoder().encode(AnyEncodable(body))
         } catch {
-            print("[ImproveAI] error encoding JSON: \(error)")
+            Logger.log("error encoding JSON: \(error)")
             return
         }
         
@@ -152,7 +152,7 @@ extension RewardTracker {
         }
         
         #if DEBUG && IMPROVE_AI_DEBUG
-        print("[ImproveAI] POSTing \(String(data: postData, encoding: .utf8))")
+        Logger.log("POSTing \(String(data: postData, encoding: .utf8))")
         #endif
         
         var request = URLRequest(url: self.trackUrl)
@@ -164,13 +164,13 @@ extension RewardTracker {
         let dataTask = session.dataTask(with: request) { data, response, error in
             if let error = error {
                 let statusCode = (response as? HTTPURLResponse)?.statusCode
-                print("[ImproveAI] POST error: statusCode = \(statusCode ?? 0), \(error)")
+                Logger.log("POST error: statusCode = \(statusCode ?? 0), \(error)")
                 return
             }
             
             if let data = data, let dataString = String(data: data, encoding: .utf8) {
                 #if DEBUG && IMPROVE_AI_DEBUG
-                print("[ImproveAI] track response: \(dataString)")
+                Logger.log("track response: \(dataString)")
                 #endif
                 if writePostData {
                     UserDefaults.standard.setValue(dataString, forKey: Constants.Tracker.lastPostRsp)

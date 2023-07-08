@@ -33,12 +33,12 @@ public protocol Rewardable: AnyObject {
 extension Rewardable {
     public func addReward(_ reward: Double) {
         guard let rewardId = self.rewardId else {
-            print("[ImproveAI] Error: rewardId is nil.")
+            Logger.log("error: rewardId is nil.")
             return
         }
         
         guard let rewardTracker = self.rewardTracker else {
-            print("[ImproveAI] Error: rewardTracker is nil.")
+            Logger.log("error: rewardTracker is nil.")
             return
         }
         

@@ -46,13 +46,6 @@ class ModelLoader : NSObject {
             loadPlainModel(url: url, completion: handler)
         }
     }
-    
-    func compileModel(url: URL) throws -> URL {
-        let startTime = CFAbsoluteTimeGetCurrent()
-        let compiledURL = try MLModel.compileModel(at: url)
-        print("[ImproveAI] model: \(url.lastPathComponent) compile time \((CFAbsoluteTimeGetCurrent() - startTime) * 1000)ms")
-        return compiledURL
-    }
 }
 
 extension ModelLoader {
@@ -66,7 +59,7 @@ extension ModelLoader {
             }
             
             do {
-                let compiledURL = try self.compileModel(url: location!)
+                let compiledURL = try MLModel.compileModel(at: location!)
                 handler(compiledURL, nil)
             } catch {
                 handler(nil, error)
@@ -176,7 +169,7 @@ extension ModelLoader : URLSessionDataDelegate {
             return
         }
         
-        guard let compiledURL = try? self.compileModel(url: unzippedFileURL) else {
+        guard let compiledURL = try? MLModel.compileModel(at: unzippedFileURL) else {
             self.completionHandler?(nil, ImproveAIError.invalidModel(reason: "failed to compile \(url). Is it a valid model?"))
             return
         }

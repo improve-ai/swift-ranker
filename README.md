@@ -214,6 +214,10 @@ let greeting = ranked[0]
 
 Trained with appropriate rewards, Improve AI would learn from scratch which greeting is best for each time of day and language.
 
+## Logging
+
+Debug logging is enabled by default for builds with DEBUG set to TRUE. To disable logging, set IMPROVEAI_DEBUG to FALSE
+
 ## Resources
 
 - [Quick Start Guide](https://improve.ai/quick-start/)
