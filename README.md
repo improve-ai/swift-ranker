@@ -40,7 +40,7 @@ public struct Ranker {
         - context: Extra JSON encodable context info that will be used with each of the item to get its score.
      - Returns: An array of ranked items, sorted by their scores in descending order.
     */
-    public func rank<T, U>(items: [T], context: U? = nil) -> [T] where T: Encodable, U: Encodable {
+    public func rank<T, U>(_ items: [T], context: U? = nil) -> [T] where T: Encodable, U: Encodable
 }
 
 /**
@@ -66,7 +66,7 @@ public struct Scorer {
      - Throws: An error if the items list is empty or if there's an issue with the prediction.
      - Returns: An array of `Double` values representing the scores of the items.
      */
-     public func score<T, U>(items: [T], context: U? = nil) throws -> [Double] where T: Encodable, U:
+     public func score<T, U>(_ items: [T], context: U? = nil) throws -> [Double] where T: Encodable, U: Encodable
 }
 
 **
@@ -90,11 +90,11 @@ public struct RewardTracker {
 
     - Parameters:
       - item: The item that is interacted with. If item conforms to Rewardable the `rewardId` and this `RewardTracker` will be set on it so that `item.addReward(reward)` can be called later.
-      - candidates: The collection of items from which the best is chosen.
+      - from: The collection of candidates from which the item was chosen. One will be sampled and tracked for propensity scoring/model balancing
       - context: Extra context information that was used with each of the item to get its score.
     - Returns: `rewardId` of this track request.
     */
-    public func track<T : Equatable>(item: T?, candidates: [T?], context: Any? = nil) -> String
+    public func track<T : Equatable>(item: T?, from candidates: [T?], context: Any? = nil) -> String
     
     /**
     Tracks the item selected and a specific sample candidate.
@@ -170,7 +170,7 @@ Easily train your rankers using [reinforcement learning](https://improve.ai/rein
 First, track when an item is used:
 
 ```swift
-let tracker = RewardTracker("stories", trackUrl)
+let tracker = RewardTracker(modelName: "stories", trackUrl: trackUrl)
 let rewardId = tracker.track(story, from: rankedStories)
 ```
 
@@ -178,7 +178,7 @@ Later, if a positive outcome occurs, provide a reward:
 
 ```swift
 if (purchased) {
-    tracker.addReward(profit, rewardId)
+    tracker.addReward(profit, rewardId: rewardId)
 }
 ```
 
@@ -207,7 +207,7 @@ struct GreetingContext: Encodable {
     let language: String
 }
 
-let ranked = try ranker.rank(items: greetings, context: GreetingContext(dayTime: 12.0, language: "en"))
+let ranked = try ranker.rank(greetings, context: GreetingContext(dayTime: 12.0, language: "en"))
 
 let greeting = ranked[0]
 ```

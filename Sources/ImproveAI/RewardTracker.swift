@@ -48,11 +48,11 @@ public struct RewardTracker {
 
     - Parameters:
       - item: The item that is interacted with or is causal. If item conforms to Rewardable the `rewardId` and this `RewardTracker` will be set on it so that `item.addReward(reward)` can be called later.
-      - candidates: The collection from which the item was chosen
+      - from: The collection of candidates from which the item was chosen. One will be sampled and tracked for propensity scoring/model balancing
       - context: Extra context information that was used with the item to get its score or ranking
     - Returns: `rewardId` of this track request.
     */
-    public func track<T : Equatable>(_ item: T?, candidates: [T?], context: Any? = nil) -> String {
+    public func track<T : Equatable>(_ item: T?, from candidates: [T?], context: Any? = nil) -> String {
         var samples = candidates
         var numCandidates = candidates.count
 
