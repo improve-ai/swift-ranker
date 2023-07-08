@@ -34,6 +34,7 @@ class ModelLoader : NSObject {
     }
     
     public func loadAsync(_ url: URL, completion handler: @escaping DownloadCompletionBlock) {
+        // when loading .modelmodelc urls from the app bundle they will have a directory path
         if url.hasDirectoryPath {
             handler(url, nil)
             return
