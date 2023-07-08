@@ -2,7 +2,7 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 import PackageDescription
 
-let improveAIVersion = "8.0.2"
+let improveAIVersion = "8.0.3"
 
 let package = Package(
     name: "ImproveAI",
