@@ -152,7 +152,9 @@ extension RewardTracker {
         }
         
         #if DEBUG && IMPROVE_AI_DEBUG
-        Logger.log("POSTing \(String(data: postData, encoding: .utf8))")
+        if let postDataString = String(data: postData, encoding: .utf8) {
+            Logger.log("POSTing \(postDataString)")
+        }
         #endif
         
         var request = URLRequest(url: self.trackUrl)
